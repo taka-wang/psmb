@@ -33,8 +33,7 @@ func main() {
 
 func publisher() {
 	t := time.Now()
-	fmt.Println("send")
-	fmt.Println(t.Format(time.RFC3339))
+	fmt.Println("zsend" + t.Format("2006-01-02 15:04:05.000"))
 	command := MbReadReq{
 		"172.17.0.2",
 		"502",
@@ -66,6 +65,6 @@ func subscriber() {
 		fmt.Println(msg[0]) // frame 1: method
 		fmt.Println(msg[1]) // frame 2: command
 		t := time.Now()
-		fmt.Println(t.Format("2006-01-02 15:04:05.000"))
+		fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
 	}
 }
