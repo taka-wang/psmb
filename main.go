@@ -19,9 +19,12 @@ type MbReadReq struct {
 	Len   int    `json:"len"`
 }
 
+var sender
 func main() {
 	go subscriber()
-	//publisher()
+	sender, _ = zmq.NewSocket(zmq.PUB)
+	//defer sender.Close()
+	sender.Connect("ipc:///tmp/to.modbus")
 	s := gocron.NewScheduler()
 	s.Every(1).Seconds().Do(publisher)
 	<-s.Start()
@@ -46,9 +49,6 @@ func publisher() {
 		fmt.Println("json err:", err)
 	}
 
-	sender, _ := zmq.NewSocket(zmq.PUB)
-	defer sender.Close()
-	sender.Connect("ipc:///tmp/to.modbus")
 	sender.Send("tcp", zmq.SNDMORE) // frame 1
 	sender.Send(string(cmd), 0)     // convert to string; frame 2
 }
