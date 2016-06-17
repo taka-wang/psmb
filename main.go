@@ -28,7 +28,7 @@ func main() {
 	sender.Connect("ipc:///tmp/to.modbus")
 	s := gocron.NewScheduler()
 	s.Every(1).Seconds().Do(publisher)
-	<-s.Start()
+	s.Start()
 }
 
 func publisher() {
