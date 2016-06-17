@@ -30,7 +30,7 @@ func main() {
 	s.Every(1).Seconds().Do(publisher)
 	s.Start()
 	for {
-
+		time.Sleep(300 * time.Millisecond)
 	}
 }
 
