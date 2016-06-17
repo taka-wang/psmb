@@ -28,6 +28,9 @@ func main() {
 }
 
 func publisher() {
+	t := time.Now()
+	fmt.Println("send")
+	fmt.Println(t.Format(time.RFC3339))
 	command := MbReadReq{
 		"172.17.0.2",
 		"502",
