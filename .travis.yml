@@ -1,0 +1,33 @@
+sudo: required
+
+services:
+- docker
+
+before_install:
+# set timezone
+- export TZ=Asia/Taipei
+
+install:
+# login to dockerhub
+- docker login --email=$DOCKER_HUB_EMAIL --username=takawang --password=$DOCKER_HUB_PASSWORD
+
+script:
+
+### build modbus slave server image
+- docker build -t $MODBUS_IMG test/mb/.
+- if [ ! -z "$TRAVIS_TAG" ]; then docker tag $MODBUS_IMG:latest $MODBUS_IMG:$TRAVIS_TAG; fi && docker push $MODBUS_IMG
+
+### run modbus
+- docker run -v /tmp:/tmp -itd --name=$MODBUS_NAME $MODBUS_IMG
+
+### stop all containers
+- docker stop $MODBUS_NAME
+
+env:
+  global:
+
+  - MODBUS_IMG=takawang/mbd
+  - MODBUS_NAME=mbd
+
+notifications:
+  email: false
