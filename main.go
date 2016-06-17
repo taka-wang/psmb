@@ -65,6 +65,6 @@ func subscriber() {
 		fmt.Println(msg[0]) // frame 1: method
 		fmt.Println(msg[1]) // frame 2: command
 		t := time.Now()
-		fmt.Println(t.Format(time.RFC3339))
+		fmt.Println(t.Format("2006-01-02 15:04:05.000"))
 	}
 }
