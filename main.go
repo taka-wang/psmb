@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/taka-wang/gocron"
 	zmq "github.com/taka-wang/zmq3"
@@ -60,5 +61,7 @@ func subscriber() {
 		msg, _ := receiver.RecvMessage(0)
 		fmt.Println(msg[0]) // frame 1: method
 		fmt.Println(msg[1]) // frame 2: command
+		t := time.Now()
+		p(t.Format(time.RFC3339))
 	}
 }
