@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"time"
-    github.com/taka-wang/gocron
+
+	"github.com/taka-wang/gocron"
 	zmq "github.com/taka-wang/zmq3"
 )
 
@@ -21,9 +21,9 @@ type MbReadReq struct {
 func main() {
 	go subscriber()
 	//publisher()
-    s := gocron.NewScheduler()
-    s.Every(3).Seconds().Do(publisher)
-    <- s.Start()
+	s := gocron.NewScheduler()
+	s.Every(3).Seconds().Do(publisher)
+	<-s.Start()
 }
 
 func publisher() {
@@ -45,8 +45,8 @@ func publisher() {
 	sender, _ := zmq.NewSocket(zmq.PUB)
 	defer sender.Close()
 	sender.Connect("ipc:///tmp/to.modbus")
-    sender.Send("tcp", zmq.SNDMORE) // frame 1
-    sender.Send(string(cmd), 0)     // convert to string; frame 2
+	sender.Send("tcp", zmq.SNDMORE) // frame 1
+	sender.Send(string(cmd), 0)     // convert to string; frame 2
 }
 
 func subscriber() {
