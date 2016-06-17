@@ -22,7 +22,7 @@ func main() {
 	go subscriber()
 	//publisher()
 	s := gocron.NewScheduler()
-	s.Every(3).Seconds().Do(publisher)
+	s.Every(1).Seconds().Do(publisher)
 	<-s.Start()
 }
 
