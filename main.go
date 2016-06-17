@@ -29,6 +29,9 @@ func main() {
 	s := gocron.NewScheduler()
 	s.Every(1).Seconds().Do(publisher)
 	s.Start()
+	for {
+
+	}
 }
 
 func publisher() {
