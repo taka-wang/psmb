@@ -19,7 +19,8 @@ type MbReadReq struct {
 	Len   int    `json:"len"`
 }
 
-var sender
+var sender zmq.Socket
+
 func main() {
 	go subscriber()
 	sender, _ = zmq.NewSocket(zmq.PUB)
