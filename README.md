@@ -5,22 +5,28 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 
 # Request type
 
+## One-off request
+- read coil/register (FC1,2,3,4)
+- write coil/register(FC5,6,15,16)
+
 ## Polling requests
-- export
-- load requests
+- import requests
+- export requests
 - read all requests with status
 - delete all requests
 - enable all requests
 - disable all requests
 - add request
+- add requests
 - update request
 - delete request
+- delete requests
 - enable request
 - disable request
 
-## Rule requests
-- export
-- load rules
+## Filter requests
+- import rules
+- export rules
 - read all rules with status
 - delete all rules
 - enable all rules
@@ -31,10 +37,7 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 - enable rule
 - disable rule
 
-## One-shot request
-- trigger
-    - read
-    - write
+*note*: if scheduler is stop, trigger request directly.
 
 # Module
 - scheduler
@@ -47,3 +50,5 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 - zmq sub from downstream
 - logger
 - database?
+
+
