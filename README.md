@@ -21,3 +21,5 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
     - read: default = 1
     - write: check length with data, or set it automatically
 - if the length of the response data equal to 1, should we put it data 'array'
+- check timeout interval range
+- check polling interval range
