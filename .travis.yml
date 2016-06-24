@@ -14,9 +14,8 @@ script:
 - if [ ! -z "$TRAVIS_TAG" ]; then docker tag $MODBUS_IMG:latest $MODBUS_IMG:$TRAVIS_TAG; fi && docker push $MODBUS_IMG
 
 ### run modbus
-- docker run -v /tmp:/tmp --link $MODBUS_SERVER_NAME -itd --name=$MODBUSD_NAME $MODBUSD_IMG
+- docker run -v /tmp:/tmp -itd --name=$MODBUS_NAME $MODBUS_IMG
 
-docker run -v /tmp:/tmp -itd --name=$MODBUS_NAME $MODBUS_IMG
 ### stop all containers
 - docker stop $MODBUS_NAME
 
