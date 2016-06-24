@@ -1,4 +1,5 @@
 # psmb
+[![Build Status](https://travis-ci.org/taka-wang/psmb.svg?branch=dev)](https://travis-ci.org/taka-wang/psmb)
 
 Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 

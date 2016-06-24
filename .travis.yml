@@ -7,6 +7,10 @@ before_install:
 # set timezone
 - export TZ=Asia/Taipei
 
+install:
+# login to dockerhub
+- docker login --email=$DOCKER_HUB_EMAIL --username=takawang --password=$DOCKER_HUB_PASSWORD
+
 script:
 
 ### build modbus slave server image
