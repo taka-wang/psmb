@@ -1,3 +1,3 @@
 #!/bin/bash
 service modbusd start
-/mbserver/server
+./modbusd/tests/cmbserver/server
