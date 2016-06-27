@@ -1,5 +1,6 @@
 package psmb
 
+/*
 import (
 	"encoding/json"
 	"fmt"
@@ -71,3 +72,4 @@ func subscriber() {
 		fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
 	}
 }
+*/
