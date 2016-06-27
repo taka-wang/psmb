@@ -125,9 +125,9 @@ func BytesToInt16s(buf []byte, endian int) ([]int16, error) {
 	result := []int16{}
 
 	for idx := 0; idx < len(buf); idx = idx + 2 {
-		if endian == 1 {
+		if endian == 1 { // little endian
 			result = append(result, int16(buf[idx])|int16(buf[idx+1])<<8)
-		} else {
+		} else { // big endian
 			result = append(result, int16(buf[idx+1])|int16(buf[idx])<<8)
 		}
 	}
@@ -142,9 +142,9 @@ func BytesToUInt16s(buf []byte, endian int) ([]uint16, error) {
 	result := []uint16{}
 
 	for idx := 0; idx < len(buf); idx = idx + 2 {
-		if endian == 1 {
+		if endian == 1 { // little endian
 			result = append(result, uint16(buf[idx])|uint16(buf[idx+1])<<8)
-		} else {
+		} else { // big endian
 			result = append(result, uint16(buf[idx+1])|uint16(buf[idx])<<8)
 		}
 	}
