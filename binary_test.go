@@ -255,7 +255,6 @@ func Test16bitConvert(t *testing.T) {
 		input := "4396,79,4660,22136"
 		result, _ := DecStrToRegs(input)
 		desire := []uint16{4396, 79, 4660, 22136}
-		log(result)
 		for idx := 0; idx < len(desire); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -264,5 +263,4 @@ func Test16bitConvert(t *testing.T) {
 		}
 		return true
 	})
-
 }

@@ -17,6 +17,7 @@ func BytesToHexStr(bytes []byte) string {
 }
 
 //DecStrToRegs Convert decimal string to uint16 array in big endian order
+// limitation: leading space before comma is not allow
 func DecStrToRegs(decString string) ([]uint16, error) {
 	var result = []uint16{}
 
