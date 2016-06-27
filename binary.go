@@ -84,11 +84,11 @@ func BytesToFloat32s(buf []byte, endian Endian) ([]float32, error) {
 	result := make([]float32, l/4)
 	for idx := 0; idx < l/4; idx++ {
 		switch endian {
-		case 1: // DCBA, little endian
+		case DCBA: // DCBA, little endian
 			result[idx] = math.Float32frombits(uint32(buf[4*idx]) | uint32(buf[4*idx+1])<<8 | uint32(buf[4*idx+2])<<16 | uint32(buf[4*idx+3])<<24)
-		case 2: // BADC, mid-big endian
+		case BADC: // BADC, mid-big endian
 			result[idx] = math.Float32frombits(uint32(buf[4*idx+2]) | uint32(buf[4*idx+3])<<8 | uint32(buf[4*idx])<<16 | uint32(buf[4*idx+1])<<24)
-		case 3: // CDAB, mid-little endian
+		case CDAB: // CDAB, mid-little endian
 			result[idx] = math.Float32frombits(uint32(buf[4*idx+1]) | uint32(buf[4*idx])<<8 | uint32(buf[4*idx+3])<<16 | uint32(buf[4*idx+2])<<24)
 		default: // ABCD, big endian
 			result[idx] = math.Float32frombits(uint32(buf[4*idx+3]) | uint32(buf[4*idx+2])<<8 | uint32(buf[4*idx+1])<<16 | uint32(buf[4*idx])<<24)
@@ -106,11 +106,11 @@ func BytesToInt32s(buf []byte, endian Endian) ([]int32, error) {
 	result := make([]int32, l/4)
 	for idx := 0; idx < l/4; idx++ {
 		switch endian {
-		case 1: // DCBA, little endian
+		case DCBA: // DCBA, little endian
 			result[idx] = int32(buf[4*idx]) | int32(buf[4*idx+1])<<8 | int32(buf[4*idx+2])<<16 | int32(buf[4*idx+3])<<24
-		case 2: // BADC, mid-big endian
+		case BADC: // BADC, mid-big endian
 			result[idx] = int32(buf[4*idx+2]) | int32(buf[4*idx+3])<<8 | int32(buf[4*idx])<<16 | int32(buf[4*idx+1])<<24
-		case 3: // CDAB, mid-little endian
+		case CDAB: // CDAB, mid-little endian
 			result[idx] = int32(buf[4*idx+1]) | int32(buf[4*idx])<<8 | int32(buf[4*idx+3])<<16 | int32(buf[4*idx+2])<<24
 		default: // ABCD, big endian
 			result[idx] = int32(buf[4*idx+3]) | int32(buf[4*idx+2])<<8 | int32(buf[4*idx+1])<<16 | int32(buf[4*idx])<<24
@@ -128,11 +128,11 @@ func BytesToUInt32s(buf []byte, endian Endian) ([]uint32, error) {
 	result := make([]uint32, l/4)
 	for idx := 0; idx < l/4; idx++ {
 		switch endian {
-		case 1: // DCBA, little endian
+		case DCBA: // DCBA, little endian
 			result[idx] = uint32(buf[4*idx]) | uint32(buf[4*idx+1])<<8 | uint32(buf[4*idx+2])<<16 | uint32(buf[4*idx+3])<<24
-		case 2: // BADC, mid-big endian
+		case BADC: // BADC, mid-big endian
 			result[idx] = uint32(buf[4*idx+2]) | uint32(buf[4*idx+3])<<8 | uint32(buf[4*idx])<<16 | uint32(buf[4*idx+1])<<24
-		case 3: // CDAB, mid-little endian
+		case CDAB: // CDAB, mid-little endian
 			result[idx] = uint32(buf[4*idx+1]) | uint32(buf[4*idx])<<8 | uint32(buf[4*idx+3])<<16 | uint32(buf[4*idx+2])<<24
 		default: // ABCD, big endian
 			result[idx] = uint32(buf[4*idx+3]) | uint32(buf[4*idx+2])<<8 | uint32(buf[4*idx+1])<<16 | uint32(buf[4*idx])<<24
@@ -149,7 +149,7 @@ func BytesToInt16s(buf []byte, endian Endian) ([]int16, error) {
 	}
 	result := make([]int16, l/2)
 	for idx := 0; idx < l/2; idx++ {
-		if endian == 1 {
+		if endian == LittleEndian {
 			result[idx] = int16(buf[2*idx]) | int16(buf[2*idx+1])<<8
 		} else {
 			result[idx] = int16(buf[2*idx+1]) | int16(buf[2*idx])<<8
@@ -166,7 +166,7 @@ func BytesToUInt16s(buf []byte, endian Endian) ([]uint16, error) {
 	}
 	result := make([]uint16, l/2)
 	for idx := 0; idx < l/2; idx++ {
-		if endian == 1 {
+		if endian == LittleEndian {
 			result[idx] = uint16(buf[2*idx]) | uint16(buf[2*idx+1])<<8
 		} else {
 			result[idx] = uint16(buf[2*idx+1]) | uint16(buf[2*idx])<<8
