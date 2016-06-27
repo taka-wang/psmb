@@ -17,17 +17,26 @@ script:
 - docker build -t $MODBUS_IMG test/mb/.
 - if [ ! -z "$TRAVIS_TAG" ]; then docker tag $MODBUS_IMG:latest $MODBUS_IMG:$TRAVIS_TAG; fi && docker push $MODBUS_IMG
 
+### build psmb image
+- docker build -t $PSMB_IMG .
+- if [ ! -z "$TRAVIS_TAG" ]; then docker tag $PSMB_IMG:latest $PSMB_IMG:$TRAVIS_TAG; fi && docker push $PSMB_IMG
+
 ### run modbus
 - docker run -v /tmp:/tmp -itd --name=$MODBUS_NAME $MODBUS_IMG
 
+### run psmb
+- docker run -v /tmp:/tmp -it --name=$PSBM_NAME $PSMB_IMG
+
 ### stop all containers
-- docker stop $MODBUS_NAME
+- docker stop $MODBUS_NAME $PSBM_NAME
 
 env:
   global:
 
   - MODBUS_IMG=takawang/mbd
   - MODBUS_NAME=mbd
+  - PSMB_IMG=takawang/psmb
+  - PSBM_NAME=psmb
 
 notifications:
   email: false
