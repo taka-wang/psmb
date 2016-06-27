@@ -11,8 +11,10 @@
 - [x] implement byte array to int32 array conversion
 - [x] implement byte array to float32 array conversion
 - [x] implement register array to byte array conversion
+- [x] implement byte array to hex string conversion
 - [x] implement heximal string to register array conversion
 - [x] implement decimal string to register array converson
+- [x] support x86_64, arm docker CI
 
 # TODO
 - [ ] define request type
