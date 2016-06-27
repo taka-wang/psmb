@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -55,7 +56,20 @@ func BytesToFloat32s(buf []byte, endian int) ([]float32, error) {
 	if len(buf)%4 != 0 {
 		return nil, errors.New("Invalid data")
 	}
-	return []float32{1, 2}, nil
+	result := []float32{}
+	for idx := 0; idx < len(buf); idx = idx + 4 {
+		switch endian {
+		case 1: // DCBA, little endian
+			result = append(result, math.Float32frombits(uint32(buf[idx])|uint32(buf[idx+1])<<8|uint32(buf[idx+2])<<16|uint32(buf[idx+3])<<24))
+		case 2: // BADC, mid-big endian
+			result = append(result, math.Float32frombits(uint32(buf[idx+2])|uint32(buf[idx+3])<<8|uint32(buf[idx])<<16|uint32(buf[idx+1])<<24))
+		case 3: // CDAB, mid-little endian
+			result = append(result, math.Float32frombits(uint32(buf[idx+1])|uint32(buf[idx])<<8|uint32(buf[idx+3])<<16|uint32(buf[idx+2])<<24))
+		default: // ABCD, big endian
+			result = append(result, math.Float32frombits(uint32(buf[idx+3])|uint32(buf[idx+2])<<8|uint32(buf[idx+1])<<16|uint32(buf[idx])<<24))
+		}
+	}
+	return result, nil
 }
 
 // BytesToInt32s Byte array to Int32 array
