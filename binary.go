@@ -10,13 +10,15 @@ import (
 	"strings"
 )
 
-// byte to hex string
-//fmt.Println(hex.EncodeToString(buf2))
+// BytesToHexStr Convert byte array to hex string
+func BytesToHexStr(bytes []byte) string {
+	return hex.EncodeToString(bytes)
+}
 
 //DecStrToRegs Convert decimal string to uint16 array in big endian order
-func DecStrToRegs(decstr string) ([]uint16, error) {
+func DecStrToRegs(decStr string) ([]uint16, error) {
 	var result = []uint16{}
-	for _, v := range strings.Split(decstr, ",") {
+	for _, v := range strings.Split(decStr, ",") {
 		i, err := strconv.ParseUint(v, 10, 16)
 		if err != nil {
 			return nil, err
@@ -27,8 +29,8 @@ func DecStrToRegs(decstr string) ([]uint16, error) {
 }
 
 // HexStrToRegs Convert hex string to uint16 array in big endian order
-func HexStrToRegs(hexstr string) ([]uint16, error) {
-	bytes, err := hex.DecodeString(hexstr)
+func HexStrToRegs(hexStr string) ([]uint16, error) {
+	bytes, err := hex.DecodeString(hexStr)
 	if err != nil {
 		return nil, err
 	}
@@ -48,42 +50,86 @@ func RegsToBytes(data []uint16) []byte {
 	return buf.Bytes()
 }
 
-// BytesToInt32s Byte array to Int32 array
-func BytesToInt32s(buf []byte, order int) ([]int32, error) {
-	if len(buf)%4 != 0 {
-		return nil, errors.New("Invalid data")
-	}
-	return []int32{1, 2}, nil
-}
-
-// BytesToUInt32s Byte array to UInt32 array
-func BytesToUInt32s(buf []byte, order int) ([]uint32, error) {
-	if len(buf)%4 != 0 {
-		return nil, errors.New("Invalid data")
-	}
-	return []uint32{1, 2}, nil
-}
-
 // BytesToFloat32s Byte array to float32 array
-func BytesToFloat32s(buf []byte, order int) ([]float32, error) {
+func BytesToFloat32s(buf []byte, endian int) ([]float32, error) {
 	if len(buf)%4 != 0 {
 		return nil, errors.New("Invalid data")
 	}
 	return []float32{1, 2}, nil
 }
 
+// BytesToInt32s Byte array to Int32 array
+func BytesToInt32s(buf []byte, endian int) ([]int32, error) {
+	if len(buf)%4 != 0 {
+		return nil, errors.New("Invalid data")
+	}
+	result := []int32{}
+	for idx := 0; idx < len(buf); idx = idx + 4 {
+		switch endian {
+		case 1: // DCBA, little endian
+			result = append(result, int32(buf[idx])|int32(buf[idx+1])<<8|int32(buf[idx+2])<<16|int32(buf[idx+3])<<24)
+		case 2: // BADC, mid-big endian
+			result = append(result, int32(buf[idx+2])|int32(buf[idx+3])<<8|int32(buf[idx])<<16|int32(buf[idx+1])<<24)
+		case 3: // CDAB, mid-little endian
+			result = append(result, int32(buf[idx+1])|int32(buf[idx])<<8|int32(buf[idx+3])<<16|int32(buf[idx+2])<<24)
+		default: // ABCD, big endian
+			result = append(result, int32(buf[idx+3])|int32(buf[idx+2])<<8|int32(buf[idx+1])<<16|int32(buf[idx])<<24)
+		}
+	}
+	return result, nil
+}
+
+// BytesToUInt32s Byte array to UInt32 array
+func BytesToUInt32s(buf []byte, endian int) ([]uint32, error) {
+	if len(buf)%4 != 0 {
+		return nil, errors.New("Invalid data")
+	}
+	result := []uint32{}
+	for idx := 0; idx < len(buf); idx = idx + 4 {
+		switch endian {
+		case 1: // DCBA, little endian
+			result = append(result, uint32(buf[idx])|uint32(buf[idx+1])<<8|uint32(buf[idx+2])<<16|uint32(buf[idx+3])<<24)
+		case 2: // BADC, mid-big endian
+			result = append(result, uint32(buf[idx+2])|uint32(buf[idx+3])<<8|uint32(buf[idx])<<16|uint32(buf[idx+1])<<24)
+		case 3: // CDAB, mid-little endian
+			result = append(result, uint32(buf[idx+1])|uint32(buf[idx])<<8|uint32(buf[idx+3])<<16|uint32(buf[idx+2])<<24)
+		default: // ABCD, big endian
+			result = append(result, uint32(buf[idx+3])|uint32(buf[idx+2])<<8|uint32(buf[idx+1])<<16|uint32(buf[idx])<<24)
+		}
+	}
+	return result, nil
+}
+
 // BytesToInt16s Byte array to Int16 array
-func BytesToInt16s(buf []byte, order int) ([]int16, error) {
+func BytesToInt16s(buf []byte, endian int) ([]int16, error) {
 	if len(buf)%2 != 0 {
 		return nil, errors.New("Invalid data")
 	}
-	return []int16{1, 2}, nil
+	result := []int16{}
+
+	for idx := 0; idx < len(buf); idx = idx + 2 {
+		if endian == 1 {
+			result = append(result, int16(buf[idx])|int16(buf[idx+1])<<8)
+		} else {
+			result = append(result, int16(buf[idx+1])|int16(buf[idx])<<8)
+		}
+	}
+	return result, nil
 }
 
 // BytesToUInt16s Byte array to UInt16 array
-func BytesToUInt16s(buf []byte, order int) ([]uint16, error) {
+func BytesToUInt16s(buf []byte, endian int) ([]uint16, error) {
 	if len(buf)%2 != 0 {
 		return nil, errors.New("Invalid data")
 	}
-	return []uint16{1, 2}, nil
+	result := []uint16{}
+
+	for idx := 0; idx < len(buf); idx = idx + 2 {
+		if endian == 1 {
+			result = append(result, uint16(buf[idx])|uint16(buf[idx+1])<<8)
+		} else {
+			result = append(result, uint16(buf[idx+1])|uint16(buf[idx])<<8)
+		}
+	}
+	return result, nil
 }
