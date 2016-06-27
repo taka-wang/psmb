@@ -4,6 +4,15 @@
 - [x] hacking gocron package
 - [x] setup southbound docker env for testing
 - [x] integrate with travis ci
+- [x] implement binary module unit test
+- [x] implement byte array to uint16 array conversion
+- [x] implement byte array to int16 array conversion
+- [x] implement byte array to uint32 array conversion
+- [x] implement byte array to int32 array conversion
+- [x] implement byte array to float32 array conversion
+- [x] implement register array to byte array conversion
+- [x] implement heximal string to register array conversion
+- [x] implement decimal string to register array converson
 
 # TODO
 - [ ] define request type

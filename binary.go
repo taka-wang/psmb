@@ -17,21 +17,23 @@ func BytesToHexStr(bytes []byte) string {
 }
 
 //DecStrToRegs Convert decimal string to uint16 array in big endian order
-func DecStrToRegs(decStr string) ([]uint16, error) {
+func DecStrToRegs(decString string) ([]uint16, error) {
 	var result = []uint16{}
-	for _, v := range strings.Split(decStr, ",") {
+
+	for _, v := range strings.Split(decString, ",") {
 		i, err := strconv.ParseUint(v, 10, 16)
 		if err != nil {
 			return nil, err
 		}
 		result = append(result, uint16(i))
 	}
+
 	return result, nil
 }
 
 // HexStrToRegs Convert hex string to uint16 array in big endian order
-func HexStrToRegs(hexStr string) ([]uint16, error) {
-	bytes, err := hex.DecodeString(hexStr)
+func HexStrToRegs(hexString string) ([]uint16, error) {
+	bytes, err := hex.DecodeString(hexString)
 	if err != nil {
 		return nil, err
 	}
