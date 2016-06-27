@@ -11,14 +11,14 @@ import (
 	"strings"
 )
 
-// BytesToHexStr Convert byte array to hex string
-func BytesToHexStr(bytes []byte) string {
+// BytesToHexString Convert byte array to hex string
+func BytesToHexString(bytes []byte) string {
 	return hex.EncodeToString(bytes)
 }
 
-//DecStrToRegs Convert decimal string to uint16 array in big endian order
+//DecimalStringToRegisters Convert decimal string to uint16 array in big endian order
 // limitation: leading space before comma is not allow
-func DecStrToRegs(decString string) ([]uint16, error) {
+func DecimalStringToRegisters(decString string) ([]uint16, error) {
 	var result = []uint16{}
 
 	for _, v := range strings.Split(decString, ",") {
@@ -32,8 +32,8 @@ func DecStrToRegs(decString string) ([]uint16, error) {
 	return result, nil
 }
 
-// HexStrToRegs Convert hex string to uint16 array in big endian order
-func HexStrToRegs(hexString string) ([]uint16, error) {
+// HexStringToRegisters Convert hex string to uint16 array in big endian order
+func HexStringToRegisters(hexString string) ([]uint16, error) {
 	bytes, err := hex.DecodeString(hexString)
 	if err != nil {
 		return nil, err
@@ -42,13 +42,13 @@ func HexStrToRegs(hexString string) ([]uint16, error) {
 	return BytesToUInt16s(bytes, 0)
 }
 
-// RegsToBytes Convert register(uint16) array to byte array in big endian order
-func RegsToBytes(data []uint16) []byte {
+// RegistersToBytes Convert register(uint16) array to byte array in big endian order
+func RegistersToBytes(data []uint16) []byte {
 	buf := new(bytes.Buffer)
 	for _, v := range data {
 		err := binary.Write(buf, binary.BigEndian, v)
 		if err != nil {
-			fmt.Println("RegsToBytes failed:", err)
+			fmt.Println("RegistersToBytes failed:", err)
 		}
 	}
 	return buf.Bytes()
@@ -56,20 +56,22 @@ func RegsToBytes(data []uint16) []byte {
 
 // BytesToFloat32s Byte array to float32 array
 func BytesToFloat32s(buf []byte, endian int) ([]float32, error) {
-	if len(buf)%4 != 0 {
-		return nil, errors.New("Invalid data")
+	l := len(buf)
+	if l == 0 || l%4 != 0 {
+		return nil, errors.New("Invalid data length")
 	}
-	result := []float32{}
-	for idx := 0; idx < len(buf); idx = idx + 4 {
+
+	result := make([]float32, l/4)
+	for idx := 0; idx < l/4; idx++ {
 		switch endian {
 		case 1: // DCBA, little endian
-			result = append(result, math.Float32frombits(uint32(buf[idx])|uint32(buf[idx+1])<<8|uint32(buf[idx+2])<<16|uint32(buf[idx+3])<<24))
+			result[idx] = math.Float32frombits(uint32(buf[4*idx]) | uint32(buf[4*idx+1])<<8 | uint32(buf[4*idx+2])<<16 | uint32(buf[4*idx+3])<<24)
 		case 2: // BADC, mid-big endian
-			result = append(result, math.Float32frombits(uint32(buf[idx+2])|uint32(buf[idx+3])<<8|uint32(buf[idx])<<16|uint32(buf[idx+1])<<24))
+			result[idx] = math.Float32frombits(uint32(buf[4*idx+2]) | uint32(buf[4*idx+3])<<8 | uint32(buf[4*idx])<<16 | uint32(buf[4*idx+1])<<24)
 		case 3: // CDAB, mid-little endian
-			result = append(result, math.Float32frombits(uint32(buf[idx+1])|uint32(buf[idx])<<8|uint32(buf[idx+3])<<16|uint32(buf[idx+2])<<24))
+			result[idx] = math.Float32frombits(uint32(buf[4*idx+1]) | uint32(buf[4*idx])<<8 | uint32(buf[4*idx+3])<<16 | uint32(buf[4*idx+2])<<24)
 		default: // ABCD, big endian
-			result = append(result, math.Float32frombits(uint32(buf[idx+3])|uint32(buf[idx+2])<<8|uint32(buf[idx+1])<<16|uint32(buf[idx])<<24))
+			result[idx] = math.Float32frombits(uint32(buf[4*idx+3]) | uint32(buf[4*idx+2])<<8 | uint32(buf[4*idx+1])<<16 | uint32(buf[4*idx])<<24)
 		}
 	}
 	return result, nil
@@ -77,20 +79,21 @@ func BytesToFloat32s(buf []byte, endian int) ([]float32, error) {
 
 // BytesToInt32s Byte array to Int32 array
 func BytesToInt32s(buf []byte, endian int) ([]int32, error) {
-	if len(buf)%4 != 0 {
-		return nil, errors.New("Invalid data")
+	l := len(buf)
+	if l == 0 || l%4 != 0 {
+		return nil, errors.New("Invalid data length")
 	}
-	result := []int32{}
-	for idx := 0; idx < len(buf); idx = idx + 4 {
+	result := make([]int32, l/4)
+	for idx := 0; idx < l/4; idx++ {
 		switch endian {
 		case 1: // DCBA, little endian
-			result = append(result, int32(buf[idx])|int32(buf[idx+1])<<8|int32(buf[idx+2])<<16|int32(buf[idx+3])<<24)
+			result[idx] = int32(buf[4*idx]) | int32(buf[4*idx+1])<<8 | int32(buf[4*idx+2])<<16 | int32(buf[4*idx+3])<<24
 		case 2: // BADC, mid-big endian
-			result = append(result, int32(buf[idx+2])|int32(buf[idx+3])<<8|int32(buf[idx])<<16|int32(buf[idx+1])<<24)
+			result[idx] = int32(buf[4*idx+2]) | int32(buf[4*idx+3])<<8 | int32(buf[4*idx])<<16 | int32(buf[4*idx+1])<<24
 		case 3: // CDAB, mid-little endian
-			result = append(result, int32(buf[idx+1])|int32(buf[idx])<<8|int32(buf[idx+3])<<16|int32(buf[idx+2])<<24)
+			result[idx] = int32(buf[4*idx+1]) | int32(buf[4*idx])<<8 | int32(buf[4*idx+3])<<16 | int32(buf[4*idx+2])<<24
 		default: // ABCD, big endian
-			result = append(result, int32(buf[idx+3])|int32(buf[idx+2])<<8|int32(buf[idx+1])<<16|int32(buf[idx])<<24)
+			result[idx] = int32(buf[4*idx+3]) | int32(buf[4*idx+2])<<8 | int32(buf[4*idx+1])<<16 | int32(buf[4*idx])<<24
 		}
 	}
 	return result, nil
@@ -98,20 +101,21 @@ func BytesToInt32s(buf []byte, endian int) ([]int32, error) {
 
 // BytesToUInt32s Byte array to UInt32 array
 func BytesToUInt32s(buf []byte, endian int) ([]uint32, error) {
-	if len(buf)%4 != 0 {
-		return nil, errors.New("Invalid data")
+	l := len(buf)
+	if l == 0 || l%4 != 0 {
+		return nil, errors.New("Invalid data length")
 	}
-	result := []uint32{}
-	for idx := 0; idx < len(buf); idx = idx + 4 {
+	result := make([]uint32, l/4)
+	for idx := 0; idx < l/4; idx++ {
 		switch endian {
 		case 1: // DCBA, little endian
-			result = append(result, uint32(buf[idx])|uint32(buf[idx+1])<<8|uint32(buf[idx+2])<<16|uint32(buf[idx+3])<<24)
+			result[idx] = uint32(buf[4*idx]) | uint32(buf[4*idx+1])<<8 | uint32(buf[4*idx+2])<<16 | uint32(buf[4*idx+3])<<24
 		case 2: // BADC, mid-big endian
-			result = append(result, uint32(buf[idx+2])|uint32(buf[idx+3])<<8|uint32(buf[idx])<<16|uint32(buf[idx+1])<<24)
+			result[idx] = uint32(buf[4*idx+2]) | uint32(buf[4*idx+3])<<8 | uint32(buf[4*idx])<<16 | uint32(buf[4*idx+1])<<24
 		case 3: // CDAB, mid-little endian
-			result = append(result, uint32(buf[idx+1])|uint32(buf[idx])<<8|uint32(buf[idx+3])<<16|uint32(buf[idx+2])<<24)
+			result[idx] = uint32(buf[4*idx+1]) | uint32(buf[4*idx])<<8 | uint32(buf[4*idx+3])<<16 | uint32(buf[4*idx+2])<<24
 		default: // ABCD, big endian
-			result = append(result, uint32(buf[idx+3])|uint32(buf[idx+2])<<8|uint32(buf[idx+1])<<16|uint32(buf[idx])<<24)
+			result[idx] = uint32(buf[4*idx+3]) | uint32(buf[4*idx+2])<<8 | uint32(buf[4*idx+1])<<16 | uint32(buf[4*idx])<<24
 		}
 	}
 	return result, nil
@@ -119,16 +123,16 @@ func BytesToUInt32s(buf []byte, endian int) ([]uint32, error) {
 
 // BytesToInt16s Byte array to Int16 array
 func BytesToInt16s(buf []byte, endian int) ([]int16, error) {
-	if len(buf)%2 != 0 {
-		return nil, errors.New("Invalid data")
+	l := len(buf)
+	if l == 0 || l%2 != 0 {
+		return nil, errors.New("Invalid data length")
 	}
-	result := []int16{}
-
-	for idx := 0; idx < len(buf); idx = idx + 2 {
-		if endian == 1 { // little endian
-			result = append(result, int16(buf[idx])|int16(buf[idx+1])<<8)
-		} else { // big endian
-			result = append(result, int16(buf[idx+1])|int16(buf[idx])<<8)
+	result := make([]int16, l/2)
+	for idx := 0; idx < l/2; idx++ {
+		if endian == 1 {
+			result[idx] = int16(buf[2*idx]) | int16(buf[2*idx+1])<<8
+		} else {
+			result[idx] = int16(buf[2*idx+1]) | int16(buf[2*idx])<<8
 		}
 	}
 	return result, nil
@@ -136,16 +140,16 @@ func BytesToInt16s(buf []byte, endian int) ([]int16, error) {
 
 // BytesToUInt16s Byte array to UInt16 array
 func BytesToUInt16s(buf []byte, endian int) ([]uint16, error) {
-	if len(buf)%2 != 0 {
-		return nil, errors.New("Invalid data")
+	l := len(buf)
+	if l == 0 || l%2 != 0 {
+		return nil, errors.New("Invalid data length")
 	}
-	result := []uint16{}
-
-	for idx := 0; idx < len(buf); idx = idx + 2 {
-		if endian == 1 { // little endian
-			result = append(result, uint16(buf[idx])|uint16(buf[idx+1])<<8)
-		} else { // big endian
-			result = append(result, uint16(buf[idx+1])|uint16(buf[idx])<<8)
+	result := make([]uint16, l/2)
+	for idx := 0; idx < l/2; idx++ {
+		if endian == 1 {
+			result[idx] = uint16(buf[2*idx]) | uint16(buf[2*idx+1])<<8
+		} else {
+			result[idx] = uint16(buf[2*idx+1]) | uint16(buf[2*idx])<<8
 		}
 	}
 	return result, nil

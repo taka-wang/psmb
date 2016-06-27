@@ -40,3 +40,10 @@ env:
 
 notifications:
   email: false
+  hipchat:
+    on_success: always
+    rooms:
+      secure: aklONboOLgu63ji6MvOv6fkhMiL1lP5SBsq35iMfRdqFSrH7qzXEC8AHYvI71gjE19XRblNnWahinJVNGXih9Aw44JfZc7+/RlEZPNvnT3JCKwKYubwdure8mBuxE+04Eg0BNp9XLoVlw/RX9ejeCK90OkhKd3wBHuNwIWaqSYMSEEK1Ye95r4Rx62OH0n+yHnjmKULKM9+axFBIb6Kymz+lPIjb+hWNdmtDpGWwPpmUBomTY6PRaOS4KXMcuOlBlCqQmT4O7Z+uqjuXwg7LwWXhdwQeuPvCdwnT03ENahnuNVAFl6xbqYZnwyNd/9utzvOFwZLw7cqm5Im5IY7sl60Yi/DD00RZne5AibE3l81q33+rUY9+c8X4R6YlfzICrKwBL/7bhfhhFUHj2xlpmFnUc8mwebQg8xb+szNePQucyFrB+/Dcyyk/Hi3zmLhhGfsBWeA0bEVrknh/q8zLOMDrTQnc2uUr4Gn4lHYzDbQQgsuGrs6vV4KjJAD3Z9JQ+Z5OfITFuGVGLtGE5yY2pU9oLCKkpibNv/4gWqDkNKW0pwWLsJppi9lYuZe1ItnxkCwL3qJ33KEqHvVb5lvh9gDiBzzeuuuFewIadCQezwkE5hLLAw1QTqKjktz6JN1uTNE/1khgFYXNsSw6djhEh/eQieeA96QWL4QW9Jjr9eA=
+    template:
+      - "%{repository} (%{commit}) : %{message} %{foo} "
+      - "Build details: %{build_url}"
