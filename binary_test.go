@@ -17,7 +17,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToUInt16s` in big endian order", func(log sugar.Log) bool {
 		desire := []uint16{4396, 79, 4660, 22136}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToUInt16s(bytes, 0)
+		result, _ := BytesToUInt16s(bytes, BigEndian)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -30,7 +30,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToUInt16s` in little endian order", func(log sugar.Log) bool {
 		desire := []uint16{11281, 20224, 13330, 30806}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToUInt16s(bytes, 1)
+		result, _ := BytesToUInt16s(bytes, LittleEndian)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -43,7 +43,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToInt16s` in big endian order", func(log sugar.Log) bool {
 		desire := []int16{4396, 79, 4660, 22136}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToInt16s(bytes, 0)
+		result, _ := BytesToInt16s(bytes, BigEndian)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -56,7 +56,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToInt16s` in little endian order", func(log sugar.Log) bool {
 		desire := []int16{11281, 20224, 13330, 30806}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToInt16s(bytes, 1)
+		result, _ := BytesToInt16s(bytes, LittleEndian)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -71,7 +71,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToUInt32s` in (ABCD) Big Endian order", func(log sugar.Log) bool {
 		desire := []uint32{288096335, 305419896}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToUInt32s(bytes, 0)
+		result, _ := BytesToUInt32s(bytes, ABCD)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -84,7 +84,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToUInt32s` in (DCBA) Little Endian order", func(log sugar.Log) bool {
 		desire := []uint32{1325411345, 2018915346}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToUInt32s(bytes, 1)
+		result, _ := BytesToUInt32s(bytes, DCBA)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -97,7 +97,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToUInt32s` in (BADC) Mid-Big Endian order", func(log sugar.Log) bool {
 		desire := []uint32{739331840, 873625686}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToUInt32s(bytes, 2)
+		result, _ := BytesToUInt32s(bytes, BADC)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -110,7 +110,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToUInt32s` in (CDAB) Mid-Little Endian order", func(log sugar.Log) bool {
 		desire := []uint32{5181740, 1450709556}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToUInt32s(bytes, 3)
+		result, _ := BytesToUInt32s(bytes, CDAB)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -123,7 +123,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToInt32s` in (ABCD) Big Endian order", func(log sugar.Log) bool {
 		desire := []int32{288096335, 305419896}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToInt32s(bytes, 0)
+		result, _ := BytesToInt32s(bytes, ABCD)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -136,7 +136,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToInt32s` in (DCBA) Little Endian order", func(log sugar.Log) bool {
 		desire := []int32{1325411345, 2018915346}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToInt32s(bytes, 1)
+		result, _ := BytesToInt32s(bytes, DCBA)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -149,7 +149,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToInt32s` in (BADC) Mid-Big Endian order", func(log sugar.Log) bool {
 		desire := []int32{739331840, 873625686}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToInt32s(bytes, 2)
+		result, _ := BytesToInt32s(bytes, BADC)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -162,7 +162,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToInt32s` in (CDAB) Mid-Little Endian order", func(log sugar.Log) bool {
 		desire := []int32{5181740, 1450709556}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToInt32s(bytes, 3)
+		result, _ := BytesToInt32s(bytes, CDAB)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -178,7 +178,7 @@ func TestBinaryOps(t *testing.T) {
 		arr2 := []uint16{17820, 16863, 17668, 46924} // 459C41DF4504B74C
 		desire := []float32{5000.234, 2123.456}
 		bytes := RegistersToBytes(arr2)
-		result, _ := BytesToFloat32s(bytes, 0)
+		result, _ := BytesToFloat32s(bytes, ABCD)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%f, result:%f", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -191,7 +191,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToFloat32s` in (DCBA) Little Endian order", func(log sugar.Log) bool {
 		desire := []float32{2150371580, 1.73782444e34}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToFloat32s(bytes, 1)
+		result, _ := BytesToFloat32s(bytes, DCBA)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%f, result:%f", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -204,7 +204,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToFloat32s` in (BADC) Mid-Big Endian order", func(log sugar.Log) bool {
 		desire := []float32{2.06495931e-12, 1.36410875e-7}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToFloat32s(bytes, 2)
+		result, _ := BytesToFloat32s(bytes, BADC)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%f, result:%f", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -217,7 +217,7 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`BytesToFloat32s` in (CDAB) Mid-Little Endian order", func(log sugar.Log) bool {
 		desire := []float32{7.261164e-39, 68189266400000}
 		bytes := RegistersToBytes(arr)
-		result, _ := BytesToFloat32s(bytes, 3)
+		result, _ := BytesToFloat32s(bytes, CDAB)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%f, result:%f", desire[idx], result[idx])
 			if result[idx] != desire[idx] {

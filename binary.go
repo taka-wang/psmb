@@ -11,6 +11,26 @@ import (
 	"strings"
 )
 
+// Endian Endianness:
+type Endian int
+
+const (
+	ABCD Endian = iota
+	DCBA
+	BADC
+	CDAB
+)
+const (
+	AB Endian = iota
+	BA
+)
+const (
+	BigEndian Endian = iota
+	LittleEndian
+	MidBigEndian
+	MidLittleEndian
+)
+
 // BytesToHexString Convert byte array to hex string
 func BytesToHexString(bytes []byte) string {
 	return hex.EncodeToString(bytes)
@@ -55,7 +75,7 @@ func RegistersToBytes(data []uint16) []byte {
 }
 
 // BytesToFloat32s Byte array to float32 array
-func BytesToFloat32s(buf []byte, endian int) ([]float32, error) {
+func BytesToFloat32s(buf []byte, endian Endian) ([]float32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
 		return nil, errors.New("Invalid data length")
@@ -78,7 +98,7 @@ func BytesToFloat32s(buf []byte, endian int) ([]float32, error) {
 }
 
 // BytesToInt32s Byte array to Int32 array
-func BytesToInt32s(buf []byte, endian int) ([]int32, error) {
+func BytesToInt32s(buf []byte, endian Endian) ([]int32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
 		return nil, errors.New("Invalid data length")
@@ -100,7 +120,7 @@ func BytesToInt32s(buf []byte, endian int) ([]int32, error) {
 }
 
 // BytesToUInt32s Byte array to UInt32 array
-func BytesToUInt32s(buf []byte, endian int) ([]uint32, error) {
+func BytesToUInt32s(buf []byte, endian Endian) ([]uint32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
 		return nil, errors.New("Invalid data length")
@@ -122,7 +142,7 @@ func BytesToUInt32s(buf []byte, endian int) ([]uint32, error) {
 }
 
 // BytesToInt16s Byte array to Int16 array
-func BytesToInt16s(buf []byte, endian int) ([]int16, error) {
+func BytesToInt16s(buf []byte, endian Endian) ([]int16, error) {
 	l := len(buf)
 	if l == 0 || l%2 != 0 {
 		return nil, errors.New("Invalid data length")
@@ -139,7 +159,7 @@ func BytesToInt16s(buf []byte, endian int) ([]int16, error) {
 }
 
 // BytesToUInt16s Byte array to UInt16 array
-func BytesToUInt16s(buf []byte, endian int) ([]uint16, error) {
+func BytesToUInt16s(buf []byte, endian Endian) ([]uint16, error) {
 	l := len(buf)
 	if l == 0 || l%2 != 0 {
 		return nil, errors.New("Invalid data length")
