@@ -101,7 +101,6 @@ func RegistersToBytes(data []uint16) ([]byte, error) {
 }
 
 // LinearScalingRegisters scales the registers linearly.
-//
 // Equation:
 // 	Let originLow, originHigh, targetLow, targetHigh as a, b, c, d accordingly.
 // 	Output = c + (d - c) * (input - a) / (b - a)
@@ -117,8 +116,7 @@ func LinearScalingRegisters(data []uint16, originLow, originHigh, targetLow, tar
 	return result
 }
 
-// BytesToFloat32s converts byte array to float32 array in four endian orders.
-// i.e.,
+// BytesToFloat32s converts byte array to float32 array in four endian orders. i.e.,
 //       BigEndian (0),
 //       LittleEndian (1)
 //       MidBigEndian (2)
@@ -145,8 +143,7 @@ func BytesToFloat32s(buf []byte, endian Endian) ([]float32, error) {
 	return result, nil
 }
 
-// BytesToInt32s converts byte array to Int32 array in four endian orders.
-// i.e.,
+// BytesToInt32s converts byte array to Int32 array in four endian orders. i.e.,
 //       BigEndian (0),
 //       LittleEndian (1)
 //       MidBigEndian (2)
@@ -172,8 +169,7 @@ func BytesToInt32s(buf []byte, endian Endian) ([]int32, error) {
 	return result, nil
 }
 
-// BytesToUInt32s converts byte array to UInt32 array in four endian orders.
-// i.e.,
+// BytesToUInt32s converts byte array to UInt32 array in four endian orders. i.e.,
 //       BigEndian (0),
 //       LittleEndian (1)
 //       MidBigEndian (2)
