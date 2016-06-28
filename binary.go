@@ -11,33 +11,44 @@ import (
 	"strings"
 )
 
-// Endian Endianness:
+// Endian defines byte endianness
 type Endian int
 
 const (
+	// ABCD 32-bit words may be represented in big-endian format
 	ABCD Endian = iota
+	// DCBA 32-bit words may be represented in little-endian format
 	DCBA
+	// BADC 32-bit words may be represented in mid-big-endian format
 	BADC
+	// BADC 32-bit words may be represented in mid-little-endian format
 	CDAB
 )
 const (
+	// AB 16-bit words may be represented in big-endian format
 	AB Endian = iota
+	// BA 16-bit words may be represented in little-endian format
 	BA
 )
 const (
+	// BigEndian 32-bit words may be represented in ABCD format
 	BigEndian Endian = iota
+	// LittleEndian 32-bit words may be represented in DCBA format
 	LittleEndian
+	// MidBigEndian 32-bit words may be represented in BADC format
 	MidBigEndian
+	// MidLittleEndian 32-bit words may be represented in CDAB format
 	MidLittleEndian
 )
 
-// BytesToHexString Convert byte array to hex string
+// BytesToHexString converts bytes array to hexadecimal string.
+// Ex. 112C004F12345678
 func BytesToHexString(bytes []byte) string {
 	return hex.EncodeToString(bytes)
 }
 
-//DecimalStringToRegisters Convert decimal string to uint16 array in big endian order
-// limitation: leading space before comma is not allow
+// DecimalStringToRegisters converts decimal string to uint16/words array in big endian order.
+// Limitation: leading space before comma is not allowed.
 func DecimalStringToRegisters(decString string) ([]uint16, error) {
 	var result = []uint16{}
 
@@ -52,29 +63,34 @@ func DecimalStringToRegisters(decString string) ([]uint16, error) {
 	return result, nil
 }
 
-// HexStringToRegisters Convert hex string to uint16 array in big endian order
+// HexStringToRegisters converts hexadecimal string to uint16/words array in big endian order.
 func HexStringToRegisters(hexString string) ([]uint16, error) {
 	bytes, err := hex.DecodeString(hexString)
 	if err != nil {
 		return nil, err
 	}
-	log.Println(bytes)
+	//log.Println(bytes)
 	return BytesToUInt16s(bytes, 0)
 }
 
-// RegistersToBytes Convert register(uint16) array to byte array in big endian order
-func RegistersToBytes(data []uint16) []byte {
+// RegistersToBytes converts registers/uint16 array to byte array in big endian order.
+func RegistersToBytes(data []uint16) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	for _, v := range data {
 		err := binary.Write(buf, binary.BigEndian, v)
 		if err != nil {
 			log.Println("RegistersToBytes failed:", err)
+			return nil, err
 		}
 	}
-	return buf.Bytes()
+	return buf.Bytes(), nil
 }
 
-// BytesToFloat32s Byte array to float32 array
+// BytesToFloat32s converts byte array to float32 array in four endian orders.
+// i.e., BigEndian (0)
+//       LittleEndian (1)
+//       MidBigEndian (2)
+//       MidLittleEndian (3)
 func BytesToFloat32s(buf []byte, endian Endian) ([]float32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
@@ -97,7 +113,11 @@ func BytesToFloat32s(buf []byte, endian Endian) ([]float32, error) {
 	return result, nil
 }
 
-// BytesToInt32s Byte array to Int32 array
+// BytesToInt32s converts byte array to Int32 array in four endian orders.
+// i.e., BigEndian (0)
+//       LittleEndian (1)
+//       MidBigEndian (2)
+//       MidLittleEndian (3)
 func BytesToInt32s(buf []byte, endian Endian) ([]int32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
@@ -119,7 +139,11 @@ func BytesToInt32s(buf []byte, endian Endian) ([]int32, error) {
 	return result, nil
 }
 
-// BytesToUInt32s Byte array to UInt32 array
+// BytesToUInt32s converts byte array to UInt32 array in four endian orders.
+// i.e., BigEndian (0)
+//       LittleEndian (1)
+//       MidBigEndian (2)
+//       MidLittleEndian (3)
 func BytesToUInt32s(buf []byte, endian Endian) ([]uint32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
@@ -141,7 +165,8 @@ func BytesToUInt32s(buf []byte, endian Endian) ([]uint32, error) {
 	return result, nil
 }
 
-// BytesToInt16s Byte array to Int16 array
+// BytesToInt16s converts byte array to Int16 array in two endian orders.
+// i.e., BigEndian (0) or LittleEndian (1)
 func BytesToInt16s(buf []byte, endian Endian) ([]int16, error) {
 	l := len(buf)
 	if l == 0 || l%2 != 0 {
@@ -158,7 +183,8 @@ func BytesToInt16s(buf []byte, endian Endian) ([]int16, error) {
 	return result, nil
 }
 
-// BytesToUInt16s Byte array to UInt16 array
+// BytesToUInt16s converts byte array to UInt16 array in two endian orders.
+// i.e., BigEndian (0) or LittleEndian (1)
 func BytesToUInt16s(buf []byte, endian Endian) ([]uint16, error) {
 	l := len(buf)
 	if l == 0 || l%2 != 0 {
