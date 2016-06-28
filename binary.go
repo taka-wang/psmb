@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
-	"fmt"
+	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -58,7 +58,7 @@ func HexStringToRegisters(hexString string) ([]uint16, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(bytes)
+	log.Println(bytes)
 	return BytesToUInt16s(bytes, 0)
 }
 
@@ -68,7 +68,7 @@ func RegistersToBytes(data []uint16) []byte {
 	for _, v := range data {
 		err := binary.Write(buf, binary.BigEndian, v)
 		if err != nil {
-			fmt.Println("RegistersToBytes failed:", err)
+			log.Println("RegistersToBytes failed:", err)
 		}
 	}
 	return buf.Bytes()
