@@ -118,8 +118,8 @@ func LinearScalingRegisters(data []uint16, originLow, originHigh, targetLow, tar
 }
 
 // BytesToFloat32s converts byte array to float32 array in four endian orders.
-//
-// i.e., BigEndian (0),
+// i.e.,
+//       BigEndian (0),
 //       LittleEndian (1)
 //       MidBigEndian (2)
 //       MidLittleEndian (3)
@@ -146,8 +146,8 @@ func BytesToFloat32s(buf []byte, endian Endian) ([]float32, error) {
 }
 
 // BytesToInt32s converts byte array to Int32 array in four endian orders.
-//
-// i.e., BigEndian (0),
+// i.e.,
+//       BigEndian (0),
 //       LittleEndian (1)
 //       MidBigEndian (2)
 //       MidLittleEndian (3)
@@ -173,8 +173,8 @@ func BytesToInt32s(buf []byte, endian Endian) ([]int32, error) {
 }
 
 // BytesToUInt32s converts byte array to UInt32 array in four endian orders.
-//
-// i.e., BigEndian (0),
+// i.e.,
+//       BigEndian (0),
 //       LittleEndian (1)
 //       MidBigEndian (2)
 //       MidLittleEndian (3)
@@ -200,7 +200,6 @@ func BytesToUInt32s(buf []byte, endian Endian) ([]uint32, error) {
 }
 
 // BytesToInt16s converts byte array to Int16 array in two endian orders.
-//
 // i.e., BigEndian (0) or LittleEndian (1)
 func BytesToInt16s(buf []byte, endian Endian) ([]int16, error) {
 	l := len(buf)
@@ -219,7 +218,6 @@ func BytesToInt16s(buf []byte, endian Endian) ([]int16, error) {
 }
 
 // BytesToUInt16s converts byte array to UInt16 array in two endian orders.
-//
 // i.e., BigEndian (0) or LittleEndian (1)
 func BytesToUInt16s(buf []byte, endian Endian) ([]uint16, error) {
 	l := len(buf)
