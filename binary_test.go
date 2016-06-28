@@ -278,4 +278,16 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
+	s.Assert("`LinearScalingRegisters` test", func(log sugar.Log) bool {
+		// arr := []uint16{4396, 79, 4660, 22136} // 112C004F12345678
+		result := LinearScalingRegisters(arr, 0, 65535, 100, 200)
+		desire := []float64{106.70786602578775, 100.1205462729839, 107.11070420386054, 133.7773708705272}
+		for idx := 0; idx < len(desire); idx++ {
+			log("desire:%f, result:%f", desire[idx], result[idx])
+			if result[idx] != desire[idx] {
+				return false
+			}
+		}
+		return true
+	})
 }
