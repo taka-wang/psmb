@@ -41,6 +41,22 @@ const (
 	MidLittleEndian
 )
 
+// - [ ] bit string to uint16 array conversion
+
+// DecimalStringToRegisters converts bits string to uint8 array.
+// For function code 15
+func bitStringToUInt8s(bitString string) ([]uint8, error) {
+	var result = []uint8{}
+	for _, v := range strings.Split(bitString, ",") {
+		i, err := strconv.ParseUint(v, 10, 8)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, uint8(i))
+	}
+	return result, nil
+}
+
 // DecimalStringToRegisters converts decimal string to uint16/words array in big endian order.
 // Limitation: leading space before comma is not allowed.
 // Source: upstream
@@ -53,7 +69,6 @@ func DecimalStringToRegisters(decString string) ([]uint16, error) {
 		}
 		result = append(result, uint16(i))
 	}
-
 	return result, nil
 }
 
