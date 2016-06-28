@@ -15,7 +15,8 @@
 - [x] implement heximal string to register array conversion
 - [x] implement decimal string to register array converson
 - [x] support x86_64, arm docker CI
-- [x] implement linear scaling conversion 
+- [x] implement linear scaling conversion
+- [x] bit string to uint16 array conversion
 
 # TODO
 - [ ] define request type
