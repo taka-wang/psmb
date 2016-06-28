@@ -41,17 +41,11 @@ const (
 	MidLittleEndian
 )
 
-// BytesToHexString converts bytes array to hexadecimal string.
-// Ex. 112C004F12345678
-func BytesToHexString(bytes []byte) string {
-	return hex.EncodeToString(bytes)
-}
-
 // DecimalStringToRegisters converts decimal string to uint16/words array in big endian order.
 // Limitation: leading space before comma is not allowed.
+// Source: upstream
 func DecimalStringToRegisters(decString string) ([]uint16, error) {
 	var result = []uint16{}
-
 	for _, v := range strings.Split(decString, ",") {
 		i, err := strconv.ParseUint(v, 10, 16)
 		if err != nil {
@@ -64,16 +58,23 @@ func DecimalStringToRegisters(decString string) ([]uint16, error) {
 }
 
 // HexStringToRegisters converts hexadecimal string to uint16/words array in big endian order.
+// Source: upstream
 func HexStringToRegisters(hexString string) ([]uint16, error) {
 	bytes, err := hex.DecodeString(hexString)
 	if err != nil {
 		return nil, err
 	}
-	//log.Println(bytes)
 	return BytesToUInt16s(bytes, 0)
 }
 
+// BytesToHexString converts bytes array to hexadecimal string.
+// Ex. 112C004F12345678
+func BytesToHexString(bytes []byte) string {
+	return hex.EncodeToString(bytes)
+}
+
 // RegistersToBytes converts registers/uint16 array to byte array in big endian order.
+// Source: downstream
 func RegistersToBytes(data []uint16) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	for _, v := range data {
@@ -84,6 +85,22 @@ func RegistersToBytes(data []uint16) ([]byte, error) {
 		}
 	}
 	return buf.Bytes(), nil
+}
+
+// LinearScalingRegisters scales the registers linearly
+// Equation:
+// 	Let originLow, originHigh, targetLow, targetHigh as a, b, c, d accordingly
+// 	output = c + (d - c) * (input - a) / (b - a)
+func LinearScalingRegisters(data []uint16, originLow, originHigh, targetLow, targetHigh float64) []float64 {
+	l := len(data)
+	low := math.Min(originLow, originHigh)
+	high := math.Max(originLow, originHigh)
+	result := make([]float64, l)
+
+	for idx := 0; idx < l; idx++ {
+		result[idx] = targetLow + (targetHigh-targetLow)*(math.Min(math.Max(low, float64(data[idx])), high)-low)/(high-low)
+	}
+	return result
 }
 
 // BytesToFloat32s converts byte array to float32 array in four endian orders.
