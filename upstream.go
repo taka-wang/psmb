@@ -24,7 +24,7 @@ func (u JSONableByteSlice) MarshalJSON() ([]byte, error) {
 
 // MbtcpOnceReadReq read coil/register request (1.1)
 type MbtcpOnceReadReq struct {
-	Tid   uint64      `json:"tid"`
+	Tid   int64       `json:"tid"`
 	From  string      `json:"from,omitempty"`
 	FC    uint8       `json:"fc"`
 	IP    string      `json:"ip"`
@@ -44,7 +44,7 @@ type MbtcpOnceReadReq struct {
 
 // MbtcpOnceReadRes read coil/register request (1.1)
 type MbtcpOnceReadRes struct {
-	Tid    uint64      `json:"tid"`
+	Tid    int64       `json:"tid"`
 	Status string      `json:"status"`
 	Type   RegDataType `json:"type,omitempty"`
 	// Bytes FC3, FC4 and Type 2~8 only
@@ -89,26 +89,26 @@ type MbtcpOnceReadStringRes struct {
 
 // MbtcpTimeoutReq set/get TCP connection timeout request (1.3, 1.4)
 type MbtcpTimeoutReq struct {
-	Tid  uint64 `json:"tid"`
+	Tid  int64  `json:"tid"`
 	From string `json:"from,omitempty"`
 	Data int64  `json:"timeout,omitempty"`
 }
 
 // MbtcpTimeoutRes set/get TCP connection timeout response (1.3, 1.4)
 type MbtcpTimeoutRes struct {
-	Tid    uint64 `json:"tid"`
+	Tid    int64  `json:"tid"`
 	Status string `json:"status"`
 	Data   int64  `json:"timeout,omitempty"`
 }
 
 // MbtcpSimpleReq generic modbus tcp response
 type MbtcpSimpleReq struct {
-	Tid  uint64 `json:"tid"`
+	Tid  int64  `json:"tid"`
 	From string `json:"from,omitempty"`
 }
 
 // MbtcpSimpleRes generic modbus tcp response
 type MbtcpSimpleRes struct {
-	Tid    uint64 `json:"tid"`
+	Tid    int64  `json:"tid"`
 	Status string `json:"status"`
 }

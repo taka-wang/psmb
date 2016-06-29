@@ -77,7 +77,7 @@ Command name: **mbtcp.once.read**
 >| params   | description            | type          | range     | example           | required                                 |
 >|:---------|:-----------------------|:--------------|:----------|:------------------|:-----------------------------------------|
 >| from     | service name           | string        | -         | "web"             | optional                                 |
->| tid      | transaction ID         | integer       | uint64    | 12345             | :heavy_check_mark:                       |
+>| tid      | transaction ID         | integer       | int64     | 12345             | :heavy_check_mark:                       |
 >| fc       | function code          | integer       | [1,4]     | 1                 | :heavy_check_mark:                       |
 >| ip       | ip address             | string        | -         | 127.0.0.1         | :heavy_check_mark:                       |
 >| port     | port number            | string        | [1,65535] | 502               | default: 502                             |
@@ -333,7 +333,7 @@ Command name: **mbtcp.once.write**
 >| params   | description            | type          | range          | example        | required            |
 >|:---------|:-----------------------|:--------------|:---------------|:---------------|:--------------------|
 >| from     | service name           | string        | -              | "web"          | optional            |
->| tid      | transaction ID         | integer       | uint64         | 12345          | :heavy_check_mark:  |
+>| tid      | transaction ID         | integer       | int64          | 12345          | :heavy_check_mark:  |
 >| fc       | function code          | integer       | [1,4]          | 1              | :heavy_check_mark:  |
 >| ip       | ip address             | string        | -              | 127.0.0.1      | :heavy_check_mark:  |
 >| port     | port number            | string        | [1,65535]      | 502            | default: 502        |
@@ -463,7 +463,7 @@ Command name: **mbtcp.timeout.read**
 >| params   | description            | type          | range          | example        | required                                     |
 >|:---------|:-----------------------|:--------------|:---------------|:---------------|:---------------------------------------------|
 >| from     | service name           | string        | -              | "web"          | optional                                     |
->| tid      | transaction ID         | integer       | uint64         | 12345          | :heavy_check_mark:                           |
+>| tid      | transaction ID         | integer       | int64          | 12345          | :heavy_check_mark:                           |
 >| timeout  | timeout in usec        | integer       | [200000,~)	  | 210000         | if success                                   |
 >| status   | response status        | string        | -              | "ok"           | :heavy_check_mark:                           |
 
@@ -501,7 +501,7 @@ Command name: **mbtcp.timeout.update**
 >| params   | description            | type          | range          | example        | required                                     |
 >|:---------|:-----------------------|:--------------|:---------------|:---------------|:---------------------------------------------|
 >| from     | service name           | string        | -              | "web"          | optional                                     |
->| tid      | transaction ID         | integer       | uint64         | 12345          | :heavy_check_mark:                           |
+>| tid      | transaction ID         | integer       | int64          | 12345          | :heavy_check_mark:                           |
 >| timeout  | timeout in usec        | integer       | [200000,~)	  | 210000         | :heavy_check_mark:                           |
 >| status   | response status        | string        | -              | "ok"           | :heavy_check_mark:                           |
 
