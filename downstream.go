@@ -2,56 +2,64 @@ package psmb
 
 // To downstream
 
-// MbReadReq Modbus tcp read request
-type MbReadReq struct {
+// dMbtcpRes Modbus tcp generic response
+type dMbtcpRes struct {
+	Tid    uint64 `json:"tid"`
+	Status string `json:"status"`
+}
+
+// dMbtcpReadReq Modbus tcp read request
+type dMbtcpReadReq struct {
+	Tid   uint64 `json:"tid"`
+	Cmd   string `json:"cmd"`
 	IP    string `json:"ip"`
 	Port  string `json:"port"`
 	Slave uint8  `json:"slave"`
-	Tid   int64  `json:"tid"`
-	Cmd   string `json:"cmd"`
 	Addr  uint16 `json:"addr"`
 	Len   uint16 `json:"len"`
 }
 
-// MbSingleWriteReq Modbus tcp write request
-type MbSingleWriteReq struct {
+// dMbtcpReadRes Modbus tcp read bits/registers response
+type dMbtcpReadRes struct {
+	Tid    uint64   `json:"tid"`
+	Status string   `json:"status"`
+	Data   []uint16 `json:"data"`
+}
+
+// dMbtcpTimeoutReq modbus tcp timeout request
+type dMbtcpTimeoutReq struct {
+	Tid     uint64 `json:"tid"`
+	Cmd     string `json:"cmd"`
+	Timeout int64  `json:"timeout,omitempty"`
+}
+
+// dMbtcpTimeoutRes modbus tcp timeout request
+type dMbtcpTimeoutRes struct {
+	Tid     uint64 `json:"tid"`
+	Cmd     string `json:"cmd"`
+	Status  string `json:"status"`
+	Timeout int64  `json:"timeout,omitempty"`
+}
+
+// dMbtcpSingleWriteReq Modbus tcp write request
+type dMbtcpSingleWriteReq struct {
+	Tid   uint64 `json:"tid"`
+	Cmd   string `json:"cmd"`
 	IP    string `json:"ip"`
 	Port  string `json:"port"`
 	Slave uint8  `json:"slave"`
-	Tid   int64  `json:"tid"`
-	Cmd   string `json:"cmd"`
 	Addr  uint16 `json:"addr"`
-	Data  int32  `json:"data"`
+	Data  uint16 `json:"data"`
 }
 
-// MbMultipleWriteReq Modbus tcp write request
-type MbMultipleWriteReq struct {
+// dMbtcpMultipleWriteReq Modbus tcp write request
+type dMbtcpMultipleWriteReq struct {
+	Tid   uint64   `json:"tid"`
+	Cmd   string   `json:"cmd"`
 	IP    string   `json:"ip"`
 	Port  string   `json:"port"`
 	Slave uint8    `json:"slave"`
-	Tid   int64    `json:"tid"`
-	Cmd   string   `json:"cmd"`
 	Addr  uint16   `json:"addr"`
 	Len   uint16   `json:"len"`
 	Data  []uint16 `json:"data"`
-}
-
-// MbTimeoutReq modbus tcp timeout request
-type MbTimeoutReq struct {
-	Tid  int64  `json:"tid"`
-	Cmd  string `json:"cmd"`
-	Data int64  `json:"data"`
-}
-
-// MbRes Modbus tcp generic response
-type MbRes struct {
-	Tid    int64  `json:"tid"`
-	Status string `json:"status"`
-}
-
-// MbReadRes Modbus tcp read response
-type MbReadRes struct {
-	Tid    int64    `json:"tid"`
-	Data   []uint16 `json:"data"` // uint16 for register
-	Status string   `json:"status"`
 }
