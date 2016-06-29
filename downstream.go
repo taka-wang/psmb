@@ -2,14 +2,14 @@ package psmb
 
 // To downstream
 
-// dMbtcpRes Modbus tcp generic response
-type dMbtcpRes struct {
+// DMbtcpRes Modbus tcp generic response
+type DMbtcpRes struct {
 	Tid    uint64 `json:"tid"`
 	Status string `json:"status"`
 }
 
-// dMbtcpReadReq Modbus tcp read request
-type dMbtcpReadReq struct {
+// DMbtcpReadReq Modbus tcp read request
+type DMbtcpReadReq struct {
 	Tid   uint64 `json:"tid"`
 	Cmd   string `json:"cmd"`
 	IP    string `json:"ip"`
@@ -19,30 +19,30 @@ type dMbtcpReadReq struct {
 	Len   uint16 `json:"len"`
 }
 
-// dMbtcpReadRes Modbus tcp read bits/registers response
-type dMbtcpReadRes struct {
+// DMbtcpReadRes Modbus tcp read bits/registers response
+type DMbtcpReadRes struct {
 	Tid    uint64   `json:"tid"`
 	Status string   `json:"status"`
 	Data   []uint16 `json:"data"`
 }
 
-// dMbtcpTimeoutReq modbus tcp timeout request
-type dMbtcpTimeoutReq struct {
+// DMbtcpTimeoutReq modbus tcp timeout request
+type DMbtcpTimeoutReq struct {
 	Tid     uint64 `json:"tid"`
 	Cmd     string `json:"cmd"`
 	Timeout int64  `json:"timeout,omitempty"`
 }
 
-// dMbtcpTimeoutRes modbus tcp timeout request
-type dMbtcpTimeoutRes struct {
+// DMbtcpTimeoutRes modbus tcp timeout request
+type DMbtcpTimeoutRes struct {
 	Tid     uint64 `json:"tid"`
 	Cmd     string `json:"cmd"`
 	Status  string `json:"status"`
 	Timeout int64  `json:"timeout,omitempty"`
 }
 
-// dMbtcpSingleWriteReq Modbus tcp write request
-type dMbtcpSingleWriteReq struct {
+// DMbtcpSingleWriteReq Modbus tcp write request
+type DMbtcpSingleWriteReq struct {
 	Tid   uint64 `json:"tid"`
 	Cmd   string `json:"cmd"`
 	IP    string `json:"ip"`
@@ -52,8 +52,8 @@ type dMbtcpSingleWriteReq struct {
 	Data  uint16 `json:"data"`
 }
 
-// dMbtcpMultipleWriteReq Modbus tcp write request
-type dMbtcpMultipleWriteReq struct {
+// DMbtcpMultipleWriteReq Modbus tcp write request
+type DMbtcpMultipleWriteReq struct {
 	Tid   uint64   `json:"tid"`
 	Cmd   string   `json:"cmd"`
 	IP    string   `json:"ip"`
