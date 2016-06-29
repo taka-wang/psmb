@@ -2,13 +2,14 @@ package psmb
 
 // psbm to modbusd structures - downstream
 
-// DMbtcpRes Modbus tcp generic response (include write response)
+// DMbtcpRes modbus tcp function code generic response
 type DMbtcpRes struct {
-	Tid    int64  `json:"tid"`
-	Status string `json:"status"`
+	Tid    int64    `json:"tid"`
+	Status string   `json:"status"`
+	Data   []uint16 `json:"data,omitempty"`
 }
 
-// DMbtcpReadReq Modbus tcp read request
+// DMbtcpReadReq modbus tcp read request
 type DMbtcpReadReq struct {
 	Tid   int64  `json:"tid"`
 	Cmd   string `json:"cmd"`
@@ -19,29 +20,7 @@ type DMbtcpReadReq struct {
 	Len   uint16 `json:"len"`
 }
 
-// DMbtcpReadRes Modbus tcp read bits/registers response
-type DMbtcpReadRes struct {
-	Tid    int64    `json:"tid"`
-	Status string   `json:"status"`
-	Data   []uint16 `json:"data"`
-}
-
-// DMbtcpTimeoutReq modbus tcp timeout request
-type DMbtcpTimeoutReq struct {
-	Tid     int64  `json:"tid"`
-	Cmd     string `json:"cmd"`
-	Timeout int64  `json:"timeout,omitempty"`
-}
-
-// DMbtcpTimeoutRes modbus tcp timeout request
-type DMbtcpTimeoutRes struct {
-	Tid     int64  `json:"tid"`
-	Cmd     string `json:"cmd"`
-	Status  string `json:"status"`
-	Timeout int64  `json:"timeout,omitempty"`
-}
-
-// DMbtcpSingleWriteReq Modbus tcp write single bit/register request
+// DMbtcpSingleWriteReq modbus tcp write single bit/register request
 type DMbtcpSingleWriteReq struct {
 	Tid   int64  `json:"tid"`
 	Cmd   string `json:"cmd"`
@@ -52,7 +31,7 @@ type DMbtcpSingleWriteReq struct {
 	Data  uint16 `json:"data"`
 }
 
-// DMbtcpMultipleWriteReq Modbus tcp write multiple bits/registers request
+// DMbtcpMultipleWriteReq modbus tcp write multiple bits/registers request
 type DMbtcpMultipleWriteReq struct {
 	Tid   int64    `json:"tid"`
 	Cmd   string   `json:"cmd"`
@@ -62,4 +41,12 @@ type DMbtcpMultipleWriteReq struct {
 	Addr  uint16   `json:"addr"`
 	Len   uint16   `json:"len"`
 	Data  []uint16 `json:"data"`
+}
+
+// DMbtcpTimeout modbus tcp set/get timeout request/response
+type DMbtcpTimeout struct {
+	Tid     int64  `json:"tid"`
+	Cmd     string `json:"cmd"`
+	Status  string `json:"status,omitempty"`
+	Timeout int64  `json:"timeout,omitempty"`
 }

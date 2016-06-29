@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// From upstream
+// services to psbm structures - upstream
 
 // JSONableByteSlice jsonable uint8 array
 type JSONableByteSlice []byte
