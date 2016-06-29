@@ -1,8 +1,8 @@
 package psmb
 
-// To downstream
+// psbm to modbusd structures - downstream
 
-// DMbtcpRes Modbus tcp generic response
+// DMbtcpRes Modbus tcp generic response (include write response)
 type DMbtcpRes struct {
 	Tid    uint64 `json:"tid"`
 	Status string `json:"status"`
@@ -41,7 +41,7 @@ type DMbtcpTimeoutRes struct {
 	Timeout int64  `json:"timeout,omitempty"`
 }
 
-// DMbtcpSingleWriteReq Modbus tcp write request
+// DMbtcpSingleWriteReq Modbus tcp write single bit/register request
 type DMbtcpSingleWriteReq struct {
 	Tid   uint64 `json:"tid"`
 	Cmd   string `json:"cmd"`
@@ -52,7 +52,7 @@ type DMbtcpSingleWriteReq struct {
 	Data  uint16 `json:"data"`
 }
 
-// DMbtcpMultipleWriteReq Modbus tcp write request
+// DMbtcpMultipleWriteReq Modbus tcp write multiple bits/registers request
 type DMbtcpMultipleWriteReq struct {
 	Tid   uint64   `json:"tid"`
 	Cmd   string   `json:"cmd"`
