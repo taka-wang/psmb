@@ -41,6 +41,28 @@ const (
 	MidLittleEndian
 )
 
+// RegDataType defines how to inteprete registers
+type RegDataType int
+
+const (
+	// RegisterArray register array, ex: [12345, 23456, 5678]
+	RegisterArray RegDataType = iota
+	// HexString hexadecimal string, ex: "112C004F12345678"
+	HexString
+	// Scale linearly scale
+	Scale
+	// UInt16 uint16 array
+	UInt16
+	// Int16 int16 array
+	Int16
+	// UInt32 uint32 array
+	UInt32
+	// Int32 int32 array
+	Int32
+	// Float32 float32 array
+	Float32
+)
+
 // bitStringToUInt8s converts bits string to uint8 array.
 // Source: function code 15
 func bitStringToUInt8s(bitString string) ([]uint8, error) {
@@ -104,14 +126,14 @@ func RegistersToBytes(data []uint16) ([]byte, error) {
 // Equation:
 // 	Let originLow, originHigh, targetLow, targetHigh as a, b, c, d accordingly.
 // 	Output = c + (d - c) * (input - a) / (b - a)
-func LinearScalingRegisters(data []uint16, originLow, originHigh, targetLow, targetHigh float64) []float64 {
+func LinearScalingRegisters(data []uint16, originLow, originHigh, targetLow, targetHigh float64) []float32 {
 	l := len(data)
 	low := math.Min(originLow, originHigh)
 	high := math.Max(originLow, originHigh)
-	result := make([]float64, l)
+	result := make([]float32, l)
 
 	for idx := 0; idx < l; idx++ {
-		result[idx] = targetLow + (targetHigh-targetLow)*(math.Min(math.Max(low, float64(data[idx])), high)-low)/(high-low)
+		result[idx] = float32(targetLow + (targetHigh-targetLow)*(math.Min(math.Max(low, float64(data[idx])), high)-low)/(high-low))
 	}
 	return result
 }
