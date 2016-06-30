@@ -26,7 +26,7 @@ func (u JSONableByteSlice) MarshalJSON() ([]byte, error) {
 type MbtcpOnceReadReq struct {
 	Tid   int64       `json:"tid"`
 	From  string      `json:"from,omitempty"`
-	FC    uint8       `json:"fc"`
+	FC    int         `json:"fc"`
 	IP    string      `json:"ip"`
 	Port  string      `json:"port,omitempty"`
 	Slave uint8       `json:"slave"`

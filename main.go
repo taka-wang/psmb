@@ -39,7 +39,7 @@ func main() {
 			sender.Connect("ipc:///tmp/to.modbus")
 			command := DMbtcpReadReq{
 				Tid:   string(req.Tid),
-				Cmd:   int(req.FC),
+				Cmd:   req.FC,
 				IP:    req.IP,
 				Port:  req.Port,
 				Slave: req.Slave,
@@ -88,7 +88,7 @@ func subscriber() {
 			}
 			sender.Bind("ipc:///tmp/from.psmb")
 
-			tid, err := strconv.ParseInt(res.Tid, 10, 64)
+			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			command := MbtcpOnceReadUInt16Res{
 				MbtcpOnceReadRes{
 					tid,
