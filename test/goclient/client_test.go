@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"strconv"
 	"testing"
 	"time"
 
@@ -62,10 +61,9 @@ func TestPsmb(t *testing.T) {
 	s.Title("psmb test")
 
 	s.Assert("`FC1` test", func(log sugar.Log) bool {
-		tid := strconv.FormatInt(time.Now().UTC().UnixNano(), 10)
 		readReq := MbtcpOnceReadReq{
 			From:  "web",
-			Tid:   tid,
+			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
 			Port:  portNum,
 			FC:    1,
