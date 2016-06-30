@@ -1,4 +1,4 @@
-package psmb
+package main
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/marksalpeter/sugar"
 )
 
-func TestOneOffStruct(t *testing.T) {
+func TestUpstreamStruct(t *testing.T) {
 
 	s := sugar.New(nil)
 
@@ -121,49 +121,79 @@ func TestOneOffStruct(t *testing.T) {
 
 	s.Assert("`mbtcp.once.read` response test", func(log sugar.Log) bool {
 
-		res1 := MbtcpOnceReadUInt16Res{MbtcpOnceReadRes{Tid: 12345, Status: "ok"}, []uint16{1, 1, 0, 1, 0, 1}}
+		// res1
+		res1 := MbtcpOnceReadRes{
+			Tid: 12345, Status: "ok",
+			Data: []uint16{1, 1, 0, 1, 0, 1},
+		}
 		writeReqStr1, err := json.Marshal(res1)
 		if err != nil {
 			return false
 		}
 		log(string(writeReqStr1))
 
-		res2 := MbtcpOnceReadRes{Tid: 12345, Status: "timeout"}
+		// res2
+		res2 := MbtcpOnceReadRes{
+			Tid: 12345, Status: "timeout",
+		}
 		writeReqStr2, err := json.Marshal(res2)
 		if err != nil {
 			return false
 		}
 		log(string(writeReqStr2))
 
-		res3 := MbtcpOnceReadUInt16Res{MbtcpOnceReadRes{Tid: 12345, Status: "ok", Type: 1}, []uint16{255, 1234, 789}}
+		// res3
+		res3 := MbtcpOnceReadRes{
+			Tid: 12345, Status: "ok", Type: 1,
+			Data: []uint16{255, 1234, 789},
+		}
 		writeReqStr3, err := json.Marshal(res3)
 		if err != nil {
 			return false
 		}
 		log(string(writeReqStr3))
 
-		res4 := MbtcpOnceReadFloat32Res{MbtcpOnceReadRes{Tid: 12345, Status: "ok", Type: 2, Bytes: []byte{0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34}}, []float32{22.34, 33.12, 44.56}}
+		// res4
+		res4 := MbtcpOnceReadRes{
+			Tid: 12345, Status: "ok", Type: 2,
+			Bytes: []byte{0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34},
+			Data:  []float32{22.34, 33.12, 44.56},
+		}
 		writeReqStr4, err := json.Marshal(res4)
 		if err != nil {
 			return false
 		}
 		log(string(writeReqStr4))
 
-		res5 := MbtcpOnceReadUInt16Res{MbtcpOnceReadRes{Tid: 12345, Status: "ok", Type: 2, Bytes: []byte{0XFF, 0X00, 0XAB}}, []uint16{255, 1234, 789}}
+		// res5
+		res5 := MbtcpOnceReadRes{
+			Tid: 12345, Status: "ok", Type: 2,
+			Bytes: []byte{0XFF, 0X00, 0XAB},
+			Data:  []uint16{255, 1234, 789},
+		}
 		writeReqStr5, err := json.Marshal(res5)
 		if err != nil {
 			return false
 		}
 		log(string(writeReqStr5))
 
-		res6 := MbtcpOnceReadRes{Tid: 12345, Status: "conversion fail", Bytes: []byte{0XFF, 0X00, 0XAB}}
+		// res6
+		res6 := MbtcpOnceReadRes{
+			Tid: 12345, Status: "conversion fail",
+			Bytes: []byte{0XFF, 0X00, 0XAB},
+		}
 		writeReqStr6, err := json.Marshal(res6)
 		if err != nil {
 			return false
 		}
 		log(string(writeReqStr6))
 
-		res7 := MbtcpOnceReadStringRes{MbtcpOnceReadRes{Tid: 12345, Status: "ok", Type: 2, Bytes: []byte{0XFF, 0X00, 0XAB}}, "112C004F12345678"}
+		// res7
+		res7 := MbtcpOnceReadRes{
+			Tid: 12345, Status: "ok", Type: 2,
+			Bytes: []byte{0XFF, 0X00, 0XAB},
+			Data:  "112C004F12345678",
+		}
 		writeReqStr7, err := json.Marshal(res7)
 		if err != nil {
 			return false
@@ -231,4 +261,133 @@ func TestOneOffStruct(t *testing.T) {
 		log(string(writeReqStr1))
 		return true
 	})
+}
+
+func TestDownstreamStruct(t *testing.T) {
+
+	s := sugar.New(nil)
+
+	s.Title("modbus tcp downstreamstruct tests")
+
+	s.Assert("`read` request test", func(log sugar.Log) bool {
+		req := DMbtcpReadReq{
+			Tid:   "123456",
+			Cmd:   1,
+			IP:    "192.168.3.2",
+			Port:  "502",
+			Slave: 22,
+			Addr:  250,
+			Len:   10,
+		}
+		reqStr, err := json.Marshal(req)
+		if err != nil {
+			return false
+		}
+		log(string(reqStr))
+
+		return true
+	})
+
+	s.Assert("`single read` response test", func(log sugar.Log) bool {
+		input :=
+			`{
+                "tid": "1",
+                "data": [1],
+                "status": "ok"
+            }`
+		var r1 DMbtcpRes
+		if err := json.Unmarshal([]byte(input), &r1); err != nil {
+			log("json err:", err)
+			return false
+		}
+		log(r1)
+		return true
+	})
+
+	s.Assert("`multiple read` response test", func(log sugar.Log) bool {
+		input :=
+			`{
+                "tid": "1",
+                "data": [1,2,3,4],
+                "status": "ok"
+            }`
+		var r1 DMbtcpRes
+		if err := json.Unmarshal([]byte(input), &r1); err != nil {
+			log("json err:", err)
+			return false
+		}
+		log(r1)
+		return true
+	})
+
+	s.Assert("`single write` request test", func(log sugar.Log) bool {
+		req := DMbtcpSingleWriteReq{
+			Tid:   "123456",
+			Cmd:   6,
+			IP:    "192.168.3.2",
+			Port:  "502",
+			Slave: 22,
+			Addr:  250,
+			Data:  1234,
+		}
+		reqStr, err := json.Marshal(req)
+		if err != nil {
+			return false
+		}
+		log(string(reqStr))
+
+		return true
+	})
+
+	s.Assert("`multiple write` request test", func(log sugar.Log) bool {
+		req := DMbtcpMultipleWriteReq{
+			Tid:   "123456",
+			Cmd:   6,
+			IP:    "192.168.3.2",
+			Port:  "502",
+			Slave: 22,
+			Addr:  250,
+			Len:   4,
+			Data:  []uint16{1, 2, 3, 4},
+		}
+		reqStr, err := json.Marshal(req)
+		if err != nil {
+			return false
+		}
+		log(string(reqStr))
+
+		return true
+	})
+
+	s.Assert("`set timeout` request test", func(log sugar.Log) bool {
+		req := DMbtcpTimeout{
+			Tid:     "22222",
+			Cmd:     50,
+			Timeout: 210000,
+		}
+		reqStr, err := json.Marshal(req)
+		if err != nil {
+			return false
+		}
+		log(string(reqStr))
+
+		return true
+	})
+
+	s.Assert("`get timeout` response test", func(log sugar.Log) bool {
+		input :=
+			`{
+                "tid": "22222",
+                "status": "ok",
+                "timeout": 210000
+            }`
+		var r1 DMbtcpTimeout
+		if err := json.Unmarshal([]byte(input), &r1); err != nil {
+			log("json err:", err)
+			return false
+		}
+		log(r1)
+		return true
+	})
+
 }

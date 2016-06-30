@@ -17,6 +17,9 @@
 - [x] support x86_64, arm docker CI
 - [x] implement linear scaling conversion
 - [x] bit string to uint16 array conversion
+- [x] finish downstream devdoc
+- [x] implement upstream struct test cases
+- [x] implement downstream struct test cases
 
 # TODO
 - [ ] define request type
