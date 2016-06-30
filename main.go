@@ -39,7 +39,7 @@ func main() {
 			sender.Connect("ipc:///tmp/to.modbus")
 			command := DMbtcpReadReq{
 				Tid:   string(req.Tid),
-				Cmd:   req.FC,
+				Cmd:   int(req.FC),
 				IP:    req.IP,
 				Port:  req.Port,
 				Slave: req.Slave,
@@ -93,6 +93,8 @@ func subscriber() {
 				MbtcpOnceReadRes{
 					tid,
 					res.Status,
+					0,
+					nil,
 				},
 				res.Data,
 			}
