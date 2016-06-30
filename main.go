@@ -32,7 +32,7 @@ func main() {
 		switch msg[0] {
 		case "mbtcp.once.read":
 			fmt.Println("got")
-			var req = MbtcpOnceReadReq
+			var req MbtcpOnceReadReq
 			if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 				fmt.Println("json err:", err)
 			}
@@ -82,7 +82,7 @@ func subscriber() {
 		switch msg[0] {
 		case "mbtcp.once.read":
 
-			var res = DMbtcpRes
+			var res DMbtcpRes
 			if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 				fmt.Println("json err:", err)
 			}
@@ -91,14 +91,14 @@ func subscriber() {
 			tid, err := strconv.ParseInt(res.Tid, 10, 64)
 			command := MbtcpOnceReadUInt16Res{
 				MbtcpOnceReadRes{
-					Tid:    tid,
-					Status: res.Status,
+					tid,
+					res.Status,
 				},
-				Data: res.Data,
+				res.Data,
 			}
 			cmdStr, _ := json.Marshal(command)
-			sender.Send(msg[0], zmq.SNDMORE) // frame 1
-			sender.Send(string(cmdStr), 0)   // convert to string; frame 2
+			sender.Send(string(msg[0]), zmq.SNDMORE) // frame 1
+			sender.Send(string(cmdStr), 0)           // convert to string; frame 2
 			sender.Close()
 
 		default:
