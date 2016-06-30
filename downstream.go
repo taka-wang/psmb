@@ -4,14 +4,14 @@ package main
 
 // DMbtcpRes modbus tcp function code generic response
 type DMbtcpRes struct {
-	Tid    int64    `json:"tid"`
+	Tid    string   `json:"tid"`
 	Status string   `json:"status"`
 	Data   []uint16 `json:"data,omitempty"`
 }
 
 // DMbtcpReadReq modbus tcp read request
 type DMbtcpReadReq struct {
-	Tid   int64  `json:"tid"`
+	Tid   string `json:"tid"`
 	Cmd   int    `json:"cmd"`
 	IP    string `json:"ip"`
 	Port  string `json:"port"`
@@ -22,7 +22,7 @@ type DMbtcpReadReq struct {
 
 // DMbtcpSingleWriteReq modbus tcp write single bit/register request
 type DMbtcpSingleWriteReq struct {
-	Tid   int64  `json:"tid"`
+	Tid   string `json:"tid"`
 	Cmd   int    `json:"cmd"`
 	IP    string `json:"ip"`
 	Port  string `json:"port"`
@@ -33,7 +33,7 @@ type DMbtcpSingleWriteReq struct {
 
 // DMbtcpMultipleWriteReq modbus tcp write multiple bits/registers request
 type DMbtcpMultipleWriteReq struct {
-	Tid   int64    `json:"tid"`
+	Tid   string   `json:"tid"`
 	Cmd   int      `json:"cmd"`
 	IP    string   `json:"ip"`
 	Port  string   `json:"port"`
@@ -45,7 +45,7 @@ type DMbtcpMultipleWriteReq struct {
 
 // DMbtcpTimeout modbus tcp set/get timeout request/response
 type DMbtcpTimeout struct {
-	Tid     int64  `json:"tid"`
+	Tid     string `json:"tid"`
 	Cmd     int    `json:"cmd"`
 	Status  string `json:"status,omitempty"`
 	Timeout int64  `json:"timeout,omitempty"`
