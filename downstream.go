@@ -12,7 +12,7 @@ type DMbtcpRes struct {
 // DMbtcpReadReq modbus tcp read request
 type DMbtcpReadReq struct {
 	Tid   int64  `json:"tid"`
-	Cmd   string `json:"cmd"`
+	Cmd   int    `json:"cmd"`
 	IP    string `json:"ip"`
 	Port  string `json:"port"`
 	Slave uint8  `json:"slave"`
@@ -23,7 +23,7 @@ type DMbtcpReadReq struct {
 // DMbtcpSingleWriteReq modbus tcp write single bit/register request
 type DMbtcpSingleWriteReq struct {
 	Tid   int64  `json:"tid"`
-	Cmd   string `json:"cmd"`
+	Cmd   int    `json:"cmd"`
 	IP    string `json:"ip"`
 	Port  string `json:"port"`
 	Slave uint8  `json:"slave"`
@@ -34,7 +34,7 @@ type DMbtcpSingleWriteReq struct {
 // DMbtcpMultipleWriteReq modbus tcp write multiple bits/registers request
 type DMbtcpMultipleWriteReq struct {
 	Tid   int64    `json:"tid"`
-	Cmd   string   `json:"cmd"`
+	Cmd   int      `json:"cmd"`
 	IP    string   `json:"ip"`
 	Port  string   `json:"port"`
 	Slave uint8    `json:"slave"`
@@ -46,7 +46,7 @@ type DMbtcpMultipleWriteReq struct {
 // DMbtcpTimeout modbus tcp set/get timeout request/response
 type DMbtcpTimeout struct {
 	Tid     int64  `json:"tid"`
-	Cmd     string `json:"cmd"`
+	Cmd     int    `json:"cmd"`
 	Status  string `json:"status,omitempty"`
 	Timeout int64  `json:"timeout,omitempty"`
 }
