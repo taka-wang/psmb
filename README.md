@@ -18,7 +18,7 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 ---
 
 # Module
-- scheduler
+- [scheduler](https://github.com/taka-wang/gocron)
 - request parser
 - command builder
 - post processing (event mapper)
