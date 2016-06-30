@@ -1,4 +1,4 @@
-package psmb
+package main
 
 // psbm to modbusd structures - downstream
 

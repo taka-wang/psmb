@@ -1,4 +1,4 @@
-package psmb
+package main
 
 import (
 	"bytes"
