@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"./psmb"
 	"github.com/taka-wang/gocron"
-	psmb "github.com/taka-wang/psmb/psmb"
 	zmq "github.com/taka-wang/zmq3"
 )
 
