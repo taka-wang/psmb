@@ -28,13 +28,13 @@ func publisher() {
 	t := time.Now()
 	fmt.Println("zsend" + t.Format("2006-01-02 15:04:05.000"))
 	command := DMbtcpReadReq{
-		"172.17.0.2",
-		"502",
-		1,
-		12,
-		"fc1",
-		10,
-		10,
+		Tid:   "12345678910",
+		Cmd:   1,
+		IP:    "172.17.0.2",
+		Port:  "502",
+		Slave: 1,
+		Addr:  10,
+		Len:   8,
 	}
 
 	cmd, err := json.Marshal(command) // marshal to json string
