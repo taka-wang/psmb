@@ -5,7 +5,7 @@ FROM takawang/ubuntu-gozmq
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 WORKDIR /go
-RUN go get github.com/marksalpeter/sugar
+RUN go get github.com/marksalpeter/sugar && go get github.com/taka-wang/gocron
 
 
 ## Load app files
