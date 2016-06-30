@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"./psmb"
 	"github.com/taka-wang/gocron"
 	zmq "github.com/taka-wang/zmq3"
 )
@@ -28,7 +27,7 @@ func main() {
 func publisher() {
 	t := time.Now()
 	fmt.Println("zsend" + t.Format("2006-01-02 15:04:05.000"))
-	command := psmb.DMbtcpReadReq{
+	command := DMbtcpReadReq{
 		"172.17.0.2",
 		"502",
 		1,
