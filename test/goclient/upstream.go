@@ -42,7 +42,7 @@ type MbtcpOnceReadReq struct {
 	} `json:"range,omitempty"`
 }
 
-// MbtcpOnceReadRes read coil/register response (1.1)
+// MbtcpOnceReadRes read coil/register request (1.1)
 type MbtcpOnceReadRes struct {
 	Tid    int64       `json:"tid"`
 	Status string      `json:"status"`
@@ -51,37 +51,37 @@ type MbtcpOnceReadRes struct {
 	Bytes JSONableByteSlice `json:"bytes,omitempty"`
 }
 
-// MbtcpOnceReadUInt16Res read coil/register response (1.1)
+// MbtcpOnceReadUInt16Res read coil/register request (1.1)
 type MbtcpOnceReadUInt16Res struct {
 	MbtcpOnceReadRes
 	Data []uint16 `json:"data"`
 }
 
-// MbtcpOnceReadInt16Res read coil/register response (1.1)
+// MbtcpOnceReadInt16Res read coil/register request (1.1)
 type MbtcpOnceReadInt16Res struct {
 	MbtcpOnceReadRes
 	Data []int16 `json:"data,omitempty"`
 }
 
-// MbtcpOnceReadUInt32Res read coil/register response (1.1)
+// MbtcpOnceReadUInt32Res read coil/register request (1.1)
 type MbtcpOnceReadUInt32Res struct {
 	MbtcpOnceReadRes
 	Data []uint32 `json:"data"`
 }
 
-// MbtcpOnceReadInt32Res read coil/register response (1.1)
+// MbtcpOnceReadInt32Res read coil/register request (1.1)
 type MbtcpOnceReadInt32Res struct {
 	MbtcpOnceReadRes
 	Data []int32 `json:"data,omitempty"`
 }
 
-// MbtcpOnceReadFloat32Res read coil/register response (1.1)
+// MbtcpOnceReadFloat32Res read coil/register request (1.1)
 type MbtcpOnceReadFloat32Res struct {
 	MbtcpOnceReadRes
 	Data []float32 `json:"data,omitempty"`
 }
 
-// MbtcpOnceReadStringRes read coil/register response (1.1)
+// MbtcpOnceReadStringRes read coil/register request (1.1)
 type MbtcpOnceReadStringRes struct {
 	MbtcpOnceReadRes
 	Data string `json:"data,omitempty"`

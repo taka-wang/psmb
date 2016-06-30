@@ -32,7 +32,7 @@ script:
 - docker run -v /tmp:/tmp -itd --name=$PSMB_NAME $PSMB_IMG
 
 ### run goclient
-- docker run -v /tmp:/tmp -it --name=$PSMB_GOCLIENT_NAME $PSMB_GOCLIENT_IMG
+- docker run -v /tmp:/tmp --link $PSMB_MODBUS_NAME -it --name=$PSMB_GOCLIENT_NAME $PSMB_GOCLIENT_IMG
 
 ### stop all containers
 - docker stop $PSMB_MODBUS_NAME $PSMB_NAME $PSMB_GOCLIENT_NAME
