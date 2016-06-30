@@ -1,6 +1,5 @@
 package psmb
 
-/*
 import (
 	"encoding/json"
 	"fmt"
@@ -10,6 +9,7 @@ import (
 	zmq "github.com/taka-wang/zmq3"
 )
 
+// MbReadReq read request
 type MbReadReq struct {
 	IP    string `json:"ip"`
 	Port  string `json:"port"`
@@ -72,4 +72,3 @@ func subscriber() {
 		fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
 	}
 }
-*/

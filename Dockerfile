@@ -10,7 +10,8 @@ RUN go get github.com/marksalpeter/sugar
 
 ## Load app files
 ADD . /go
+RUN go build
 
 ## Default command
-CMD ["go", "test", "-v"]
-
+#CMD ["go", "test", "-v"]
+CMD ["/go/psmb"]
