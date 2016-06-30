@@ -6,19 +6,9 @@ import (
 	"time"
 
 	"github.com/taka-wang/gocron"
+	psmb "github.com/taka-wang/psmb/psmb"
 	zmq "github.com/taka-wang/zmq3"
 )
-
-// MbReadReq read request
-type MbReadReq struct {
-	IP    string `json:"ip"`
-	Port  string `json:"port"`
-	Slave int    `json:"slave"`
-	Tid   int64  `json:"tid"`
-	Cmd   string `json:"cmd"`
-	Addr  int    `json:"addr"`
-	Len   int    `json:"len"`
-}
 
 var sender *zmq.Socket
 
@@ -38,7 +28,7 @@ func main() {
 func publisher() {
 	t := time.Now()
 	fmt.Println("zsend" + t.Format("2006-01-02 15:04:05.000"))
-	command := MbReadReq{
+	command := psmb.DMbtcpReadReq{
 		"172.17.0.2",
 		"502",
 		1,
