@@ -11,9 +11,9 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 
 # Unit tests
 
-- [binary](psmb/binary_test.go)
-- [upstream](psmb/upstream_test.go)
-- [downstream](psmb/downstream_test.go)
+- [binary](binary_test.go)
+- [upstream](upstream_test.go)
+- [downstream](downstream_test.go)
 
 ---
 
