@@ -62,9 +62,10 @@ func TestPsmb(t *testing.T) {
 	s.Title("psmb test")
 
 	s.Assert("`FC1` test", func(log sugar.Log) bool {
+		tid := strconv.FormatInt(time.Now().UTC().UnixNano(), 10)
 		readReq := MbtcpOnceReadReq{
 			From:  "web",
-			Tid:   strconv.FormatInt(time.Now().UTC().UnixNano(), 10),
+			Tid:   tid,
 			IP:    hostName,
 			Port:  portNum,
 			FC:    1,
