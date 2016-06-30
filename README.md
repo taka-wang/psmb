@@ -7,6 +7,16 @@
 
 Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 
+---
+
+# Unit tests
+
+- [binary](binary_test.go)
+- [upstream](upstream_test.go)
+- [downstream](downstream_test.go)
+
+---
+
 # Module
 - scheduler
 - request parser

@@ -1,0 +1,3 @@
+# goclient
+
+go client simulator

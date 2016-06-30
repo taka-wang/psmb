@@ -1,3 +1,0 @@
-# zclient
-
-zmq client simulator

@@ -340,7 +340,7 @@ Command name: **mbtcp.once.write**
 >| slave    | slave id               | integer       | [1, 253]       | 1              | :heavy_check_mark:  |
 >| addr     | register start address | integer       | -              | 23             | :heavy_check_mark:  |
 >| len      | bit/register length    | integer       | -              | 20             | **FC15, 16 only**   |
->| hex      | hex/dec string flag    | bool          | [true, false]  | true           | **FC6, 16 only**    |
+>| **hex**  | hex/dec string flag    | bool          | [true, false]  | true           | **FC6, 16 only**    |
 >| data(*)  | data to be write       | integer       | [0,1]          | 1              | **FC5 only**        |
 >| data(**) | data to be write       | string        | hex/dec string | -              | **FC6, 16 only**    |
 >| data(***)| data to be write       | integer array | bit array      | [1,1,0,1]      | **FC15 only**       |
