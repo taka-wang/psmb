@@ -10,6 +10,7 @@ RUN go get github.com/marksalpeter/sugar && go get github.com/taka-wang/gocron
 
 ## Load app files
 ADD . /go
+RUN go test -v
 RUN go build -o psmb
 
 ## Default command
