@@ -36,6 +36,7 @@ func subscriber() (string, string) {
 	filter := ""
 	receiver.SetSubscribe(filter) // filter frame 1
 	for {
+		fmt.Println("listen..")
 		msg, _ := receiver.RecvMessage(0)
 		// recv then exit loop
 		return msg[0], msg[1]

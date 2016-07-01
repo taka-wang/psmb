@@ -10,7 +10,9 @@ import (
 )
 
 func subscriber() {
+
 	sender, _ := zmq.NewSocket(zmq.PUB) // to upstream
+	sender.Bind("ipc:///tmp/from.psmb")
 
 	receiver, _ := zmq.NewSocket(zmq.SUB)
 	defer receiver.Close()
@@ -27,8 +29,6 @@ func subscriber() {
 			fmt.Println("json err:", err)
 		}
 		fmt.Println(res)
-
-		sender.Bind("ipc:///tmp/from.psmb")
 
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		command := MbtcpOnceReadUInt16Res{
@@ -91,7 +91,7 @@ func main() {
 
 			sender.Connect("ipc:///tmp/to.modbus")
 			command := DMbtcpReadReq{
-				Tid:   string(req.Tid),
+				Tid:   strconv.FormatInt(req.Tid, 10),
 				Cmd:   req.FC,
 				IP:    req.IP,
 				Port:  req.Port,
