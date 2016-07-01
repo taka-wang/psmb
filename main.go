@@ -20,9 +20,7 @@ func subscriber() {
 	receiver.SetSubscribe(filter) // filter frame 1
 	for {
 		msg, _ := receiver.RecvMessage(0)
-
-		fmt.Println(msg[0])         // frame 1: method
-		fmt.Println(string(msg[1])) // frame 2: command
+		fmt.Println("recv from modbusd", msg[0], msg[1])
 
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
@@ -43,8 +41,12 @@ func subscriber() {
 			res.Data,
 		}
 		cmdStr, _ := json.Marshal(command)
-		sender.Send(string(msg[0]), zmq.SNDMORE) // frame 1
-		sender.Send(string(cmdStr), 0)           // convert to string; frame 2
+
+		fmt.Println("convert to downstream complete")
+		fmt.Println(string(cmdStr))
+
+		sender.Send(msg[0], zmq.SNDMORE) // frame 1
+		sender.Send(string(cmdStr), 0)   // convert to string; frame 2
 		sender.Close()
 
 		/*
@@ -56,7 +58,7 @@ func subscriber() {
 			}
 		*/
 		t := time.Now()
-		fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
+		fmt.Println("zrecv:" + t.Format("2006-01-02 15:04:05.000"))
 	}
 }
 
@@ -73,21 +75,20 @@ func main() {
 	receiver, _ := zmq.NewSocket(zmq.SUB)
 	defer receiver.Close()
 	receiver.Bind("ipc:///tmp/to.psmb")
-
 	filter := ""
 	receiver.SetSubscribe(filter) // filter frame 1
+
 	for {
 		msg, _ := receiver.RecvMessage(0)
-		fmt.Println(msg[0]) // frame 1: method
-		fmt.Println(msg[1]) // frame 2: command
-
+		fmt.Println("recv from web", msg[0], msg[1])
 		switch msg[0] {
 		case "mbtcp.once.read":
-			fmt.Println("got")
+			fmt.Println("in: ", msg[0])
 			var req MbtcpOnceReadReq
 			if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 				fmt.Println("json err:", err)
 			}
+
 			sender.Connect("ipc:///tmp/to.modbus")
 			command := DMbtcpReadReq{
 				Tid:   string(req.Tid),
@@ -103,6 +104,8 @@ func main() {
 			if err != nil {
 				fmt.Println("json err:", err)
 			}
+			fmt.Println("convert to downstream complete")
+			fmt.Println(string(cmd))
 
 			sender.Send("tcp", zmq.SNDMORE) // frame 1
 			sender.Send(string(cmd), 0)     // convert to string; frame 2
