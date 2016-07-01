@@ -12,8 +12,7 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 # Unit tests
 
 - [binary](binary_test.go)
-- [upstream](upstream_test.go)
-- [downstream](downstream_test.go)
+- [types](types_test.go)
 
 ---
 
@@ -34,21 +33,24 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 
 ### Build images
 ```bash
+# build modbus simulator image
 docker build -t takawang/mbd test/mb/.
-
+# build psmb image
 docker build -t takawang/psmb .
-
+# build goclient image
 docker build -t takawang/psmb-goclient test/goclient/.
-
 ```
 
 ### Run images
 ```bash
+# run modbus simulator
 docker run -v /tmp:/tmp -itd --name=mbd takawang/mbd 
 
+# run psmb
 docker run -v /tmp:/tmp -itd takawang/psmb
-docker run -v /tmp:/tmp -it takawang/psmb /bin/bash
+#docker run -v /tmp:/tmp -it takawang/psmb /bin/bash
 
-docker run -v /tmp:/tmp --link mbd -it takawang/psmb-goclient /bin/bash
+# run goclient
+docker run -v /tmp:/tmp --link mbd -it takawang/psmb-goclient
 
 ```

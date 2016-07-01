@@ -11,58 +11,6 @@ import (
 	"strings"
 )
 
-// Endian defines byte endianness
-type Endian int
-
-const (
-	// ABCD 32-bit words may be represented in big-endian format
-	ABCD Endian = iota
-	// DCBA 32-bit words may be represented in little-endian format
-	DCBA
-	// BADC 32-bit words may be represented in mid-big-endian format
-	BADC
-	// CDAB 32-bit words may be represented in mid-little-endian format
-	CDAB
-)
-const (
-	// AB 16-bit words may be represented in big-endian format
-	AB Endian = iota
-	// BA 16-bit words may be represented in little-endian format
-	BA
-)
-const (
-	// BigEndian 32-bit words may be represented in ABCD format
-	BigEndian Endian = iota
-	// LittleEndian 32-bit words may be represented in DCBA format
-	LittleEndian
-	// MidBigEndian 32-bit words may be represented in BADC format
-	MidBigEndian
-	// MidLittleEndian 32-bit words may be represented in CDAB format
-	MidLittleEndian
-)
-
-// RegDataType defines how to inteprete registers
-type RegDataType int
-
-const (
-	// RegisterArray register array, ex: [12345, 23456, 5678]
-	RegisterArray RegDataType = iota
-	// HexString hexadecimal string, ex: "112C004F12345678"
-	HexString
-	// Scale linearly scale
-	Scale
-	// UInt16 uint16 array
-	UInt16
-	// Int16 int16 array
-	Int16
-	// UInt32 uint32 array
-	UInt32
-	// Int32 int32 array
-	Int32
-	// Float32 float32 array
-	Float32
-)
-
 // bitStringToUInt8s converts bits string to uint8 array.
 // Source: function code 15
 func bitStringToUInt8s(bitString string) ([]uint8, error) {
