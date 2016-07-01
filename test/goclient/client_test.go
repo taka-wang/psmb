@@ -46,7 +46,8 @@ func subscriber() (string, string) {
 func TestPsmb(t *testing.T) {
 	s := sugar.New(nil)
 
-	portNum = "502"
+	portNum1 = "502"
+	PortNum2 = "503"
 
 	// generalize host reslove for docker/local env
 	host, err := net.LookupHost("mbd")
@@ -60,13 +61,48 @@ func TestPsmb(t *testing.T) {
 
 	s.Title("psmb test")
 
-	s.Assert("`FC1` read bits test", func(log sugar.Log) bool {
+	s.Assert("`FC1` read bits test: port 502", func(log sugar.Log) bool {
 		// send request
 		readReq := MbtcpOnceReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
-			Port:  portNum,
+			Port:  portNum1,
+			FC:    1,
+			Slave: 1,
+			Addr:  10,
+			Len:   7,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpOnceReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check reponse
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC1` read bits test: port 503", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpOnceReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum2,
 			FC:    1,
 			Slave: 1,
 			Addr:  10,
