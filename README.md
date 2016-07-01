@@ -28,3 +28,20 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 - zmq sub from downstream
 - logger
 - database?
+
+---
+## Docker 
+
+### Build images
+```bash
+docker build -t takawang/mbd test/mb/.
+
+docker build -t takawang/psmb .
+
+docker build -t takawang/psmb-goclient test/goclient/.
+
+```
+
+### Run images
+```bash
+```

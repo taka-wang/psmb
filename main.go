@@ -20,36 +20,41 @@ func subscriber() {
 	receiver.SetSubscribe(filter) // filter frame 1
 	for {
 		msg, _ := receiver.RecvMessage(0)
-		fmt.Println(msg[0]) // frame 1: method
-		fmt.Println(msg[1]) // frame 2: command
-		switch msg[0] {
-		case "mbtcp.once.read":
 
-			var res DMbtcpRes
-			if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-				fmt.Println("json err:", err)
-			}
-			sender.Bind("ipc:///tmp/from.psmb")
+		fmt.Println(msg[0])         // frame 1: method
+		fmt.Println(string(msg[1])) // frame 2: command
 
-			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-			command := MbtcpOnceReadUInt16Res{
-				MbtcpOnceReadRes{
-					tid,
-					res.Status,
-					0,
-					nil,
-				},
-				res.Data,
-			}
-			cmdStr, _ := json.Marshal(command)
-			sender.Send(string(msg[0]), zmq.SNDMORE) // frame 1
-			sender.Send(string(cmdStr), 0)           // convert to string; frame 2
-			sender.Close()
-
-		default:
-			fmt.Println("unsupport")
+		var res DMbtcpRes
+		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
+			fmt.Println("json err:", err)
 		}
+		fmt.Println(res)
 
+		sender.Bind("ipc:///tmp/from.psmb")
+
+		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+		command := MbtcpOnceReadUInt16Res{
+			MbtcpOnceReadRes{
+				tid,
+				res.Status,
+				0,
+				nil,
+			},
+			res.Data,
+		}
+		cmdStr, _ := json.Marshal(command)
+		sender.Send(string(msg[0]), zmq.SNDMORE) // frame 1
+		sender.Send(string(cmdStr), 0)           // convert to string; frame 2
+		sender.Close()
+
+		/*
+			switch msg[0] {
+			case "mbtcp.once.read":
+
+			default:
+				fmt.Println("unsupport")
+			}
+		*/
 		t := time.Now()
 		fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
 	}
