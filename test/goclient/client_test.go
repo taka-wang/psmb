@@ -11,8 +11,6 @@ import (
 	zmq "github.com/taka-wang/zmq3"
 )
 
-var hostName, portNum1, portNum2 string
-
 // generic tcp publisher
 func publisher(cmd, json string) {
 	sender, _ := zmq.NewSocket(zmq.PUB)
@@ -46,8 +44,9 @@ func subscriber() (string, string) {
 func TestPsmb(t *testing.T) {
 	s := sugar.New(nil)
 
-	portNum1 = "502"
-	PortNum2 = "503"
+	var hostName string
+	portNum1 := "502"
+	PortNum2 := "503"
 
 	// generalize host reslove for docker/local env
 	host, err := net.LookupHost("mbd")
