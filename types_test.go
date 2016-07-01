@@ -1,10 +1,11 @@
-package main
+package main_test
 
 import (
 	"encoding/json"
 	"testing"
 
 	"github.com/marksalpeter/sugar"
+	. "github.com/taka-wang/psmb"
 )
 
 func TestUpstreamStruct(t *testing.T) {
