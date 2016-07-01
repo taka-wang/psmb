@@ -1,3 +1,5 @@
+// dummy modbus responser
+
 var 
 zmq = require('zmq')
 , pub = zmq.socket('pub')

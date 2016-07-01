@@ -82,42 +82,55 @@ const (
 
 // ======================= psbm to modbusd structures - downstream =======================
 
-// DMbtcpRes modbus tcp function code generic response
+// DMbtcpRes downstream modbus tcp read/write response
 type DMbtcpRes struct {
-	Tid    string   `json:"tid"`
-	Status string   `json:"status"`
-	Data   []uint16 `json:"data,omitempty"`
+	// Tid unique transaction id in string format
+	Tid    string `json:"tid"`
+	Status string `json:"status"`
+	// Data for read function code only.
+	Data []uint16 `json:"data,omitempty"`
 }
 
-// DMbtcpReadReq modbus tcp read request
+// DMbtcpReadReq downstream modbus tcp read request
 type DMbtcpReadReq struct {
-	Tid   string `json:"tid"`
+	// Tid unique transaction id in string format
+	Tid string `json:"tid"`
+	// Cmd modbusd command type: https://github.com/taka-wang/modbusd#command-mapping-table
 	Cmd   int    `json:"cmd"`
 	IP    string `json:"ip"`
 	Port  string `json:"port"`
 	Slave uint8  `json:"slave"`
 	Addr  uint16 `json:"addr"`
-	Len   uint16 `json:"len"`
+	// Len the length of register or bit
+	Len uint16 `json:"len"`
 }
 
-// DMbtcpWriteReq modbus tcp write single bit/register request
+// DMbtcpWriteReq downstream modbus tcp write single bit/register request
 type DMbtcpWriteReq struct {
-	Tid   string      `json:"tid"`
-	Cmd   int         `json:"cmd"`
-	IP    string      `json:"ip"`
-	Port  string      `json:"port"`
-	Slave uint8       `json:"slave"`
-	Addr  uint16      `json:"addr"`
-	Len   uint16      `json:"len,omitempty"` // omit for fc5, fc6
-	Data  interface{} `json:"data"`          // uint16, []uint16
+	// Tid unique transaction id in string format
+	Tid string `json:"tid"`
+	// Cmd modbusd command type: https://github.com/taka-wang/modbusd#command-mapping-table
+	Cmd   int    `json:"cmd"`
+	IP    string `json:"ip"`
+	Port  string `json:"port"`
+	Slave uint8  `json:"slave"`
+	Addr  uint16 `json:"addr"`
+	// Len omit for fc5, fc6
+	Len uint16 `json:"len,omitempty"`
+	// Data should be []uint16, uint16 (FC5, FC6)
+	Data interface{} `json:"data"`
 }
 
-// DMbtcpTimeout modbus tcp set/get timeout request/response
+// DMbtcpTimeout downstream modbus tcp set/get timeout request/response
 type DMbtcpTimeout struct {
-	Tid     string `json:"tid"`
-	Cmd     int    `json:"cmd"`
-	Status  string `json:"status,omitempty"`
-	Timeout int64  `json:"timeout,omitempty"`
+	// Tid unique transaction id in string format
+	Tid string `json:"tid"`
+	// Cmd modbusd command type: https://github.com/taka-wang/modbusd#command-mapping-table
+	Cmd int `json:"cmd"`
+	// Status for response only.
+	Status string `json:"status,omitempty"`
+	// Timeout set timeout request and get timeout response only.
+	Timeout int64 `json:"timeout,omitempty"`
 }
 
 // ======================= services to psbm structures - upstream =======================
