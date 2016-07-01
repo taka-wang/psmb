@@ -3,7 +3,7 @@
 [![GoDoc](https://godoc.org/github.com/taka-wang/psmb?status.svg)](http://godoc.org/github.com/taka-wang/psmb)
 [![GitHub tag](https://img.shields.io/github/tag/taka-wang/psmb.svg)](https://github.com/taka-wang/psmb/tags) 
 [![Release](https://img.shields.io/github/release/taka-wang/psmb.svg)](https://github.com/taka-wang/psmb/releases/latest)
-
+[![](https://imagelayers.io/badge/takawang/psmb:latest.svg)](https://imagelayers.io/?images=takawang/psmb:latest)
 
 Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 
@@ -31,7 +31,16 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 ---
 ## Docker 
 
-### Build images
+### Docker Compose
+
+```bash
+docker-compose up
+# rebuild images
+docker-compose build
+```
+
+### Build images manually
+
 ```bash
 # build modbus simulator image
 docker build -t takawang/mbd test/mb/.
@@ -54,3 +63,8 @@ docker run -v /tmp:/tmp -itd takawang/psmb
 docker run -v /tmp:/tmp --link mbd -it takawang/psmb-goclient
 
 ```
+
+### Deployment Diagram
+
+![deployment](image/deployment.png)
+

@@ -8,15 +8,15 @@ import (
 // Endian defines byte endianness
 type Endian int
 
-// RegDataType defines how to inteprete registers
-type RegDataType int
+// RegValueType defines how to inteprete registers
+type RegValueType int
 
 // ScaleRange defines scale range
 type ScaleRange struct {
-	OriginLow  int `json:"a"`
-	OriginHigh int `json:"b"`
-	TargetLow  int `json:"c"`
-	TargetHigh int `json:"d"`
+	DomainLow  int `json:"a"`
+	DomainHigh int `json:"b"`
+	RangeLow   int `json:"c"`
+	RangeHigh  int `json:"d"`
 }
 
 // JSONableByteSlice jsonable uint8 array
@@ -35,8 +35,9 @@ func (u JSONableByteSlice) MarshalJSON() ([]byte, error) {
 }
 
 const (
+	_ Endian = iota // ignore first value by assigning to blank identifier
 	// ABCD 32-bit words may be represented in big-endian format
-	ABCD Endian = iota
+	ABCD
 	// DCBA 32-bit words may be represented in little-endian format
 	DCBA
 	// BADC 32-bit words may be represented in mid-big-endian format
@@ -44,15 +45,19 @@ const (
 	// CDAB 32-bit words may be represented in mid-little-endian format
 	CDAB
 )
+
 const (
+	_ Endian = iota // ignore first value by assigning to blank identifier
 	// AB 16-bit words may be represented in big-endian format
-	AB Endian = iota
+	AB
 	// BA 16-bit words may be represented in little-endian format
 	BA
 )
+
 const (
+	_ Endian = iota // ignore first value by assigning to blank identifier
 	// BigEndian 32-bit words may be represented in ABCD format
-	BigEndian Endian = iota
+	BigEndian
 	// LittleEndian 32-bit words may be represented in DCBA format
 	LittleEndian
 	// MidBigEndian 32-bit words may be represented in BADC format
@@ -62,8 +67,9 @@ const (
 )
 
 const (
+	_ RegValueType = iota // ignore first value by assigning to blank identifier
 	// RegisterArray register array, ex: [12345, 23456, 5678]
-	RegisterArray RegDataType = iota
+	RegisterArray
 	// HexString hexadecimal string, ex: "112C004F12345678"
 	HexString
 	// Scale linearly scale
@@ -80,86 +86,97 @@ const (
 	Float32
 )
 
-// ======================= psbm to modbusd structures - downstream =======================
+// ======================= psmb to modbusd structures - downstream =======================
 
-// DMbtcpRes modbus tcp function code generic response
+// DMbtcpRes downstream modbus tcp read/write response
 type DMbtcpRes struct {
-	Tid    string   `json:"tid"`
-	Status string   `json:"status"`
-	Data   []uint16 `json:"data,omitempty"`
+	// Tid unique transaction id in string format
+	Tid string `json:"tid"`
+	// Status response status string
+	Status string `json:"status"`
+	// Data for 'read function code' only.
+	Data []uint16 `json:"data,omitempty"`
 }
 
-// DMbtcpReadReq modbus tcp read request
+// DMbtcpReadReq downstream modbus tcp read request
 type DMbtcpReadReq struct {
-	Tid   string `json:"tid"`
-	Cmd   int    `json:"cmd"`
-	IP    string `json:"ip"`
-	Port  string `json:"port"`
-	Slave uint8  `json:"slave"`
-	Addr  uint16 `json:"addr"`
-	Len   uint16 `json:"len"`
+	// Tid unique transaction id in `string` format
+	Tid string `json:"tid"`
+	// Cmd modbusd command type: https://github.com/taka-wang/modbusd#command-mapping-table
+	Cmd int `json:"cmd"`
+	// IP ip address or hostname of the modbus tcp slave
+	IP string `json:"ip"`
+	// Port port number of the modbus tcp slave
+	Port string `json:"port"`
+	// Slave device id of the modbus tcp slave
+	Slave uint8 `json:"slave"`
+	// Addr start address for read
+	Addr uint16 `json:"addr"`
+	// Len the length of registers or bits
+	Len uint16 `json:"len"`
 }
 
-// DMbtcpSingleWriteReq modbus tcp write single bit/register request
-type DMbtcpSingleWriteReq struct {
-	Tid   string `json:"tid"`
-	Cmd   int    `json:"cmd"`
-	IP    string `json:"ip"`
-	Port  string `json:"port"`
-	Slave uint8  `json:"slave"`
-	Addr  uint16 `json:"addr"`
-	Data  uint16 `json:"data"`
+// DMbtcpWriteReq downstream modbus tcp write single bit/register request
+type DMbtcpWriteReq struct {
+	// Tid unique transaction id in `string` format
+	Tid string `json:"tid"`
+	// Cmd modbusd command type: https://github.com/taka-wang/modbusd#command-mapping-table
+	Cmd int `json:"cmd"`
+	// IP ip address or hostname of the modbus tcp slave
+	IP string `json:"ip"`
+	// Port port number of the modbus tcp slave
+	Port string `json:"port"`
+	// Slave device id of the modbus tcp slave
+	Slave uint8 `json:"slave"`
+	// Addr start address for write
+	Addr uint16 `json:"addr"`
+	// Len omit for fc5, fc6
+	Len uint16 `json:"len,omitempty"`
+	// Data should be []uint16, uint16 (FC5, FC6)
+	Data interface{} `json:"data"`
 }
 
-// DMbtcpMultipleWriteReq modbus tcp write multiple bits/registers request
-type DMbtcpMultipleWriteReq struct {
-	Tid   string   `json:"tid"`
-	Cmd   int      `json:"cmd"`
-	IP    string   `json:"ip"`
-	Port  string   `json:"port"`
-	Slave uint8    `json:"slave"`
-	Addr  uint16   `json:"addr"`
-	Len   uint16   `json:"len"`
-	Data  []uint16 `json:"data"`
-}
-
-// DMbtcpTimeout modbus tcp set/get timeout request/response
+// DMbtcpTimeout downstream modbus tcp set/get timeout request/response
 type DMbtcpTimeout struct {
-	Tid     string `json:"tid"`
-	Cmd     int    `json:"cmd"`
-	Status  string `json:"status,omitempty"`
-	Timeout int64  `json:"timeout,omitempty"`
+	// Tid unique transaction id in `string` format
+	Tid string `json:"tid"`
+	// Cmd modbusd command type: https://github.com/taka-wang/modbusd#command-mapping-table
+	Cmd int `json:"cmd"`
+	// Status for response only.
+	Status string `json:"status,omitempty"`
+	// Timeout set timeout request and get timeout response only.
+	Timeout int64 `json:"timeout,omitempty"`
 }
 
-// ======================= services to psbm structures - upstream =======================
+// ======================= services to psmb structures - upstream =======================
 
-// MbtcpOnceReadReq read coil/register request (1.1).
+// MbtcpReadReq read coil/register request (1.1).
 // Scale range field example:
 // Range: &ScaleRange{1,2,3,4},
-type MbtcpOnceReadReq struct {
-	Tid   int64       `json:"tid"`
-	From  string      `json:"from,omitempty"`
-	FC    int         `json:"fc"`
-	IP    string      `json:"ip"`
-	Port  string      `json:"port,omitempty"`
-	Slave uint8       `json:"slave"`
-	Addr  uint16      `json:"addr"`
-	Len   uint16      `json:"len,omitempty"`
-	Type  RegDataType `json:"type,omitempty"`
-	Order Endian      `json:"order,omitempty"`
-	Range *ScaleRange `json:"range,omitempty"`
+type MbtcpReadReq struct {
+	Tid   int64        `json:"tid"`
+	From  string       `json:"from,omitempty"`
+	FC    int          `json:"fc"`
+	IP    string       `json:"ip"`
+	Port  string       `json:"port,omitempty"`
+	Slave uint8        `json:"slave"`
+	Addr  uint16       `json:"addr"`
+	Len   uint16       `json:"len,omitempty"`
+	Type  RegValueType `json:"type,omitempty"`
+	Order Endian       `json:"order,omitempty"`
+	Range *ScaleRange  `json:"range,omitempty"` // point to struct can be omitted in json encode
 }
 
-// MbtcpOnceReadRes read coil/register response (1.1).
+// MbtcpReadRes read coil/register response (1.1).
 // `Data interface` supports:
 // []uint16, []int16, []uint32, []int32, []float32, string
-type MbtcpOnceReadRes struct {
-	Tid    int64       `json:"tid"`
-	Status string      `json:"status"`
-	Type   RegDataType `json:"type,omitempty"`
+type MbtcpReadRes struct {
+	Tid    int64        `json:"tid"`
+	Status string       `json:"status"`
+	Type   RegValueType `json:"type,omitempty"`
 	// Bytes FC3, FC4 and Type 2~8 only
 	Bytes JSONableByteSlice `json:"bytes,omitempty"`
-	Data  interface{}       `json:"data,omitempty"`
+	Data  interface{}       `json:"data,omitempty"` // universal data container
 }
 
 // MbtcpTimeoutReq set/get TCP connection timeout request (1.3, 1.4)
@@ -186,4 +203,37 @@ type MbtcpSimpleReq struct {
 type MbtcpSimpleRes struct {
 	Tid    int64  `json:"tid"`
 	Status string `json:"status"`
+}
+
+// MbtcpPollReq polling coil/register request
+type MbtcpPollReq struct {
+	Tid      int64        `json:"tid"`
+	From     string       `json:"from,omitempty"`
+	Name     string       `json:"name"`
+	Interval int          `json:"interval"`
+	Enabled  bool         `json:"enabled"`
+	FC       int          `json:"fc"`
+	IP       string       `json:"ip"`
+	Port     string       `json:"port,omitempty"`
+	Slave    uint8        `json:"slave"`
+	Addr     uint16       `json:"addr"`
+	Len      uint16       `json:"len,omitempty"`
+	Type     RegValueType `json:"type,omitempty"`
+	Order    Endian       `json:"order,omitempty"`
+	Range    *ScaleRange  `json:"range,omitempty"` // point to struct can be omitted in json encode
+}
+
+// MbtcpPollRes == MbtcpSimpleRes
+
+// MbtcpPollData read coil/register response (1.1).
+// `Data interface` supports:
+// []uint16, []int16, []uint32, []int32, []float32, string
+type MbtcpPollData struct {
+	TimeStamp int64        `json:"ts"`
+	Name      string       `json:"name"`
+	Status    string       `json:"status"`
+	Type      RegValueType `json:"type,omitempty"`
+	// Bytes FC3, FC4 and Type 2~8 only
+	Bytes JSONableByteSlice `json:"bytes,omitempty"`
+	Data  interface{}       `json:"data,omitempty"` // universal data container
 }

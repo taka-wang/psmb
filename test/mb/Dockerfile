@@ -1,28 +1,77 @@
-FROM takawang/ubuntu-modbus
+#
+# modbus slave simulator in C
+#
+
+FROM alpine:latest
 MAINTAINER Taka Wang <taka@cmwang.net>
 
-ADD run.sh /usr/local/bin/run.sh
+ENV ZMQ_VERSION 3.2.5
+ENV CZMQ_VERSION 3.0.2
+ENV MB_VERSION 3.1.4
 
-WORKDIR /
-RUN git clone https://github.com/taka-wang/modbusd.git
-WORKDIR /modbusd
+#ADD run.sh /usr/bin/run.sh
 
-## Build modbusd
-RUN mkdir -p /modbusd/build
-WORKDIR /modbusd/build
-RUN cmake .. && \
-    make && \
-    make install
+RUN apk update \
+#    && apk add --update bash \
+    && apk add \
+           git autoconf cmake build-base tar libtool zlib musl-dev openssl-dev zlib-dev curl \
+    
+    && echo " ... adding libmodbus" \
+         && curl -L http://libmodbus.org/releases/libmodbus-${MB_VERSION}.tar.gz -o /tmp/libmodbus.tar.gz \
+         && cd /tmp/ \
+         && tar -xf /tmp/libmodbus.tar.gz \
+         && cd /tmp/libmodbus*/ \
+         && ./configure --prefix=/usr \
+                        --sysconfdir=/etc \
+                        --mandir=/usr/share/man \
+                        --infodir=/usr/share/info \
+         && make && make install \
 
-## Install init script
-WORKDIR /modbusd/
-RUN cp "config/service.sh" "/etc/init.d/modbusd" && \
-    chmod +x /etc/init.d/modbusd && \
-    update-rc.d modbusd defaults
+    && echo " ... adding ZMQ and CZMQ" \
+         && curl -L http://download.zeromq.org/zeromq-${ZMQ_VERSION}.tar.gz -o /tmp/zeromq.tar.gz \
+         && cd /tmp/ \
+         && tar -xf /tmp/zeromq.tar.gz \
+         && cd /tmp/zeromq*/ \
+         && ./configure --prefix=/usr \
+                        --sysconfdir=/etc \
+                        --mandir=/usr/share/man \
+                        --infodir=/usr/share/info \
+         && make && make install \
+         
+         && curl -L http://download.zeromq.org/czmq-${CZMQ_VERSION}.tar.gz -o /tmp/czmq.tar.gz \
+         && cd /tmp/ \
+         && tar -xf /tmp/czmq.tar.gz \
+         && cd /tmp/czmq*/ \
+         && ./configure --prefix=/usr \
+                        --sysconfdir=/etc \
+                        --mandir=/usr/share/man \
+                        --infodir=/usr/share/info \
+         && make && make install \
 
-## Build dummy modbus slave
-WORKDIR /modbusd/tests/cmbserver
-RUN gcc server.c -o server -Wall -std=c99 `pkg-config --libs --cflags libmodbus`
+    && echo " ... build modbusd" \
+        && cd /tmp/ \
+        && git clone https://github.com/taka-wang/modbusd.git \
+        && mkdir -p /tmp/modbusd/build && cd /tmp/modbusd/build \
+        && cmake .. && make && make install \
+    
+    && echo " ... build mbserver" \
+        && cd /tmp/modbusd/tests/cmbserver/ \
+        && gcc server.c -o server -Wall -std=c99 `pkg-config --libs --cflags libmodbus` \
+        && chmod +x server \
+        && cp server /usr/bin/ \
+    
+    && echo " ... clean up" \
+        && rm -rf /tmp/* \
+        && rm /usr/lib/*.a && rm /usr/lib/*.la \
+        && apk del \
+            git autoconf cmake build-base tar libtool zlib musl-dev openssl-dev zlib-dev curl \
+        && rm -rf /var/cache/apk/* 
 
-## default command
-CMD ["/usr/local/bin/run.sh"]
+RUN apk update \
+    && apk add libgcc libstdc++
+
+EXPOSE 502
+
+## Default command
+#CMD ["/usr/bin/run.sh"]
+CMD /usr/bin/modbusd /etc/modbusd/modbusd.json & /usr/bin/server & /usr/bin/server 503

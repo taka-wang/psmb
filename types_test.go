@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/marksalpeter/sugar"
+	"github.com/takawang/sugar"
 )
 
 func TestUpstreamStruct(t *testing.T) {
@@ -25,7 +25,7 @@ func TestUpstreamStruct(t *testing.T) {
                 "addr": 10,
                 "len": 4
             }`
-		var r1 MbtcpOnceReadReq
+		var r1 MbtcpReadReq
 		if err := json.Unmarshal([]byte(input), &r1); err != nil {
 			log("json err:", err)
 			return false
@@ -44,7 +44,7 @@ func TestUpstreamStruct(t *testing.T) {
                 "len": 4,
                 "type": 1
             }`
-		var r2 MbtcpOnceReadReq
+		var r2 MbtcpReadReq
 		if err := json.Unmarshal([]byte(input2), &r2); err != nil {
 			log("json err:", err)
 			return false
@@ -70,7 +70,7 @@ func TestUpstreamStruct(t *testing.T) {
                     "d": 500
                 }
             }`
-		var r3 MbtcpOnceReadReq
+		var r3 MbtcpReadReq
 		if err := json.Unmarshal([]byte(input3), &r3); err != nil {
 			log("json err:", err)
 			return false
@@ -90,7 +90,7 @@ func TestUpstreamStruct(t *testing.T) {
                 "type": 4,
                 "order": 1
             }`
-		var r4 MbtcpOnceReadReq
+		var r4 MbtcpReadReq
 		if err := json.Unmarshal([]byte(input4), &r4); err != nil {
 			log("json err:", err)
 			return false
@@ -110,7 +110,7 @@ func TestUpstreamStruct(t *testing.T) {
                 "type": 6,
                 "order": 3
             }`
-		var r5 MbtcpOnceReadReq
+		var r5 MbtcpReadReq
 		if err := json.Unmarshal([]byte(input5), &r5); err != nil {
 			log("json err:", err)
 			return false
@@ -122,7 +122,7 @@ func TestUpstreamStruct(t *testing.T) {
 	s.Assert("`mbtcp.once.read` response test", func(log sugar.Log) bool {
 
 		// res1
-		res1 := MbtcpOnceReadRes{
+		res1 := MbtcpReadRes{
 			Tid: 12345, Status: "ok",
 			Data: []uint16{1, 1, 0, 1, 0, 1},
 		}
@@ -133,7 +133,7 @@ func TestUpstreamStruct(t *testing.T) {
 		log(string(writeReqStr1))
 
 		// res2
-		res2 := MbtcpOnceReadRes{
+		res2 := MbtcpReadRes{
 			Tid: 12345, Status: "timeout",
 		}
 		writeReqStr2, err := json.Marshal(res2)
@@ -143,7 +143,7 @@ func TestUpstreamStruct(t *testing.T) {
 		log(string(writeReqStr2))
 
 		// res3
-		res3 := MbtcpOnceReadRes{
+		res3 := MbtcpReadRes{
 			Tid: 12345, Status: "ok", Type: 1,
 			Data: []uint16{255, 1234, 789},
 		}
@@ -154,7 +154,7 @@ func TestUpstreamStruct(t *testing.T) {
 		log(string(writeReqStr3))
 
 		// res4
-		res4 := MbtcpOnceReadRes{
+		res4 := MbtcpReadRes{
 			Tid: 12345, Status: "ok", Type: 2,
 			Bytes: []byte{0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34},
 			Data:  []float32{22.34, 33.12, 44.56},
@@ -166,7 +166,7 @@ func TestUpstreamStruct(t *testing.T) {
 		log(string(writeReqStr4))
 
 		// res5
-		res5 := MbtcpOnceReadRes{
+		res5 := MbtcpReadRes{
 			Tid: 12345, Status: "ok", Type: 2,
 			Bytes: []byte{0XFF, 0X00, 0XAB},
 			Data:  []uint16{255, 1234, 789},
@@ -178,7 +178,7 @@ func TestUpstreamStruct(t *testing.T) {
 		log(string(writeReqStr5))
 
 		// res6
-		res6 := MbtcpOnceReadRes{
+		res6 := MbtcpReadRes{
 			Tid: 12345, Status: "conversion fail",
 			Bytes: []byte{0XFF, 0X00, 0XAB},
 		}
@@ -189,7 +189,7 @@ func TestUpstreamStruct(t *testing.T) {
 		log(string(writeReqStr6))
 
 		// res7
-		res7 := MbtcpOnceReadRes{
+		res7 := MbtcpReadRes{
 			Tid: 12345, Status: "ok", Type: 2,
 			Bytes: []byte{0XFF, 0X00, 0XAB},
 			Data:  "112C004F12345678",
@@ -321,7 +321,7 @@ func TestDownstreamStruct(t *testing.T) {
 	})
 
 	s.Assert("`single write` request test", func(log sugar.Log) bool {
-		req := DMbtcpSingleWriteReq{
+		req := DMbtcpWriteReq{
 			Tid:   "123456",
 			Cmd:   6,
 			IP:    "192.168.3.2",
@@ -340,7 +340,7 @@ func TestDownstreamStruct(t *testing.T) {
 	})
 
 	s.Assert("`multiple write` request test", func(log sugar.Log) bool {
-		req := DMbtcpMultipleWriteReq{
+		req := DMbtcpWriteReq{
 			Tid:   "123456",
 			Cmd:   6,
 			IP:    "192.168.3.2",
