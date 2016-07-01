@@ -60,7 +60,7 @@ func TestPsmb(t *testing.T) {
 
 	s.Title("psmb test")
 
-	s.Assert("`FC1` test", func(log sugar.Log) bool {
+	s.Assert("`FC1` read bits test", func(log sugar.Log) bool {
 		// send request
 		readReq := MbtcpOnceReadReq{
 			From:  "web",
@@ -70,17 +70,18 @@ func TestPsmb(t *testing.T) {
 			FC:    1,
 			Slave: 1,
 			Addr:  10,
-			Len:   8,
+			Len:   7,
 		}
 
 		readReqStr, _ := json.Marshal(readReq)
-		go publisher("mbtcp.once.read", string(readReqStr))
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
 
 		// receive response
-		_, s2 := subscriber()
+		s1, s2 := subscriber()
 
-		log("req: %s", string(readReqStr))
-		log("res: %s", s2)
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 MbtcpOnceReadRes

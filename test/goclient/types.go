@@ -80,7 +80,7 @@ const (
 	Float32
 )
 
-// =============== psbm to modbusd structures - downstream ===============
+// ======================= psbm to modbusd structures - downstream =======================
 
 // DMbtcpRes modbus tcp function code generic response
 type DMbtcpRes struct {
@@ -100,27 +100,16 @@ type DMbtcpReadReq struct {
 	Len   uint16 `json:"len"`
 }
 
-// DMbtcpSingleWriteReq modbus tcp write single bit/register request
-type DMbtcpSingleWriteReq struct {
-	Tid   string `json:"tid"`
-	Cmd   int    `json:"cmd"`
-	IP    string `json:"ip"`
-	Port  string `json:"port"`
-	Slave uint8  `json:"slave"`
-	Addr  uint16 `json:"addr"`
-	Data  uint16 `json:"data"`
-}
-
-// DMbtcpMultipleWriteReq modbus tcp write multiple bits/registers request
-type DMbtcpMultipleWriteReq struct {
-	Tid   string   `json:"tid"`
-	Cmd   int      `json:"cmd"`
-	IP    string   `json:"ip"`
-	Port  string   `json:"port"`
-	Slave uint8    `json:"slave"`
-	Addr  uint16   `json:"addr"`
-	Len   uint16   `json:"len"`
-	Data  []uint16 `json:"data"`
+// DMbtcpWriteReq modbus tcp write single bit/register request
+type DMbtcpWriteReq struct {
+	Tid   string      `json:"tid"`
+	Cmd   int         `json:"cmd"`
+	IP    string      `json:"ip"`
+	Port  string      `json:"port"`
+	Slave uint8       `json:"slave"`
+	Addr  uint16      `json:"addr"`
+	Len   uint16      `json:"len,omitempty"` // omit for fc5, fc6
+	Data  interface{} `json:"data"`          // uint16, []uint16
 }
 
 // DMbtcpTimeout modbus tcp set/get timeout request/response
@@ -131,10 +120,11 @@ type DMbtcpTimeout struct {
 	Timeout int64  `json:"timeout,omitempty"`
 }
 
-// =============== services to psbm structures - upstream ===============
+// ======================= services to psbm structures - upstream =======================
 
-// MbtcpOnceReadReq read coil/register request (1.1)
-// ex. Range: &ScaleRange{1,2,3,4},
+// MbtcpOnceReadReq read coil/register request (1.1).
+// Scale range field example:
+// Range: &ScaleRange{1,2,3,4},
 type MbtcpOnceReadReq struct {
 	Tid   int64       `json:"tid"`
 	From  string      `json:"from,omitempty"`
@@ -146,7 +136,7 @@ type MbtcpOnceReadReq struct {
 	Len   uint16      `json:"len,omitempty"`
 	Type  RegDataType `json:"type,omitempty"`
 	Order Endian      `json:"order,omitempty"`
-	Range *ScaleRange `json:"range,omitempty"`
+	Range *ScaleRange `json:"range,omitempty"` // point to struct can be omitted in json encode
 }
 
 // MbtcpOnceReadRes read coil/register response (1.1).
@@ -158,7 +148,7 @@ type MbtcpOnceReadRes struct {
 	Type   RegDataType `json:"type,omitempty"`
 	// Bytes FC3, FC4 and Type 2~8 only
 	Bytes JSONableByteSlice `json:"bytes,omitempty"`
-	Data  interface{}       `json:"data,omitempty"`
+	Data  interface{}       `json:"data,omitempty"` // universal data container
 }
 
 // MbtcpTimeoutReq set/get TCP connection timeout request (1.3, 1.4)

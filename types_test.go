@@ -321,7 +321,7 @@ func TestDownstreamStruct(t *testing.T) {
 	})
 
 	s.Assert("`single write` request test", func(log sugar.Log) bool {
-		req := DMbtcpSingleWriteReq{
+		req := DMbtcpWriteReq{
 			Tid:   "123456",
 			Cmd:   6,
 			IP:    "192.168.3.2",
@@ -340,7 +340,7 @@ func TestDownstreamStruct(t *testing.T) {
 	})
 
 	s.Assert("`multiple write` request test", func(log sugar.Log) bool {
-		req := DMbtcpMultipleWriteReq{
+		req := DMbtcpWriteReq{
 			Tid:   "123456",
 			Cmd:   6,
 			IP:    "192.168.3.2",
