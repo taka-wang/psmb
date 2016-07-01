@@ -11,7 +11,7 @@ import (
 	zmq "github.com/taka-wang/zmq3"
 )
 
-var hostName, portNum string
+var hostName, portNum1, portNum2 string
 
 // generic tcp publisher
 func publisher(cmd, json string) {
