@@ -15,7 +15,6 @@ var hostName, portNum string
 
 // generic tcp publisher
 func publisher(cmd, json string) {
-
 	sender, _ := zmq.NewSocket(zmq.PUB)
 	defer sender.Close()
 	sender.Connect("ipc:///tmp/to.psmb")
@@ -61,6 +60,7 @@ func TestPsmb(t *testing.T) {
 	s.Title("psmb test")
 
 	s.Assert("`FC1` test", func(log sugar.Log) bool {
+		// send request
 		readReq := MbtcpOnceReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
@@ -72,9 +72,12 @@ func TestPsmb(t *testing.T) {
 			Len:   8,
 		}
 
-		readReqStr, _ := json.Marshal(readReq) // marshal to json string
+		readReqStr, _ := json.Marshal(readReq)
 		go publisher("mbtcp.once.read", string(readReqStr))
+
+		// receive response
 		_, s2 := subscriber()
+
 		log("req: %s", string(readReqStr))
 		log("res: %s", s2)
 
