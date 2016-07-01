@@ -21,6 +21,7 @@ func subscriber() {
 	fromModbusd.SetSubscribe(filter)
 
 	for {
+		fmt.Println("listen from modbusd")
 		msg, _ := fromModbusd.RecvMessage(0)
 		fmt.Println("recv from modbusd", msg[0], msg[1])
 
