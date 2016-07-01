@@ -74,6 +74,7 @@ func main() {
 	// downstream pub
 	toModbusd, _ := zmq.NewSocket(zmq.PUB)
 	toModbusd.Connect("ipc:///tmp/to.modbus")
+	defer toModbusd.Close()
 
 	// upstream subscriber
 	fromWeb, _ := zmq.NewSocket(zmq.SUB)
@@ -116,7 +117,6 @@ func main() {
 			// send to modbusd
 			toModbusd.Send("tcp", zmq.SNDMORE) // frame 1
 			toModbusd.Send(string(cmdStr), 0)  // convert to string; frame 2
-			toModbusd.Close()
 
 		default:
 			fmt.Println("unsupport")
