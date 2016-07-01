@@ -1,11 +1,10 @@
-package main_test
+package main
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/marksalpeter/sugar"
-	. "github.com/taka-wang/psmb"
 )
 
 func TestBinaryOps(t *testing.T) {
