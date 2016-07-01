@@ -21,7 +21,7 @@ func subscriber() {
 	fromModbusd.SetSubscribe(filter)
 
 	for {
-		msg, _ := fromModbusd.RecvMessage(0)
+		msg, _ := fromModbusd.RecvMessage()
 		fmt.Println("recv from modbusd", msg[0], msg[1])
 
 		var res DMbtcpRes
@@ -40,7 +40,7 @@ func subscriber() {
 		}
 		cmdStr, _ := json.Marshal(command)
 
-		fmt.Println("convert to downstream complete")
+		fmt.Println("convert to upstream complete")
 		fmt.Println(string(cmdStr))
 
 		// todo: check msg[0]
@@ -112,6 +112,7 @@ func main() {
 			fmt.Println("convert to downstream complete")
 			fmt.Println(string(cmdStr))
 
+			// send to modbusd
 			toModbusd.Send("tcp", zmq.SNDMORE) // frame 1
 			toModbusd.Send(string(cmdStr), 0)  // convert to string; frame 2
 			toModbusd.Close()
