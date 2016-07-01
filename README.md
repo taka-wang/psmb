@@ -54,3 +54,8 @@ docker run -v /tmp:/tmp -itd takawang/psmb
 docker run -v /tmp:/tmp --link mbd -it takawang/psmb-goclient
 
 ```
+
+### Deployment Diagram
+
+![deployment](image/deployment.png)
+
