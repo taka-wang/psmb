@@ -20,6 +20,8 @@
 - [x] finish downstream devdoc
 - [x] implement upstream struct test cases
 - [x] implement downstream struct test cases
+- [x] unify types definitions
+- [x] support docker compose
 
 # TODO
 - [ ] define request type

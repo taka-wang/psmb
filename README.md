@@ -31,7 +31,16 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 ---
 ## Docker 
 
-### Build images
+### Docker Compose
+
+```bash
+docker-compose up
+# rebuild images
+docker-compose build
+```
+
+### Build images manually
+
 ```bash
 # build modbus simulator image
 docker build -t takawang/mbd test/mb/.
