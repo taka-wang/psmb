@@ -33,8 +33,8 @@ func subscriber() {
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		command := MbtcpOnceReadUInt16Res{
 			ReadRes: MbtcpOnceReadRes{
-				tid,
-				res.Status,
+				Tid:    tid,
+				Status: res.Status,
 			},
 			Data: res.Data,
 		}
