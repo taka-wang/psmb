@@ -26,7 +26,7 @@ func (u JSONableByteSlice) MarshalJSON() ([]byte, error) {
 type MbtcpOnceReadReq struct {
 	Tid   int64       `json:"tid"`
 	From  string      `json:"from,omitempty"`
-	FC    uint8       `json:"fc"`
+	FC    int         `json:"fc"`
 	IP    string      `json:"ip"`
 	Port  string      `json:"port,omitempty"`
 	Slave uint8       `json:"slave"`
@@ -42,50 +42,53 @@ type MbtcpOnceReadReq struct {
 	} `json:"range,omitempty"`
 }
 
-// MbtcpOnceReadRes read coil/register request (1.1)
+// MbtcpOnceReadRes read coil/register response (1.1)
 type MbtcpOnceReadRes struct {
 	Tid    int64       `json:"tid"`
 	Status string      `json:"status"`
 	Type   RegDataType `json:"type,omitempty"`
 	// Bytes FC3, FC4 and Type 2~8 only
 	Bytes JSONableByteSlice `json:"bytes,omitempty"`
+	Data  interface{}       `json:"data,omitempty"`
 }
 
-// MbtcpOnceReadUInt16Res read coil/register request (1.1)
+/*
+// MbtcpOnceReadUInt16Res read coil/register response (1.1)
 type MbtcpOnceReadUInt16Res struct {
-	MbtcpOnceReadRes
-	Data []uint16 `json:"data"`
+	ReadRes MbtcpOnceReadRes
+	Data    []uint16 `json:"data"`
 }
 
-// MbtcpOnceReadInt16Res read coil/register request (1.1)
+// MbtcpOnceReadInt16Res read coil/register response (1.1)
 type MbtcpOnceReadInt16Res struct {
-	MbtcpOnceReadRes
-	Data []int16 `json:"data,omitempty"`
+	ReadRes MbtcpOnceReadRes
+	Data    []int16 `json:"data,omitempty"`
 }
 
-// MbtcpOnceReadUInt32Res read coil/register request (1.1)
+// MbtcpOnceReadUInt32Res read coil/register response (1.1)
 type MbtcpOnceReadUInt32Res struct {
-	MbtcpOnceReadRes
-	Data []uint32 `json:"data"`
+	ReadRes MbtcpOnceReadRes
+	Data    []uint32 `json:"data"`
 }
 
-// MbtcpOnceReadInt32Res read coil/register request (1.1)
+// MbtcpOnceReadInt32Res read coil/register response (1.1)
 type MbtcpOnceReadInt32Res struct {
-	MbtcpOnceReadRes
-	Data []int32 `json:"data,omitempty"`
+	ReadRes MbtcpOnceReadRes
+	Data    []int32 `json:"data,omitempty"`
 }
 
-// MbtcpOnceReadFloat32Res read coil/register request (1.1)
+// MbtcpOnceReadFloat32Res read coil/register response (1.1)
 type MbtcpOnceReadFloat32Res struct {
-	MbtcpOnceReadRes
-	Data []float32 `json:"data,omitempty"`
+	ReadRes MbtcpOnceReadRes
+	Data    []float32 `json:"data,omitempty"`
 }
 
-// MbtcpOnceReadStringRes read coil/register request (1.1)
+// MbtcpOnceReadStringRes read coil/register response (1.1)
 type MbtcpOnceReadStringRes struct {
-	MbtcpOnceReadRes
-	Data string `json:"data,omitempty"`
+	ReadRes MbtcpOnceReadRes
+	Data    string `json:"data,omitempty"`
 }
+*/
 
 // MbtcpTimeoutReq set/get TCP connection timeout request (1.3, 1.4)
 type MbtcpTimeoutReq struct {

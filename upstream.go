@@ -49,42 +49,8 @@ type MbtcpOnceReadRes struct {
 	Type   RegDataType `json:"type,omitempty"`
 	// Bytes FC3, FC4 and Type 2~8 only
 	Bytes JSONableByteSlice `json:"bytes,omitempty"`
-}
-
-// MbtcpOnceReadUInt16Res read coil/register response (1.1)
-type MbtcpOnceReadUInt16Res struct {
-	ReadRes MbtcpOnceReadRes
-	Data    []uint16 `json:"data"`
-}
-
-// MbtcpOnceReadInt16Res read coil/register response (1.1)
-type MbtcpOnceReadInt16Res struct {
-	ReadRes MbtcpOnceReadRes
-	Data    []int16 `json:"data,omitempty"`
-}
-
-// MbtcpOnceReadUInt32Res read coil/register response (1.1)
-type MbtcpOnceReadUInt32Res struct {
-	ReadRes MbtcpOnceReadRes
-	Data    []uint32 `json:"data"`
-}
-
-// MbtcpOnceReadInt32Res read coil/register response (1.1)
-type MbtcpOnceReadInt32Res struct {
-	ReadRes MbtcpOnceReadRes
-	Data    []int32 `json:"data,omitempty"`
-}
-
-// MbtcpOnceReadFloat32Res read coil/register response (1.1)
-type MbtcpOnceReadFloat32Res struct {
-	ReadRes MbtcpOnceReadRes
-	Data    []float32 `json:"data,omitempty"`
-}
-
-// MbtcpOnceReadStringRes read coil/register response (1.1)
-type MbtcpOnceReadStringRes struct {
-	ReadRes MbtcpOnceReadRes
-	Data    string `json:"data,omitempty"`
+	Data  interface{}       `json:"data,omitempty"`
+	// []uint16, []int16, []uint32, []int32, []float32, string
 }
 
 // MbtcpTimeoutReq set/get TCP connection timeout request (1.3, 1.4)

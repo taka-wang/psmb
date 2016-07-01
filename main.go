@@ -32,13 +32,12 @@ func subscriber() {
 		fmt.Println(res)
 
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-		command := MbtcpOnceReadUInt16Res{
-			ReadRes: MbtcpOnceReadRes{
-				Tid:    tid,
-				Status: res.Status,
-			},
-			Data: res.Data,
+		command := MbtcpOnceReadRes{
+			Tid:    tid,
+			Status: res.Status,
+			Data:   res.Data,
 		}
+
 		cmdStr, _ := json.Marshal(command)
 
 		fmt.Println("convert to upstream complete")
