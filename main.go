@@ -26,9 +26,7 @@ func subscriber() {
 		fmt.Println("recv from modbusd", msg[0], msg[1])
 
 		// convert zframe 1: command number
-		if cmdType, err := strconv.Atoi(msg[0]); err != nil {
-			fmt.Println(err)
-		}
+		cmdType, _ := strconv.Atoi(msg[0])
 		var cmdStr []byte
 
 		switch cmdType {

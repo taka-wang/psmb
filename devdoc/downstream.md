@@ -64,11 +64,11 @@ Please refer to [command code](https://github.com/taka-wang/modbusd#command-mapp
 **mbtcp read request**
 ```javascript
 {
+	"tid": "123456",
+	"cmd": 1,
 	"ip": "192.168.3.2",
 	"port": "502",
 	"slave": 22,
-	"tid": "123456",
-	"cmd": 1,
 	"addr": 250,
 	"len": 10
 }
@@ -99,11 +99,11 @@ Please refer to [command code](https://github.com/taka-wang/modbusd#command-mapp
 **mbtcp single write request**
 ```javascript
 {
+	"tid": "123456",
+	"cmd": 6,
 	"ip": "192.168.3.2",
 	"port": "502",
 	"slave": 22,
-	"tid": "123456",
-	"cmd": 6,
 	"addr": 80,
 	"data": 1234
 }
@@ -119,7 +119,7 @@ Please refer to [command code](https://github.com/taka-wang/modbusd#command-mapp
 	"cmd": 16,
 	"addr": 80,
 	"len": 4,
-	"data": [1,2,3,4]
+	"data": [1, 2, 3, 4]
 }
 ```
 #### 1.2.2 modbusd to psmb
