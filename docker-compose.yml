@@ -6,12 +6,12 @@ mbd:
 psmb:
     build: .
     volumes_from:
-        - modbusd
+        - mbd
 
 goclient:
     build: test/goclient/.
     volumes_from:
-        - modbusd
+        - mbd
     links:
         - mbd
     
