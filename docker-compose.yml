@@ -1,0 +1,17 @@
+mbd:
+    build: test/mb/.
+    volumes:
+        - /tmp:/tmp
+
+psmb:
+    build: .
+    volumes_from:
+        - modbusd
+
+goclient:
+    build: test/goclient/.
+    volumes_from:
+        - modbusd
+    links:
+        - mbd
+    
