@@ -168,7 +168,8 @@ func TestOneOffStruct(t *testing.T) {
 		// res5
 		res5 := MbtcpOnceReadRes{
 			Tid: 12345, Status: "ok", Type: 2,
-			Bytes: []byte{0XFF, 0X00, 0XAB}, []uint16{255, 1234, 789},
+			Bytes: []byte{0XFF, 0X00, 0XAB},
+			Data:  []uint16{255, 1234, 789},
 		}
 		writeReqStr5, err := json.Marshal(res5)
 		if err != nil {
@@ -191,7 +192,7 @@ func TestOneOffStruct(t *testing.T) {
 		res7 := MbtcpOnceReadRes{
 			Tid: 12345, Status: "ok", Type: 2,
 			Bytes: []byte{0XFF, 0X00, 0XAB},
-			"112C004F12345678",
+			Data:  "112C004F12345678",
 		}
 		writeReqStr7, err := json.Marshal(res7)
 		if err != nil {
