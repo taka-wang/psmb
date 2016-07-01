@@ -7,3 +7,5 @@ test
 *.md
 docker-compose.yml
 .travis.yml
+Dockerfile
+Dockerfile.arm
