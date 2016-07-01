@@ -37,6 +37,7 @@ script:
 ### stop all containers
 - docker stop $PSMB_MODBUS_NAME $PSMB_NAME $PSMB_GOCLIENT_NAME
 
+
 env:
   global:
 

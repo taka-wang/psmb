@@ -44,4 +44,11 @@ docker build -t takawang/psmb-goclient test/goclient/.
 
 ### Run images
 ```bash
+docker run -v /tmp:/tmp -itd --name=mbd takawang/mbd 
+
+docker run -v /tmp:/tmp -itd takawang/psmb
+docker run -v /tmp:/tmp -it takawang/psmb /bin/bash
+
+docker run -v /tmp:/tmp --link mbd -it takawang/psmb-goclient /bin/bash
+
 ```
