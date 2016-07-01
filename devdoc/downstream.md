@@ -5,6 +5,8 @@
 <!-- TOC depthFrom:2 depthTo:2 insertAnchor:false orderedList:false updateOnSave:true withLinks:true -->
 
 - [0. Multipart message](#0-multipart-message)
+	- [To modbusd](#to-modbusd)
+	- [From modbusd](#from-modbusd)
 - [1. Commands](#1-commands)
 	- [1.1 Read request](#11-read-request)
 		- [1.1.1 psmb to modbusd](#111-psmb-to-modbusd)
@@ -23,20 +25,32 @@
 
 We can compose a message out of several frames, and then receiver will receive all parts of a message, or none at all.
 Thanks to the all-or-nothing characteristics, we can screen what we are interested from the first frame without parsing the whole JSON payload. 
+
+
+### To modbusd
+
 - Mode: "tcp", "rtu", others
 
 >| Frame 1     |  Frame 2      |
 >|:-----------:|:-------------:|
 >| Mode        |  JSON Command |
 
+### From modbusd
+
+>| Frame 1                                                          |  Frame 2      |
+>|:----------------------------------------------------------------:|:-------------:|
+>| [cmd](https://github.com/taka-wang/modbusd#command-mapping-table)|  JSON Command |
+
 ---
 
 ## 1. Commands
 
+Please refer to [command code](https://github.com/taka-wang/modbusd#command-mapping-table) definitions.
+
 >| params   | description            | type          | range     | example           |
 >|:---------|:-----------------------|:--------------|:----------|:------------------|
 >| tid      | transaction ID         | **string**    | -         | "12345"           |
->| cmd      | command code           | integer       | -         | 1                 |
+>| cmd      | **command code**       | integer       | -         | 1                 |
 >| ip       | ip address             | string        | -         | 127.0.0.1         |
 >| port     | port number            | string        | [1,65535] | 502               |
 >| slave    | slave id               | integer       | [1, 253]  | 1                 |

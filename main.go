@@ -25,20 +25,41 @@ func subscriber() {
 		msg, _ := fromModbusd.RecvMessage(0)
 		fmt.Println("recv from modbusd", msg[0], msg[1])
 
-		var res DMbtcpRes
-		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-			fmt.Println("json err:", err)
+		// convert zframe 1: command number
+		if cmdType, err := strconv.Atoi(msg[0]); err != nil {
+			fmt.Println(err)
 		}
-		fmt.Println(res)
+		var cmdStr []byte
 
-		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-		command := MbtcpOnceReadRes{
-			Tid:    tid,
-			Status: res.Status,
-			Data:   res.Data,
+		switch cmdType {
+		case 50, 51:
+			var res DMbtcpTimeout
+			if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
+				fmt.Println("json err:", err)
+			}
+			fmt.Println(res)
+			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+			command := MbtcpTimeoutRes{
+				Tid:    tid,
+				Status: res.Status,
+				Data:   res.Timeout,
+			}
+			cmdStr, _ = json.Marshal(command)
+		default:
+			var res DMbtcpRes
+			if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
+				fmt.Println("json err:", err)
+			}
+			fmt.Println(res)
+
+			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+			command := MbtcpOnceReadRes{
+				Tid:    tid,
+				Status: res.Status,
+				Data:   res.Data,
+			}
+			cmdStr, _ = json.Marshal(command)
 		}
-
-		cmdStr, _ := json.Marshal(command)
 
 		fmt.Println("convert to upstream complete")
 		fmt.Println(string(cmdStr))
