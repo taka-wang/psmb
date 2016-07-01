@@ -21,7 +21,7 @@ func subscriber() {
 	fromModbusd.SetSubscribe(filter)
 
 	for {
-		msg, _ := fromModbusd.RecvMessage()
+		msg, _ := fromModbusd.RecvMessage(0)
 		fmt.Println("recv from modbusd", msg[0], msg[1])
 
 		var res DMbtcpRes
