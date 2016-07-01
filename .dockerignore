@@ -1,0 +1,9 @@
+.vscode
+devdoc
+image
+test
+.git
+.gitignore
+*.md
+docker-compose.yml
+.travis.yml
