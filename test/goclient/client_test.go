@@ -46,7 +46,7 @@ func TestPsmb(t *testing.T) {
 
 	var hostName string
 	portNum1 := "502"
-	PortNum2 := "503"
+	portNum2 := "503"
 
 	// generalize host reslove for docker/local env
 	host, err := net.LookupHost("mbd")
