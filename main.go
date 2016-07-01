@@ -15,7 +15,7 @@ import (
 func RequestParser(msg []string) (string, error) {
 	if len(msg) != 2 {
 		log.Println("Request Parser failed: Invalid message length")
-		return nil, errors.New("Invalid message length")
+		return "", errors.New("Invalid message length")
 	}
 
 	log.Println("Parsing req:", msg[0])
@@ -25,7 +25,7 @@ func RequestParser(msg []string) (string, error) {
 		var req MbtcpOnceReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.Println("Unmarshal request failed:", err)
-			return nil, err
+			return "", err
 		}
 
 		cmd := DMbtcpReadReq{
@@ -41,55 +41,55 @@ func RequestParser(msg []string) (string, error) {
 		cmdStr, err := json.Marshal(cmd) // marshal to json string
 		if err != nil {
 			log.Println("Marshal request failed:", err)
-			return nil, err
+			return "", err
 		}
 
 		return string(cmdStr), nil
 	case "mbtcp.once.write":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.timeout.read":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.timeout.update":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.poll.create":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.poll.update":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.poll.read":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.poll.delete":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.poll.toggle":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.polls.read":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.polls.delete":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.polls.toggle":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.polls.import":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.polls.export":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	case "mbtcp.poll.history":
 		log.Println("TODO")
-		return nil, errors.New("TODO")
+		return "", errors.New("TODO")
 	default:
 		log.Println("unsupport")
-		return nil, errors.New("unsupport request")
+		return "", errors.New("unsupport request")
 	}
 
 }
