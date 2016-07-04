@@ -206,8 +206,8 @@ func main() {
 	taskMap = make(map[string]interface{})
 
 	// s.Every(1).Seconds().Do(publisher)
-	s := gocron.NewScheduler()
-	s.Start()
+	sch := gocron.NewScheduler()
+	sch.Start()
 
 	go subscriber()
 
@@ -228,7 +228,7 @@ func main() {
 		fmt.Println("recv from web", msg[0], msg[1])
 		s, err := RequestParser(msg)
 		if err != nil {
-			s.Emergency().Do(modbusTask, toModbusd, s)
+			sch.Emergency().Do(modbusTask, toModbusd, s)
 		}
 
 		//t := time.Now()
