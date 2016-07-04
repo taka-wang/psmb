@@ -13,6 +13,7 @@ import (
 )
 
 var taskMap map[string]interface{}
+var sch gocron.Scheduler
 
 func modbusTask(socket *zmq.Socket, m interface{}) {
 	str, err := json.Marshal(m) // marshal to json string
@@ -25,7 +26,7 @@ func modbusTask(socket *zmq.Socket, m interface{}) {
 }
 
 // RequestParser handle message from services
-func RequestParser(msg []string) (interface{}, error) {
+func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 	if len(msg) != 2 {
 		log.Println("Request Parser failed: Invalid message length")
 		return "", errors.New("Invalid message length")
@@ -52,7 +53,7 @@ func RequestParser(msg []string) (interface{}, error) {
 		}
 		// add to map
 		taskMap[cmd.Tid] = cmd
-
+		sch.Emergency().Do(modbusTask, socket, cmd)
 		return cmd, nil
 
 		/*
@@ -206,7 +207,7 @@ func main() {
 	taskMap = make(map[string]interface{})
 
 	// s.Every(1).Seconds().Do(publisher)
-	sch := gocron.NewScheduler()
+	sch = gocron.NewScheduler()
 	sch.Start()
 
 	go subscriber()
@@ -226,12 +227,7 @@ func main() {
 	for {
 		msg, _ := fromWeb.RecvMessage(0)
 		fmt.Println("recv from web", msg[0], msg[1])
-		s, err := RequestParser(msg)
-		fmt.Println("Reqeust parse complete")
-		if err == nil {
-			fmt.Println("Add to scheduler")
-			sch.Emergency().Do(modbusTask, toModbusd, s)
-		}
+		s, _ := RequestParser(msg)
 
 		//t := time.Now()
 		//fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
