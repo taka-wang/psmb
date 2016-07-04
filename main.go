@@ -8,17 +8,30 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/taka-wang/gocron"
 	zmq "github.com/taka-wang/zmq3"
 )
 
+var taskMap map[string]interface{}
+
+func modbusTask(socket *Socket, m interface{}) {
+	str, err := json.Marshal(m) // marshal to json string
+	if err != nil {
+		log.Println("Marshal request failed:", err)
+		return
+	}
+	socket.Send("tcp", zmq.SNDMORE) // frame 1
+	socket.Send(string(str), 0)     // convert to string; frame 2
+}
+
 // RequestParser handle message from services
-func RequestParser(msg []string) (string, error) {
+func RequestParser(msg []string) (interface{}, error) {
 	if len(msg) != 2 {
 		log.Println("Request Parser failed: Invalid message length")
 		return "", errors.New("Invalid message length")
 	}
 
-	log.Println("Parsing req:", msg[0])
+	log.Println("Parsing request:", msg[0])
 
 	switch msg[0] {
 	case "mbtcp.once.read":
@@ -37,61 +50,67 @@ func RequestParser(msg []string) (string, error) {
 			Addr:  req.Addr,
 			Len:   req.Len,
 		}
+		// add to map
+		taskMap[cmd.Tid] = cmd
 
-		cmdStr, err := json.Marshal(cmd) // marshal to json string
-		if err != nil {
-			log.Println("Marshal request failed:", err)
-			return "", err
-		}
+		return cmd, nil
 
-		return string(cmdStr), nil
+		/*
+
+			cmdStr, err := json.Marshal(cmd) // marshal to json string
+			if err != nil {
+				log.Println("Marshal request failed:", err)
+				return "", err
+			}
+			return string(cmdStr), nil
+		*/
+
 	case "mbtcp.once.write":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.timeout.read":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.timeout.update":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.poll.create":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.poll.update":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.poll.read":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.poll.delete":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.poll.toggle":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.polls.read":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.polls.delete":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.polls.toggle":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.polls.import":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.polls.export":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	case "mbtcp.poll.history":
 		log.Println("TODO")
-		return "", errors.New("TODO")
+		return nil, errors.New("TODO")
 	default:
 		log.Println("unsupport")
-		return "", errors.New("unsupport request")
+		return nil, errors.New("unsupport request")
 	}
-
 }
 
 // ResponseParser handle message from modbusd
@@ -184,9 +203,11 @@ func subscriber() {
 
 func main() {
 
+	taskMap = make(map[string]interface{})
+
 	// s.Every(1).Seconds().Do(publisher)
-	//s := gocron.NewScheduler()
-	//s.Start()
+	s := gocron.NewScheduler()
+	s.Start()
 
 	go subscriber()
 
@@ -205,40 +226,9 @@ func main() {
 	for {
 		msg, _ := fromWeb.RecvMessage(0)
 		fmt.Println("recv from web", msg[0], msg[1])
-
-		switch msg[0] {
-		case "mbtcp.once.read":
-			fmt.Println("in: ", msg[0])
-			var req MbtcpOnceReadReq
-			if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
-				fmt.Println("json err:", err)
-				break
-			}
-
-			cmd := DMbtcpReadReq{
-				Tid:   strconv.FormatInt(req.Tid, 10),
-				Cmd:   req.FC,
-				IP:    req.IP,
-				Port:  req.Port,
-				Slave: req.Slave,
-				Addr:  req.Addr,
-				Len:   req.Len,
-			}
-
-			cmdStr, err := json.Marshal(cmd) // marshal to json string
-			if err != nil {
-				fmt.Println("json err:", err)
-			}
-
-			fmt.Println("convert to downstream complete")
-			fmt.Println(string(cmdStr))
-
-			// send to modbusd
-			toModbusd.Send("tcp", zmq.SNDMORE) // frame 1
-			toModbusd.Send(string(cmdStr), 0)  // convert to string; frame 2
-
-		default:
-			fmt.Println("unsupport")
+		s, err := RequestParser(msg)
+		if err != nil {
+			s.Emergency().Do(modbusTask, toModbusd, s)
 		}
 
 		//t := time.Now()

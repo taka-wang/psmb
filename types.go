@@ -80,7 +80,7 @@ const (
 	Float32
 )
 
-// ======================= psbm to modbusd structures - downstream =======================
+// ======================= psmb to modbusd structures - downstream =======================
 
 // DMbtcpRes downstream modbus tcp read/write response
 type DMbtcpRes struct {
@@ -133,7 +133,7 @@ type DMbtcpTimeout struct {
 	Timeout int64 `json:"timeout,omitempty"`
 }
 
-// ======================= services to psbm structures - upstream =======================
+// ======================= services to psmb structures - upstream =======================
 
 // MbtcpOnceReadReq read coil/register request (1.1).
 // Scale range field example:
