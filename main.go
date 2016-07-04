@@ -191,8 +191,13 @@ func subscriber() {
 		// todo: check msg[0]
 		// should be web
 		if frame, ok := taskMap2[TidStr]; ok {
+			fmt.Println("debug: if")
 			toWeb.Send(frame, zmq.SNDMORE) // frame 1
 			toWeb.Send(string(cmdStr), 0)  // convert to string; frame 2
+		} else {
+			fmt.Println("debug: else")
+			toWeb.Send("null", zmq.SNDMORE) // frame 1
+			toWeb.Send(string(cmdStr), 0)   // convert to string; frame 2
 		}
 
 		t := time.Now()
