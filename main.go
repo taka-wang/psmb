@@ -227,7 +227,7 @@ func main() {
 	for {
 		msg, _ := fromWeb.RecvMessage(0)
 		fmt.Println("recv from web", msg[0], msg[1])
-		s, _ := RequestParser(toModbusd, msg)
+		RequestParser(toModbusd, msg)
 
 		//t := time.Now()
 		//fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
