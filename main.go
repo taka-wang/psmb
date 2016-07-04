@@ -228,7 +228,7 @@ func main() {
 		fmt.Println("recv from web", msg[0], msg[1])
 		s, err := RequestParser(msg)
 		fmt.Println("Reqeust parse complete")
-		if err != nil {
+		if err == nil {
 			fmt.Println("Add to scheduler")
 			sch.Emergency().Do(modbusTask, toModbusd, s)
 		}
