@@ -53,7 +53,8 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 		}
 		// add to map
 		taskMap[cmd.Tid] = cmd
-		sch.Emergency().Do(modbusTask, socket, cmd)
+		//sch.Emergency().Do(modbusTask, socket, cmd)
+		sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
 		return cmd, nil
 
 		/*
@@ -231,7 +232,7 @@ func main() {
 
 		//t := time.Now()
 		//fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
-		time.Sleep(300 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 
