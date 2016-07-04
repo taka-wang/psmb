@@ -14,7 +14,7 @@ import (
 
 var taskMap map[string]interface{}
 
-func modbusTask(socket *Socket, m interface{}) {
+func modbusTask(socket *zmq.Socket, m interface{}) {
 	str, err := json.Marshal(m) // marshal to json string
 	if err != nil {
 		log.Println("Marshal request failed:", err)
