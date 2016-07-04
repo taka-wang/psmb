@@ -13,6 +13,7 @@ import (
 )
 
 var taskMap map[string]interface{}
+var taskMap2 map[string]string
 var sch gocron.Scheduler
 
 func modbusTask(socket *zmq.Socket, m interface{}) {
@@ -53,8 +54,9 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 		}
 		// add to map
 		taskMap[cmd.Tid] = cmd
-		//sch.Emergency().Do(modbusTask, socket, cmd)
-		sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
+		taskMap2[cmd.Tid] = msg[0]
+		sch.Emergency().Do(modbusTask, socket, cmd)
+		//sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
 		return cmd, nil
 
 		/*
@@ -150,6 +152,7 @@ func subscriber() {
 		// convert zframe 1: command number
 		cmdType, _ := strconv.Atoi(msg[0])
 		var cmdStr []byte
+		var TidStr string
 
 		switch cmdType {
 		case 50, 51:
@@ -158,6 +161,7 @@ func subscriber() {
 				fmt.Println("json err:", err)
 			}
 			fmt.Println(res)
+			TidStr = res.Tid
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			command := MbtcpTimeoutRes{
 				Tid:    tid,
@@ -186,18 +190,11 @@ func subscriber() {
 
 		// todo: check msg[0]
 		// should be web
-		toWeb.Send(msg[0], zmq.SNDMORE) // frame 1
-		toWeb.Send(string(cmdStr), 0)   // convert to string; frame 2
-		//toWeb.Close()
+		if frame, ok := taskMap2[TidStr]; ok {
+			toWeb.Send(frame, zmq.SNDMORE) // frame 1
+			toWeb.Send(string(cmdStr), 0)  // convert to string; frame 2
+		}
 
-		/*
-			switch msg[0] {
-			case "mbtcp.once.read":
-
-			default:
-				fmt.Println("unsupport")
-			}
-		*/
 		t := time.Now()
 		fmt.Println("zrecv:" + t.Format("2006-01-02 15:04:05.000"))
 	}
@@ -206,6 +203,7 @@ func subscriber() {
 func main() {
 
 	taskMap = make(map[string]interface{})
+	taskMap2 = make(map[string]string)
 
 	// s.Every(1).Seconds().Do(publisher)
 	sch = gocron.NewScheduler()
@@ -229,33 +227,9 @@ func main() {
 		msg, _ := fromWeb.RecvMessage(0)
 		fmt.Println("recv from web", msg[0], msg[1])
 		RequestParser(toModbusd, msg)
-
-		//t := time.Now()
-		//fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
 		time.Sleep(100 * time.Millisecond)
 	}
 }
 
-/*
-func publisher() {
-	t := time.Now()
-	fmt.Println("zsend" + t.Format("2006-01-02 15:04:05.000"))
-	command := DMbtcpReadReq{
-		Tid:   "12345678910",
-		Cmd:   1,
-		IP:    "172.17.0.2",
-		Port:  "502",
-		Slave: 1,
-		Addr:  10,
-		Len:   8,
-	}
-
-	cmd, err := json.Marshal(command) // marshal to json string
-	if err != nil {
-		fmt.Println("json err:", err)
-	}
-
-	sender.Send("tcp", zmq.SNDMORE) // frame 1
-	sender.Send(string(cmd), 0)     // convert to string; frame 2
-}
-*/
+//t := time.Now()
+//fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
