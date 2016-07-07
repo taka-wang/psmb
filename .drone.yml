@@ -38,3 +38,6 @@ build:
             - go get github.com/taka-wang/psmb
             - go test -v
 
+compose:
+    goclient:
+        build: test/goclient/.
