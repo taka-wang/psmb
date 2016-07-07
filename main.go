@@ -13,13 +13,13 @@ import (
 )
 
 var taskMap map[string]interface{}
-var taskMap2 map[string]string
 var sch gocron.Scheduler
 
 // RequestParser handle message from services
 func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
+	// check the length of multi-parts message
 	if len(msg) != 2 {
-		log.Println("Request Parser failed: Invalid message length")
+		log.Println("Request parser failed: invalid message length")
 		return "", errors.New("Invalid message length")
 	}
 
@@ -27,6 +27,7 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 
 	switch msg[0] {
 	case "mbtcp.once.read":
+
 		var req MbtcpOnceReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.Println("Unmarshal request failed:", err)
@@ -42,10 +43,10 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 			Addr:  req.Addr,
 			Len:   req.Len,
 		}
-		// add to map
-		taskMap[cmd.Tid] = cmd
-		taskMap2[cmd.Tid] = msg[0]
-		sch.Emergency().Do(modbusTask, socket, cmd)
+
+		sch.Emergency().Do(Task, socket, cmd)
+		cmd["Request"] = msg[0]
+		taskMap[cmd.Tid] = cmd // add to map
 		//sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
 		return cmd, nil
 
@@ -123,7 +124,7 @@ func ResponseCommandBuilder() {
 
 }
 
-func modbusTask(socket *zmq.Socket, m interface{}) {
+func Task(socket *zmq.Socket, m interface{}) {
 	str, err := json.Marshal(m) // marshal to json string
 	if err != nil {
 		log.Println("Marshal request failed:", err)
@@ -190,10 +191,10 @@ func subscriber() {
 
 		// todo: check msg[0]
 		// should be web
-		if frame, ok := taskMap2[TidStr]; ok {
-			delete(taskMap2, TidStr)
-			toWeb.Send(frame, zmq.SNDMORE) // frame 1
-			toWeb.Send(string(cmdStr), 0)  // convert to string; frame 2
+		if task, ok := taskMap[TidStr]; ok {
+			//delete(taskMap2, TidStr)
+			toWeb.Send(task.Request, zmq.SNDMORE) // frame 1
+			toWeb.Send(string(cmdStr), 0)         // convert to string; frame 2
 		} else {
 			toWeb.Send("null", zmq.SNDMORE) // frame 1
 			toWeb.Send(string(cmdStr), 0)   // convert to string; frame 2
@@ -207,29 +208,28 @@ func subscriber() {
 func main() {
 
 	taskMap = make(map[string]interface{})
-	taskMap2 = make(map[string]string)
 
-	// s.Every(1).Seconds().Do(publisher)
 	sch = gocron.NewScheduler()
 	sch.Start()
+	// s.Every(1).Seconds().Do(publisher)
 
 	go subscriber()
 
-	// downstream pub
+	// downstream publish
 	toModbusd, _ := zmq.NewSocket(zmq.PUB)
 	toModbusd.Connect("ipc:///tmp/to.modbus")
 	defer toModbusd.Close()
 
 	// upstream subscriber
-	fromWeb, _ := zmq.NewSocket(zmq.SUB)
-	defer fromWeb.Close()
-	fromWeb.Bind("ipc:///tmp/to.psmb")
-	filter := ""
-	fromWeb.SetSubscribe(filter) // filter frame 1
+	fromUpstream, _ := zmq.NewSocket(zmq.SUB)
+	defer fromUpstream.Close()
+	fromUpstream.Bind("ipc:///tmp/to.psmb")
+	fromUpstream.SetSubscribe("") // filter frame 1
 
 	for {
-		msg, _ := fromWeb.RecvMessage(0)
-		fmt.Println("recv from web", msg[0], msg[1])
+		// receive multi-parts message
+		msg, _ := fromUpstream.RecvMessage(0)
+		log.Println("receive from upstream", msg[0], msg[1])
 		RequestParser(toModbusd, msg)
 		time.Sleep(100 * time.Millisecond)
 	}
