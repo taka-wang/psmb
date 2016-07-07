@@ -39,5 +39,4 @@ build:
             - go test -v
 
 compose:
-    goclient:
-        build: test/goclient/.
+  from-file: docker-compose.yml
