@@ -20,14 +20,19 @@ build:
         volumes: 
             - /tmp:/tmp 
         commands:
-            - docker build -t psmb .
-            - docker run -it psmb
+            - go get github.com/marksalpeter/sugar
+            - go get github.com/taka-wang/zmq3
+            - go get github.com/taka-wang/gocron
+            - go test -v
+            - go build -o psmb
+            - ./psmb &
     goclient:
         image: takawang/ubuntu-gozmq
         volumes: 
             - /tmp:/tmp 
         commands:
             - ps -ax
+            - ls /tmp
             - cd test/goclient/
             - go get github.com/marksalpeter/sugar 
             - go get github.com/taka-wang/psmb
