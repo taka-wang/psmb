@@ -1,21 +1,23 @@
 build:
-    mbd:
-        image: takawang/ubuntu-modbus
-        volumes: 
-            - /tmp:/tmp 
-        commands:
-            - cd /
-            - git clone https://github.com/taka-wang/modbusd.git
-            - mkdir -p /modbusd/build
-            - cd  /modbusd/build
-            - cmake .. && make && make install
-            - cd /modbusd/
-            - cp "config/service.sh" "/etc/init.d/modbusd" && chmod +x /etc/init.d/modbusd && update-rc.d modbusd defaults
-            - service modbusd start
-            - cd /modbusd/tests/cmbserver
-            - gcc server.c -o server -Wall -std=c99 `pkg-config --libs --cflags libmodbus`
-            - /modbusd/tests/cmbserver/server &
-    psmb:
+#
+#    mbd:
+#        image: takawang/ubuntu-modbus
+#        volumes: 
+#            - /tmp:/tmp 
+#        commands:
+#            - cd /
+#            - git clone https://github.com/taka-wang/modbusd.git
+#            - mkdir -p /modbusd/build
+#            - cd  /modbusd/build
+#            - cmake .. && make && make install
+#            - cd /modbusd/
+#            - cp "config/service.sh" "/etc/init.d/modbusd" && chmod +x /etc/init.d/modbusd && update-rc.d modbusd defaults
+#            - service modbusd start
+#            - cd /modbusd/tests/cmbserver
+#            - gcc server.c -o server -Wall -std=c99 `pkg-config --libs --cflags libmodbus`
+#            - /modbusd/tests/cmbserver/server &
+
+    psmb_goclient:
         image: takawang/ubuntu-gozmq
         volumes: 
             - /tmp:/tmp 
@@ -26,17 +28,14 @@ build:
             - go test -v
             - go build -o psmb
             - ./psmb &
-    goclient:
-        image: takawang/ubuntu-gozmq
-        volumes: 
-            - /tmp:/tmp 
-        commands:
             - ps -ax
             - ls /tmp
             - cd test/goclient/
             - go get github.com/marksalpeter/sugar 
             - go get github.com/taka-wang/psmb
             - go test -v
-
 compose:
-  from-file: docker-compose.yml
+  mbd:
+    image: takawang/mbd
+    volumes:
+      - /tmp:/tmp
