@@ -19,7 +19,7 @@ build:
         image: docker
         volumes: 
             - /tmp:/tmp 
-        script:
+        commands:
             - docker build -t psmb .
             - docker run -it psmb
     goclient:
