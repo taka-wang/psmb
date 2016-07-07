@@ -1,8 +1,16 @@
 build:
-  image: takawang/ubuntu-gozmq
-  commands:
-    - go get github.com/taka-wang/zmq3
-    - go get github.com/marksalpeter/sugar
-    - go get github.com/taka-wang/gocron
-    - go test -v
-    - go build -o psmb
+    mbd:
+        image: takawang/ubuntu-modbus
+        commands:
+            - docker build -t takawang/mbd test/mb/.
+            - docker run -v /tmp:/tmp -itd --name=mbd takawang/mbd
+    psmb:
+        image: takawang/ubuntu-gozmq
+        commands:
+            - docker build -t takawang/psmb .
+            - docker run -v /tmp:/tmp -itd --name=psmb takawang/psmb
+    goclient:
+        image: takawang/ubuntu-gozmq
+        commands:
+            - docker build -t takawang/psmb-goclient test/goclient/.
+            - docker run -v /tmp:/tmp --link mbd -it takawang/psmb-goclient
