@@ -28,11 +28,10 @@ build:
             - go test -v
             - go build -o psmb
             - ./psmb &
-            - ps -ax
-            - ls /tmp
+
             - cd test/goclient/
             - go get github.com/marksalpeter/sugar 
-            - go get github.com/taka-wang/psmb
+            #- go get github.com/taka-wang/psmb
             - go test -v
 compose:
   mbd:
