@@ -16,16 +16,6 @@ var taskMap map[string]interface{}
 var taskMap2 map[string]string
 var sch gocron.Scheduler
 
-func modbusTask(socket *zmq.Socket, m interface{}) {
-	str, err := json.Marshal(m) // marshal to json string
-	if err != nil {
-		log.Println("Marshal request failed:", err)
-		return
-	}
-	socket.Send("tcp", zmq.SNDMORE) // frame 1
-	socket.Send(string(str), 0)     // convert to string; frame 2
-}
-
 // RequestParser handle message from services
 func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 	if len(msg) != 2 {
@@ -131,6 +121,16 @@ func RequestCommandBuilder() {
 // Todo: filter, handle
 func ResponseCommandBuilder() {
 
+}
+
+func modbusTask(socket *zmq.Socket, m interface{}) {
+	str, err := json.Marshal(m) // marshal to json string
+	if err != nil {
+		log.Println("Marshal request failed:", err)
+		return
+	}
+	socket.Send("tcp", zmq.SNDMORE) // frame 1
+	socket.Send(string(str), 0)     // convert to string; frame 2
 }
 
 func subscriber() {
