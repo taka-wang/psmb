@@ -2,6 +2,7 @@ build:
     mbd:
         image: takawang/ubuntu-modbus
         commands:
+            - cd /
             - git clone https://github.com/taka-wang/modbusd.git
             - mkdir -p /modbusd/build
             - cd  /modbusd/build
