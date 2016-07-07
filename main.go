@@ -13,11 +13,12 @@ import (
 )
 
 var taskMap map[string]interface{}
+var taskMap2 map[string]string
 var sch gocron.Scheduler
 
 // RequestParser handle message from services
 func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
-	// check the length of multi-parts message
+	// check the length of multi-part message
 	if len(msg) != 2 {
 		log.Println("Request parser failed: invalid message length")
 		return "", errors.New("Invalid message length")
@@ -27,7 +28,6 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 
 	switch msg[0] {
 	case "mbtcp.once.read":
-
 		var req MbtcpOnceReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.Println("Unmarshal request failed:", err)
@@ -44,9 +44,10 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 			Len:   req.Len,
 		}
 
+		// add to map
+		taskMap[cmd.Tid] = cmd
+		taskMap2[cmd.Tid] = msg[0]
 		sch.Emergency().Do(Task, socket, cmd)
-		cmd["Request"] = msg[0]
-		taskMap[cmd.Tid] = cmd // add to map
 		//sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
 		return cmd, nil
 
@@ -191,10 +192,10 @@ func subscriber() {
 
 		// todo: check msg[0]
 		// should be web
-		if task, ok := taskMap[TidStr]; ok {
-			//delete(taskMap2, TidStr)
-			toWeb.Send(task.Request, zmq.SNDMORE) // frame 1
-			toWeb.Send(string(cmdStr), 0)         // convert to string; frame 2
+		if frame, ok := taskMap2[TidStr]; ok {
+			delete(taskMap2, TidStr)
+			toWeb.Send(frame, zmq.SNDMORE) // frame 1
+			toWeb.Send(string(cmdStr), 0)  // convert to string; frame 2
 		} else {
 			toWeb.Send("null", zmq.SNDMORE) // frame 1
 			toWeb.Send(string(cmdStr), 0)   // convert to string; frame 2
@@ -208,6 +209,7 @@ func subscriber() {
 func main() {
 
 	taskMap = make(map[string]interface{})
+	taskMap2 = make(map[string]string)
 
 	sch = gocron.NewScheduler()
 	sch.Start()
