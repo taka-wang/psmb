@@ -1,6 +1,6 @@
 compose:
     mbd:
-        image: takawang/mbd
+        image: takawang/mbd:latest
         volumes:
             - /tmp:/tmp
         pull: true
