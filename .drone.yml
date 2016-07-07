@@ -1,6 +1,8 @@
 build:
     mbd:
         image: takawang/ubuntu-modbus
+        volumes: 
+            - /tmp:/tmp 
         commands:
             - cd /
             - git clone https://github.com/taka-wang/modbusd.git
@@ -15,6 +17,8 @@ build:
             - /modbusd/tests/cmbserver/server &
     psmb:
         image: takawang/ubuntu-gozmq
+        volumes: 
+            - /tmp:/tmp 
         commands:
             - ls -al
             - pwd
@@ -23,9 +27,11 @@ build:
             - go get github.com/taka-wang/gocron
             - go test -v
             - go build -o psmb
-            - /go/psmb &
+            - ./psmb &
     goclient:
         image: takawang/ubuntu-gozmq
+        volumes: 
+            - /tmp:/tmp 
         commands:
             - cd test/goclient/
             - go get github.com/marksalpeter/sugar 
