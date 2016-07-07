@@ -27,7 +27,7 @@ build:
         volumes: 
             - /tmp:/tmp 
         commands:
-            - ls /tmp
+            - ps -ax
             - cd test/goclient/
             - go get github.com/marksalpeter/sugar 
             - go get github.com/taka-wang/psmb
