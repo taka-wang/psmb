@@ -1,9 +1,9 @@
 compose:
-  mbd:
-    image: takawang/mbd
-    volumes:
-      - /tmp:/tmp
-      
+    mbd:
+        image: takawang/mbd
+        volumes:
+            - /tmp:/tmp
+        pull: true
 build:
 #
 #    mbd:
