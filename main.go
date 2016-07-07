@@ -110,8 +110,67 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 }
 
 // ResponseParser handle message from modbusd
-func ResponseParser(msg []string) {
+func ResponseParser(socket *zmq.Socket, msg []string) {
+	// check the length of multi-part message
+	if len(msg) != 2 {
+		log.Println("Request parser failed: invalid message length")
+		return "", errors.New("Invalid message length")
+	}
 
+	log.Println("Parsing response:", msg[0])
+
+	// Convert zframe 1: command number
+	cmdType, _ := strconv.Atoi(msg[0])
+	var cmdStr []byte
+	var TidStr string
+
+	switch cmdType {
+	case 50, 51:
+		var res DMbtcpTimeout
+		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
+			log.Println("json err:", err)
+		}
+		log.Println(res)
+		TidStr = res.Tid
+		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+		command := MbtcpTimeoutRes{
+			Tid:    tid,
+			Status: res.Status,
+			Data:   res.Timeout,
+		}
+		cmdStr, _ = json.Marshal(command)
+	default:
+		var res DMbtcpRes
+		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
+			fmt.Println("json err:", err)
+		}
+		fmt.Println(res)
+		TidStr = res.Tid
+		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+		command := MbtcpOnceReadRes{
+			Tid:    tid,
+			Status: res.Status,
+			Data:   res.Data,
+		}
+		cmdStr, _ = json.Marshal(command)
+	}
+
+	log.Println("Conversion for upstream complete")
+	log.Println(string(cmdStr))
+
+	// todo: check msg[0]
+	// should be web
+	if frame, ok := taskMap2[TidStr]; ok {
+		delete(taskMap2, TidStr)
+		socket.Send(frame, zmq.SNDMORE) // frame 1
+		socket.Send(string(cmdStr), 0)  // convert to string; frame 2
+	} else {
+		socket.Send("null", zmq.SNDMORE) // frame 1
+		socket.Send(string(cmdStr), 0)   // convert to string; frame 2
+	}
+
+	t := time.Now()
+	fmt.Println("zrecv:" + t.Format("2006-01-02 15:04:05.000"))
 }
 
 // RequestCommandBuilder build command to modbusd
@@ -125,6 +184,7 @@ func ResponseCommandBuilder() {
 
 }
 
+// Task for gocron
 func Task(socket *zmq.Socket, m interface{}) {
 	str, err := json.Marshal(m) // marshal to json string
 	if err != nil {
@@ -133,77 +193,6 @@ func Task(socket *zmq.Socket, m interface{}) {
 	}
 	socket.Send("tcp", zmq.SNDMORE) // frame 1
 	socket.Send(string(str), 0)     // convert to string; frame 2
-}
-
-func subscriber() {
-
-	toWeb, _ := zmq.NewSocket(zmq.PUB) // to upstream
-	toWeb.Bind("ipc:///tmp/from.psmb")
-
-	fromModbusd, _ := zmq.NewSocket(zmq.SUB)
-	defer fromModbusd.Close()
-	fromModbusd.Connect("ipc:///tmp/from.modbus")
-	filter := ""
-	fromModbusd.SetSubscribe(filter)
-
-	for {
-		fmt.Println("listen from modbusd")
-		msg, _ := fromModbusd.RecvMessage(0)
-		fmt.Println("recv from modbusd", msg[0], msg[1])
-
-		// convert zframe 1: command number
-		cmdType, _ := strconv.Atoi(msg[0])
-		var cmdStr []byte
-		var TidStr string
-
-		switch cmdType {
-		case 50, 51:
-			var res DMbtcpTimeout
-			if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-				fmt.Println("json err:", err)
-			}
-			fmt.Println(res)
-			TidStr = res.Tid
-			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-			command := MbtcpTimeoutRes{
-				Tid:    tid,
-				Status: res.Status,
-				Data:   res.Timeout,
-			}
-			cmdStr, _ = json.Marshal(command)
-		default:
-			var res DMbtcpRes
-			if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-				fmt.Println("json err:", err)
-			}
-			fmt.Println(res)
-			TidStr = res.Tid
-			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-			command := MbtcpOnceReadRes{
-				Tid:    tid,
-				Status: res.Status,
-				Data:   res.Data,
-			}
-			cmdStr, _ = json.Marshal(command)
-		}
-
-		fmt.Println("convert to upstream complete")
-		fmt.Println(string(cmdStr))
-
-		// todo: check msg[0]
-		// should be web
-		if frame, ok := taskMap2[TidStr]; ok {
-			delete(taskMap2, TidStr)
-			toWeb.Send(frame, zmq.SNDMORE) // frame 1
-			toWeb.Send(string(cmdStr), 0)  // convert to string; frame 2
-		} else {
-			toWeb.Send("null", zmq.SNDMORE) // frame 1
-			toWeb.Send(string(cmdStr), 0)   // convert to string; frame 2
-		}
-
-		t := time.Now()
-		fmt.Println("zrecv:" + t.Format("2006-01-02 15:04:05.000"))
-	}
 }
 
 func main() {
@@ -215,25 +204,50 @@ func main() {
 	sch.Start()
 	// s.Every(1).Seconds().Do(publisher)
 
-	go subscriber()
-
-	// downstream publish
-	toModbusd, _ := zmq.NewSocket(zmq.PUB)
-	toModbusd.Connect("ipc:///tmp/to.modbus")
-	defer toModbusd.Close()
-
 	// upstream subscriber
 	fromUpstream, _ := zmq.NewSocket(zmq.SUB)
 	defer fromUpstream.Close()
 	fromUpstream.Bind("ipc:///tmp/to.psmb")
-	fromUpstream.SetSubscribe("") // filter frame 1
+	fromUpstream.SetSubscribe("")
 
+	// upstream publisher
+	toUpstream, _ := zmq.NewSocket(zmq.PUB) // to upstream
+	defer toUpstream.Close()
+	toUpstream.Bind("ipc:///tmp/from.psmb")
+
+	// downstream subscriber
+	fromModbusd, _ := zmq.NewSocket(zmq.SUB)
+	defer fromModbusd.Close()
+	fromModbusd.Connect("ipc:///tmp/from.modbus")
+	fromModbusd.SetSubscribe("")
+
+	// downstream publisher
+	toModbusd, _ := zmq.NewSocket(zmq.PUB)
+	defer toModbusd.Close()
+	toModbusd.Connect("ipc:///tmp/to.modbus")
+
+	// Initialize poll set
+	poller := zmq.NewPoller()
+	poller.Add(fromUpstream, zmq.POLLIN)
+	poller.Add(fromModbusd, zmq.POLLIN)
+
+	//  Process messages from both sockets
 	for {
-		// receive multi-parts message
-		msg, _ := fromUpstream.RecvMessage(0)
-		log.Println("receive from upstream", msg[0], msg[1])
-		RequestParser(toModbusd, msg)
-		time.Sleep(100 * time.Millisecond)
+		sockets, _ := poller.Poll(-1)
+		for _, socket := range sockets {
+			switch s := socket.Socket; s {
+			case fromUpstream:
+				// receive multi-part message
+				msg, _ := fromUpstream.RecvMessage(0)
+				log.Println("receive from upstream", msg[0], msg[1])
+				RequestParser(toModbusd, msg)
+			case fromModbusd:
+				// receive multi-part message
+				msg, _ := fromModbusd.RecvMessage(0)
+				log.Println("receive from modbusd", msg[0], msg[1])
+				ResponseParser(toUpstream, msg)
+			}
+		}
 	}
 }
 
