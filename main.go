@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -114,7 +113,8 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	// check the length of multi-part message
 	if len(msg) != 2 {
 		log.Println("Request parser failed: invalid message length")
-		return "", errors.New("Invalid message length")
+		return
+		//return "", errors.New("Invalid message length")
 	}
 
 	log.Println("Parsing response:", msg[0])
@@ -129,6 +129,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.Println("json err:", err)
+			return
 		}
 		log.Println(res)
 		TidStr = res.Tid
@@ -142,9 +143,10 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	default:
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-			fmt.Println("json err:", err)
+			log.Println("json err:", err)
+			return
 		}
-		fmt.Println(res)
+		log.Println(res)
 		TidStr = res.Tid
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		command := MbtcpOnceReadRes{
@@ -170,7 +172,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	}
 
 	t := time.Now()
-	fmt.Println("zrecv:" + t.Format("2006-01-02 15:04:05.000"))
+	log.Println("zrecv:" + t.Format("2006-01-02 15:04:05.000"))
 }
 
 // RequestCommandBuilder build command to modbusd
