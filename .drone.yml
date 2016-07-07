@@ -4,6 +4,7 @@ compose:
         volumes:
             - /tmp:/tmp
         pull: true
+        privileged: true
 build:
 #
 #    mbd:
