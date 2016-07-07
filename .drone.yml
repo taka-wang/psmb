@@ -20,14 +20,12 @@ build:
         volumes: 
             - /tmp:/tmp 
         commands:
-            - ls -al
-            - pwd
             - go get github.com/marksalpeter/sugar
             - go get github.com/taka-wang/zmq3
             - go get github.com/taka-wang/gocron
             - go test -v
             - go build -o psmb
-            - ./psmb &
+            - ./psmb 
     goclient:
         image: takawang/ubuntu-gozmq
         volumes: 
