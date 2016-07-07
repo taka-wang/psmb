@@ -17,7 +17,7 @@ var sch gocron.Scheduler
 
 // RequestParser handle message from services
 func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
-	// check the length of multi-part message
+	// Check the length of multi-part message
 	if len(msg) != 2 {
 		log.Println("Request parser failed: invalid message length")
 		return "", errors.New("Invalid message length")
@@ -43,7 +43,7 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 			Len:   req.Len,
 		}
 
-		// add to map
+		// add to task map
 		taskMap[cmd.Tid] = cmd
 		taskMap2[cmd.Tid] = msg[0]
 		sch.Emergency().Do(Task, socket, cmd)
@@ -110,7 +110,7 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 
 // ResponseParser handle message from modbusd
 func ResponseParser(socket *zmq.Socket, msg []string) {
-	// check the length of multi-part message
+	// Check the length of multi-part message
 	if len(msg) != 2 {
 		log.Println("Request parser failed: invalid message length")
 		return
@@ -160,8 +160,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	log.Println("Conversion for upstream complete")
 	log.Println(string(cmdStr))
 
-	// todo: check msg[0]
-	// should be web
+	// todo: check msg[0], should be web
 	if frame, ok := taskMap2[TidStr]; ok {
 		delete(taskMap2, TidStr)
 		socket.Send(frame, zmq.SNDMORE) // frame 1
@@ -207,15 +206,15 @@ func main() {
 	// s.Every(1).Seconds().Do(publisher)
 
 	// upstream subscriber
-	fromUpstream, _ := zmq.NewSocket(zmq.SUB)
-	defer fromUpstream.Close()
-	fromUpstream.Bind("ipc:///tmp/to.psmb")
-	fromUpstream.SetSubscribe("")
+	fromService, _ := zmq.NewSocket(zmq.SUB)
+	defer fromService.Close()
+	fromService.Bind("ipc:///tmp/to.psmb")
+	fromService.SetSubscribe("")
 
 	// upstream publisher
-	toUpstream, _ := zmq.NewSocket(zmq.PUB) // to upstream
-	defer toUpstream.Close()
-	toUpstream.Bind("ipc:///tmp/from.psmb")
+	toService, _ := zmq.NewSocket(zmq.PUB) // to upstream
+	defer toService.Close()
+	toService.Bind("ipc:///tmp/from.psmb")
 
 	// downstream subscriber
 	fromModbusd, _ := zmq.NewSocket(zmq.SUB)
@@ -228,26 +227,24 @@ func main() {
 	defer toModbusd.Close()
 	toModbusd.Connect("ipc:///tmp/to.modbus")
 
-	// Initialize poll set
+	// initialize poll set
 	poller := zmq.NewPoller()
-	poller.Add(fromUpstream, zmq.POLLIN)
+	poller.Add(fromService, zmq.POLLIN)
 	poller.Add(fromModbusd, zmq.POLLIN)
 
-	//  Process messages from both sockets
+	// process messages from both sockets
 	for {
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 			switch s := socket.Socket; s {
-			case fromUpstream:
-				// receive multi-part message
-				msg, _ := fromUpstream.RecvMessage(0)
+			case fromService:
+				msg, _ := fromService.RecvMessage(0)
 				log.Println("receive from upstream", msg[0], msg[1])
 				RequestParser(toModbusd, msg)
 			case fromModbusd:
-				// receive multi-part message
 				msg, _ := fromModbusd.RecvMessage(0)
 				log.Println("receive from modbusd", msg[0], msg[1])
-				ResponseParser(toUpstream, msg)
+				ResponseParser(toService, msg)
 			}
 		}
 	}
