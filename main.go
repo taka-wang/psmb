@@ -190,6 +190,11 @@ func subscriber() {
 
 		// todo: check msg[0]
 		// should be web
+		for k, v := range taskMap2 {
+			fmt.Println("k:", k, "v:", v)
+		}
+		fmt.Println(TidStr)
+
 		if frame, ok := taskMap2[TidStr]; ok {
 			fmt.Println("debug: if")
 			toWeb.Send(frame, zmq.SNDMORE) // frame 1
