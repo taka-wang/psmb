@@ -1,5 +1,5 @@
-  image: golang
+  image: takawang/ubuntu-gozmq
   commands:
     - go get
-    - go build
-    - go test
+    - go test -v
+    - go build -o psmb
