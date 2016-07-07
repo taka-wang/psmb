@@ -25,12 +25,13 @@ build:
             - go get github.com/taka-wang/gocron
             - go test -v
             - go build -o psmb
-            - ./psmb 
+            - ./psmb &
     goclient:
         image: takawang/ubuntu-gozmq
         volumes: 
             - /tmp:/tmp 
         commands:
+            - ls /tmp
             - cd test/goclient/
             - go get github.com/marksalpeter/sugar 
             - go get github.com/taka-wang/psmb
