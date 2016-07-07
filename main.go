@@ -175,7 +175,7 @@ func subscriber() {
 				fmt.Println("json err:", err)
 			}
 			fmt.Println(res)
-
+			TidStr = res.Tid
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			command := MbtcpOnceReadRes{
 				Tid:    tid,
