@@ -153,7 +153,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
 			return
 		}
-		log.Debug(res)
+		//log.Debug(res)
 		TidStr = res.Tid
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		command := MbtcpTimeoutRes{
@@ -168,7 +168,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
 			return
 		}
-		log.Debug(res)
+		//log.Debug(res)
 		TidStr = res.Tid
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		command := MbtcpOnceReadRes{
