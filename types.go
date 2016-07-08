@@ -35,7 +35,7 @@ func (u JSONableByteSlice) MarshalJSON() ([]byte, error) {
 }
 
 const (
-	_ Endian = iota
+	_ Endian = iota // ignore first value by assigning to blank identifier
 	// ABCD 32-bit words may be represented in big-endian format
 	ABCD
 	// DCBA 32-bit words may be represented in little-endian format
@@ -47,7 +47,7 @@ const (
 )
 
 const (
-	_ Endian = iota
+	_ Endian = iota // ignore first value by assigning to blank identifier
 	// AB 16-bit words may be represented in big-endian format
 	AB
 	// BA 16-bit words may be represented in little-endian format
@@ -55,7 +55,7 @@ const (
 )
 
 const (
-	_ Endian = iota
+	_ Endian = iota // ignore first value by assigning to blank identifier
 	// BigEndian 32-bit words may be represented in ABCD format
 	BigEndian
 	// LittleEndian 32-bit words may be represented in DCBA format
@@ -67,7 +67,7 @@ const (
 )
 
 const (
-	_ RegValueType = iota
+	_ RegValueType = iota // ignore first value by assigning to blank identifier
 	// RegisterArray register array, ex: [12345, 23456, 5678]
 	RegisterArray
 	// HexString hexadecimal string, ex: "112C004F12345678"
