@@ -52,7 +52,7 @@ func TestPsmb(t *testing.T) {
 	host, err := net.LookupHost("mbd")
 	if err != nil {
 		fmt.Println("local run")
-		hostName = "127.0.0.1"
+		hostName = "172.17.0.4"
 	} else {
 		fmt.Println("docker run")
 		hostName = host[0] //docker
