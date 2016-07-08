@@ -94,7 +94,7 @@ func TestPsmb(t *testing.T) {
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
-		// check reponse
+		// check response
 		if r2.Status != "ok" {
 			return false
 		}
@@ -129,7 +129,7 @@ func TestPsmb(t *testing.T) {
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
-		// check reponse
+		// check response
 		if r2.Status != "ok" {
 			return false
 		}
