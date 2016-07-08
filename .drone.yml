@@ -20,6 +20,7 @@ build:
             - go get github.com/marksalpeter/sugar
             - go get github.com/taka-wang/zmq3
             - go get github.com/taka-wang/gocron
+            - go get github.com/Sirupsen/logrus
             - go test -v
             - go build -o psmb
             - ./psmb &

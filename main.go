@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"strconv"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/taka-wang/gocron"
 	zmq "github.com/taka-wang/zmq3"
 )
@@ -15,21 +15,42 @@ var taskMap map[string]interface{}
 var taskMap2 map[string]string
 var sch gocron.Scheduler
 
+func init() {
+	// Log as JSON instead of the default ASCII formatter.
+	//log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stderr instead of stdout, could also be a file.
+	//log.SetOutput(os.Stderr)
+
+	// Only log the warning severity or above.
+	//log.SetLevel(log.WarnLevel)
+
+	/*
+		if Environment == "production" {
+			log.SetFormatter(&log.JSONFormatter{})
+		} else {
+			// The TextFormatter is default, you don't actually have to do this.
+			log.SetFormatter(&log.TextFormatter{})
+		}
+	*/
+	log.SetLevel(log.DebugLevel)
+}
+
 // RequestParser handle message from services
 func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
-		log.Println("Request parser failed: invalid message length")
+		log.Error("Request parser failed: invalid message length")
 		return "", errors.New("Invalid message length")
 	}
 
-	log.Println("Parsing request:", msg[0])
+	log.WithFields(log.Fields{"messge": msg[0]}).Debug("Parsing request:")
 
 	switch msg[0] {
 	case "mbtcp.once.read":
 		var req MbtcpOnceReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
-			log.Println("Unmarshal request failed:", err)
+			log.Error("Unmarshal request failed:", err)
 			return "", err
 		}
 
@@ -54,56 +75,56 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 
 			cmdStr, err := json.Marshal(cmd) // marshal to json string
 			if err != nil {
-				log.Println("Marshal request failed:", err)
+				log.Error("Marshal request failed:", err)
 				return "", err
 			}
 			return string(cmdStr), nil
 		*/
 
 	case "mbtcp.once.write":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.timeout.read":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.timeout.update":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.poll.create":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.poll.update":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.poll.read":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.poll.delete":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.poll.toggle":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.polls.read":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.polls.delete":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.polls.toggle":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.polls.import":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.polls.export":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.poll.history":
-		log.Println("TODO")
+		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	default:
-		log.Println("unsupport")
+		log.Error("unsupport")
 		return nil, errors.New("unsupport request")
 	}
 }
@@ -112,12 +133,12 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 func ResponseParser(socket *zmq.Socket, msg []string) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
-		log.Println("Request parser failed: invalid message length")
+		log.Error("Request parser failed: invalid message length")
 		return
 		//return "", errors.New("Invalid message length")
 	}
 
-	log.Println("Parsing response:", msg[0])
+	log.WithFields(log.Fields{"messge": msg[0]}).Debug("Parsing request:")
 
 	// Convert zframe 1: command number
 	cmdType, _ := strconv.Atoi(msg[0])
@@ -128,10 +149,10 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	case 50, 51:
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-			log.Println("json err:", err)
+			log.Error("json err:", err)
 			return
 		}
-		log.Println(res)
+		log.Debug(res)
 		TidStr = res.Tid
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		command := MbtcpTimeoutRes{
@@ -143,10 +164,10 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	default:
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-			log.Println("json err:", err)
+			log.Error("json err:", err)
 			return
 		}
-		log.Println(res)
+		log.Debug(res)
 		TidStr = res.Tid
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		command := MbtcpOnceReadRes{
@@ -157,8 +178,8 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 		cmdStr, _ = json.Marshal(command)
 	}
 
-	log.Println("Conversion for upstream complete")
-	log.Println(string(cmdStr))
+	log.Debug("Conversion for upstream complete")
+	log.Debug(string(cmdStr))
 
 	// todo: check msg[0], should be web
 	if frame, ok := taskMap2[TidStr]; ok {
@@ -171,7 +192,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	}
 
 	t := time.Now()
-	log.Println("zrecv:" + t.Format("2006-01-02 15:04:05.000"))
+	log.WithFields(log.Fields{"timestamp": t.Format("2006-01-02 15:04:05.000")}).Info("zrecv:")
 }
 
 // RequestCommandBuilder build command to modbusd
@@ -189,7 +210,7 @@ func ResponseCommandBuilder() {
 func Task(socket *zmq.Socket, m interface{}) {
 	str, err := json.Marshal(m) // marshal to json string
 	if err != nil {
-		log.Println("Marshal request failed:", err)
+		log.Error("Marshal request failed:", err)
 		return
 	}
 	socket.Send("tcp", zmq.SNDMORE) // frame 1
@@ -239,11 +260,12 @@ func main() {
 			switch s := socket.Socket; s {
 			case fromService:
 				msg, _ := fromService.RecvMessage(0)
-				log.Println("receive from upstream", msg[0], msg[1])
+
+				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from upstream")
 				RequestParser(toModbusd, msg)
 			case fromModbusd:
 				msg, _ := fromModbusd.RecvMessage(0)
-				log.Println("receive from modbusd", msg[0], msg[1])
+				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from modbusd")
 				ResponseParser(toService, msg)
 			}
 		}

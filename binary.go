@@ -5,10 +5,11 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
-	"log"
 	"math"
 	"strconv"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 // bitStringToUInt8s converts bits string to uint8 array.
@@ -63,7 +64,7 @@ func RegistersToBytes(data []uint16) ([]byte, error) {
 	for _, v := range data {
 		err := binary.Write(buf, binary.BigEndian, v)
 		if err != nil {
-			log.Println("RegistersToBytes failed:", err)
+			log.Error("RegistersToBytes failed:", err)
 			return nil, err
 		}
 	}
