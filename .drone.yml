@@ -2,7 +2,7 @@ build:
     psmb_goclient:
         image: takawang/ubuntu-gozmq
         commands:
-            - apt-get install libmodbus-dev
+            - apt-get install libmodbus-dev cmake -y
             - git clone https://github.com/taka-wang/modbusd.git
             - mkdir -p modbusd/build
             - cd  modbusd/build
