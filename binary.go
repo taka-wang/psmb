@@ -73,16 +73,16 @@ func RegistersToBytes(data []uint16) ([]byte, error) {
 
 // LinearScalingRegisters scales the registers linearly.
 // Equation:
-// 	Let originLow, originHigh, targetLow, targetHigh as a, b, c, d accordingly.
+// 	Let domainLow, domainHigh, rangeLow, rangeHigh as a, b, c, d accordingly.
 // 	Output = c + (d - c) * (input - a) / (b - a)
-func LinearScalingRegisters(data []uint16, originLow, originHigh, targetLow, targetHigh float64) []float32 {
+func LinearScalingRegisters(data []uint16, domainLow, domainHigh, rangeLow, rangeHigh float64) []float32 {
 	l := len(data)
-	low := math.Min(originLow, originHigh)
-	high := math.Max(originLow, originHigh)
+	low := math.Min(domainLow, domainHigh)
+	high := math.Max(domainLow, domainHigh)
 	result := make([]float32, l)
 
 	for idx := 0; idx < l; idx++ {
-		result[idx] = float32(targetLow + (targetHigh-targetLow)*(math.Min(math.Max(low, float64(data[idx])), high)-low)/(high-low))
+		result[idx] = float32(rangeLow + (rangeHigh-rangeLow)*(math.Min(math.Max(low, float64(data[idx])), high)-low)/(high-low))
 	}
 	return result
 }
