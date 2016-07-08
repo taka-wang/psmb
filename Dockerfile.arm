@@ -5,7 +5,7 @@ FROM takawang/arm-gozmq
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 WORKDIR /go
-RUN go get github.com/marksalpeter/sugar && go get github.com/taka-wang/gocron && go get github.com/Sirupsen/logrus
+RUN go get github.com/takawang/sugar && go get github.com/taka-wang/gocron && go get github.com/takawang/logrus
 
 ## Load app files
 ADD . /go

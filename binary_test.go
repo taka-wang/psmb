@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/marksalpeter/sugar"
+	"github.com/takawang/sugar"
 )
 
 func TestBinaryOps(t *testing.T) {

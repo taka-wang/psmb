@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/takawang/logrus"
 )
 
 // bitStringToUInt8s converts bits string to uint8 array.

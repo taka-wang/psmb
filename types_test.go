@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/marksalpeter/sugar"
+	"github.com/takawang/sugar"
 )
 
 func TestUpstreamStruct(t *testing.T) {

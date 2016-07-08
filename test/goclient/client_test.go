@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/marksalpeter/sugar"
-	zmq "github.com/taka-wang/zmq3"
+	"github.com/takawang/sugar"
+	zmq "github.com/takawang/zmq3"
 )
 
 // generic tcp publisher

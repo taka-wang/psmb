@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/taka-wang/gocron"
-	zmq "github.com/taka-wang/zmq3"
+	log "github.com/takawang/logrus"
+	zmq "github.com/takawang/zmq3"
 )
 
 var taskMap map[string]interface{}
