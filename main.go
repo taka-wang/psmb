@@ -179,7 +179,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 		cmdStr, _ = json.Marshal(command)
 	}
 
-	log.WithFields(log.Fields{"Command String": string(cmdStr)}).Debug("Conversion for upstream complete")
+	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Conversion for upstream complete:")
 	// todo: check msg[0], should be web
 	if frame, ok := taskMap2[TidStr]; ok {
 		delete(taskMap2, TidStr)
@@ -191,7 +191,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	}
 
 	t := time.Now()
-	log.WithFields(log.Fields{"timestamp": t.Format("2006-01-02 15:04:05.000")}).Info("End ResponseParser")
+	log.WithFields(log.Fields{"timestamp": t.Format("2006-01-02 15:04:05.000")}).Info("End ResponseParser:")
 }
 
 // RequestCommandBuilder build command to modbusd
@@ -260,11 +260,11 @@ func main() {
 			case fromService:
 				msg, _ := fromService.RecvMessage(0)
 
-				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from upstream")
+				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from upstream:")
 				RequestParser(toModbusd, msg)
 			case fromModbusd:
 				msg, _ := fromModbusd.RecvMessage(0)
-				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from modbusd")
+				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from modbusd:")
 				ResponseParser(toService, msg)
 			}
 		}
