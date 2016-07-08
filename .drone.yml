@@ -3,6 +3,10 @@ build:
         image: takawang/ubuntu-gozmq
         commands:
             - apt-get install libmodbus-dev cmake -y
+            - git clone git://github.com/zeromq/czmq.git
+            - cd czmq
+            - ./autogen.sh && ./configure && make && make install && ldconfig
+            - cd ..
             - git clone https://github.com/taka-wang/modbusd.git
             - mkdir -p modbusd/build
             - cd  modbusd/build
