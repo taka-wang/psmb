@@ -34,8 +34,8 @@ func init() {
 		}
 	*/
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	//log.SetLevel(log.DebugLevel)
-	log.SetLevel(log.ErrorLevel)
+	log.SetLevel(log.DebugLevel)
+	//log.SetLevel(log.ErrorLevel)
 }
 
 // RequestParser handle message from services
