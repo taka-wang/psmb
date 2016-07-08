@@ -179,7 +179,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 		cmdStr, _ = json.Marshal(command)
 	}
 
-	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Conversion for upstream complete:")
+	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Conversion for service complete:")
 	// todo: check msg[0], should be web
 	if frame, ok := taskMap2[TidStr]; ok {
 		log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
@@ -264,7 +264,7 @@ func main() {
 			case fromService:
 				msg, _ := fromService.RecvMessage(0)
 
-				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from upstream:")
+				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from service:")
 				RequestParser(toModbusd, msg)
 			case fromModbusd:
 				msg, _ := fromModbusd.RecvMessage(0)
