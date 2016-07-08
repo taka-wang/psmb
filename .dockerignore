@@ -9,3 +9,4 @@ docker-compose.yml
 .travis.yml
 Dockerfile
 Dockerfile.arm
+.drone.yml
