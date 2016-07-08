@@ -94,7 +94,7 @@ type DMbtcpRes struct {
 	Tid string `json:"tid"`
 	// Status response status string
 	Status string `json:"status"`
-	// Data for read function code only.
+	// Data for 'read function code' only.
 	Data []uint16 `json:"data,omitempty"`
 }
 
@@ -104,11 +104,11 @@ type DMbtcpReadReq struct {
 	Tid string `json:"tid"`
 	// Cmd modbusd command type: https://github.com/taka-wang/modbusd#command-mapping-table
 	Cmd int `json:"cmd"`
-	// IP modbus tcp slave ip address or hostname
+	// IP ip address or hostname of the modbus tcp slave
 	IP string `json:"ip"`
-	// Port port number
+	// Port port number of the modbus tcp slave
 	Port string `json:"port"`
-	// Slave modbus device id
+	// Slave device id of the modbus tcp slave
 	Slave uint8 `json:"slave"`
 	// Addr start address for read
 	Addr uint16 `json:"addr"`
@@ -122,11 +122,11 @@ type DMbtcpWriteReq struct {
 	Tid string `json:"tid"`
 	// Cmd modbusd command type: https://github.com/taka-wang/modbusd#command-mapping-table
 	Cmd int `json:"cmd"`
-	// IP modbus tcp slave ip address or hostname
+	// IP ip address or hostname of the modbus tcp slave
 	IP string `json:"ip"`
-	// Port port number
+	// Port port number of the modbus tcp slave
 	Port string `json:"port"`
-	// Slave modbus device id
+	// Slave device id of the modbus tcp slave
 	Slave uint8 `json:"slave"`
 	// Addr start address for write
 	Addr uint16 `json:"addr"`
