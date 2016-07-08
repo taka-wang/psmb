@@ -182,10 +182,12 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Conversion for upstream complete:")
 	// todo: check msg[0], should be web
 	if frame, ok := taskMap2[TidStr]; ok {
+		log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
 		delete(taskMap2, TidStr)
 		socket.Send(frame, zmq.SNDMORE) // frame 1
 		socket.Send(string(cmdStr), 0)  // convert to string; frame 2
 	} else {
+		log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
 		socket.Send("null", zmq.SNDMORE) // frame 1
 		socket.Send(string(cmdStr), 0)   // convert to string; frame 2
 	}
@@ -212,6 +214,8 @@ func Task(socket *zmq.Socket, m interface{}) {
 		log.Error("Marshal request failed:", err)
 		return
 	}
+	log.WithFields(log.Fields{"JSON": string(str)}).Debug("Send request to modbusd:")
+
 	socket.Send("tcp", zmq.SNDMORE) // frame 1
 	socket.Send(string(str), 0)     // convert to string; frame 2
 }
