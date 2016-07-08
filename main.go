@@ -33,6 +33,7 @@ func init() {
 			log.SetFormatter(&log.TextFormatter{})
 		}
 	*/
+	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetLevel(log.DebugLevel)
 }
 
