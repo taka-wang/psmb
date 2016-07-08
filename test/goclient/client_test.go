@@ -13,6 +13,8 @@ import (
 
 // generic tcp publisher
 func publisher(cmd, json string) {
+	t := time.Now()
+	fmt.Println("Req:", t.Format("2006-01-02 15:04:05.000"))
 	sender, _ := zmq.NewSocket(zmq.PUB)
 	defer sender.Close()
 	sender.Connect("ipc:///tmp/to.psmb")
@@ -36,6 +38,10 @@ func subscriber() (string, string) {
 	for {
 		fmt.Println("listen..")
 		msg, _ := receiver.RecvMessage(0)
+
+		t := time.Now()
+		fmt.Println("Res:", t.Format("2006-01-02 15:04:05.000"))
+
 		// recv then exit loop
 		return msg[0], msg[1]
 	}
