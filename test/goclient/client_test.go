@@ -20,7 +20,7 @@ func publisher(cmd, json string) {
 	sender.Connect("ipc:///tmp/to.psmb")
 
 	for {
-		time.Sleep(time.Duration(10) * time.Microsecond)
+		time.Sleep(time.Duration(10) * time.Millisecond)
 		sender.Send(cmd, zmq.SNDMORE) // frame 1
 		sender.Send(json, 0)          // convert to string; frame 2
 		// send the exit loop
