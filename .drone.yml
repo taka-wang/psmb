@@ -1,12 +1,7 @@
 build:
     psmb_goclient:
-        image: takawang/ubuntu-gozmq
+        image: takawang/ubuntu-drone-psmb
         commands:
-            - apt-get install libmodbus-dev cmake -y
-            - git clone git://github.com/zeromq/czmq.git
-            - cd czmq
-            - ./autogen.sh && ./configure && make && make install && ldconfig
-            - cd ..
             - git clone https://github.com/taka-wang/modbusd.git
             - mkdir -p modbusd/build
             - cd  modbusd/build
@@ -16,8 +11,9 @@ build:
             - service modbusd start
             - cd tests/cmbserver
             - gcc server.c -o server -Wall -std=c99 `pkg-config --libs --cflags libmodbus`
-            - server &
+            - ./server &
             - cd ../../../
+
             - go get github.com/marksalpeter/sugar
             - go get github.com/taka-wang/zmq3
             - go get github.com/taka-wang/gocron
@@ -27,5 +23,4 @@ build:
 
             - cd test/goclient/
             - go get github.com/marksalpeter/sugar 
-            #- go get github.com/taka-wang/psmb
             - go test -v
