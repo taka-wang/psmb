@@ -45,13 +45,13 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 		return "", errors.New("Invalid message length")
 	}
 
-	log.WithFields(log.Fields{"messge": msg[0]}).Debug("Parsing request:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing request:")
 
 	switch msg[0] {
 	case "mbtcp.once.read":
 		var req MbtcpOnceReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
-			log.Error("Unmarshal request failed:", err)
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
 			return "", err
 		}
 
@@ -139,7 +139,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 		//return "", errors.New("Invalid message length")
 	}
 
-	log.WithFields(log.Fields{"messge": msg[0]}).Debug("Parsing request:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing request:")
 
 	// Convert zframe 1: command number
 	cmdType, _ := strconv.Atoi(msg[0])
@@ -150,7 +150,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	case 50, 51:
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-			log.Error("json err:", err)
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
 			return
 		}
 		log.Debug(res)
@@ -165,7 +165,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	default:
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-			log.Error("json err:", err)
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
 			return
 		}
 		log.Debug(res)
@@ -179,9 +179,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 		cmdStr, _ = json.Marshal(command)
 	}
 
-	log.Debug("Conversion for upstream complete")
-	log.Debug(string(cmdStr))
-
+	log.WithFields(log.Fields{"Command String": string(cmdStr)}).Debug("Conversion for upstream complete")
 	// todo: check msg[0], should be web
 	if frame, ok := taskMap2[TidStr]; ok {
 		delete(taskMap2, TidStr)
@@ -193,7 +191,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 	}
 
 	t := time.Now()
-	log.WithFields(log.Fields{"timestamp": t.Format("2006-01-02 15:04:05.000")}).Info("zrecv:")
+	log.WithFields(log.Fields{"timestamp": t.Format("2006-01-02 15:04:05.000")}).Info("End ResponseParser")
 }
 
 // RequestCommandBuilder build command to modbusd
