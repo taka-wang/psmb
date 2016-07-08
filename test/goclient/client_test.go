@@ -13,14 +13,14 @@ import (
 
 // generic tcp publisher
 func publisher(cmd, json string) {
-	t := time.Now()
-	fmt.Println("Req:", t.Format("2006-01-02 15:04:05.000"))
 	sender, _ := zmq.NewSocket(zmq.PUB)
 	defer sender.Close()
 	sender.Connect("ipc:///tmp/to.psmb")
 
 	for {
 		time.Sleep(time.Duration(10) * time.Millisecond)
+		t := time.Now()
+		fmt.Println("Req:", t.Format("2006-01-02 15:04:05.000"))
 		sender.Send(cmd, zmq.SNDMORE) // frame 1
 		sender.Send(json, 0)          // convert to string; frame 2
 		// send the exit loop
