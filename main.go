@@ -139,7 +139,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 		//return "", errors.New("Invalid message length")
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing request:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
 
 	// Convert zframe 1: command number
 	cmdType, _ := strconv.Atoi(msg[0])
