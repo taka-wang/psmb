@@ -1,0 +1,28 @@
+FROM takawang/ubuntu-modbus
+MAINTAINER Taka Wang <taka@cmwang.net>
+
+ADD run.sh /usr/local/bin/run.sh
+
+WORKDIR /
+RUN git clone https://github.com/taka-wang/modbusd.git
+WORKDIR /modbusd
+
+## Build modbusd
+RUN mkdir -p /modbusd/build
+WORKDIR /modbusd/build
+RUN cmake .. && \
+    make && \
+    make install
+
+## Install init script
+WORKDIR /modbusd/
+RUN cp "config/service.sh" "/etc/init.d/modbusd" && \
+    chmod +x /etc/init.d/modbusd && \
+    update-rc.d modbusd defaults
+
+## Build dummy modbus slave
+WORKDIR /modbusd/tests/cmbserver
+RUN gcc server.c -o server -Wall -std=c99 `pkg-config --libs --cflags libmodbus`
+
+## default command
+CMD ["/usr/local/bin/run.sh"]
