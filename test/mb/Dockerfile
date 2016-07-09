@@ -26,6 +26,27 @@ RUN apk update \
                         --infodir=/usr/share/info \
          && make && make install \
 
+    && echo " ... adding ZMQ and CZMQ" \
+         && curl -L http://download.zeromq.org/zeromq-${ZMQ_VERSION}.tar.gz -o /tmp/zeromq.tar.gz \
+         && cd /tmp/ \
+         && tar -xf /tmp/zeromq.tar.gz \
+         && cd /tmp/zeromq*/ \
+         && ./configure --prefix=/usr \
+                        --sysconfdir=/etc \
+                        --mandir=/usr/share/man \
+                        --infodir=/usr/share/info \
+         && make && make install \
+         
+         && curl -L http://download.zeromq.org/czmq-${CZMQ_VERSION}.tar.gz -o /tmp/czmq.tar.gz \
+         && cd /tmp/ \
+         && tar -xf /tmp/czmq.tar.gz \
+         && cd /tmp/czmq*/ \
+         && ./configure --prefix=/usr \
+                        --sysconfdir=/etc \
+                        --mandir=/usr/share/man \
+                        --infodir=/usr/share/info \
+         && make && make install \
+
     && echo " ... build modbusd" \
         && cd /tmp/ \
         && git clone https://github.com/taka-wang/modbusd.git \
