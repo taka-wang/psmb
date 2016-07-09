@@ -75,7 +75,7 @@ func TestPsmb(t *testing.T) {
 			Port:  portNum1,
 			FC:    1,
 			Slave: 1,
-			Addr:  10,
+			Addr:  3,
 			Len:   7,
 		}
 
@@ -110,7 +110,7 @@ func TestPsmb(t *testing.T) {
 			Port:  portNum2,
 			FC:    1,
 			Slave: 1,
-			Addr:  10,
+			Addr:  3,
 			Len:   7,
 		}
 
