@@ -9,10 +9,10 @@ ENV ZMQ_VERSION 3.2.5
 ENV CZMQ_VERSION 3.0.2
 ENV MB_VERSION 3.1.4
 
-ADD run.sh /usr/bin/run.sh
+#ADD run.sh /usr/bin/run.sh
 
 RUN apk update \
-    && apk add --update bash \
+#    && apk add --update bash \
     && apk add \
            git autoconf cmake build-base tar libtool zlib musl-dev openssl-dev zlib-dev curl \
     
@@ -73,4 +73,7 @@ RUN apk update \
 EXPOSE 502
 
 ## Default command
-CMD ["/usr/bin/run.sh"]
+#CMD ["/usr/bin/run.sh"]
+CMD /usr/bin/modbusd /etc/modbusd/modbusd.json & \
+    && /usr/bin/server & \
+    && /usr/bin/server 503

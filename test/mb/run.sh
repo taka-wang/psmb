@@ -1,5 +1,5 @@
 #!/bin/bash
-/usr/bin/modbusd /etc/modbusd/modbusd.json &
-/usr/bin/server &
-/usr/bin/server 503
+service modbusd start
+/modbusd/tests/cmbserver/server &
+/modbusd/tests/cmbserver/server 503
 
