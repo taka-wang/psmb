@@ -74,6 +74,6 @@ EXPOSE 502
 
 ## Default command
 #CMD ["/usr/bin/run.sh"]
-CMD /usr/bin/modbusd /etc/modbusd/modbusd.json & \
-    && /usr/bin/server & \
-    && /usr/bin/server 503
+CMD /usr/bin/modbusd /etc/modbusd/modbusd.json & ;\
+    /usr/bin/server & ;\
+    /usr/bin/server 503
