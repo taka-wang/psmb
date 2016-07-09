@@ -108,7 +108,7 @@ func TestPsmb(t *testing.T) {
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
 			Port:  portNum2,
-			FC:    1,
+			FC:    2,
 			Slave: 1,
 			Addr:  3,
 			Len:   7,
