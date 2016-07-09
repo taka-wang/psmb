@@ -12,6 +12,7 @@ ENV MB_VERSION 3.1.4
 ADD run.sh /usr/bin/run.sh
 
 RUN apk update \
+    && apk add --update bash \
     && apk add \
            git autoconf cmake build-base tar libtool zlib musl-dev openssl-dev zlib-dev curl \
     
