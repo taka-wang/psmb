@@ -51,7 +51,7 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 
 	switch msg[0] {
 	case "mbtcp.once.read":
-		var req MbtcpOnceReadReq
+		var req MbtcpReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
 			return "", err
@@ -173,7 +173,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 		//log.Debug(res)
 		TidStr = res.Tid
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-		command := MbtcpOnceReadRes{
+		command := MbtcpReadRes{
 			Tid:    tid,
 			Status: res.Status,
 			Data:   res.Data,

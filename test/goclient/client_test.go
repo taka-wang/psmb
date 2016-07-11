@@ -68,7 +68,7 @@ func TestPsmb(t *testing.T) {
 
 	s.Assert("`FC1` read bits test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpOnceReadReq{
+		readReq := MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -90,7 +90,7 @@ func TestPsmb(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpOnceReadRes
+		var r2 MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -103,7 +103,7 @@ func TestPsmb(t *testing.T) {
 
 	s.Assert("`FC1` read bits test: port 503", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpOnceReadReq{
+		readReq := MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -125,7 +125,7 @@ func TestPsmb(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpOnceReadRes
+		var r2 MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
