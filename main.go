@@ -161,21 +161,50 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
 			return err
 		}
+		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		TidStr = res.Tid
-		if req, ok := taskMap[TidStr]; ok {
-			readReq := req.(MbtcpReadReq)
-			log.Println(readReq)
+		if cmd, ok := taskMap2[TidStr]; ok {
+			switch cmd {
+			case "mbtcp.once.read":
+				if req, ok := taskMap[TidStr]; ok {
+					readReq := req.(MbtcpReadReq)
+					log.Println(readReq)
+				} else {
+					return errors.New("req not in map")
+				}
+				log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
+				switch readReq.Type {
+				case 2:
+					//
+				case 3:
+					//
+				case 4:
+					//
+				case 5:
+					//
+				case 6:
+					//
+				case 7:
+					//
+				case 8:
+					//
+				default:
+					//
+				}
+				command := MbtcpReadRes{
+					Tid:    tid,
+					Status: res.Status,
+					Data:   res.Data,
+				}
+				cmdStr, _ = json.Marshal(command)
+			default:
+				//
+			}
+
 		} else {
-			return errors.New("not in map")
+			return errors.New("req command not in map")
 		}
 
-		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-		command := MbtcpReadRes{
-			Tid:    tid,
-			Status: res.Status,
-			Data:   res.Data,
-		}
-		cmdStr, _ = json.Marshal(command)
 	case 5, 6, 15, 16:
 		// todo
 		return errors.New("TODO")
