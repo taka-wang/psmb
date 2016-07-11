@@ -199,6 +199,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 
 	t := time.Now()
 	log.WithFields(log.Fields{"timestamp": t.Format("2006-01-02 15:04:05.000")}).Info("End ResponseParser:")
+	return nil
 }
 
 // ResponseCommandBuilder build command to services
