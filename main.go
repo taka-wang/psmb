@@ -239,7 +239,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 									Data:   res.Data,
 								}
 							}
-							f := LinearScalingRegisters(b,
+							f := LinearScalingRegisters(res.Data,
 								readReq.Range.DomainLow,
 								readReq.Range.DomainHigh,
 								readReq.Range.RangeLow,
