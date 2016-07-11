@@ -94,7 +94,7 @@ type DMbtcpRes struct {
 	Tid string `json:"tid"`
 	// Status response status string
 	Status string `json:"status"`
-	// Data for read function code only.
+	// Data for 'read function code' only.
 	Data []uint16 `json:"data,omitempty"`
 }
 
@@ -104,11 +104,11 @@ type DMbtcpReadReq struct {
 	Tid string `json:"tid"`
 	// Cmd modbusd command type: https://github.com/taka-wang/modbusd#command-mapping-table
 	Cmd int `json:"cmd"`
-	// IP modbus tcp slave ip address or hostname
+	// IP ip address or hostname of the modbus tcp slave
 	IP string `json:"ip"`
-	// Port port number
+	// Port port number of the modbus tcp slave
 	Port string `json:"port"`
-	// Slave modbus device id
+	// Slave device id of the modbus tcp slave
 	Slave uint8 `json:"slave"`
 	// Addr start address for read
 	Addr uint16 `json:"addr"`
@@ -122,11 +122,11 @@ type DMbtcpWriteReq struct {
 	Tid string `json:"tid"`
 	// Cmd modbusd command type: https://github.com/taka-wang/modbusd#command-mapping-table
 	Cmd int `json:"cmd"`
-	// IP modbus tcp slave ip address or hostname
+	// IP ip address or hostname of the modbus tcp slave
 	IP string `json:"ip"`
-	// Port port number
+	// Port port number of the modbus tcp slave
 	Port string `json:"port"`
-	// Slave modbus device id
+	// Slave device id of the modbus tcp slave
 	Slave uint8 `json:"slave"`
 	// Addr start address for write
 	Addr uint16 `json:"addr"`
@@ -203,4 +203,37 @@ type MbtcpSimpleReq struct {
 type MbtcpSimpleRes struct {
 	Tid    int64  `json:"tid"`
 	Status string `json:"status"`
+}
+
+// MbtcpPollReq polling coil/register request
+type MbtcpPollReq struct {
+	Tid      int64        `json:"tid"`
+	From     string       `json:"from,omitempty"`
+	Name     string       `json:"name"`
+	Interval int          `json:"interval"`
+	Enabled  bool         `json:"enabled"`
+	FC       int          `json:"fc"`
+	IP       string       `json:"ip"`
+	Port     string       `json:"port,omitempty"`
+	Slave    uint8        `json:"slave"`
+	Addr     uint16       `json:"addr"`
+	Len      uint16       `json:"len,omitempty"`
+	Type     RegValueType `json:"type,omitempty"`
+	Order    Endian       `json:"order,omitempty"`
+	Range    *ScaleRange  `json:"range,omitempty"` // point to struct can be omitted in json encode
+}
+
+// MbtcpPollRes == MbtcpSimpleRes
+
+// MbtcpPollData read coil/register response (1.1).
+// `Data interface` supports:
+// []uint16, []int16, []uint32, []int32, []float32, string
+type MbtcpPollData struct {
+	TimeStamp int64        `json:"ts"`
+	Name      string       `json:"name"`
+	Status    string       `json:"status"`
+	Type      RegValueType `json:"type,omitempty"`
+	// Bytes FC3, FC4 and Type 2~8 only
+	Bytes JSONableByteSlice `json:"bytes,omitempty"`
+	Data  interface{}       `json:"data,omitempty"` // universal data container
 }

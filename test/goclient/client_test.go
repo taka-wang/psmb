@@ -64,7 +64,7 @@ func TestPsmb(t *testing.T) {
 		hostName = host[0] //docker
 	}
 
-	s.Title("psmb test")
+	s.Title("Oneoff request tests")
 
 	s.Assert("`FC1` read bits test: port 502", func(log sugar.Log) bool {
 		// send request
@@ -135,4 +135,373 @@ func TestPsmb(t *testing.T) {
 		}
 		return true
 	})
+
+	s.Assert("`FC3` read bytes Type 1 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    3,
+			Slave: 1,
+			Addr:  3,
+			Len:   7,
+			Type:  RegisterArray,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC4` read bytes Type 2 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    4,
+			Slave: 1,
+			Addr:  3,
+			Len:   7,
+			Type:  HexString,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC3` read bytes Type 3 length 4 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    3,
+			Slave: 1,
+			Addr:  3,
+			Len:   4,
+			Type:  Scale,
+			Range: &ScaleRange{0, 65535, 100, 500},
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC3` read bytes Type 3 length 7 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    3,
+			Slave: 1,
+			Addr:  3,
+			Len:   7,
+			Type:  Scale,
+			Range: &ScaleRange{0, 65535, 100, 500},
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC4` read bytes Type 4 length 4 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    4,
+			Slave: 1,
+			Addr:  3,
+			Len:   4,
+			Type:  UInt16,
+			Order: AB,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC4` read bytes Type 4 length 7 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    4,
+			Slave: 1,
+			Addr:  3,
+			Len:   7,
+			Type:  UInt16,
+			Order: AB,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC4` read bytes Type 6 length 8 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    4,
+			Slave: 1,
+			Addr:  3,
+			Len:   8,
+			Type:  UInt32,
+			Order: BA,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC4` read bytes Type 6 length 7 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    4,
+			Slave: 1,
+			Addr:  3,
+			Len:   7,
+			Type:  UInt32,
+			Order: BA,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    4,
+			Slave: 1,
+			Addr:  3,
+			Len:   8,
+			Type:  Float32,
+			Order: AB,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC4` read bytes Type 8 length 7 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    4,
+			Slave: 1,
+			Addr:  3,
+			Len:   7,
+			Type:  Float32,
+			Order: AB,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
 }
