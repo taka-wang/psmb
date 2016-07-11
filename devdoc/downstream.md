@@ -39,7 +39,7 @@ Thanks to the all-or-nothing characteristics, we can screen what we are interest
 
 >| Frame 1                                                          |  Frame 2      |
 >|:----------------------------------------------------------------:|:-------------:|
->| [cmd](https://github.com/taka-wang/modbusd#command-mapping-table)|  JSON Command |
+>| [Cmd](https://github.com/taka-wang/modbusd#command-mapping-table)|  JSON Command |
 
 ---
 
@@ -49,14 +49,14 @@ Please refer to [command code](https://github.com/taka-wang/modbusd#command-mapp
 
 >| params   | description            | type          | range     | example           |
 >|:---------|:-----------------------|:--------------|:----------|:------------------|
->| tid      | transaction ID         | **string**    | -         | "12345"           |
->| cmd      | **command code**       | integer       | -         | 1                 |
->| ip       | ip address             | string        | -         | 127.0.0.1         |
->| port     | port number            | string        | [1,65535] | 502               |
->| slave    | slave id               | integer       | [1, 253]  | 1                 |
->| addr     | register start address | integer       | -         | 23                |
->| len      | bit/register length    | integer       | -         | 20                |
->| status   | response status        | string        | -         | "ok"              |
+>| tid      | Transaction ID         | **string**    | -         | "12345"           |
+>| cmd      | **Command code**       | integer       | -         | 1                 |
+>| ip       | IP address             | string        | -         | 127.0.0.1         |
+>| port     | Port number            | string        | [1,65535] | 502               |
+>| slave    | Slave id               | integer       | [1, 253]  | 1                 |
+>| addr     | Register start address | integer       | -         | 23                |
+>| len      | Bit/Register length    | integer       | -         | 20                |
+>| status   | Response status        | string        | -         | "ok"              |
 
 ### 1.1 Read request
 

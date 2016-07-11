@@ -15,6 +15,7 @@ var taskMap map[string]interface{}
 var taskMap2 map[string]string
 var sch gocron.Scheduler
 
+// Init init func before main
 func init() {
 	// Log as JSON instead of the default ASCII formatter.
 	//log.SetFormatter(&log.JSONFormatter{})
