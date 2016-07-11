@@ -169,28 +169,29 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 				if req, ok := taskMap[TidStr]; ok {
 					readReq := req.(MbtcpReadReq)
 					log.Println(readReq)
+					log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
+					switch readReq.Type {
+					case 2:
+						//
+					case 3:
+						//
+					case 4:
+						//
+					case 5:
+						//
+					case 6:
+						//
+					case 7:
+						//
+					case 8:
+						//
+					default:
+						//
+					}
 				} else {
 					return errors.New("req not in map")
 				}
-				log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
-				switch readReq.Type {
-				case 2:
-					//
-				case 3:
-					//
-				case 4:
-					//
-				case 5:
-					//
-				case 6:
-					//
-				case 7:
-					//
-				case 8:
-					//
-				default:
-					//
-				}
+
 				command := MbtcpReadRes{
 					Tid:    tid,
 					Status: res.Status,
