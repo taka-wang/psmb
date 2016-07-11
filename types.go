@@ -13,10 +13,10 @@ type RegValueType int
 
 // ScaleRange defines scale range
 type ScaleRange struct {
-	DomainLow  int `json:"a"`
-	DomainHigh int `json:"b"`
-	RangeLow   int `json:"c"`
-	RangeHigh  int `json:"d"`
+	DomainLow  float64 `json:"a"`
+	DomainHigh float64 `json:"b"`
+	RangeLow   float64 `json:"c"`
+	RangeHigh  float64 `json:"d"`
 }
 
 // JSONableByteSlice jsonable uint8 array
@@ -165,6 +165,20 @@ type MbtcpReadReq struct {
 	Type  RegValueType `json:"type,omitempty"`
 	Order Endian       `json:"order,omitempty"`
 	Range *ScaleRange  `json:"range,omitempty"` // point to struct can be omitted in json encode
+}
+
+// MbtcpWriteReq write coil/register request
+type MbtcpWriteReq struct {
+	Tid   int64       `json:"tid"`
+	From  string      `json:"from,omitempty"`
+	FC    int         `json:"fc"`
+	IP    string      `json:"ip"`
+	Port  string      `json:"port,omitempty"`
+	Slave uint8       `json:"slave"`
+	Addr  uint16      `json:"addr"`
+	Len   uint16      `json:"len,omitempty"`
+	Hex   bool        `json:"hex,omitempty"`
+	Data  interface{} `json:"data"`
 }
 
 // MbtcpReadRes read coil/register response (1.1).

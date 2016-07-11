@@ -233,11 +233,12 @@ Command name: **mbtcp.once.read**
 
 **Register read (FC3, FC4) - type 3 (scale)**
 
-- success - type 2:
+- success - type 3:
 ```JavaScript
 {
 	"tid": 123456,
 	"status": "ok",
+	"type": 3,
 	"bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
 	"data": [22.34, 33.12, 44.56]
 }
@@ -247,6 +248,7 @@ Command name: **mbtcp.once.read**
 ```JavaScript
 {
 	"tid": 123456,
+	"type": 3,
 	"bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
 	"status": "conversion fail"
 }
@@ -256,6 +258,7 @@ Command name: **mbtcp.once.read**
 ```JavaScript
 {
 	"tid": 123456,
+	"type": 3,
 	"bytes": null,
 	"status": "timeout"
 }
