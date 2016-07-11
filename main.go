@@ -265,7 +265,6 @@ func main() {
 			switch s := socket.Socket; s {
 			case fromService:
 				msg, _ := fromService.RecvMessage(0)
-
 				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from service:")
 				RequestParser(toModbusd, msg)
 			case fromModbusd:

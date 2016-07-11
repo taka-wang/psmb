@@ -565,8 +565,6 @@ Command name: **mbtcp.timeout.update**
 ### 2.1 Add request (**mbtcp.poll.create**)
 Command name: **mbtcp.poll.create**
 
-// enable flag
-
 #### 2.1.1 Services to PSMB
 
 **Bits read (FC1, FC2)**
