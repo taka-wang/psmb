@@ -13,10 +13,10 @@ type RegValueType int
 
 // ScaleRange defines scale range
 type ScaleRange struct {
-	DomainLow  int `json:"a"`
-	DomainHigh int `json:"b"`
-	RangeLow   int `json:"c"`
-	RangeHigh  int `json:"d"`
+	DomainLow  float64 `json:"a"`
+	DomainHigh float64 `json:"b"`
+	RangeLow   float64 `json:"c"`
+	RangeHigh  float64 `json:"d"`
 }
 
 // JSONableByteSlice jsonable uint8 array
