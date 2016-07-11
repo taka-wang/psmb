@@ -140,7 +140,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 	var TidStr string
 
 	switch cmdType {
-	case 50, 51:
+	case 50, 51: // set/get timeout
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
@@ -155,7 +155,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 			Data:   res.Timeout,
 		}
 		cmdStr, _ = json.Marshal(command)
-	case 1, 2:
+	case 1, 2: // read bits
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
@@ -180,7 +180,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 			return errors.New("req command not in map")
 		}
 
-	case 3, 4:
+	case 3, 4: // read registers
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
@@ -192,12 +192,12 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 			switch cmd {
 			case "mbtcp.once.read":
 
-				// if res.status != "ok" do something
+				// todo: if res.status != "ok" do something
 
 				var command MbtcpReadRes
 				if req, ok := taskMap[TidStr]; ok {
 					readReq := req.(MbtcpReadReq)
-					log.Println(readReq)
+					//log.Println(readReq)
 					log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
 					switch readReq.Type {
 					case 1:
@@ -239,12 +239,16 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 									Data:   res.Data,
 								}
 							}
+
+							// todo: check range values
+
 							f := LinearScalingRegisters(res.Data,
 								readReq.Range.DomainLow,
 								readReq.Range.DomainHigh,
 								readReq.Range.RangeLow,
 								readReq.Range.RangeHigh,
 							)
+
 							command = MbtcpReadRes{
 								Tid:    tid,
 								Status: res.Status,
@@ -309,7 +313,10 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 			return errors.New("req command not in map")
 		}
 
-	case 5, 6, 15, 16:
+	case 5, 6: // write single
+		// todo
+		return errors.New("TODO")
+	case 15, 16: // write multiple
 		// todo
 		return errors.New("TODO")
 	default:
