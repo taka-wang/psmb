@@ -233,7 +233,7 @@ Command name: **mbtcp.once.read**
 
 **Register read (FC3, FC4) - type 3 (scale)**
 
-- success - type 2:
+- success - type 3:
 ```JavaScript
 {
 	"tid": 123456,

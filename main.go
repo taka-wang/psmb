@@ -191,37 +191,85 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 		if cmd, ok := taskMap2[TidStr]; ok {
 			switch cmd {
 			case "mbtcp.once.read":
+
+				// if res.status != "ok" do something
+
+				var command MbtcpReadRes
 				if req, ok := taskMap[TidStr]; ok {
 					readReq := req.(MbtcpReadReq)
 					log.Println(readReq)
 					log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
 					switch readReq.Type {
+					case 1:
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Data:   res.Data,
+						}
 					case 2:
-						//
+						b, err := RegistersToBytes(res.Data)
+						if err != nil {
+							log.Error(err)
+							command = MbtcpReadRes{
+								Tid:    tid,
+								Status: err,
+								Data:   res.Data,
+							}
+						}
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Bytes:  b,
+							Data:   BytesToHexString(b),
+						}
 					case 3:
-						//
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Data:   res.Data,
+						}
 					case 4:
-						//
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Data:   res.Data,
+						}
 					case 5:
-						//
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Data:   res.Data,
+						}
 					case 6:
-						//
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Data:   res.Data,
+						}
 					case 7:
-						//
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Data:   res.Data,
+						}
 					case 8:
-						//
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Data:   res.Data,
+						}
 					default:
-						//
+						// not support
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Data:   res.Data,
+						}
 					}
 				} else {
 					return errors.New("req not in map")
 				}
 
-				command := MbtcpReadRes{
-					Tid:    tid,
-					Status: res.Status,
-					Data:   res.Data,
-				}
 				cmdStr, _ = json.Marshal(command)
 			default:
 				//
