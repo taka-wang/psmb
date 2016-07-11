@@ -58,15 +58,15 @@ func RequestParser(socket *zmq.Socket, msg []string) error {
 		}
 
 		// convert tid to string
-		TidString := strconv.FormatInt(req.Tid, 10)
+		TidStr := strconv.FormatInt(req.Tid, 10)
 
 		// add to task map
-		taskMap[TidString] = req
-		taskMap2[TidString] = msg[0]
+		taskMap[TidStr] = req
+		taskMap2[TidStr] = msg[0]
 
 		// build modbusd command
 		cmd := DMbtcpReadReq{
-			Tid:   TidString,
+			Tid:   TidStr,
 			Cmd:   req.FC,
 			IP:    req.IP,
 			Port:  req.Port,
@@ -74,7 +74,7 @@ func RequestParser(socket *zmq.Socket, msg []string) error {
 			Addr:  req.Addr,
 			Len:   req.Len,
 		}
-		// add to scheduler as emergency request
+		// add command to scheduler as emergency request
 		sch.Emergency().Do(Task, socket, cmd)
 		//sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
 		return nil
@@ -136,14 +136,6 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
 
-	/*
-		// Convert zframe 1: command number
-		cmdType, err := strconv.Atoi(msg[0])
-		if err != nil {
-			log.WithFields(log.Fields{"Error": err}).Debug("Convert modbus command:")
-			return err
-		}
-	*/
 	var cmdStr []byte
 	var TidStr string
 
@@ -154,6 +146,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
 			return err
 		}
+
 		//log.Debug(res)
 		TidStr = res.Tid
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
@@ -326,6 +319,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 	}
 
 	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Conversion for service complete:")
+
 	// todo: check msg[0], should be web
 	if frame, ok := taskMap2[TidStr]; ok {
 		log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
