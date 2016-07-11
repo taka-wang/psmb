@@ -57,6 +57,11 @@ func RequestParser(socket *zmq.Socket, msg []string) error {
 			return err
 		}
 
+		// add to task map
+		taskMap[cmd.Tid] = req
+		taskMap2[cmd.Tid] = msg[0]
+
+		// build modbusd command
 		cmd := DMbtcpReadReq{
 			Tid:   strconv.FormatInt(req.Tid, 10),
 			Cmd:   req.FC,
@@ -66,10 +71,7 @@ func RequestParser(socket *zmq.Socket, msg []string) error {
 			Addr:  req.Addr,
 			Len:   req.Len,
 		}
-
-		// add to task map
-		taskMap[cmd.Tid] = req
-		taskMap2[cmd.Tid] = msg[0]
+		// add to scheduler as emergency request
 		sch.Emergency().Do(Task, socket, cmd)
 		//sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
 		return nil
@@ -116,8 +118,8 @@ func RequestParser(socket *zmq.Socket, msg []string) error {
 		log.Warn("TODO")
 		return errors.New("TODO")
 	default:
-		log.Error("unsupport")
-		return errors.New("TODO")
+		log.WithFields(log.Fields{"request": msg[0]}).Debug("Request not support:")
+		return errors.New("Request not support")
 	}
 }
 
@@ -131,16 +133,19 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
 
-	// Convert zframe 1: command number
-	cmdType, err := strconv.Atoi(msg[0])
-	if err != nil {
-		return err
-	}
+	/*
+		// Convert zframe 1: command number
+		cmdType, err := strconv.Atoi(msg[0])
+		if err != nil {
+			log.WithFields(log.Fields{"Error": err}).Debug("Convert modbus command:")
+			return err
+		}
+	*/
 	var cmdStr []byte
 	var TidStr string
 
-	switch cmdType {
-	case 50, 51: // set/get timeout
+	switch msg[0] {
+	case "50", "51": // set|get timeout
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
@@ -155,7 +160,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 			Data:   res.Timeout,
 		}
 		cmdStr, _ = json.Marshal(command)
-	case 1, 2: // read bits
+	case "1", "2": // read bits
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
@@ -180,7 +185,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 			return errors.New("req command not in map")
 		}
 
-	case 3, 4: // read registers
+	case "3", "4": // read registers
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
@@ -200,12 +205,6 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 					//log.Println(readReq)
 					log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
 					switch readReq.Type {
-					case 1:
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
 					case 2:
 						b, err := RegistersToBytes(res.Data)
 						if err != nil {
@@ -292,8 +291,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 							Status: res.Status,
 							Data:   res.Data,
 						}
-					default:
-						// not support
+					default: // case 0, 1
 						command = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
@@ -313,15 +311,15 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 			return errors.New("req command not in map")
 		}
 
-	case 5, 6: // write single
+	case "5", "6": // write single
 		// todo
 		return errors.New("TODO")
-	case 15, 16: // write multiple
+	case "15", "16": // write multiple
 		// todo
 		return errors.New("TODO")
 	default:
-		// todo
-		return errors.New("TODO")
+		log.WithFields(log.Fields{"response": msg[0]}).Debug("Response not support:")
+		return errors.New("Response not support")
 	}
 
 	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Conversion for service complete:")
