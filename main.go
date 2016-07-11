@@ -155,7 +155,32 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 			Data:   res.Timeout,
 		}
 		cmdStr, _ = json.Marshal(command)
-	case 1, 2, 3, 4:
+	case 1, 2:
+		var res DMbtcpRes
+		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
+			return err
+		}
+		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+		TidStr = res.Tid
+		if cmd, ok := taskMap2[TidStr]; ok {
+			switch cmd {
+			case "mbtcp.once.read":
+				command := MbtcpReadRes{
+					Tid:    tid,
+					Status: res.Status,
+					Data:   res.Data,
+				}
+				cmdStr, _ = json.Marshal(command)
+			default:
+				//
+			}
+
+		} else {
+			return errors.New("req command not in map")
+		}
+
+	case 3, 4:
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
