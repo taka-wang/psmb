@@ -223,36 +223,61 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 							Data:   BytesToHexString(b),
 						}
 					case 3:
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
+						if readReq.Len%2 != 0 {
+							command = MbtcpReadRes{
+								Tid:    tid,
+								Status: "Conversion failed",
+								Data:   res.Data,
+							}
+						} else {
+							b, err := RegistersToBytes(res.Data)
+							if err != nil {
+								log.Error(err)
+								command = MbtcpReadRes{
+									Tid:    tid,
+									Status: err.Error(),
+									Data:   res.Data,
+								}
+							}
+							f := LinearScalingRegisters(b)
+							command = MbtcpReadRes{
+								Tid:    tid,
+								Status: res.Status,
+								Bytes:  b,
+								Data:   f,
+							}
 						}
+
 					case 4:
+						// order
 						command = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
 							Data:   res.Data,
 						}
 					case 5:
+						// order
 						command = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
 							Data:   res.Data,
 						}
 					case 6:
+						// length, order
 						command = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
 							Data:   res.Data,
 						}
 					case 7:
+						// length, order
 						command = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
 							Data:   res.Data,
 						}
 					case 8:
+						// length, order
 						command = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
