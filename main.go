@@ -212,7 +212,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 							log.Error(err)
 							command = MbtcpReadRes{
 								Tid:    tid,
-								Status: err,
+								Status: err.Error(),
 								Data:   res.Data,
 							}
 						}
