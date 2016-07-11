@@ -57,13 +57,16 @@ func RequestParser(socket *zmq.Socket, msg []string) error {
 			return err
 		}
 
+		// convert tid to string
+		TidString := strconv.FormatInt(req.Tid, 10)
+
 		// add to task map
-		taskMap[cmd.Tid] = req
-		taskMap2[cmd.Tid] = msg[0]
+		taskMap[TidString] = req
+		taskMap2[TidString] = msg[0]
 
 		// build modbusd command
 		cmd := DMbtcpReadReq{
-			Tid:   strconv.FormatInt(req.Tid, 10),
+			Tid:   TidString,
 			Cmd:   req.FC,
 			IP:    req.IP,
 			Port:  req.Port,
