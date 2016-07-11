@@ -40,11 +40,11 @@ func init() {
 }
 
 // RequestParser handle message from services
-func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
+func RequestParser(socket *zmq.Socket, msg []string) error {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		log.Error("Request parser failed: invalid message length")
-		return "", errors.New("Invalid message length")
+		return errors.New("Invalid message length")
 	}
 
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing request:")
@@ -54,7 +54,7 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 		var req MbtcpReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
-			return "", err
+			return err
 		}
 
 		cmd := DMbtcpReadReq{
@@ -68,83 +68,74 @@ func RequestParser(socket *zmq.Socket, msg []string) (interface{}, error) {
 		}
 
 		// add to task map
-		taskMap[cmd.Tid] = cmd
+		taskMap[cmd.Tid] = req
 		taskMap2[cmd.Tid] = msg[0]
 		sch.Emergency().Do(Task, socket, cmd)
 		//sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
-		return cmd, nil
-
-		/*
-
-			cmdStr, err := json.Marshal(cmd) // marshal to json string
-			if err != nil {
-				log.Error("Marshal request failed:", err)
-				return "", err
-			}
-			return string(cmdStr), nil
-		*/
-
+		return nil
 	case "mbtcp.once.write":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.timeout.read":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.timeout.update":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.poll.create":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.poll.update":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.poll.read":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.poll.delete":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.poll.toggle":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.polls.read":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.polls.delete":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.polls.toggle":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.polls.import":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.polls.export":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	case "mbtcp.poll.history":
 		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return errors.New("TODO")
 	default:
 		log.Error("unsupport")
-		return nil, errors.New("unsupport request")
+		return errors.New("TODO")
 	}
 }
 
 // ResponseParser handle message from modbusd
-func ResponseParser(socket *zmq.Socket, msg []string) {
+func ResponseParser(socket *zmq.Socket, msg []string) error {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		log.Error("Request parser failed: invalid message length")
-		return
-		//return "", errors.New("Invalid message length")
+		return errors.New("Invalid message length")
 	}
 
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
 
 	// Convert zframe 1: command number
-	cmdType, _ := strconv.Atoi(msg[0])
+	cmdType, err := strconv.Atoi(msg[0])
+	if err != nil {
+		return err
+	}
 	var cmdStr []byte
 	var TidStr string
 
@@ -153,7 +144,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
-			return
+			return err
 		}
 		//log.Debug(res)
 		TidStr = res.Tid
@@ -164,14 +155,20 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 			Data:   res.Timeout,
 		}
 		cmdStr, _ = json.Marshal(command)
-	default:
+	case 1, 2, 3, 4:
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
-			return
+			return err
 		}
-		//log.Debug(res)
 		TidStr = res.Tid
+		if req, ok := taskMap[TidStr]; ok {
+			readReq := req.(MbtcpReadReq)
+			log.Println(readReq)
+		} else {
+			return errors.New("not in map")
+		}
+
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		command := MbtcpReadRes{
 			Tid:    tid,
@@ -179,6 +176,12 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 			Data:   res.Data,
 		}
 		cmdStr, _ = json.Marshal(command)
+	case 5, 6, 15, 16:
+		// todo
+		return errors.New("TODO")
+	default:
+		// todo
+		return errors.New("TODO")
 	}
 
 	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Conversion for service complete:")
@@ -196,11 +199,6 @@ func ResponseParser(socket *zmq.Socket, msg []string) {
 
 	t := time.Now()
 	log.WithFields(log.Fields{"timestamp": t.Format("2006-01-02 15:04:05.000")}).Info("End ResponseParser:")
-}
-
-// RequestCommandBuilder build command to modbusd
-func RequestCommandBuilder() {
-
 }
 
 // ResponseCommandBuilder build command to services
