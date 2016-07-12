@@ -23,26 +23,66 @@
 		- [2.1.1 Services to PSMB](#211-services-to-psmb)
 		- [2.1.2 PSMB to Services](#212-psmb-to-services)
 	- [2.2 Update request interval (**mbtcp.poll.update**)](#22-update-request-interval-mbtcppollupdate)
+		- [2.2.1 Services to PSMB](#221-services-to-psmb)
+		- [2.2.2 PSMB to Services](#222-psmb-to-services)
 	- [2.3 Read request status (**mbtcp.poll.read**)](#23-read-request-status-mbtcppollread)
+		- [2.3.1 Services to PSMB](#231-services-to-psmb)
+		- [2.3.2 PSMB to Services](#232-psmb-to-services)
 	- [2.4 Delete request (**mbtcp.poll.delete**)](#24-delete-request-mbtcppolldelete)
+		- [2.4.1 Services to PSMB](#241-services-to-psmb)
+		- [2.4.2 PSMB to Services](#242-psmb-to-services)
 	- [2.5 Enable/Disable request (**mbtcp.poll.toggle**)](#25-enabledisable-request-mbtcppolltoggle)
+		- [2.5.1 Services to PSMB](#251-services-to-psmb)
+		- [2.5.2 PSMB to Services](#252-psmb-to-services)
 	- [2.6 Read all requests status (**mbtcp.polls.read**)](#26-read-all-requests-status-mbtcppollsread)
+		- [2.6.1 Services to PSMB](#261-services-to-psmb)
+		- [2.6.2 PSMB to Services](#262-psmb-to-services)
 	- [2.7 Delete all requests (**mbtcp.polls.delete**)](#27-delete-all-requests-mbtcppollsdelete)
+		- [2.7.1 Services to PSMB](#271-services-to-psmb)
+		- [2.7.2 PSMB to Services](#272-psmb-to-services)
 	- [2.8 Enable/Disable all requests (**mbtcp.polls.toggle**)](#28-enabledisable-all-requests-mbtcppollstoggle)
+		- [2.8.1 Services to PSMB](#281-services-to-psmb)
+		- [2.8.2 PSMB to Services](#282-psmb-to-services)
 	- [2.9 Import requests (**mbtcp.polls.import**)](#29-import-requests-mbtcppollsimport)
+		- [2.9.1 Services to PSMB](#291-services-to-psmb)
+		- [2.9.2 PSMB to Services](#292-psmb-to-services)
 	- [2.10 Export requests (**mbtcp.polls.export**)](#210-export-requests-mbtcppollsexport)
+		- [2.10.1 Services to PSMB](#2101-services-to-psmb)
+		- [2.10.2 PSMB to Services](#2102-psmb-to-services)
 	- [2.11 Read history (**mbtcp.poll.history**)](#211-read-history-mbtcppollhistory)
+		- [2.11.1 Services to PSMB](#2111-services-to-psmb)
+		- [2.11.2 PSMB to Services](#2112-psmb-to-services)
 - [3. Filter requests](#3-filter-requests)
 	- [3.1 Add filter (**mbtcp.filter.create**)](#31-add-filter-mbtcpfiltercreate)
+		- [3.1.1 Services to PSMB](#311-services-to-psmb)
+		- [3.1.2 PSMB to Services](#312-psmb-to-services)
 	- [3.2 Update filter (**mbtcp.filter.update**)](#32-update-filter-mbtcpfilterupdate)
+		- [3.2.1 Services to PSMB](#321-services-to-psmb)
+		- [3.2.2 PSMB to Services](#322-psmb-to-services)
 	- [3.3 Read filter status (**mbtcp.filter.read**)](#33-read-filter-status-mbtcpfilterread)
+		- [3.3.1 Services to PSMB](#331-services-to-psmb)
+		- [3.3.2 PSMB to Services](#332-psmb-to-services)
 	- [3.4 Delete filter (**mbtcp.filter.delete**)](#34-delete-filter-mbtcpfilterdelete)
+		- [3.4.1 Services to PSMB](#341-services-to-psmb)
+		- [3.4.2 PSMB to Services](#342-psmb-to-services)
 	- [3.5 Enable/Disable filter (**mbtcp.filter.toggle**)](#35-enabledisable-filter-mbtcpfiltertoggle)
+		- [3.5.1 Services to PSMB](#351-services-to-psmb)
+		- [3.5.2 PSMB to Services](#352-psmb-to-services)
 	- [3.6 Read all filters (**mbtcp.filters.read**)](#36-read-all-filters-mbtcpfiltersread)
+		- [3.6.1 Services to PSMB](#361-services-to-psmb)
+		- [3.6.2 PSMB to Services](#362-psmb-to-services)
 	- [3.7 Delete all filters (**mbtcp.filters.delete**)](#37-delete-all-filters-mbtcpfiltersdelete)
+		- [3.7.1 Services to PSMB](#371-services-to-psmb)
+		- [3.7.2 PSMB to Services](#372-psmb-to-services)
 	- [3.8 Enable/Disable all filters (**mbtcp.filters.toggle**)](#38-enabledisable-all-filters-mbtcpfilterstoggle)
+		- [3.8.1 Services to PSMB](#381-services-to-psmb)
+		- [3.8.2 PSMB to Services](#382-psmb-to-services)
 	- [3.9 Import filters (**mbtcp.filters.import**)](#39-import-filters-mbtcpfiltersimport)
+		- [3.9.1 Services to PSMB](#391-services-to-psmb)
+		- [3.9.2 PSMB to Services](#392-psmb-to-services)
 	- [3.10 Export filters (**mbtcp.filters.export**)](#310-export-filters-mbtcpfiltersexport)
+		- [3.10.1 Services to PSMB](#3101-services-to-psmb)
+		- [3.10.2 PSMB to Services](#3102-psmb-to-services)
 
 <!-- /TOC -->
 
@@ -101,12 +141,12 @@ Command name: **mbtcp.once.read**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 1,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4
+    "fc" : 1,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4
 }
 ```
 
@@ -115,13 +155,13 @@ Command name: **mbtcp.once.read**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 3,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"type": 1
+    "fc" : 3,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "type": 1
 }
 ```
 
@@ -130,20 +170,20 @@ Command name: **mbtcp.once.read**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 3,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"type": 3,
-	"range": 
-	{
-		"a": 0,
-		"b": 65535,
-		"c": 100,
-		"d": 500
-	}
+    "fc" : 3,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "type": 3,
+    "range": 
+    {
+        "a": 0,
+        "b": 65535,
+        "c": 100,
+        "d": 500
+    }
 }
 ```
 
@@ -152,14 +192,14 @@ Command name: **mbtcp.once.read**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 3,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"type": 4,
-	"order": 1
+    "fc" : 3,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "type": 4,
+    "order": 1
 }
 ```
 
@@ -168,14 +208,14 @@ Command name: **mbtcp.once.read**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 3,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"type": 6,
-	"order": 3
+    "fc" : 3,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "type": 6,
+    "order": 3
 }
 ```
 
@@ -186,149 +226,151 @@ Command name: **mbtcp.once.read**
 - success:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "ok",
-	"data": [0,1,0,1,0,1]
+    "tid": 123456,
+    "status": "ok",
+    "data": [0,1,0,1,0,1]
 }
 ```
 
 - fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "timeout"
+    "tid": 123456,
+    "status": "timeout"
 }
 ```
 
 **Register read (FC3, FC4) - type 1, 2 (raw)**
 
-- success - type 1:
+- success - type 1 (RegisterArray):
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "ok",
-	"type": 1,
-	"data": [255, 1234, 789]
+    "tid": 123456,
+    "status": "ok",
+    "type": 1,
+    "bytes": [0XFF, 0X34, 0XAB],
+    "data": [255, 1234, 789]
 }
 ```
 
-- success - type 2:
+- success - type 2 (HexString):
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "ok",
-	"type": 2,
-	"bytes": [0XFF, 0X34, 0XAB],
-	"data": "112C004F12345678"
+    "tid": 123456,
+    "status": "ok",
+    "type": 2,
+    "bytes": [0XFF, 0X34, 0XAB],
+    "data": "112C004F12345678"
 }
 ```
 
 - fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "timeout"
+    "tid": 123456,
+    "status": "timeout"
 }
 ```
 
 **Register read (FC3, FC4) - type 3 (scale)**
 
-- success - type 3:
+- success - type 3 (Scale):
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "ok",
-	"type": 3,
-	"bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-	"data": [22.34, 33.12, 44.56]
+    "tid": 123456,
+    "status": "ok",
+    "type": 3,
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+    "data": [22.34, 33.12, 44.56]
 }
 ```
 
 - fail - conversion fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"type": 3,
-	"bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-	"status": "conversion fail"
+    "tid": 123456,
+    "type": 3,
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+    "status": "conversion fail"
 }
 ```
 
 - fail - modbus fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"type": 3,
-	"bytes": null,
-	"status": "timeout"
+    "tid": 123456,
+    "type": 3,
+    "bytes": null,
+    "status": "timeout"
 }
 ```
 
 **Register read (FC3, FC4) - type 4, 5 (16-bit)**
 
-- success - type 4, 5:
+- success - type 4, 5 (UInt16, Int16):
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "ok",
-	"bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-	"data": [255, 1234, 789]
+    "tid": 123456,
+    "status": "ok",
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+    "data": [255, 1234, 789]
 }
 ```
 
 - fail - conversion fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-	"status": "conversion fail"
+    "tid": 123456,
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+    "status": "conversion fail"
 }
 ```
 
 - fail - modbus fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "timeout"
+    "tid": 123456,
+    "bytes": null,
+    "status": "timeout"
 }
 ```
 
 **Register read (FC3, FC4) - type 6, 7, 8 (32-bit)**
 
-- success - type 6, 7:
+- success - type 6, 7 (UInt32, Int32):
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "ok",
-	"bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-	"data": [255, 1234, 789]
+    "tid": 123456,
+    "status": "ok",
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+    "data": [255, 1234, 789]
 }
 ```
 
-- success - type 8:
+- success - type 8 (Float32):
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "ok",
-	"bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-	"data": [22.34, 33.12, 44.56]
+    "tid": 123456,
+    "status": "ok",
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+    "data": [22.34, 33.12, 44.56]
 }
 ```
 
 - fail - Conversion fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-	"status": "conversion fail"
+    "tid": 123456,
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+    "status": "conversion fail"
 }
 ```
 
 - fail - Modbus fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "timeout"
+    "tid": 123456,
+    "status": "timeout"
 }
 ```
 
@@ -358,12 +400,12 @@ Command name: **mbtcp.once.write**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 5,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"data": 1
+    "fc" : 5,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "data": 1
 }
 ```
 
@@ -372,13 +414,13 @@ Command name: **mbtcp.once.write**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 6,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"hex": false,
-	"data": "22"
+    "fc" : 6,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "hex": false,
+    "data": "22"
 }
 ```
 
@@ -387,13 +429,13 @@ Command name: **mbtcp.once.write**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 6,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"hex": true,
-	"data": "ABCD"
+    "fc" : 6,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "hex": true,
+    "data": "ABCD"
 }
 ```
 
@@ -402,13 +444,13 @@ Command name: **mbtcp.once.write**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 15,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"data": [1,0,1,0]
+    "fc" : 15,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "data": [1,0,1,0]
 }
 ```
 
@@ -417,14 +459,14 @@ Command name: **mbtcp.once.write**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 16,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"hex": false,
-	"data": "11,22,33,44"
+    "fc" : 16,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "hex": false,
+    "data": "11,22,33,44"
 }
 ```
 
@@ -433,14 +475,14 @@ Command name: **mbtcp.once.write**
 {
     "from": "web",
     "tid": 123456,
-	"fc" : 16,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"hex": true,
-	"data": "ABCD1234EFAB1234"
+    "fc" : 16,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "hex": true,
+    "data": "ABCD1234EFAB1234"
 }
 ```
 
@@ -449,16 +491,16 @@ Command name: **mbtcp.once.write**
 - success:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "ok"
+    "tid": 123456,
+    "status": "ok"
 }
 ```
 
 - fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "timeout"
+    "tid": 123456,
+    "status": "timeout"
 }
 ```
 
@@ -574,16 +616,16 @@ Command name: **mbtcp.poll.create**
 ```JavaScript
 {
     "from": "web",
-	"name": "led_1",
-	"interval": 3,
-	"enabled": true,
+    "name": "led_1",
+    "interval": 3,
+    "enabled": true,
     "tid": 123456,
-	"fc" : 1,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4
+    "fc" : 1,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4
 }
 ```
 
@@ -591,17 +633,17 @@ Command name: **mbtcp.poll.create**
 ```JavaScript
 {
     "from": "web",
-	"name": "led_1",
-	"interval": 3,
-	"enabled": true,
+    "name": "led_1",
+    "interval": 3,
+    "enabled": true,
     "tid": 123456,
-	"fc" : 3,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"type": 1
+    "fc" : 3,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "type": 1
 }
 ```
 
@@ -609,24 +651,24 @@ Command name: **mbtcp.poll.create**
 ```JavaScript
 {
     "from": "web",
-	"name": "led_1",
-	"interval": 3,
-	"enabled": true,
+    "name": "led_1",
+    "interval": 3,
+    "enabled": true,
     "tid": 123456,
-	"fc" : 3,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"type": 3,
-	"range": 
-	{
-		"a": 0,
-		"b": 65535,
-		"c": 100,
-		"d": 500
-	}
+    "fc" : 3,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "type": 3,
+    "range": 
+    {
+        "a": 0,
+        "b": 65535,
+        "c": 100,
+        "d": 500
+    }
 }
 ```
 
@@ -634,18 +676,18 @@ Command name: **mbtcp.poll.create**
 ```JavaScript
 {
     "from": "web",
-	"name": "led_1",
-	"interval": 3,
-	"enabled": true,
+    "name": "led_1",
+    "interval": 3,
+    "enabled": true,
     "tid": 123456,
-	"fc" : 3,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"type": 4,
-	"order": 1
+    "fc" : 3,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "type": 4,
+    "order": 1
 }
 ```
 
@@ -653,18 +695,18 @@ Command name: **mbtcp.poll.create**
 ```JavaScript
 {
     "from": "web",
-	"name": "led_1",
-	"interval": 3,
-	"enabled": true,
+    "name": "led_1",
+    "interval": 3,
+    "enabled": true,
     "tid": 123456,
-	"fc" : 3,
-	"ip": "192.168.0.1",
-	"port": "503",
-	"slave": 1,
-	"addr": 10,
-	"len": 4,
-	"type": 6,
-	"order": 3
+    "fc" : 3,
+    "ip": "192.168.0.1",
+    "port": "503",
+    "slave": 1,
+    "addr": 10,
+    "len": 4,
+    "type": 6,
+    "order": 3
 }
 ```
 
@@ -674,26 +716,26 @@ Command name: **mbtcp.poll.create**
 - success:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "ok"
+    "tid": 123456,
+    "status": "ok"
 }
 ```
 
 - fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "timeout"
+    "tid": 123456,
+    "status": "timeout"
 }
 ```
 
 - Data:
 ```JavaScript
 {
-	"name": "led_1",
-	"ts": 123456789,
-	"status": "ok",
-	"data": [0,1,0,1,0,1]
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "ok",
+    "data": [0,1,0,1,0,1]
 }
 ```
 
@@ -701,82 +743,456 @@ Command name: **mbtcp.poll.create**
 - success - type 1, 2:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "ok"
+    "tid": 123456,
+    "status": "ok"
 }
 ```
 
 - fail:
 ```JavaScript
 {
-	"tid": 123456,
-	"status": "timeout"
+    "tid": 123456,
+    "status": "timeout"
 }
 ```
 
 - Data - type 1:
 ```JavaScript
 {
-	"tid": 123456,
-	"name": "led_1",
-	"ts": 123456789,
-	"status": "ok",
-	"type": 1,
-	"data": [255, 1234, 789]
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "ok",
+    "type": 1,
+    "data": [255, 1234, 789]
 }
 ```
 
 - Data - type 2:
 ```JavaScript
 {
-	"tid": 123456,
-	"name": "led_1",
-	"ts": 123456789,
-	"status": "ok",
-	"type": 2,
-	"bytes": [0XFF, 0X34, 0XAB],
-	"data": "112C004F12345678"
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "ok",
+    "type": 2,
+    "bytes": [0XFF, 0X34, 0XAB],
+    "data": "112C004F12345678"
 }
 ```
 
 **Register read (FC3, FC4) - type 3 (scale)**
-**TODO**
+
+- success - type 3:
+```JavaScript
+{
+    "tid": 123456,
+    "status": "ok"
+}
+```
+
+- fail:
+```JavaScript
+{
+    "tid": 123456,
+    "status": "timeout"
+}
+```
+
+- Data - type 3:
+```JavaScript
+{
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "ok",
+    "type": 3,
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+    "data": [22.34, 33.12, 44.56]
+}
+```
+
+- Data - conversion fail - type 3:
+```JavaScript
+{
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "conversion fail",
+    "type": 3,
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34]
+}
+```
+
+- Data - modbus fail - type 3:
+```JavaScript
+{
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "timeout",
+    "type": 3,
+    "bytes": null
+}
+```
 
 **Register read (FC3, FC4) - type 4, 5 (16-bit)**
-**TODO**
+- success - type 4, 5:
+```JavaScript
+{
+    "tid": 123456,
+    "status": "ok"
+}
+```
+
+- fail:
+```JavaScript
+{
+    "tid": 123456,
+    "status": "timeout"
+}
+```
+
+- Data - type 4,5:
+```JavaScript
+{
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "ok",
+    "type": 4,
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+    "data": [255, 1234, 789]
+}
+```
+
+- Data - conversion fail - type 4, 5:
+```JavaScript
+{
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "conversion fail",
+    "type": 4,
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34]
+}
+```
+
+- Data - modbus fail - type 4, 5:
+```JavaScript
+{
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "timeout",
+    "type": 3,
+    "bytes": null
+}
+```
 
 **Register read (FC3, FC4) - type 6, 7, 8 (32-bit)**
-**TODO**
+- success - type 6, 7, 8:
+```JavaScript
+{
+    "tid": 123456,
+    "status": "ok"
+}
+```
+
+- fail:
+```JavaScript
+{
+    "tid": 123456,
+    "status": "timeout"
+}
+```
+
+- Data - type 8:
+```JavaScript
+{
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "ok",
+    "type": 8,
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+    "data": [22.34, 33.12, 44.56]
+}
+```
+
+- Data - conversion fail:
+```JavaScript
+{
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "conversion fail",
+    "type": 6,
+    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34]
+}
+```
+
+- Data - modbus fail:
+```JavaScript
+{
+    "tid": 123456,
+    "name": "led_1",
+    "ts": 123456789,
+    "status": "timeout",
+    "type": 6,
+    "bytes": null
+}
+```
 
 ### 2.2 Update request interval (**mbtcp.poll.update**)
 Command name: **mbtcp.poll.update**
 
+#### 2.2.1 Services to PSMB
+
+```JavaScript
+{
+    "from": "web",
+    "name": "led_1",
+    "interval": 3,
+    "tid": 123456
+}
+```
+
+#### 2.2.2 PSMB to Services
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "timeout"
+}
+```
+
 ### 2.3 Read request status (**mbtcp.poll.read**)
 Command name: **mbtcp.poll.read**
+
+#### 2.3.1 Services to PSMB
+```JavaScript
+{
+    "from": "web",
+    "name": "led_1",
+    "tid": 123456
+}
+```
+
+#### 2.3.2 PSMB to Services
+
+- success:
+```JavaScript
+{
+    "name": "led_1",
+    "tid": 123456,
+    "fc": 1,
+    "ip": "192.168.3.2",
+    "port": "502",
+    "slave": 22,
+    "addr": 250,
+    "len": 10,
+    "interval" : 3,
+    "status": "ok",
+    "enabled": true,
+    "type": xx,
+    "order": yy,
+    "range": {}
+}
+```
+
+- fail:
+```JavaScript
+{
+    "name": "led_1",
+    "tid": 123456,
+    "status": "not exist"
+}
+```
 
 ### 2.4 Delete request (**mbtcp.poll.delete**)
 Command name: **mbtcp.poll.delete**
 
+#### 2.4.1 Services to PSMB
+```JavaScript
+{
+    "from": "web",
+    "name": "led_1",
+    "tid": 123456
+}
+```
+
+#### 2.4.2 PSMB to Services
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "not exist"
+}
+```
+
 ### 2.5 Enable/Disable request (**mbtcp.poll.toggle**)
 Command name: **mbtcp.poll.toggle**
+
+#### 2.5.1 Services to PSMB
+```JavaScript
+{
+    "from": "web",
+    "name": "led_1",
+    "tid": 123456,
+    "enabled": true
+}
+```
+
+#### 2.5.2 PSMB to Services
+```JavaScript
+{
+    "tid": 123456,
+    "status": "not exist"
+}
+```
 
 ### 2.6 Read all requests status (**mbtcp.polls.read**)
 Command name: **mbtcp.polls.read**
 
+#### 2.6.1 Services to PSMB
+```JavaScript
+{
+    "from": "web",
+    "tid": 123456,
+    "enabled": true
+}
+```
+
+#### 2.6.2 PSMB to Services
+- success:
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "polls": [
+            {
+                "name": "led_1",
+                "fc": 1,
+                "ip": "192.168.3.2",
+                "port": "502",
+                "slave": 22,
+                "addr": 250,
+                "len": 10,
+                "interval" : 3,
+                "status": "ok",
+                "enabled": true
+            },
+            {
+                "name": "led_2",
+                "fc": 1,
+                "ip": "192.168.3.2",
+                "port": "502",
+                "slave": 22,
+                "addr": 250,
+                "len": 10,
+                "interval" : 3,
+                "status": "ok",
+                "enabled": true
+            }]
+    }
+    ```
+
+- fail:
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
+
 ### 2.7 Delete all requests (**mbtcp.polls.delete**)
 Command name: **mbtcp.polls.delete**
+
+#### 2.7.1 Services to PSMB
+
+```JavaScript
+{
+    "from": "web",
+    "tid": 123456
+}
+```
+
+#### 2.7.2 PSMB to Services
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "not exist"
+}
+```
 
 ### 2.8 Enable/Disable all requests (**mbtcp.polls.toggle**)
 Command name: **mbtcp.polls.toggle**
 
+#### 2.8.1 Services to PSMB
+
+```JavaScript
+{
+    "from": "web",
+    "tid": 123456,
+    "enabled": true
+}
+```
+
+#### 2.8.2 PSMB to Services
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "not exist"
+}
+```
+
 ### 2.9 Import requests (**mbtcp.polls.import**)
 Command name: **mbtcp.polls.import**
+
+#### 2.9.1 Services to PSMB
+**TODO**
+
+#### 2.9.2 PSMB to Services
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "not exist"
+}
+```
 
 ### 2.10 Export requests (**mbtcp.polls.export**)
 Command name: **mbtcp.polls.export**
 
+#### 2.10.1 Services to PSMB
+
+```JavaScript
+{
+    "from": "web",
+    "tid": 123456
+}
+```
+
+#### 2.10.2 PSMB to Services
+**TODO**
+
 ### 2.11 Read history (**mbtcp.poll.history**)
 Command name: **mbtcp.poll.history**
+
+#### 2.11.1 Services to PSMB
+
+```JavaScript
+{
+    "from": "web",
+    "tid": 123456
+}
+```
+
+#### 2.11.2 PSMB to Services
+**TODO**
 
 ---
 
@@ -785,29 +1201,116 @@ Command name: **mbtcp.poll.history**
 ### 3.1 Add filter (**mbtcp.filter.create**)
 Command name: **mbtcp.filter.create**
 
+#### 3.1.1 Services to PSMB
+**TODO**
+
+#### 3.1.2 PSMB to Services
+**TODO**
+
 ### 3.2 Update filter (**mbtcp.filter.update**)
 Command name: **mbtcp.filter.update**
+
+#### 3.2.1 Services to PSMB
+**TODO**
+
+#### 3.2.2 PSMB to Services
+**TODO**
 
 ### 3.3 Read filter status (**mbtcp.filter.read**)
 Command name: **mbtcp.filter.read**
 
+#### 3.3.1 Services to PSMB
+**TODO**
+
+#### 3.3.2 PSMB to Services
+**TODO**
+
 ### 3.4 Delete filter (**mbtcp.filter.delete**)
 Command name: **mbtcp.filter.delete**
+
+#### 3.4.1 Services to PSMB
+
+```JavaScript
+{
+    "from": "web",
+    "name": "f_1",
+    "tid": 123456
+}
+```
+
+#### 3.4.2 PSMB to Services
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "not exist"
+}
+```
 
 ### 3.5 Enable/Disable filter (**mbtcp.filter.toggle**)
 Command name: **mbtcp.filter.toggle**
 
+#### 3.5.1 Services to PSMB
+
+```JavaScript
+{
+    "from": "web",
+    "name": "f_1",
+    "tid": 123456,
+    "enabled": true
+}
+```
+
+#### 3.5.2 PSMB to Services
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "not exist"
+}
+```
+
 ### 3.6 Read all filters (**mbtcp.filters.read**)
 Command name: **mbtcp.filters.read**
+
+#### 3.6.1 Services to PSMB
+**TODO**
+
+#### 3.6.2 PSMB to Services
+**TODO**
 
 ### 3.7 Delete all filters (**mbtcp.filters.delete**)
 Command name: **mbtcp.filters.delete**
 
+#### 3.7.1 Services to PSMB
+**TODO**
+
+#### 3.7.2 PSMB to Services
+**TODO**
+
 ### 3.8 Enable/Disable all filters (**mbtcp.filters.toggle**)
 Command name: **mbtcp.filters.toggle**
+
+#### 3.8.1 Services to PSMB
+**TODO**
+
+#### 3.8.2 PSMB to Services
+**TODO**
 
 ### 3.9 Import filters (**mbtcp.filters.import**)
 Command name: **mbtcp.filters.import**
 
+#### 3.9.1 Services to PSMB
+**TODO**
+
+#### 3.9.2 PSMB to Services
+**TODO**
+
 ### 3.10 Export filters (**mbtcp.filters.export**)
 Command name: **mbtcp.filters.export**
+
+#### 3.10.1 Services to PSMB
+**TODO**
+
+#### 3.10.2 PSMB to Services
+**TODO**

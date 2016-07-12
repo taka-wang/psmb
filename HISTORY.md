@@ -22,9 +22,24 @@
 - [x] implement downstream struct test cases
 - [x] unify types definitions
 - [x] support docker compose
+- [x] refactor main flow
+- [x] implement uint test for mbtcp.once.write
+- [x] implement integration test for mbtcp.once.read
+- [x] implement integration test for mbtcp.once.write
+- [x] handle default port and fc15/fc16 length
+- [x] define polling commands
+- [x] define MbtcpCmdType for modbusd
+- [x] implement mutex lock for OneOffTask map
+- [x] implement integration test for mbtcp.timeout.read
+- [x] implement integration test for mbtcp.timeout.update
+- [x] implement NaiveResponser
+- [x] Refactor simple/read task map mechanism
+- [x] Refactor simple/read task to OO
+- [x] Generalize proactive service implementation
 
 # TODO
 - [ ] define request type
+- [ ] rewrite travis CI
 
 # Backlog:
 - if scheduler is stop, trigger requests directly.
@@ -36,3 +51,8 @@
 - check timeout interval range
 - check polling interval range
 
+# Module
+- post processing (event mapper)
+    - filter
+    - on changed
+- database?

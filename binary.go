@@ -1,4 +1,4 @@
-package main
+package psmb
 
 import (
 	"bytes"
@@ -12,9 +12,11 @@ import (
 	log "github.com/takawang/logrus"
 )
 
-// bitStringToUInt8s converts bits string to uint8 array.
-// Source: function code 15
-func bitStringToUInt8s(bitString string) ([]uint8, error) {
+// Binary stuff.
+
+// BitStringToUInt8s converts bits string to uint8 array.
+//	source: function code 15
+func BitStringToUInt8s(bitString string) ([]uint8, error) {
 	var result = []uint8{}
 	for _, v := range strings.Split(bitString, ",") {
 		i, err := strconv.ParseUint(v, 10, 8)
@@ -27,8 +29,8 @@ func bitStringToUInt8s(bitString string) ([]uint8, error) {
 }
 
 // DecimalStringToRegisters converts decimal string to uint16/words array in big endian order.
-// Limitation: leading space before comma is not allowed.
-// Source: upstream.
+// 	limitation: leading space before comma is not allowed.
+// 	source: upstream.
 func DecimalStringToRegisters(decString string) ([]uint16, error) {
 	var result = []uint16{}
 	for _, v := range strings.Split(decString, ",") {
@@ -42,7 +44,7 @@ func DecimalStringToRegisters(decString string) ([]uint16, error) {
 }
 
 // HexStringToRegisters converts hexadecimal string to uint16/words array in big endian order.
-// Source: upstream.
+// 	source: upstream.
 func HexStringToRegisters(hexString string) ([]uint16, error) {
 	bytes, err := hex.DecodeString(hexString)
 	if err != nil {
@@ -52,13 +54,13 @@ func HexStringToRegisters(hexString string) ([]uint16, error) {
 }
 
 // BytesToHexString converts bytes array to hexadecimal string.
-// Example: 112C004F12345678
+// 	example: 112C004F12345678
 func BytesToHexString(bytes []byte) string {
 	return hex.EncodeToString(bytes)
 }
 
 // RegistersToBytes converts registers/uint16 array to byte array in big endian order.
-// Source: downstream.
+// 	source: downstream.
 func RegistersToBytes(data []uint16) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	for _, v := range data {
@@ -88,10 +90,10 @@ func LinearScalingRegisters(data []uint16, domainLow, domainHigh, rangeLow, rang
 }
 
 // BytesToFloat32s converts byte array to float32 array in four endian orders. i.e.,
-//       BigEndian (0),
-//       LittleEndian (1)
-//       MidBigEndian (2)
-//       MidLittleEndian (3)
+//	BigEndian (0),
+//	LittleEndian (1)
+//	MidBigEndian (2)
+//	MidLittleEndian (3)
 func BytesToFloat32s(buf []byte, endian Endian) ([]float32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
@@ -115,10 +117,10 @@ func BytesToFloat32s(buf []byte, endian Endian) ([]float32, error) {
 }
 
 // BytesToInt32s converts byte array to Int32 array in four endian orders. i.e.,
-//       BigEndian (0),
-//       LittleEndian (1)
-//       MidBigEndian (2)
-//       MidLittleEndian (3)
+//	BigEndian (0),
+//	LittleEndian (1)
+//	MidBigEndian (2)
+//	MidLittleEndian (3)
 func BytesToInt32s(buf []byte, endian Endian) ([]int32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
@@ -141,10 +143,10 @@ func BytesToInt32s(buf []byte, endian Endian) ([]int32, error) {
 }
 
 // BytesToUInt32s converts byte array to UInt32 array in four endian orders. i.e.,
-//       BigEndian (0),
-//       LittleEndian (1)
-//       MidBigEndian (2)
-//       MidLittleEndian (3)
+//	BigEndian (0),
+//	LittleEndian (1)
+//	MidBigEndian (2)
+//	MidLittleEndian (3)
 func BytesToUInt32s(buf []byte, endian Endian) ([]uint32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
@@ -166,8 +168,8 @@ func BytesToUInt32s(buf []byte, endian Endian) ([]uint32, error) {
 	return result, nil
 }
 
-// BytesToInt16s converts byte array to Int16 array in two endian orders.
-// i.e., BigEndian (0) or LittleEndian (1)
+// BytesToInt16s converts byte array to Int16 array in two endian orders. i.e.,
+//	BigEndian (0) or LittleEndian (1)
 func BytesToInt16s(buf []byte, endian Endian) ([]int16, error) {
 	l := len(buf)
 	if l == 0 || l%2 != 0 {
@@ -184,8 +186,8 @@ func BytesToInt16s(buf []byte, endian Endian) ([]int16, error) {
 	return result, nil
 }
 
-// BytesToUInt16s converts byte array to UInt16 array in two endian orders.
-// i.e., BigEndian (0) or LittleEndian (1)
+// BytesToUInt16s converts byte array to UInt16 array in two endian orders. i.e.,
+// 	BigEndian (0) or LittleEndian (1)
 func BytesToUInt16s(buf []byte, endian Endian) ([]uint16, error) {
 	l := len(buf)
 	if l == 0 || l%2 != 0 {

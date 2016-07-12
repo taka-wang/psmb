@@ -17,16 +17,17 @@ build:
             - cd ../../../
 
             # psmb
-            
             - go get github.com/takawang/zmq3
             - go get github.com/taka-wang/gocron
             - go get github.com/takawang/sugar
             - go get github.com/takawang/logrus
             - go test -v
-            - go build -o psmb
-            - ./psmb &
+            - git clone https://github.com/taka-wang/psmb-srv.git && cd psmb-srv
+            - go build -o psmb && ./psmb & 
+            - cd ..
 
             # goclient
+            - go get github.com/taka-wang/psmb
             - cd test/goclient/
-            - go get github.com/takawang/sugar
             - go test -v
+
