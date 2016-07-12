@@ -44,7 +44,7 @@ func RequestParser(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		log.Error("Request parser failed: invalid message length")
-		return errors.New("Invalid message length")
+		return nil, errors.New("Invalid message length")
 	}
 
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing request:")
@@ -242,7 +242,7 @@ func RequestCommandBuilder(cmd string, r interface{}, socket *zmq.Socket) error 
 		log.Warn("TODO")
 		return errors.New("TODO")
 	default:
-		log.WithFields(log.Fields{"request": msg[0]}).Debug("Request not support:")
+		log.WithFields(log.Fields{"cmd": cmd}).Debug("Request not support:")
 		return errors.New("Request not support")
 	}
 }
