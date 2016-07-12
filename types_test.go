@@ -81,7 +81,7 @@ func TestUpstreamStruct(t *testing.T) {
 					log("json err:", err)
 					return false
 				}
-				log("length:", Len(dd))
+				log("length:", len(dd))
 				r2.Data = dd[0]
 			} else {
 				dd, err := strconv.Atoi(d)
