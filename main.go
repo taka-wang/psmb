@@ -61,14 +61,13 @@ func RequestParser(msg []string) (interface{}, error) {
 		// add to Emergency
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.timeout.read":
-		// add to Emergency
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
-	case "mbtcp.timeout.update":
-		// add to Emergency
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+	case "mbtcp.timeout.read", "mbtcp.timeout.update":
+		var req MbtcpTimeoutReq
+		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+			return nil, err
+		}
+		return req, nil
 	case "mbtcp.poll.create":
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
@@ -138,8 +137,8 @@ func RequestParser(msg []string) (interface{}, error) {
 	}
 }
 
-// RequestCommandBuilder build command to services
-func RequestCommandBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
+// RequestCmdBuilder build command to services
+func RequestCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Build request command:")
 
 	switch cmd {
@@ -248,29 +247,57 @@ func RequestCommandBuilder(cmd string, r interface{}, socket *zmq.Socket) error 
 }
 
 // ResponseParser handle message from modbusd
-func ResponseParser(socket *zmq.Socket, msg []string) error {
+func ResponseParser(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		log.Error("Request parser failed: invalid message length")
-		return errors.New("Invalid message length")
+		return nil, errors.New("Invalid message length")
 	}
 
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
-
-	var cmdStr []byte
-	var TidStr string
 
 	switch msg[0] {
 	case "50", "51": // set|get timeout
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
-			return err
+			return nil, err
 		}
+		return res, nil
 
-		//log.Debug(res)
-		TidStr = res.Tid
+	case "1", "2", "3", "4": // read command
+		var res DMbtcpRes
+		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
+			return nil, err
+		}
+		return res, nil
+
+	case "5", "6": // write single
+		// todo
+		return nil, errors.New("TODO")
+	case "15", "16": // write multiple
+		// todo
+		return nil, errors.New("TODO")
+	default:
+		log.WithFields(log.Fields{"response": msg[0]}).Debug("Response not support:")
+		return nil, errors.New("Response not support")
+	}
+}
+
+// ResponseCmdBuilder build command to services
+// Todo: filter, handle
+func ResponseCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Parsing response:")
+
+	var cmdStr []byte
+	var TidStr string
+
+	switch msg[0] {
+	case "50", "51": // set|get timeout
+		res := r.(DMbtcpTimeout)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+		TidStr = res.Tid
 		command := MbtcpTimeoutRes{
 			Tid:    tid,
 			Status: res.Status,
@@ -278,11 +305,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 		}
 		cmdStr, _ = json.Marshal(command)
 	case "1", "2": // read bits
-		var res DMbtcpRes
-		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
-			return err
-		}
+		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		TidStr = res.Tid
 		if cmd, ok := taskMap2[TidStr]; ok {
@@ -303,11 +326,7 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 		}
 
 	case "3", "4": // read registers
-		var res DMbtcpRes
-		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
-			return err
-		}
+		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		TidStr = res.Tid
 		if cmd, ok := taskMap2[TidStr]; ok {
@@ -458,12 +477,6 @@ func ResponseParser(socket *zmq.Socket, msg []string) error {
 	return nil
 }
 
-// ResponseCommandBuilder build command to services
-// Todo: filter, handle
-func ResponseCommandBuilder() {
-
-}
-
 // Task for gocron
 func Task(socket *zmq.Socket, m interface{}) {
 	str, err := json.Marshal(m) // marshal to json string
@@ -522,23 +535,28 @@ func main() {
 				msg, _ := fromService.RecvMessage(0)
 				log.WithFields(log.Fields{
 					"msg[0]": msg[0],
-					"msg[1]": msg[1]},
-				).Debug("Receive from service:")
+					"msg[1]": msg[1],
+				}).Debug("Receive from service:")
 				req, err := RequestParser(msg)
-				if err == nil {
-					err = RequestCommandBuilder(msg[0], req, toModbusd)
-				} else {
+				if err != nil {
 					// todo
 					// send error back
+				} else {
+					err = RequestCmdBuilder(msg[0], req, toModbusd)
 				}
-
 			case fromModbusd:
 				msg, _ := fromModbusd.RecvMessage(0)
 				log.WithFields(log.Fields{
 					"msg[0]": msg[0],
-					"msg[1]": msg[1]},
-				).Debug("Receive from modbusd:")
-				ResponseParser(toService, msg)
+					"msg[1]": msg[1],
+				}).Debug("Receive from modbusd:")
+				res, err := ResponseParser(msg)
+				if err != nil {
+					// todo
+					// send error back
+				} else {
+					err = ResponseCmdBuilder(msg[0], res, toService)
+				}
 			}
 		}
 	}
