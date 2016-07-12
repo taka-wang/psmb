@@ -29,6 +29,8 @@ func TestUpstreamStruct(t *testing.T) {
 		var data json.RawMessage
 		r1 := MbtcpWriteReq{Data: &data}
 
+		log("port is null", r1.Port == nil)
+
 		if err := json.Unmarshal([]byte(input), &r1); err != nil {
 			log("json err:", err)
 			return false
