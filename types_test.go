@@ -65,10 +65,12 @@ func TestUpstreamStruct(t *testing.T) {
 			return false
 		}
 		switch r2.FC {
+		case 5:
+			//
 		case 6:
 			if r2.Hex {
 				var d string
-				if err := json.Unmarshal(data, &d); err != nil {
+				if err := json.Unmarshal(data2, &d); err != nil {
 					log("json err:", err)
 					return false
 				}
@@ -80,15 +82,13 @@ func TestUpstreamStruct(t *testing.T) {
 				r2.Data = dd
 			} else {
 				var d uint16
-				if err := json.Unmarshal(data, &d); err != nil {
+				if err := json.Unmarshal(data2, &d); err != nil {
 					log("json err:", err)
 					return false
 				}
 				r2.Data = d
 			}
 
-		case 5:
-			//
 		}
 
 		log(r2)
@@ -113,10 +113,12 @@ func TestUpstreamStruct(t *testing.T) {
 			return false
 		}
 		switch r3.FC {
+		case 5:
+			//
 		case 6:
 			if r3.Hex {
 				var d string
-				if err := json.Unmarshal(data, &d); err != nil {
+				if err := json.Unmarshal(data3, &d); err != nil {
 					log("json err:", err)
 					return false
 				}
@@ -128,15 +130,13 @@ func TestUpstreamStruct(t *testing.T) {
 				r3.Data = dd
 			} else {
 				var d uint16
-				if err := json.Unmarshal(data, &d); err != nil {
+				if err := json.Unmarshal(data3, &d); err != nil {
 					log("json err:", err)
 					return false
 				}
 				r3.Data = d
 			}
 
-		case 5:
-			//
 		}
 		log(r3)
 		/*
