@@ -167,6 +167,20 @@ type MbtcpReadReq struct {
 	Range *ScaleRange  `json:"range,omitempty"` // point to struct can be omitted in json encode
 }
 
+// MbtcpWriteReq write coil/register request
+type MbtcpWriteReq struct {
+	Tid   int64       `json:"tid"`
+	From  string      `json:"from,omitempty"`
+	FC    int         `json:"fc"`
+	IP    string      `json:"ip"`
+	Port  string      `json:"port,omitempty"`
+	Slave uint8       `json:"slave"`
+	Addr  uint16      `json:"addr"`
+	Len   uint16      `json:"len,omitempty"`
+	Hex   bool        `json:"hex,omitempty"`
+	Data  interface{} `json:"data"`
+}
+
 // MbtcpReadRes read coil/register response (1.1).
 // `Data interface` supports:
 // []uint16, []int16, []uint32, []int32, []float32, string

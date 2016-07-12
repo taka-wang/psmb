@@ -13,6 +13,141 @@ func TestUpstreamStruct(t *testing.T) {
 
 	s.Title("One-off modbus tcp struct tests")
 
+	s.Assert("`mbtcp.once.write` request test", func(log sugar.Log) bool {
+		input :=
+			`{
+				"from": "web",
+				"tid": 123456,
+				"fc" : 5,
+				"ip": "192.168.0.1",
+				"port": "503",
+				"slave": 1,
+				"addr": 10,
+				"data": 1
+            }`
+		var data json.RawMessage
+		r1 := MbtcpWriteReq{Data: &data}
+
+		if err := json.Unmarshal([]byte(input), &r1); err != nil {
+			log("json err:", err)
+			return false
+		}
+		switch r1.FC {
+		case 5:
+			var d uint16
+			if err := json.Unmarshal(data, &d); err != nil {
+				log("json err:", err)
+				return false
+			}
+			r1.Data = d
+		case 6:
+			//
+		}
+
+		log(r1)
+
+		/*
+		   		input2 :=
+		   			`{
+		   				"from": "web",
+		   				"tid": 123456,
+		   				"fc" : 6,
+		   				"ip": "192.168.0.1",
+		   				"port": "503",
+		   				"slave": 1,
+		   				"addr": 10,
+		   				"hex": false,
+		   				"data": "22"
+		               }`
+		   		var r2 MbtcpWriteReq
+		   		if err := json.Unmarshal([]byte(input2), &r2); err != nil {
+		   			log("json err:", err)
+		   			return false
+		   		}
+		   		log(r2)
+
+		   		input3 :=
+		   			`{
+		   				"from": "web",
+		   				"tid": 123456,
+		   				"fc" : 6,
+		   				"ip": "192.168.0.1",
+		   				"port": "503",
+		   				"slave": 1,
+		   				"addr": 10,
+		   				"hex": true,
+		   				"data": "ABCD"
+		               }`
+		   		var r3 MbtcpWriteReq
+		   		if err := json.Unmarshal([]byte(input3), &r3); err != nil {
+		   			log("json err:", err)
+		   			return false
+		   		}
+		   		log(r3)
+
+		   		input4 :=
+		   			`{
+		   				"from": "web",
+		   				"tid": 123456,
+		   				"fc" : 15,
+		   				"ip": "192.168.0.1",
+		   				"port": "503",
+		   				"slave": 1,
+		   				"addr": 10,
+		   				"len": 4,
+		   				"data": [1,0,1,0]
+		               }`
+		   		var r4 MbtcpWriteReq
+		   		if err := json.Unmarshal([]byte(input4), &r4); err != nil {
+		   			log("json err:", err)
+		   			return false
+		   		}
+		   		log(r4)
+
+		   		input5 :=
+		   			`{
+		   				"from": "web",
+		   				"tid": 123456,
+		   				"fc" : 16,
+		   				"ip": "192.168.0.1",
+		   				"port": "503",
+		   				"slave": 1,
+		   				"addr": 10,
+		   				"len": 4,
+		   				"hex": false,
+		   				"data": "11,22,33,44"
+		               }`
+		   		var r5 MbtcpWriteReq
+		   		if err := json.Unmarshal([]byte(input5), &r5); err != nil {
+		   			log("json err:", err)
+		   			return false
+		   		}
+		   		log(r5)
+
+		   		input6 :=
+		   			`{
+		   				"from": "web",
+		   				"tid": 123456,
+		   				"fc" : 16,
+		   				"ip": "192.168.0.1",
+		   				"port": "503",
+		   				"slave": 1,
+		   				"addr": 10,
+		   				"len": 4,
+		   				"hex": true,
+		   				"data": "ABCD1234EFAB1234"
+		               }`
+		   		var r6 MbtcpWriteReq
+		   		if err := json.Unmarshal([]byte(input6), &r6); err != nil {
+		   			log("json err:", err)
+		   			return false
+		   		}
+		   		log(r6)
+		*/
+
+		return true
+	})
+
 	s.Assert("`mbtcp.once.read` request test", func(log sugar.Log) bool {
 		input :=
 			`{
