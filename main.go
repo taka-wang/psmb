@@ -247,9 +247,28 @@ func RequestCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 		sch.Emergency().Do(Task, socket, cmd)
 		return nil
 	case "mbtcp.once.write":
-		// add to Emergency
-		log.Warn("TODO")
-		return errors.New("TODO")
+		req := r.(MbtcpWriteReq)
+		// convert tid to string
+		TidStr := strconv.FormatInt(req.Tid, 10)
+		// add to task map
+		taskMap[TidStr] = req
+		taskMap2[TidStr] = cmd
+
+		cmd := DMbtcpWriteReq{
+			Tid:   TidStr,
+			Cmd:   req.FC,
+			IP:    req.IP,
+			Port:  req.Port,
+			Slave: req.Slave,
+			Addr:  req.Addr,
+			Len:   req.Len,
+			Data:  req.Data,
+		}
+
+		// add command to scheduler as emergency request
+		sch.Emergency().Do(Task, socket, cmd)
+		return nil
+
 	case "mbtcp.timeout.read":
 		// add to Emergency
 		log.Warn("TODO")
@@ -346,20 +365,13 @@ func ResponseParser(msg []string) (interface{}, error) {
 		}
 		return res, nil
 
-	case "1", "2", "3", "4": // read command
+	case "1", "2", "3", "4", "5", "6", "15", "16":
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
 			return nil, err
 		}
 		return res, nil
-
-	case "5", "6": // write single
-		// todo
-		return nil, errors.New("TODO")
-	case "15", "16": // write multiple
-		// todo
-		return nil, errors.New("TODO")
 	default:
 		log.WithFields(log.Fields{"response": msg[0]}).Debug("Response not support:")
 		return nil, errors.New("Response not support")
@@ -529,8 +541,24 @@ func ResponseCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 		}
 
 	case "5", "6": // write single
-		// todo
-		return errors.New("TODO")
+		res := r.(DMbtcpRes)
+		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+		TidStr = res.Tid
+		if cmd, ok := taskMap2[TidStr]; ok {
+			switch cmd {
+			case "mbtcp.once.write":
+				command := MbtcpSimpleRes{
+					Tid:    tid,
+					Status: res.Status,
+				}
+				cmdStr, _ = json.Marshal(command)
+			default:
+				//
+			}
+
+		} else {
+			return errors.New("req command not in map")
+		}
 	case "15", "16": // write multiple
 		// todo
 		return errors.New("TODO")

@@ -66,6 +66,38 @@ func TestPsmb(t *testing.T) {
 
 	s.Title("Oneoff request tests")
 
+	s.Assert("`FC5` write bit test: port 502", func(log sugar.Log) bool {
+		writeReq := MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    5,
+			Slave: 1,
+			Addr:  10,
+			Data:  1,
+		}
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(readReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
 	s.Assert("`FC1` read bits test: port 502", func(log sugar.Log) bool {
 		// send request
 		readReq := MbtcpReadReq{
@@ -276,7 +308,7 @@ func TestPsmb(t *testing.T) {
 			fmt.Println("json err:", err)
 		}
 		// check response
-		if r2.Status != "ok" {
+		if r2.Status != "Conversion failed" {
 			return false
 		}
 		return true
