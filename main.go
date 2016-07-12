@@ -179,6 +179,7 @@ func RequestParser(msg []string) (interface{}, error) {
 		}
 		return req, nil
 	case "mbtcp.poll.create":
+		// return immediately
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.poll.update":
@@ -247,8 +248,8 @@ func RequestParser(msg []string) (interface{}, error) {
 	}
 }
 
-// RequestCmdBuilder build command to services
-func RequestCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
+// RequestHandler build command to services
+func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Build request command:")
 
 	switch cmd {
@@ -404,9 +405,9 @@ func ResponseParser(msg []string) (interface{}, error) {
 	}
 }
 
-// ResponseCmdBuilder build command to services
+// ResponseHandler build command to services
 // Todo: filter, handle
-func ResponseCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
+func ResponseHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Parsing response:")
 
 	var cmdStr []byte
@@ -678,7 +679,7 @@ func main() {
 				if err != nil {
 					// todo: send error back
 				} else {
-					err = RequestCmdBuilder(msg[0], req, toModbusd)
+					err = RequestHandler(msg[0], req, toModbusd)
 				}
 			case fromModbusd:
 				msg, _ := fromModbusd.RecvMessage(0)
@@ -690,7 +691,7 @@ func main() {
 				if err != nil {
 					// todo: send error back
 				} else {
-					err = ResponseCmdBuilder(msg[0], res, toService)
+					err = ResponseHandler(msg[0], res, toService)
 				}
 			}
 		}
