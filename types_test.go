@@ -143,66 +143,140 @@ func TestUpstreamStruct(t *testing.T) {
 
 		}
 		log(r3)
-		/*
-		   		input4 :=
-		   			`{
-		   				"from": "web",
-		   				"tid": 123456,
-		   				"fc" : 15,
-		   				"ip": "192.168.0.1",
-		   				"port": "503",
-		   				"slave": 1,
-		   				"addr": 10,
-		   				"len": 4,
-		   				"data": [1,0,1,0]
-		               }`
-		   		var r4 MbtcpWriteReq
-		   		if err := json.Unmarshal([]byte(input4), &r4); err != nil {
-		   			log("json err:", err)
-		   			return false
-		   		}
-		   		log(r4)
 
-		   		input5 :=
-		   			`{
-		   				"from": "web",
-		   				"tid": 123456,
-		   				"fc" : 16,
-		   				"ip": "192.168.0.1",
-		   				"port": "503",
-		   				"slave": 1,
-		   				"addr": 10,
-		   				"len": 4,
-		   				"hex": false,
-		   				"data": "11,22,33,44"
-		               }`
-		   		var r5 MbtcpWriteReq
-		   		if err := json.Unmarshal([]byte(input5), &r5); err != nil {
-		   			log("json err:", err)
-		   			return false
-		   		}
-		   		log(r5)
+		input4 :=
+			`{
+				"from": "web",
+				"tid": 123456,
+				"fc" : 15,
+				"ip": "192.168.0.1",
+				"port": "503",
+				"slave": 1,
+				"addr": 10,
+				"len": 4,
+				"data": [1,0,1,0]
+			}`
+		var data4 json.RawMessage
+		r4 := MbtcpWriteReq{Data: &data4}
+		if err := json.Unmarshal([]byte(input4), &r4); err != nil {
+			log("json err:", err)
+			return false
+		}
+		switch r4.FC {
+		case 5:
+		//
+		case 6:
+		//
+		case 15:
+			var d []uint16
+			if err := json.Unmarshal(data4, &d); err != nil {
+				log("json err:", err)
+				return false
+			}
+			r4.Data = d
+		}
+		log(r4)
 
-		   		input6 :=
-		   			`{
-		   				"from": "web",
-		   				"tid": 123456,
-		   				"fc" : 16,
-		   				"ip": "192.168.0.1",
-		   				"port": "503",
-		   				"slave": 1,
-		   				"addr": 10,
-		   				"len": 4,
-		   				"hex": true,
-		   				"data": "ABCD1234EFAB1234"
-		               }`
-		   		var r6 MbtcpWriteReq
-		   		if err := json.Unmarshal([]byte(input6), &r6); err != nil {
-		   			log("json err:", err)
-		   			return false
-		   		}
-		   		log(r6)
-		*/
+		input5 :=
+			`{
+				"from": "web",
+				"tid": 123456,
+				"fc" : 16,
+				"ip": "192.168.0.1",
+				"port": "503",
+				"slave": 1,
+				"addr": 10,
+				"len": 4,
+				"hex": false,
+				"data": "11,22,33,44"
+			}`
+
+		var data5 json.RawMessage
+		r5 := MbtcpWriteReq{Data: &data5}
+		if err := json.Unmarshal([]byte(input5), &r5); err != nil {
+			log("json err:", err)
+			return false
+		}
+		switch r5.FC {
+		case 5:
+			//
+		case 6:
+			//
+		case 15:
+			//
+		case 16:
+			var d string
+			if err := json.Unmarshal(data5, &d); err != nil {
+				log("json err:", err)
+				return false
+			}
+			if r5.Hex {
+				dd, err := HexStringToRegisters(d)
+				if err != nil {
+					log("json err:", err)
+					return false
+				}
+				r5.Data = dd
+			} else {
+				dd, err := DecimalStringToRegisters(d)
+				if err != nil {
+					log("json err:", err)
+					return false
+				}
+				r5.Data = dd
+			}
+		}
+		log(r5)
+
+		input6 :=
+			`{
+				"from": "web",
+				"tid": 123456,
+				"fc" : 16,
+				"ip": "192.168.0.1",
+				"port": "503",
+				"slave": 1,
+				"addr": 10,
+				"len": 4,
+				"hex": true,
+				"data": "ABCD1234EFAB1234"
+			}`
+		var data6 json.RawMessage
+		r6 := MbtcpWriteReq{Data: &data6}
+		if err := json.Unmarshal([]byte(input6), &r6); err != nil {
+			log("json err:", err)
+			return false
+		}
+		switch r6.FC {
+		case 5:
+			//
+		case 6:
+			//
+		case 15:
+			//
+		case 16:
+			var d string
+			if err := json.Unmarshal(data6, &d); err != nil {
+				log("json err:", err)
+				return false
+			}
+			if r6.Hex {
+				dd, err := HexStringToRegisters(d)
+				if err != nil {
+					log("json err:", err)
+					return false
+				}
+				r6.Data = dd
+			} else {
+				dd, err := DecimalStringToRegisters(d)
+				if err != nil {
+					log("json err:", err)
+					return false
+				}
+				r6.Data = dd
+			}
+		}
+		log(r6)
 
 		return true
 	})
