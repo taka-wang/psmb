@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"strconv"
 	"testing"
 
 	"github.com/takawang/sugar"
@@ -68,27 +69,28 @@ func TestUpstreamStruct(t *testing.T) {
 		case 5:
 			//
 		case 6:
+			var d string
+			if err := json.Unmarshal(data2, &d); err != nil {
+				log("json err:", err)
+				return false
+			}
+
 			if r2.Hex {
-				var d string
-				if err := json.Unmarshal(data2, &d); err != nil {
-					log("json err:", err)
-					return false
-				}
 				dd, err := HexStringToRegisters(d)
 				if err != nil {
 					log("json err:", err)
 					return false
 				}
-				r2.Data = dd
+				log("length:", Len(dd))
+				r2.Data = dd[0]
 			} else {
-				var d uint16
-				if err := json.Unmarshal(data2, &d); err != nil {
+				dd, err := strconv.Atoi(d)
+				if err != nil {
 					log("json err:", err)
 					return false
 				}
-				r2.Data = d
+				r2.Data = dd
 			}
-
 		}
 
 		log(r2)
