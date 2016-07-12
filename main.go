@@ -454,7 +454,7 @@ func ResponseCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 		// todo
 		return errors.New("TODO")
 	default:
-		log.WithFields(log.Fields{"cmd": cmd).Debug("Response not support:")
+		log.WithFields(log.Fields{"cmd": cmd}).Debug("Response not support:")
 		return errors.New("Response not support")
 	}
 
