@@ -134,7 +134,7 @@ func RequestParser(msg []string) (interface{}, error) {
 			req.Data = d
 
 			// len checker
-			l := uint16(len(req.Data))
+			l := uint16(len(d))
 			if req.Len < l {
 				req.Len = l
 			}
@@ -145,6 +145,7 @@ func RequestParser(msg []string) (interface{}, error) {
 				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC16 request failed:")
 				return nil, err
 			}
+			var l uint16 // length
 			if req.Hex {
 				dd, err := HexStringToRegisters(d)
 				if err != nil {
@@ -152,6 +153,7 @@ func RequestParser(msg []string) (interface{}, error) {
 					return nil, err
 				}
 				req.Data = dd
+				l = uint16(len(dd))
 			} else {
 				dd, err := DecimalStringToRegisters(d)
 				if err != nil {
@@ -159,10 +161,9 @@ func RequestParser(msg []string) (interface{}, error) {
 					return nil, err
 				}
 				req.Data = dd
+				l = uint16(len(dd))
 			}
-
 			// len checker
-			l := uint16(len(req.Data))
 			if req.Len < l {
 				req.Len = l
 			}
