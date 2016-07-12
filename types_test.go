@@ -21,7 +21,7 @@ func TestUpstreamStruct(t *testing.T) {
 				"tid": 123456,
 				"fc" : 5,
 				"ip": "192.168.0.1",
-				"port": "503",
+				
 				"slave": 1,
 				"addr": 10,
 				"data": 1

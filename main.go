@@ -70,7 +70,7 @@ func RequestParser(msg []string) (interface{}, error) {
 			return nil, err
 		}
 		return req, nil
-	case "mbtcp.once.write": // todo: error handling
+	case "mbtcp.once.write": // done
 		var data json.RawMessage
 		req := MbtcpWriteReq{Data: &data}
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
@@ -81,7 +81,7 @@ func RequestParser(msg []string) (interface{}, error) {
 		case 5: // single bit; uint16
 			var d uint16
 			if err := json.Unmarshal(data, &d); err != nil {
-				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC5 request failed:")
 				return nil, err
 			}
 			req.Data = d
@@ -89,21 +89,20 @@ func RequestParser(msg []string) (interface{}, error) {
 		case 6: // single register in dec|hex
 			var d string
 			if err := json.Unmarshal(data, &d); err != nil {
-				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC6 request failed:")
 				return nil, err
 			}
-
 			if req.Hex {
 				dd, err := HexStringToRegisters(d)
 				if err != nil {
-					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC6 Hex request failed:")
 					return nil, err
 				}
 				req.Data = dd[0] // one register
 			} else {
 				dd, err := strconv.Atoi(d)
 				if err != nil {
-					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC6 Dec request failed:")
 					return nil, err
 				}
 				req.Data = dd
@@ -112,7 +111,7 @@ func RequestParser(msg []string) (interface{}, error) {
 		case 15: // multiple bits; []uint16
 			var d []uint16
 			if err := json.Unmarshal(data, &d); err != nil {
-				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC15 request failed:")
 				return nil, err
 			}
 			req.Data = d
@@ -120,29 +119,29 @@ func RequestParser(msg []string) (interface{}, error) {
 		case 16: // multiple register in dec/hex
 			var d string
 			if err := json.Unmarshal(data, &d); err != nil {
-				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC16 request failed:")
 				return nil, err
 			}
 			if req.Hex {
 				dd, err := HexStringToRegisters(d)
 				if err != nil {
-					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC16 Hex request failed:")
 					return nil, err
 				}
 				req.Data = dd
 			} else {
 				dd, err := DecimalStringToRegisters(d)
 				if err != nil {
-					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC16 Dec request failed:")
 					return nil, err
 				}
 				req.Data = dd
 			}
 			return req, nil
 		default:
-			return nil, errors.New("Not support")
+			return nil, errors.New("Request not support")
 		}
-	case "mbtcp.timeout.read", "mbtcp.timeout.update":
+	case "mbtcp.timeout.read", "mbtcp.timeout.update": // done
 		var req MbtcpTimeoutReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
