@@ -77,13 +77,13 @@ func TestPsmb(t *testing.T) {
 			Addr:  10,
 			Data:  1,
 		}
-		readReqStr, _ := json.Marshal(readReq)
+		writeReqStr, _ := json.Marshal(writeReq)
 		cmd := "mbtcp.once.write"
-		go publisher(cmd, string(readReqStr))
+		go publisher(cmd, string(writeReqStr))
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
+		log("req: %s, %s", cmd, string(writeReqStr))
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
