@@ -130,6 +130,7 @@ func TestUpstreamStruct(t *testing.T) {
 					log("json err:", err)
 					return false
 				}
+				log("length:", len(dd))
 				r3.Data = dd[0]
 			} else {
 				dd, _ := strconv.Atoi(d)
