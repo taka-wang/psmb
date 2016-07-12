@@ -134,7 +134,7 @@ func RequestParser(msg []string) (interface{}, error) {
 			req.Data = d
 			// len checker
 			if req.Len == 0 {
-				req.Len = len(d)
+				req.Len = uint16(len(d))
 			}
 			return req, nil
 		case 16: // multiple register in dec/hex
@@ -150,6 +150,10 @@ func RequestParser(msg []string) (interface{}, error) {
 					return nil, err
 				}
 				req.Data = dd
+				// len checker
+				if req.Len == 0 {
+					req.Len = uint16(len(dd))
+				}
 			} else {
 				dd, err := DecimalStringToRegisters(d)
 				if err != nil {
@@ -157,11 +161,12 @@ func RequestParser(msg []string) (interface{}, error) {
 					return nil, err
 				}
 				req.Data = dd
+				// len checker
+				if req.Len == 0 {
+					req.Len = uint16(len(dd))
+				}
 			}
-			// len checker
-			if req.Len == 0 {
-				req.Len = len(dd)
-			}
+
 			return req, nil
 		default:
 			return nil, errors.New("Request not support")
