@@ -993,7 +993,10 @@ Command name: **mbtcp.poll.read**
     "len": 10,
     "interval" : 3,
     "status": "ok",
-    "enabled": true
+    "enabled": true,
+    "type": xx,
+    "order": yy,
+    "range": {}
 }
 ```
 
@@ -1225,19 +1228,46 @@ Command name: **mbtcp.filter.read**
 Command name: **mbtcp.filter.delete**
 
 #### 3.4.1 Services to PSMB
-**TODO**
+
+```JavaScript
+{
+    "from": "web",
+    "name": "f_1",
+    "tid": 123456
+}
+```
 
 #### 3.4.2 PSMB to Services
-**TODO**
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "not exist"
+}
+```
 
 ### 3.5 Enable/Disable filter (**mbtcp.filter.toggle**)
 Command name: **mbtcp.filter.toggle**
 
 #### 3.5.1 Services to PSMB
-**TODO**
+
+```JavaScript
+{
+    "from": "web",
+    "name": "f_1",
+    "tid": 123456,
+    "enabled": true
+}
+```
 
 #### 3.5.2 PSMB to Services
-**TODO**
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "not exist"
+}
+```
 
 ### 3.6 Read all filters (**mbtcp.filters.read**)
 Command name: **mbtcp.filters.read**
