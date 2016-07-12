@@ -132,7 +132,7 @@ func TestUpstreamStruct(t *testing.T) {
 				}
 				r3.Data = dd[0]
 			} else {
-				dd, err := strconv.Atoi(d)
+				dd, _ := strconv.Atoi(d)
 				if err := json.Unmarshal(data3, &d); err != nil {
 					log("json err:", err)
 					return false
