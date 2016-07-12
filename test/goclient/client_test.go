@@ -64,7 +64,7 @@ func TestPsmb(t *testing.T) {
 		hostName = host[0] //docker
 	}
 
-	s.Title("Oneoff request tests")
+	s.Title("Oneoff write request tests")
 
 	s.Assert("`FC5` write bit test: port 502", func(log sugar.Log) bool {
 		writeReq := MbtcpWriteReq{
@@ -97,6 +97,175 @@ func TestPsmb(t *testing.T) {
 		}
 		return true
 	})
+
+	s.Assert("`FC6` write `DEC` register test: port 502", func(log sugar.Log) bool {
+		writeReq := MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    6,
+			Slave: 1,
+			Addr:  10,
+			Hex:   false,
+			Data:  "22",
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC6` write `HEX` register test: port 502", func(log sugar.Log) bool {
+		writeReq := MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    6,
+			Slave: 1,
+			Addr:  10,
+			Hex:   true,
+			Data:  "ABCD",
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC15` write multiple bits test: port 502", func(log sugar.Log) bool {
+		writeReq := MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    15,
+			Slave: 1,
+			Addr:  10,
+			Len:   4,
+			Data:  []uint16{1, 0, 1, 0},
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC16` write `DEC` registers test: port 502", func(log sugar.Log) bool {
+		writeReq := MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    6,
+			Slave: 1,
+			Addr:  10,
+			Len:   4,
+			Hex:   false,
+			Data:  "11,22,33,44",
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`FC16` write `HEX` registers test: port 502", func(log sugar.Log) bool {
+		writeReq := MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    6,
+			Slave: 1,
+			Addr:  10,
+			Len:   4,
+			Hex:   true,
+			Data:  "ABCD1234EFAB1234",
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Title("Oneoff read request tests")
 
 	s.Assert("`FC1` read bits test: port 502", func(log sugar.Log) bool {
 		// send request
