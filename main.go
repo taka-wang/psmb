@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
-	"time"
 
 	"github.com/taka-wang/gocron"
 	log "github.com/takawang/logrus"
@@ -37,6 +36,20 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetLevel(log.DebugLevel)
 	//log.SetLevel(log.ErrorLevel)
+}
+
+// Task for gocron
+func Task(socket *zmq.Socket, req interface{}) {
+	str, err := json.Marshal(req) // marshal to json string
+	if err != nil {
+		log.Error("Marshal request failed:", err)
+		// todo: remove table
+		return
+	}
+	log.WithFields(log.Fields{"JSON": string(str)}).Debug("Send request to modbusd:")
+
+	socket.Send("tcp", zmq.SNDMORE) // frame 1
+	socket.Send(string(str), 0)     // convert to string; frame 2
 }
 
 // RequestParser handle message from services
@@ -472,22 +485,7 @@ func ResponseCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 		socket.Send(string(cmdStr), 0)   // convert to string; frame 2
 	}
 
-	t := time.Now()
-	log.WithFields(log.Fields{"timestamp": t.Format("2006-01-02 15:04:05.000")}).Info("End ResponseParser:")
 	return nil
-}
-
-// Task for gocron
-func Task(socket *zmq.Socket, m interface{}) {
-	str, err := json.Marshal(m) // marshal to json string
-	if err != nil {
-		log.Error("Marshal request failed:", err)
-		return
-	}
-	log.WithFields(log.Fields{"JSON": string(str)}).Debug("Send request to modbusd:")
-
-	socket.Send("tcp", zmq.SNDMORE) // frame 1
-	socket.Send(string(str), 0)     // convert to string; frame 2
 }
 
 func main() {
