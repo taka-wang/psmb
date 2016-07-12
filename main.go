@@ -63,14 +63,14 @@ func RequestParser(msg []string) (interface{}, error) {
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing request:")
 
 	switch msg[0] {
-	case "mbtcp.once.read":
+	case "mbtcp.once.read": // done
 		var req MbtcpReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
 			return nil, err
 		}
 		return req, nil
-	case "mbtcp.once.write":
+	case "mbtcp.once.write": // todo: error handling
 		var data json.RawMessage
 		req := MbtcpWriteReq{Data: &data}
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
@@ -223,7 +223,7 @@ func RequestCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Build request command:")
 
 	switch cmd {
-	case "mbtcp.once.read":
+	case "mbtcp.once.read": // done
 		req := r.(MbtcpReadReq)
 
 		// convert tid to string
@@ -246,7 +246,7 @@ func RequestCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 		// add command to scheduler as emergency request
 		sch.Emergency().Do(Task, socket, cmd)
 		return nil
-	case "mbtcp.once.write":
+	case "mbtcp.once.write": // done
 		req := r.(MbtcpWriteReq)
 		// convert tid to string
 		TidStr := strconv.FormatInt(req.Tid, 10)
@@ -268,14 +268,11 @@ func RequestCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 		// add command to scheduler as emergency request
 		sch.Emergency().Do(Task, socket, cmd)
 		return nil
-
-	case "mbtcp.timeout.read":
+	case "mbtcp.timeout.read": // todo
 		// add to Emergency
-		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.timeout.update":
+	case "mbtcp.timeout.update": // todo
 		// add to Emergency
-		log.Warn("TODO")
 		return errors.New("TODO")
 	case "mbtcp.poll.create":
 		log.Warn("TODO")
