@@ -26,6 +26,7 @@
 - [x] implement uint test for mbtcp.once.write
 - [x] implement integration test for mbtcp.once.read
 - [x] implement integration test for mbtcp.once.write
+- [x] handle default port and fc15/fc16 length
 
 # TODO
 - [ ] define request type

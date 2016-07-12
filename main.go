@@ -10,6 +10,13 @@ import (
 	zmq "github.com/takawang/zmq3"
 )
 
+const (
+	// DefaultPort default modbus slave port number
+	DefaultPort = "502"
+	// DefaultFrom default upstream
+	DefaultFrom = "service"
+)
+
 var taskMap map[string]interface{}
 var taskMap2 map[string]string
 var sch gocron.Scheduler
@@ -69,6 +76,10 @@ func RequestParser(msg []string) (interface{}, error) {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
 			return nil, err
 		}
+		// default port checker
+		if req.Port == "" {
+			req.Port = DefaultPort
+		}
 		return req, nil
 	case "mbtcp.once.write": // done
 		var data json.RawMessage
@@ -77,6 +88,12 @@ func RequestParser(msg []string) (interface{}, error) {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
 			return nil, err
 		}
+
+		// default port checker
+		if req.Port == "" {
+			req.Port = DefaultPort
+		}
+
 		switch req.FC {
 		case 5: // single bit; uint16
 			var d uint16
@@ -115,6 +132,10 @@ func RequestParser(msg []string) (interface{}, error) {
 				return nil, err
 			}
 			req.Data = d
+			// len checker
+			if req.Len == 0 {
+				req.Len = len(d)
+			}
 			return req, nil
 		case 16: // multiple register in dec/hex
 			var d string
@@ -136,6 +157,10 @@ func RequestParser(msg []string) (interface{}, error) {
 					return nil, err
 				}
 				req.Data = dd
+			}
+			// len checker
+			if req.Len == 0 {
+				req.Len = len(dd)
 			}
 			return req, nil
 		default:
