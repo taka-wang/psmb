@@ -118,25 +118,26 @@ func TestUpstreamStruct(t *testing.T) {
 		case 5:
 			//
 		case 6:
+			var d string
+			if err := json.Unmarshal(data3, &d); err != nil {
+				log("json err:", err)
+				return false
+			}
+
 			if r3.Hex {
-				var d string
-				if err := json.Unmarshal(data3, &d); err != nil {
-					log("json err:", err)
-					return false
-				}
 				dd, err := HexStringToRegisters(d)
 				if err != nil {
 					log("json err:", err)
 					return false
 				}
-				r3.Data = dd
+				r3.Data = dd[0]
 			} else {
-				var d uint16
+				dd, err := strconv.Atoi(d)
 				if err := json.Unmarshal(data3, &d); err != nil {
 					log("json err:", err)
 					return false
 				}
-				r3.Data = d
+				r3.Data = dd
 			}
 
 		}
