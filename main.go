@@ -560,8 +560,24 @@ func ResponseCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 			return errors.New("req command not in map")
 		}
 	case "15", "16": // write multiple
-		// todo
-		return errors.New("TODO")
+		res := r.(DMbtcpRes)
+		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+		TidStr = res.Tid
+		if cmd, ok := taskMap2[TidStr]; ok {
+			switch cmd {
+			case "mbtcp.once.write":
+				command := MbtcpSimpleRes{
+					Tid:    tid,
+					Status: res.Status,
+				}
+				cmdStr, _ = json.Marshal(command)
+			default:
+				//
+			}
+
+		} else {
+			return errors.New("req command not in map")
+		}
 	default:
 		log.WithFields(log.Fields{"cmd": cmd}).Debug("Response not support:")
 		return errors.New("Response not support")
