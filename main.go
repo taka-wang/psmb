@@ -40,7 +40,7 @@ func init() {
 }
 
 // RequestParser handle message from services
-func RequestParser(socket *zmq.Socket, msg []string) error {
+func RequestParser(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		log.Error("Request parser failed: invalid message length")
@@ -54,15 +54,104 @@ func RequestParser(socket *zmq.Socket, msg []string) error {
 		var req MbtcpReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
-			return err
+			return nil, err
 		}
+		return req, nil
+	case "mbtcp.once.write":
+		// add to Emergency
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.timeout.read":
+		// add to Emergency
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.timeout.update":
+		// add to Emergency
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.poll.create":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.poll.update":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.poll.read":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.poll.delete":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.poll.toggle":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.polls.read":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.polls.delete":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.polls.toggle":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.polls.import":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.polls.export":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.poll.history":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.filter.create":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.filter.update":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.filter.read":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.filter.delete":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.filter.toggle":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.filters.read":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.filters.delete":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.filters.toggle":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.filters.import":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	case "mbtcp.filters.export":
+		log.Warn("TODO")
+		return nil, errors.New("TODO")
+	default:
+		log.WithFields(log.Fields{"request": msg[0]}).Debug("Request not support:")
+		return nil, errors.New("Request not support")
+	}
+}
+
+// RequestCommandBuilder build command to services
+func RequestCommandBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Build request command:")
+
+	switch cmd {
+	case "mbtcp.once.read":
+		req := r.(MbtcpReadReq)
 
 		// convert tid to string
 		TidStr := strconv.FormatInt(req.Tid, 10)
 
 		// add to task map
 		taskMap[TidStr] = req
-		taskMap2[TidStr] = msg[0]
+		taskMap2[TidStr] = cmd
 
 		// build modbusd command
 		cmd := DMbtcpReadReq{
@@ -76,15 +165,17 @@ func RequestParser(socket *zmq.Socket, msg []string) error {
 		}
 		// add command to scheduler as emergency request
 		sch.Emergency().Do(Task, socket, cmd)
-		//sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
 		return nil
 	case "mbtcp.once.write":
+		// add to Emergency
 		log.Warn("TODO")
 		return errors.New("TODO")
 	case "mbtcp.timeout.read":
+		// add to Emergency
 		log.Warn("TODO")
 		return errors.New("TODO")
 	case "mbtcp.timeout.update":
+		// add to Emergency
 		log.Warn("TODO")
 		return errors.New("TODO")
 	case "mbtcp.poll.create":
@@ -118,6 +209,36 @@ func RequestParser(socket *zmq.Socket, msg []string) error {
 		log.Warn("TODO")
 		return errors.New("TODO")
 	case "mbtcp.poll.history":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filter.create":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filter.update":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filter.read":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filter.delete":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filter.toggle":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filters.read":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filters.delete":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filters.toggle":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filters.import":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filters.export":
 		log.Warn("TODO")
 		return errors.New("TODO")
 	default:
@@ -392,18 +513,31 @@ func main() {
 	poller.Add(fromService, zmq.POLLIN)
 	poller.Add(fromModbusd, zmq.POLLIN)
 
-	// process messages from both sockets
+	// process messages from both subscriber sockets
 	for {
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 			switch s := socket.Socket; s {
 			case fromService:
 				msg, _ := fromService.RecvMessage(0)
-				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from service:")
-				RequestParser(toModbusd, msg)
+				log.WithFields(log.Fields{
+					"msg[0]": msg[0],
+					"msg[1]": msg[1]},
+				).Debug("Receive from service:")
+				req, err := RequestParser(msg)
+				if err == nil {
+					err = RequestCommandBuilder(msg[0], req, toModbusd)
+				} else {
+					// todo
+					// send error back
+				}
+
 			case fromModbusd:
 				msg, _ := fromModbusd.RecvMessage(0)
-				log.WithFields(log.Fields{"msg[0]": msg[0], "msg[1]": msg[1]}).Debug("Receive from modbusd:")
+				log.WithFields(log.Fields{
+					"msg[0]": msg[0],
+					"msg[1]": msg[1]},
+				).Debug("Receive from modbusd:")
 				ResponseParser(toService, msg)
 			}
 		}
@@ -412,3 +546,4 @@ func main() {
 
 //t := time.Now()
 //fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
+//sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
