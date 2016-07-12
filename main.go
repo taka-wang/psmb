@@ -293,7 +293,7 @@ func ResponseCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 	var cmdStr []byte
 	var TidStr string
 
-	switch msg[0] {
+	switch cmd {
 	case "50", "51": // set|get timeout
 		res := r.(DMbtcpTimeout)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
@@ -454,11 +454,11 @@ func ResponseCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 		// todo
 		return errors.New("TODO")
 	default:
-		log.WithFields(log.Fields{"response": msg[0]}).Debug("Response not support:")
+		log.WithFields(log.Fields{"cmd": cmd).Debug("Response not support:")
 		return errors.New("Response not support")
 	}
 
-	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Conversion for service complete:")
+	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Build for service complete:")
 
 	// todo: check msg[0], should be web
 	if frame, ok := taskMap2[TidStr]; ok {
@@ -539,8 +539,7 @@ func main() {
 				}).Debug("Receive from service:")
 				req, err := RequestParser(msg)
 				if err != nil {
-					// todo
-					// send error back
+					// todo: send error back
 				} else {
 					err = RequestCmdBuilder(msg[0], req, toModbusd)
 				}
@@ -552,8 +551,7 @@ func main() {
 				}).Debug("Receive from modbusd:")
 				res, err := ResponseParser(msg)
 				if err != nil {
-					// todo
-					// send error back
+					// todo: send error back
 				} else {
 					err = ResponseCmdBuilder(msg[0], res, toService)
 				}
