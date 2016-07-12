@@ -14,7 +14,7 @@ const (
 	// DefaultPort default modbus slave port number
 	DefaultPort = "502"
 	// DefaultFrom default upstream
-	DefaultFrom = "service"
+	//DefaultFrom = "service"
 )
 
 var taskMap map[string]interface{}
@@ -82,7 +82,7 @@ func RequestParser(msg []string) (interface{}, error) {
 		}
 		return req, nil
 	case "mbtcp.once.write": // done
-		var data json.RawMessage
+		var data json.RawMessage // raw []byte
 		req := MbtcpWriteReq{Data: &data}
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
@@ -423,6 +423,7 @@ func ResponseCmdBuilder(cmd string, r interface{}, socket *zmq.Socket) error {
 			Data:   res.Timeout,
 		}
 		cmdStr, _ = json.Marshal(command)
+
 	case "1", "2": // read bits
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
