@@ -71,9 +71,77 @@ func RequestParser(msg []string) (interface{}, error) {
 		}
 		return req, nil
 	case "mbtcp.once.write":
-		// add to Emergency
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		var data json.RawMessage
+		req := MbtcpWriteReq{Data: &data}
+		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+			return nil, err
+		}
+		switch req.FC {
+		case 5: // single bit; uint16
+			var d uint16
+			if err := json.Unmarshal(data, &d); err != nil {
+				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+				return nil, err
+			}
+			req.Data = d
+			return req, nil
+		case 6: // single register in dec|hex
+			var d string
+			if err := json.Unmarshal(data, &d); err != nil {
+				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+				return nil, err
+			}
+
+			if req.Hex {
+				dd, err := HexStringToRegisters(d)
+				if err != nil {
+					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+					return nil, err
+				}
+				req.Data = dd[0] // one register
+			} else {
+				dd, err := strconv.Atoi(d)
+				if err != nil {
+					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+					return nil, err
+				}
+				req.Data = dd
+			}
+			return req, nil
+		case 15: // multiple bits; []uint16
+			var d []uint16
+			if err := json.Unmarshal(data, &d); err != nil {
+				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+				return nil, err
+			}
+			req.Data = d
+			return req, nil
+		case 16: // multiple register in dec/hex
+			var d string
+			if err := json.Unmarshal(data, &d); err != nil {
+				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+				return nil, err
+			}
+			if req.Hex {
+				dd, err := HexStringToRegisters(d)
+				if err != nil {
+					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+					return nil, err
+				}
+				req.Data = dd
+			} else {
+				dd, err := DecimalStringToRegisters(d)
+				if err != nil {
+					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+					return nil, err
+				}
+				req.Data = dd
+			}
+			return req, nil
+		default:
+			return nil, errors.New("Not support")
+		}
 	case "mbtcp.timeout.read", "mbtcp.timeout.update":
 		var req MbtcpTimeoutReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {

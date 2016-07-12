@@ -179,6 +179,22 @@ type MbtcpReadRes struct {
 	Data  interface{}       `json:"data,omitempty"` // universal data container
 }
 
+// MbtcpWriteReq write coil/register request
+type MbtcpWriteReq struct {
+	Tid   int64       `json:"tid"`
+	From  string      `json:"from,omitempty"`
+	FC    int         `json:"fc"`
+	IP    string      `json:"ip"`
+	Port  string      `json:"port,omitempty"`
+	Slave uint8       `json:"slave"`
+	Addr  uint16      `json:"addr"`
+	Len   uint16      `json:"len,omitempty"`
+	Hex   bool        `json:"hex,omitempty"`
+	Data  interface{} `json:"data"`
+}
+
+// MbtcpWriteRes == MbtcpSimpleRes
+
 // MbtcpTimeoutReq set/get TCP connection timeout request (1.3, 1.4)
 type MbtcpTimeoutReq struct {
 	Tid  int64  `json:"tid"`

@@ -22,6 +22,10 @@
 - [x] implement downstream struct test cases
 - [x] unify types definitions
 - [x] support docker compose
+- [x] refactor main flow
+- [x] implement uint test for mbtcp.once.write
+- [x] implement integration test for mbtcp.once.read
+- [x] implement integration test for mbtcp.once.write
 
 # TODO
 - [ ] define request type

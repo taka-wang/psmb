@@ -167,6 +167,18 @@ type MbtcpReadReq struct {
 	Range *ScaleRange  `json:"range,omitempty"` // point to struct can be omitted in json encode
 }
 
+// MbtcpReadRes read coil/register response (1.1).
+// `Data interface` supports:
+// []uint16, []int16, []uint32, []int32, []float32, string
+type MbtcpReadRes struct {
+	Tid    int64        `json:"tid"`
+	Status string       `json:"status"`
+	Type   RegValueType `json:"type,omitempty"`
+	// Bytes FC3, FC4 and Type 2~8 only
+	Bytes JSONableByteSlice `json:"bytes,omitempty"`
+	Data  interface{}       `json:"data,omitempty"` // universal data container
+}
+
 // MbtcpWriteReq write coil/register request
 type MbtcpWriteReq struct {
 	Tid   int64       `json:"tid"`
@@ -181,17 +193,7 @@ type MbtcpWriteReq struct {
 	Data  interface{} `json:"data"`
 }
 
-// MbtcpReadRes read coil/register response (1.1).
-// `Data interface` supports:
-// []uint16, []int16, []uint32, []int32, []float32, string
-type MbtcpReadRes struct {
-	Tid    int64        `json:"tid"`
-	Status string       `json:"status"`
-	Type   RegValueType `json:"type,omitempty"`
-	// Bytes FC3, FC4 and Type 2~8 only
-	Bytes JSONableByteSlice `json:"bytes,omitempty"`
-	Data  interface{}       `json:"data,omitempty"` // universal data container
-}
+// MbtcpWriteRes == MbtcpSimpleRes
 
 // MbtcpTimeoutReq set/get TCP connection timeout request (1.3, 1.4)
 type MbtcpTimeoutReq struct {
