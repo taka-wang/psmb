@@ -27,9 +27,9 @@ var OneOffTask = struct {
 // GetOneOffTask get task from OneOffTask map
 func GetOneOffTask(tid string) (MbtcpTaskReq, bool) {
 	log.Debug("GetOneOffTask IN")
-	//OneOffTask.RLock()
+	OneOffTask.RLock()
 	task, ok := OneOffTask.m[tid]
-	//OneOffTask.RUnlock()
+	OneOffTask.RUnlock()
 	log.Debug("GetOneOffTask OUT")
 	return task, ok
 }
@@ -37,18 +37,18 @@ func GetOneOffTask(tid string) (MbtcpTaskReq, bool) {
 // RemoveOneOffTask remove task from OneOffTask map
 func RemoveOneOffTask(tid string) {
 	log.Debug("RemoveOneOffTask IN")
-	//OneOffTask.Lock()
+	OneOffTask.Lock()
 	delete(OneOffTask.m, tid) // remove from OneOffTask Map!!
-	//OneOffTask.Unlock()
+	OneOffTask.Unlock()
 	log.Debug("RemoveOneOffTask OUT")
 }
 
 // AddOneOffTask add one-off task to OneOffTask map
 func AddOneOffTask(tid, cmd string, req interface{}) {
 	log.Debug("AddOneOffTask IN")
-	//OneOffTask.Lock()
+	OneOffTask.Lock()
 	OneOffTask.m[tid] = MbtcpTaskReq{cmd, req}
-	//OneOffTask.Unlock()
+	OneOffTask.Unlock()
 	log.Debug("AddOneOffTask OUT")
 }
 
@@ -493,34 +493,60 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
 
-			if task, ok = GetOneOffTask(TidStr); ok {
-				switch task.Cmd {
-				case "mbtcp.once.read":
-					command := MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Data:   res.Data,
-					}
-					cmdStr, _ = json.Marshal(command)
-				default:
-					//
-				}
+			if task, ok = GetOneOffTask(TidStr); !ok {
+				return errors.New("req command not in map")
 			}
-			return errors.New("req command not in map")
+			switch task.Cmd {
+			case "mbtcp.once.read":
+				command := MbtcpReadRes{
+					Tid:    tid,
+					Status: res.Status,
+					Data:   res.Data,
+				}
+				cmdStr, _ = json.Marshal(command)
+			default:
+				//
+			}
 
 		case fc3, fc4:
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
-			if task, ok = GetOneOffTask(TidStr); ok {
-				switch task.Cmd {
-				case "mbtcp.once.read":
-					// todo: if res.status != "ok" do something
-					var command MbtcpReadRes
-					readReq := task.Req.(MbtcpReadReq)
-					log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
-					switch readReq.Type {
-					case 2:
+			if task, ok = GetOneOffTask(TidStr); !ok {
+				return errors.New("req command not in map")
+			}
+
+			switch task.Cmd {
+			case "mbtcp.once.read":
+				// todo: if res.status != "ok" do something
+				var command MbtcpReadRes
+				readReq := task.Req.(MbtcpReadReq)
+				log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
+				switch readReq.Type {
+				case 2:
+					b, err := RegistersToBytes(res.Data)
+					if err != nil {
+						log.Error(err)
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: err.Error(),
+							Data:   res.Data,
+						}
+					}
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Bytes:  b,
+						Data:   BytesToHexString(b),
+					}
+				case 3:
+					if readReq.Len%2 != 0 {
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: "Conversion failed",
+							Data:   res.Data,
+						}
+					} else {
 						b, err := RegistersToBytes(res.Data)
 						if err != nil {
 							log.Error(err)
@@ -530,96 +556,71 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 								Data:   res.Data,
 							}
 						}
+
+						// todo: check range values
+
+						f := LinearScalingRegisters(res.Data,
+							readReq.Range.DomainLow,
+							readReq.Range.DomainHigh,
+							readReq.Range.RangeLow,
+							readReq.Range.RangeHigh,
+						)
+
 						command = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
 							Bytes:  b,
-							Data:   BytesToHexString(b),
-						}
-					case 3:
-						if readReq.Len%2 != 0 {
-							command = MbtcpReadRes{
-								Tid:    tid,
-								Status: "Conversion failed",
-								Data:   res.Data,
-							}
-						} else {
-							b, err := RegistersToBytes(res.Data)
-							if err != nil {
-								log.Error(err)
-								command = MbtcpReadRes{
-									Tid:    tid,
-									Status: err.Error(),
-									Data:   res.Data,
-								}
-							}
-
-							// todo: check range values
-
-							f := LinearScalingRegisters(res.Data,
-								readReq.Range.DomainLow,
-								readReq.Range.DomainHigh,
-								readReq.Range.RangeLow,
-								readReq.Range.RangeHigh,
-							)
-
-							command = MbtcpReadRes{
-								Tid:    tid,
-								Status: res.Status,
-								Bytes:  b,
-								Data:   f,
-							}
-						}
-
-					case 4:
-						// order
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
-					case 5:
-						// order
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
-					case 6:
-						// length, order
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
-					case 7:
-						// length, order
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
-					case 8:
-						// length, order
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
-					default: // case 0, 1
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
+							Data:   f,
 						}
 					}
 
-					cmdStr, _ = json.Marshal(command)
-				default:
-					//
+				case 4:
+					// order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 5:
+					// order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 6:
+					// length, order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 7:
+					// length, order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 8:
+					// length, order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				default: // case 0, 1
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
 				}
+
+				cmdStr, _ = json.Marshal(command)
+			default:
+				//
 			}
-			return errors.New("req command not in map")
 		}
 		// different handle
 		log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
