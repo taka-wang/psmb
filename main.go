@@ -284,7 +284,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 			Len:   req.Len,
 		}
 		// add command to scheduler as emergency request
-		sch.Emergency().Do(Task, socket, command)
+		sch.Emergency().Do(Task, downSocket, command)
 		return nil
 	case "mbtcp.once.write": // done
 		req := r.(MbtcpWriteReq)
@@ -332,7 +332,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		command := DMbtcpTimeout{
 			Tid:     TidStr,
 			Cmd:     cmdInt,
-			Timeout: Data,
+			Timeout: req.Data,
 		}
 		// add command to scheduler as emergency request
 		sch.Emergency().Do(Task, downSocket, command)
@@ -368,7 +368,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
-		SendToService(TidStr, resp, upSocket)
+		return SendToService(TidStr, resp, upSocket)
 	case "mbtcp.poll.update":
 		log.Warn("TODO")
 		return errors.New("TODO")
@@ -540,7 +540,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			}
 		}
 		// send back
-		SendToService(TidStr, resp, socket)
+		return SendToService(TidStr, resp, socket)
 
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		var cmdStr []byte
