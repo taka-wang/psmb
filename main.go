@@ -391,7 +391,7 @@ func ResponseParser(msg []string) (interface{}, error) {
 
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
 
-	switch msg[0] {
+	switch MbtcpCmdType(msg[0]) {
 	case setTimeout, getTimeout: // set|get timeout
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {

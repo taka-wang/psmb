@@ -28,6 +28,7 @@
 - [x] implement integration test for mbtcp.once.write
 - [x] handle default port and fc15/fc16 length
 - [x] define polling commands
+- [x] define MbtcpCmdType for modbusd
 
 # TODO
 - [ ] define request type
