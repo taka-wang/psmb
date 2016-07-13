@@ -328,7 +328,7 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		AddOneOffTask(TidStr, cmd, req)          // add to task map
-		cmd, _ := strconv.Atoi(getTimeout)
+		cmd, _ := strconv.Atoi(string(getTimeout))
 		command := DMbtcpTimeout{
 			Tid: TidStr,
 			Cmd: cmd,
@@ -340,7 +340,7 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		AddOneOffTask(TidStr, cmd, req)          // add to task map
-		cmd, _ := strconv.Atoi(setTimeout)
+		cmd, _ := strconv.Atoi(string(setTimeout))
 		command := DMbtcpTimeout{
 			Tid: TidStr,
 			Cmd: cmd,
@@ -505,15 +505,14 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			return err
 		}
 
-		if task, ok := GetOneOffTask(TidStr); !ok {
-			return errors.New("Request command not in map")
+		if task, ok := GetOneOffTask(TidStr); ok {
+			log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
+			socket.Send(task.Cmd, zmq.SNDMORE) // task command
+			socket.Send(string(respStr), 0)    // convert to string; frame 2
+			RemoveOneOffTask(TidStr)           // remove from OneOffTask Map!!
+			return nil
 		}
-
-		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-		RemoveOneOffTask(TidStr)           // remove from OneOffTask Map!!
-		socket.Send(task.Cmd, zmq.SNDMORE) // task command
-		socket.Send(string(respStr), 0)    // convert to string; frame 2
-		return nil
+		return errors.New("Request command not in map")
 
 		// ----------------- modulize end ---------------------------------------------
 
