@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/taka-wang/gocron"
 	log "github.com/takawang/logrus"
@@ -596,7 +597,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 				}
 			case "mbtcp.poll.create", "mbtcp.polls.import":
 				command := MbtcpPollData{
-					TimeStamp: time.Now().UTC().UnixNano(),,
+					TimeStamp: time.Now().UTC().UnixNano(),
 					Name:      task.Name,
 					Status:    res.Status,
 					Data:      res.Data,
