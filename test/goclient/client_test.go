@@ -64,6 +64,63 @@ func TestPsmb(t *testing.T) {
 		hostName = host[0] //docker
 	}
 
+	s.Title("Oneoff timeout request tests")
+
+	s.Assert("mbtcp.timeout.read test", func(log sugar.Log) bool {
+		ReadReq := MbtcpTimeoutReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+		}
+
+		ReadReqStr, _ := json.Marshal(ReadReq)
+		cmd := "mbtcp.timeout.read"
+		go publisher(cmd, string(ReadReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(ReadReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpTimeoutRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("mbtcp.timeout.update test", func(log sugar.Log) bool {
+		ReadReq := MbtcpTimeoutReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Data: 210000,
+		}
+
+		ReadReqStr, _ := json.Marshal(ReadReq)
+		cmd := "mbtcp.timeout.update"
+		go publisher(cmd, string(ReadReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(ReadReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpTimeoutRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
 	s.Title("Oneoff write request tests")
 
 	s.Assert("`FC5` write bit test: port 502", func(log sugar.Log) bool {

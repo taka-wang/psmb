@@ -14,6 +14,8 @@ import (
 const (
 	// DefaultPort default modbus slave port number
 	DefaultPort = "502"
+	// MinTCPTimeout minimal modbus tcp connection timeout
+	MinTCPTimeout = 200000
 )
 
 var sch gocron.Scheduler
@@ -26,30 +28,30 @@ var OneOffTask = struct {
 
 // GetOneOffTask get task from OneOffTask map
 func GetOneOffTask(tid string) (MbtcpTaskReq, bool) {
-	log.Debug("GetOneOffTask IN")
+	//log.Debug("GetOneOffTask IN")
 	OneOffTask.RLock()
 	task, ok := OneOffTask.m[tid]
 	OneOffTask.RUnlock()
-	log.Debug("GetOneOffTask OUT")
+	//log.Debug("GetOneOffTask OUT")
 	return task, ok
 }
 
 // RemoveOneOffTask remove task from OneOffTask map
 func RemoveOneOffTask(tid string) {
-	log.Debug("RemoveOneOffTask IN")
+	//log.Debug("RemoveOneOffTask IN")
 	OneOffTask.Lock()
 	delete(OneOffTask.m, tid) // remove from OneOffTask Map!!
 	OneOffTask.Unlock()
-	log.Debug("RemoveOneOffTask OUT")
+	//log.Debug("RemoveOneOffTask OUT")
 }
 
 // AddOneOffTask add one-off task to OneOffTask map
 func AddOneOffTask(tid, cmd string, req interface{}) {
-	log.Debug("AddOneOffTask IN")
+	//log.Debug("AddOneOffTask IN")
 	OneOffTask.Lock()
 	OneOffTask.m[tid] = MbtcpTaskReq{cmd, req}
 	OneOffTask.Unlock()
-	log.Debug("AddOneOffTask OUT")
+	//log.Debug("AddOneOffTask OUT")
 }
 
 // Init init func before main
@@ -322,12 +324,26 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		// add command to scheduler as emergency request
 		sch.Emergency().Do(Task, socket, command)
 		return nil
-	case "mbtcp.timeout.read": // todo
-		// add to Emergency
-		return errors.New("TODO")
-	case "mbtcp.timeout.update": // todo
-		// add to Emergency
-		return errors.New("TODO")
+	case "mbtcp.timeout.read", "mbtcp.timeout.update": // done
+		req := r.(MbtcpTimeoutReq)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		AddOneOffTask(TidStr, cmd, req)          // add to task map
+		command := DMbtcpTimeout{
+			Tid: TidStr,
+			Cmd: req.FC,
+		}
+
+		if cmd == "mbtcp.timeout.update" {
+			// protect dummy input
+			if req.Data < MinTCPTimeout {
+				command.Timeout = MinTCPTimeout
+			} else {
+				command.Timeout = req.Data
+			}
+		}
+		// add command to scheduler as emergency request
+		sch.Emergency().Do(Task, socket, command)
+		return nil
 	case "mbtcp.poll.create":
 		log.Warn("TODO")
 		return errors.New("TODO")
@@ -450,7 +466,9 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			resp = MbtcpTimeoutRes{
 				Tid:    tid,
 				Status: res.Status,
-				Data:   res.Timeout,
+			}
+			if cmd == getTimeout {
+				resp.Data = res.Timeout
 			}
 		case fc5, fc6, fc15, fc16: // one-off write requests
 			res := r.(DMbtcpRes)
@@ -463,6 +481,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 		}
 
 		// ----------------- modulize begin ---------------------------------------------
+
 		// marshal response JSON string
 		respStr, err := json.Marshal(resp)
 		if err != nil {
@@ -470,15 +489,15 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			return err
 		}
 
-		// check `Task Table`
-		if task, ok := GetOneOffTask(TidStr); ok {
-			log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-			RemoveOneOffTask(TidStr)           // remove from OneOffTask Map!!
-			socket.Send(task.Cmd, zmq.SNDMORE) // task command
-			socket.Send(string(respStr), 0)    // convert to string; frame 2
-			return nil
+		if task, ok := GetOneOffTask(TidStr); !ok {
+			return errors.New("Request command not in map")
 		}
-		return errors.New("Request command not in map")
+
+		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
+		RemoveOneOffTask(TidStr)           // remove from OneOffTask Map!!
+		socket.Send(task.Cmd, zmq.SNDMORE) // task command
+		socket.Send(string(respStr), 0)    // convert to string; frame 2
+		return nil
 
 		// ----------------- modulize end ---------------------------------------------
 

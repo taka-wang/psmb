@@ -30,6 +30,8 @@
 - [x] define polling commands
 - [x] define MbtcpCmdType for modbusd
 - [x] implement mutex lock for OneOffTask map
+- [x] implement integration test for mbtcp.timeout.read
+- [x] implement integration test for mbtcp.timeout.update
 
 # TODO
 - [ ] define request type

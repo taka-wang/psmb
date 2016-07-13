@@ -11,6 +11,28 @@ type Endian int
 // RegValueType defines how to inteprete registers
 type RegValueType int
 
+// MbtcpCmdType defines modbus tcp command type
+type MbtcpCmdType string
+
+const (
+	fc1        MbtcpCmdType = "1"
+	fc2        MbtcpCmdType = "2"
+	fc3        MbtcpCmdType = "3"
+	fc4        MbtcpCmdType = "4"
+	fc5        MbtcpCmdType = "5"
+	fc6        MbtcpCmdType = "6"
+	fc15       MbtcpCmdType = "15"
+	fc16       MbtcpCmdType = "16"
+	setTimeout MbtcpCmdType = "50"
+	getTimeout MbtcpCmdType = "51"
+)
+
+// MbtcpTaskReq task request
+type MbtcpTaskReq struct {
+	Cmd string
+	Req interface{}
+}
+
 // ScaleRange defines scale range
 type ScaleRange struct {
 	DomainLow  float64 `json:"a"`
