@@ -381,6 +381,7 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 }
 
 // ResponseParser handle message from modbusd
+// Done.
 func ResponseParser(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
@@ -391,7 +392,7 @@ func ResponseParser(msg []string) (interface{}, error) {
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
 
 	switch msg[0] {
-	case "50", "51": // set|get timeout
+	case setTimeout, getTimeout: // set|get timeout
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
@@ -399,7 +400,7 @@ func ResponseParser(msg []string) (interface{}, error) {
 		}
 		return res, nil
 
-	case "1", "2", "3", "4", "5", "6", "15", "16":
+	case fc1, fc2, fc3, fc4, fc5, fc6, fc15, fc16:
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
@@ -414,13 +415,23 @@ func ResponseParser(msg []string) (interface{}, error) {
 
 // ResponseHandler build command to services
 // Todo: filter, handle
-func ResponseHandler(cmd string, r interface{}, socket *zmq.Socket) error {
+func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Parsing response:")
 
 	var cmdStr []byte
 	var TidStr string
 	var task MbTaskReq
 	var ok bool
+
+	switch cmd {
+	case fc5, fc6, fc15, fc16, setTimeout, getTimeout:
+		//
+	case fc1, fc2, fc3, fc4:
+		//
+	default:
+		//
+
+	}
 
 	switch cmd {
 	case "50", "51": // set|get timeout
