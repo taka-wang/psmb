@@ -27,9 +27,9 @@ var OneOffTask = struct {
 // GetOneOffTask get task from OneOffTask map
 func GetOneOffTask(tid string) (MbtcpTaskReq, bool) {
 	log.Debug("GetOneOffTask IN")
-	OneOffTask.RLock()
+	//OneOffTask.RLock()
 	task, ok := OneOffTask.m[tid]
-	OneOffTask.RUnlock()
+	//OneOffTask.RUnlock()
 	log.Debug("GetOneOffTask OUT")
 	return task, ok
 }
@@ -37,18 +37,18 @@ func GetOneOffTask(tid string) (MbtcpTaskReq, bool) {
 // RemoveOneOffTask remove task from OneOffTask map
 func RemoveOneOffTask(tid string) {
 	log.Debug("RemoveOneOffTask IN")
-	OneOffTask.Lock()
+	//OneOffTask.Lock()
 	delete(OneOffTask.m, tid) // remove from OneOffTask Map!!
-	OneOffTask.Unlock()
+	//OneOffTask.Unlock()
 	log.Debug("RemoveOneOffTask OUT")
 }
 
 // AddOneOffTask add one-off task to OneOffTask map
 func AddOneOffTask(tid, cmd string, req interface{}) {
 	log.Debug("AddOneOffTask IN")
-	OneOffTask.Lock()
+	//OneOffTask.Lock()
 	OneOffTask.m[tid] = MbtcpTaskReq{cmd, req}
-	OneOffTask.Unlock()
+	//OneOffTask.Unlock()
 	log.Debug("AddOneOffTask OUT")
 }
 
