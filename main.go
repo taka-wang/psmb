@@ -324,22 +324,32 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		// add command to scheduler as emergency request
 		sch.Emergency().Do(Task, socket, command)
 		return nil
-	case "mbtcp.timeout.read", "mbtcp.timeout.update": // done
+	case "mbtcp.timeout.read": // done
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		AddOneOffTask(TidStr, cmd, req)          // add to task map
+		cmd, _ := strconv.Atoi(getTimeout)
 		command := DMbtcpTimeout{
 			Tid: TidStr,
-			Cmd: req.FC,
+			Cmd: cmd,
 		}
-
-		if cmd == "mbtcp.timeout.update" {
-			// protect dummy input
-			if req.Data < MinTCPTimeout {
-				command.Timeout = MinTCPTimeout
-			} else {
-				command.Timeout = req.Data
-			}
+		// add command to scheduler as emergency request
+		sch.Emergency().Do(Task, socket, command)
+		return nil
+	case "mbtcp.timeout.update": // done
+		req := r.(MbtcpTimeoutReq)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		AddOneOffTask(TidStr, cmd, req)          // add to task map
+		cmd, _ := strconv.Atoi(setTimeout)
+		command := DMbtcpTimeout{
+			Tid: TidStr,
+			Cmd: cmd,
+		}
+		// protect dummy input
+		if req.Data < MinTCPTimeout {
+			command.Timeout = MinTCPTimeout
+		} else {
+			command.Timeout = req.Data
 		}
 		// add command to scheduler as emergency request
 		sch.Emergency().Do(Task, socket, command)
@@ -459,7 +469,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 		var resp interface{}
 
 		switch cmd {
-		case setTimeout, getTimeout: // one-off timeout requests
+		case setTimeout: // one-off timeout requests
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
@@ -467,8 +477,14 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 				Tid:    tid,
 				Status: res.Status,
 			}
-			if cmd == getTimeout {
-				resp.Data = res.Timeout
+		case getTimeout: // one-off timeout requests
+			res := r.(DMbtcpTimeout)
+			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+			TidStr = res.Tid
+			resp = MbtcpTimeoutRes{
+				Tid:    tid,
+				Status: res.Status,
+				Data:   res.Timeout,
 			}
 		case fc5, fc6, fc15, fc16: // one-off write requests
 			res := r.(DMbtcpRes)
