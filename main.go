@@ -62,8 +62,8 @@ func Task(socket *zmq.Socket, req interface{}) {
 	socket.Send(string(str), 0)     // convert to string; frame 2
 }
 
-// RequestParser handle message from services
-func RequestParser(msg []string) (interface{}, error) {
+// ParseRequest parse message from services
+func ParseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		log.Error("Request parser failed: invalid message length")
@@ -246,7 +246,8 @@ func RequestParser(msg []string) (interface{}, error) {
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	default:
-		log.WithFields(log.Fields{"request": msg[0]}).Debug("Request not support:")
+		// should not reach here!!
+		log.WithFields(log.Fields{"request": msg[0]}).Warn("Request not support:")
 		return nil, errors.New("Request not support")
 	}
 }
@@ -375,14 +376,15 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		log.Warn("TODO")
 		return errors.New("TODO")
 	default:
-		log.WithFields(log.Fields{"cmd": cmd}).Debug("Request not support:")
+		// should not reach here!!
+		log.WithFields(log.Fields{"cmd": cmd}).Warn("Request not support:")
 		return errors.New("Request not support")
 	}
 }
 
-// ResponseParser handle message from modbusd
+// ParseResponse parse message from modbusd
 // Done.
-func ResponseParser(msg []string) (interface{}, error) {
+func ParseResponse(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		log.Error("Request parser failed: invalid message length")
@@ -408,7 +410,8 @@ func ResponseParser(msg []string) (interface{}, error) {
 		}
 		return res, nil
 	default:
-		log.WithFields(log.Fields{"response": msg[0]}).Debug("Response not support:")
+		// should not reach here!!
+		log.WithFields(log.Fields{"response": msg[0]}).Warn("Response not support:")
 		return nil, errors.New("Response not support")
 	}
 }
@@ -419,11 +422,11 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Parsing response:")
 
 	switch cmd {
-	case fc5, fc6, fc15, fc16, setTimeout, getTimeout: // one-off requests
+	case fc5, fc6, fc15, fc16, setTimeout, getTimeout: // [done]: one-off requests
 		var TidStr string
 		var resp interface{}
 		switch cmd {
-		case setTimeout, getTimeout:
+		case setTimeout, getTimeout: // one-off timeout requests
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
@@ -432,7 +435,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 				Status: res.Status,
 				Data:   res.Timeout,
 			}
-		case fc5, fc6, fc15, fc16:
+		case fc5, fc6, fc15, fc16: // one-off write requests
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
@@ -442,6 +445,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			}
 		}
 
+		// ----------------- modulize begin ---------------------------------------------
 		// marshal response JSON string
 		respStr, err := json.Marshal(resp)
 		if err != nil {
@@ -449,15 +453,18 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			return err
 		}
 
-		// check task table
+		// check `Task Table`
 		if task, ok := taskMap[TidStr]; ok {
 			log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-			delete(taskMap, TidStr)            // remove from taskMap
+			// remove from taskMap!!
+			// todo: mutex lock
+			delete(taskMap, TidStr)
 			socket.Send(task.Cmd, zmq.SNDMORE) // frame 1
 			socket.Send(string(respStr), 0)    // convert to string; frame 2
 			return nil
 		}
 		return errors.New("Request command not in map")
+		// ----------------- modulize end ---------------------------------------------
 
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		var cmdStr []byte
@@ -608,7 +615,8 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 
 		return nil
 	default:
-		log.WithFields(log.Fields{"cmd": cmd}).Debug("Response not support:")
+		// should not reach here!!
+		log.WithFields(log.Fields{"cmd": cmd}).Warn("Response not support:")
 		return errors.New("Response not support")
 	}
 }
@@ -654,24 +662,30 @@ func main() {
 		for _, socket := range sockets {
 			switch s := socket.Socket; s {
 			case fromService:
+				// receive from upstream
 				msg, _ := fromService.RecvMessage(0)
 				log.WithFields(log.Fields{
 					"msg[0]": msg[0],
 					"msg[1]": msg[1],
 				}).Debug("Receive from service:")
-				req, err := RequestParser(msg)
+
+				// parse request
+				req, err := ParseRequest(msg)
 				if err != nil {
 					// todo: send error back
 				} else {
 					err = RequestHandler(msg[0], req, toModbusd)
 				}
 			case fromModbusd:
+				// receive from modbusd
 				msg, _ := fromModbusd.RecvMessage(0)
 				log.WithFields(log.Fields{
 					"msg[0]": msg[0],
 					"msg[1]": msg[1],
 				}).Debug("Receive from modbusd:")
-				res, err := ResponseParser(msg)
+
+				// parse response
+				res, err := ParseResponse(msg)
 				if err != nil {
 					// todo: send error back
 				} else {
