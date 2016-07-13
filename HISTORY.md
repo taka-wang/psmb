@@ -29,6 +29,7 @@
 - [x] handle default port and fc15/fc16 length
 - [x] define polling commands
 - [x] define MbtcpCmdType for modbusd
+- [x] implement mutex lock for OneOffTask map
 
 # TODO
 - [ ] define request type

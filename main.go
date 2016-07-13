@@ -26,24 +26,30 @@ var OneOffTask = struct {
 
 // GetOneOffTask get task from OneOffTask map
 func GetOneOffTask(tid string) (MbtcpTaskReq, bool) {
+	log.Debug("GetOneOffTask IN")
 	OneOffTask.RLock()
 	task, ok := OneOffTask.m[tid]
 	OneOffTask.RUnlock()
+	log.Debug("GetOneOffTask OUT")
 	return task, ok
 }
 
 // RemoveOneOffTask remove task from OneOffTask map
 func RemoveOneOffTask(tid string) {
+	log.Debug("RemoveOneOffTask IN")
 	OneOffTask.Lock()
 	delete(OneOffTask.m, tid) // remove from OneOffTask Map!!
 	OneOffTask.Unlock()
+	log.Debug("RemoveOneOffTask OUT")
 }
 
 // AddOneOffTask add one-off task to OneOffTask map
 func AddOneOffTask(tid, cmd string, req interface{}) {
+	log.Debug("AddOneOffTask IN")
 	OneOffTask.Lock()
 	OneOffTask.m[tid] = MbtcpTaskReq{cmd, req}
 	OneOffTask.Unlock()
+	log.Debug("AddOneOffTask OUT")
 }
 
 // Init init func before main
@@ -429,7 +435,7 @@ func ParseResponse(msg []string) (interface{}, error) {
 // ResponseHandler build command to services
 // Todo: filter, handle
 func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error {
-	log.WithFields(log.Fields{"cmd": cmd}).Debug("Parsing response:")
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response:")
 
 	switch cmd {
 	case fc5, fc6, fc15, fc16, setTimeout, getTimeout: // [done]: one-off requests
