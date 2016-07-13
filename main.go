@@ -13,12 +13,15 @@ import (
 const (
 	// DefaultPort default modbus slave port number
 	DefaultPort = "502"
-	// DefaultFrom default upstream
-	//DefaultFrom = "service"
 )
 
-var taskMap map[string]interface{}
-var taskMap2 map[string]string
+// MbTaskReq task request
+type MbTaskReq struct {
+	Cmd string
+	Req interface{}
+}
+
+var taskMap map[string]MbTaskReq
 var sch gocron.Scheduler
 
 // Init init func before main
@@ -260,11 +263,12 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		TidStr := strconv.FormatInt(req.Tid, 10)
 
 		// add to task map
-		taskMap[TidStr] = req
-		taskMap2[TidStr] = cmd
-
+		taskMap[TidStr] = MbTaskReq{
+			Cmd: cmd,
+			Req: req,
+		}
 		// build modbusd command
-		cmd := DMbtcpReadReq{
+		command := DMbtcpReadReq{
 			Tid:   TidStr,
 			Cmd:   req.FC,
 			IP:    req.IP,
@@ -274,17 +278,20 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 			Len:   req.Len,
 		}
 		// add command to scheduler as emergency request
-		sch.Emergency().Do(Task, socket, cmd)
+		sch.Emergency().Do(Task, socket, command)
 		return nil
 	case "mbtcp.once.write": // done
 		req := r.(MbtcpWriteReq)
 		// convert tid to string
 		TidStr := strconv.FormatInt(req.Tid, 10)
-		// add to task map
-		taskMap[TidStr] = req
-		taskMap2[TidStr] = cmd
 
-		cmd := DMbtcpWriteReq{
+		// add to task map
+		taskMap[TidStr] = MbTaskReq{
+			Cmd: cmd,
+			Req: req,
+		}
+
+		command := DMbtcpWriteReq{
 			Tid:   TidStr,
 			Cmd:   req.FC,
 			IP:    req.IP,
@@ -296,7 +303,7 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		}
 
 		// add command to scheduler as emergency request
-		sch.Emergency().Do(Task, socket, cmd)
+		sch.Emergency().Do(Task, socket, command)
 		return nil
 	case "mbtcp.timeout.read": // todo
 		// add to Emergency
@@ -412,25 +419,31 @@ func ResponseHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 
 	var cmdStr []byte
 	var TidStr string
+	var task MbTaskReq
+	var ok bool
 
 	switch cmd {
 	case "50", "51": // set|get timeout
 		res := r.(DMbtcpTimeout)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		TidStr = res.Tid
-		command := MbtcpTimeoutRes{
-			Tid:    tid,
-			Status: res.Status,
-			Data:   res.Timeout,
+		if task, ok = taskMap[TidStr]; ok {
+			command := MbtcpTimeoutRes{
+				Tid:    tid,
+				Status: res.Status,
+				Data:   res.Timeout,
+			}
+			cmdStr, _ = json.Marshal(command)
+		} else {
+			return errors.New("req command not in map")
 		}
-		cmdStr, _ = json.Marshal(command)
 
 	case "1", "2": // read bits
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		TidStr = res.Tid
-		if cmd, ok := taskMap2[TidStr]; ok {
-			switch cmd {
+		if task, ok = taskMap[TidStr]; ok {
+			switch task.Cmd {
 			case "mbtcp.once.read":
 				command := MbtcpReadRes{
 					Tid:    tid,
@@ -450,19 +463,38 @@ func ResponseHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		TidStr = res.Tid
-		if cmd, ok := taskMap2[TidStr]; ok {
-			switch cmd {
+		if task, ok = taskMap[TidStr]; ok {
+			switch task.Cmd {
 			case "mbtcp.once.read":
-
 				// todo: if res.status != "ok" do something
-
 				var command MbtcpReadRes
-				if req, ok := taskMap[TidStr]; ok {
-					readReq := req.(MbtcpReadReq)
-					//log.Println(readReq)
-					log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
-					switch readReq.Type {
-					case 2:
+				readReq := task.Req.(MbtcpReadReq)
+				log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
+				switch readReq.Type {
+				case 2:
+					b, err := RegistersToBytes(res.Data)
+					if err != nil {
+						log.Error(err)
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: err.Error(),
+							Data:   res.Data,
+						}
+					}
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Bytes:  b,
+						Data:   BytesToHexString(b),
+					}
+				case 3:
+					if readReq.Len%2 != 0 {
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: "Conversion failed",
+							Data:   res.Data,
+						}
+					} else {
 						b, err := RegistersToBytes(res.Data)
 						if err != nil {
 							log.Error(err)
@@ -472,91 +504,65 @@ func ResponseHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 								Data:   res.Data,
 							}
 						}
+
+						// todo: check range values
+
+						f := LinearScalingRegisters(res.Data,
+							readReq.Range.DomainLow,
+							readReq.Range.DomainHigh,
+							readReq.Range.RangeLow,
+							readReq.Range.RangeHigh,
+						)
+
 						command = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
 							Bytes:  b,
-							Data:   BytesToHexString(b),
-						}
-					case 3:
-						if readReq.Len%2 != 0 {
-							command = MbtcpReadRes{
-								Tid:    tid,
-								Status: "Conversion failed",
-								Data:   res.Data,
-							}
-						} else {
-							b, err := RegistersToBytes(res.Data)
-							if err != nil {
-								log.Error(err)
-								command = MbtcpReadRes{
-									Tid:    tid,
-									Status: err.Error(),
-									Data:   res.Data,
-								}
-							}
-
-							// todo: check range values
-
-							f := LinearScalingRegisters(res.Data,
-								readReq.Range.DomainLow,
-								readReq.Range.DomainHigh,
-								readReq.Range.RangeLow,
-								readReq.Range.RangeHigh,
-							)
-
-							command = MbtcpReadRes{
-								Tid:    tid,
-								Status: res.Status,
-								Bytes:  b,
-								Data:   f,
-							}
-						}
-
-					case 4:
-						// order
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
-					case 5:
-						// order
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
-					case 6:
-						// length, order
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
-					case 7:
-						// length, order
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
-					case 8:
-						// length, order
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
-						}
-					default: // case 0, 1
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   res.Data,
+							Data:   f,
 						}
 					}
-				} else {
-					return errors.New("req not in map")
+
+				case 4:
+					// order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 5:
+					// order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 6:
+					// length, order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 7:
+					// length, order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 8:
+					// length, order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				default: // case 0, 1
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
 				}
 
 				cmdStr, _ = json.Marshal(command)
@@ -572,8 +578,8 @@ func ResponseHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		TidStr = res.Tid
-		if cmd, ok := taskMap2[TidStr]; ok {
-			switch cmd {
+		if task, ok = taskMap[TidStr]; ok {
+			switch task.Cmd {
 			case "mbtcp.once.write":
 				command := MbtcpSimpleRes{
 					Tid:    tid,
@@ -591,8 +597,8 @@ func ResponseHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 		TidStr = res.Tid
-		if cmd, ok := taskMap2[TidStr]; ok {
-			switch cmd {
+		if task, ok = taskMap[TidStr]; ok {
+			switch task.Cmd {
 			case "mbtcp.once.write":
 				command := MbtcpSimpleRes{
 					Tid:    tid,
@@ -611,27 +617,17 @@ func ResponseHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		return errors.New("Response not support")
 	}
 
-	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Build for service complete:")
-
-	// todo: check msg[0], should be web
-	if frame, ok := taskMap2[TidStr]; ok {
-		log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
-		delete(taskMap2, TidStr)
-		socket.Send(frame, zmq.SNDMORE) // frame 1
-		socket.Send(string(cmdStr), 0)  // convert to string; frame 2
-	} else {
-		log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
-		socket.Send("null", zmq.SNDMORE) // frame 1
-		socket.Send(string(cmdStr), 0)   // convert to string; frame 2
-	}
+	log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
+	//delete(taskMap2, TidStr)
+	socket.Send(task.Cmd, zmq.SNDMORE) // frame 1
+	socket.Send(string(cmdStr), 0)     // convert to string; frame 2
 
 	return nil
 }
 
 func main() {
 
-	taskMap = make(map[string]interface{})
-	taskMap2 = make(map[string]string)
+	taskMap = make(map[string]MbTaskReq)
 
 	sch = gocron.NewScheduler()
 	sch.Start()
