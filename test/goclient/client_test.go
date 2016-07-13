@@ -72,7 +72,7 @@ func TestPSMB(t *testing.T) {
 			From:     "web",
 			Tid:      time.Now().UTC().UnixNano(),
 			Name:     "LED_1",
-			Interval: 3,
+			Interval: 1,
 			Enabled:  true,
 			IP:       hostName,
 			Port:     portNum1,
