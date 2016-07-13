@@ -594,11 +594,22 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 					Status: res.Status,
 					Data:   res.Data,
 				}
-				cmdStr, _ = json.Marshal(command)
-			default:
+			case "mbtcp.poll.create", "mbtcp.polls.import":
+				command := MbtcpPollData{
+					TimeStamp: time.Now().UTC().UnixNano(),,
+					Name:      task.Name,
+					Status:    res.Status,
+					Data:      res.Data,
+				}
+			default: // should not reach here
 				//
-				log.Debug("Maybe polling request")
+				log.Error("Should not reach here")
+				command := MbtcpSimpleRes{
+					Tid:    tid,
+					Status: "not support command",
+				}
 			}
+			cmdStr, _ = json.Marshal(command)
 
 		case fc3, fc4:
 			res := r.(DMbtcpRes)
