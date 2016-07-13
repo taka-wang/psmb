@@ -95,6 +95,7 @@ func Task(socket *zmq.Socket, req interface{}) {
 }
 
 // ParseRequest parse message from services
+// R&R: only unmarshal request string to corresponding struct
 func ParseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
@@ -394,7 +395,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
-		SendToService(TidStr, resp, upSocket)
+		return SendToService(TidStr, resp, upSocket)
 	case "mbtcp.polls.read":
 		log.Warn("TODO")
 		return errors.New("TODO")
