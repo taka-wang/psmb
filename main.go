@@ -212,39 +212,38 @@ func ParseRequest(msg []string) (interface{}, error) {
 		}
 		return req, nil
 	case "mbtcp.poll.create":
-		// return immediately
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
-	case "mbtcp.poll.update":
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
-	case "mbtcp.poll.read":
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
-	case "mbtcp.poll.delete":
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
-	case "mbtcp.poll.toggle":
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
-	case "mbtcp.polls.read":
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
-	case "mbtcp.polls.delete":
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
-	case "mbtcp.polls.toggle":
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		var req MbtcpPollStatus
+		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+			return nil, err
+		}
+		// default port checker
+		if req.Port == "" {
+			req.Port = DefaultPort
+		}
+		return req, nil
+	case "mbtcp.poll.update",
+		"mbtcp.poll.read",
+		"mbtcp.poll.delete",
+		"mbtcp.polls.read",
+		"mbtcp.poll.toggle",
+		"mbtcp.polls.delete",
+		"mbtcp.polls.toggle",
+		"mbtcp.poll.history":
+
+		var req MbtcpPollOpReq
+		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
+			return nil, err
+		}
+		return req, nil
 	case "mbtcp.polls.import":
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	case "mbtcp.polls.export":
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.poll.history":
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+
 	case "mbtcp.filter.create":
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
