@@ -272,7 +272,7 @@ type MbtcpPollData struct {
 	TimeStamp int64        `json:"ts"`
 	Name      string       `json:"name"`
 	Status    string       `json:"status"`
-	Type      RegValueType `json:"type"`
+	Type      RegValueType `json:"type,omitempty"`
 	// Bytes FC3, FC4 and Type 2~8 only
 	Bytes JSONableByteSlice `json:"bytes,omitempty"`
 	Data  interface{}       `json:"data,omitempty"` // universal data container
