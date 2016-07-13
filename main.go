@@ -575,28 +575,29 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		var cmdStr []byte
-		var TidStr string
-		// TODO!!!
 		var task mbtcpReadTask
 		var ok bool
 		switch cmd {
 		case fc1, fc2:
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-			TidStr = res.Tid
 
-			if task, ok = GetMbtcpReadTask(TidStr); !ok {
+			// check read task table
+			if task, ok = GetMbtcpReadTask(res.Tid); !ok {
 				return errors.New("req command not in map")
 			}
+
+			var response interface{}
+
 			switch task.Cmd {
 			case "mbtcp.once.read":
-				command := MbtcpReadRes{
+				response := MbtcpReadRes{
 					Tid:    tid,
 					Status: res.Status,
 					Data:   res.Data,
 				}
 			case "mbtcp.poll.create", "mbtcp.polls.import":
-				command := MbtcpPollData{
+				response := MbtcpPollData{
 					TimeStamp: time.Now().UTC().UnixNano(),
 					Name:      task.Name,
 					Status:    res.Status,
@@ -605,18 +606,17 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			default: // should not reach here
 				//
 				log.Error("Should not reach here")
-				command := MbtcpSimpleRes{
+				response := MbtcpSimpleRes{
 					Tid:    tid,
 					Status: "not support command",
 				}
 			}
-			cmdStr, _ = json.Marshal(command)
+			cmdStr, _ = json.Marshal(response)
 
 		case fc3, fc4:
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-			TidStr = res.Tid
-			if task, ok = GetMbtcpReadTask(TidStr); !ok {
+			if task, ok = GetMbtcpReadTask(res.Tid); !ok {
 				log.Error("req command not in map")
 				return errors.New("req command not in map")
 			}
