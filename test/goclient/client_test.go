@@ -66,14 +66,15 @@ func TestPsmb(t *testing.T) {
 
 	s.Title("Oneoff timeout request tests")
 
-	s.Assert("mbtcp.timeout.read test", func(log sugar.Log) bool {
+	s.Assert("mbtcp.timeout.update test", func(log sugar.Log) bool {
 		ReadReq := MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
+			Data: 210000,
 		}
 
 		ReadReqStr, _ := json.Marshal(ReadReq)
-		cmd := "mbtcp.timeout.read"
+		cmd := "mbtcp.timeout.update"
 		go publisher(cmd, string(ReadReqStr))
 		// receive response
 		s1, s2 := subscriber()
@@ -93,15 +94,14 @@ func TestPsmb(t *testing.T) {
 		return true
 	})
 
-	s.Assert("mbtcp.timeout.update test", func(log sugar.Log) bool {
+	s.Assert("mbtcp.timeout.read test", func(log sugar.Log) bool {
 		ReadReq := MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
-			Data: 210000,
 		}
 
 		ReadReqStr, _ := json.Marshal(ReadReq)
-		cmd := "mbtcp.timeout.update"
+		cmd := "mbtcp.timeout.read"
 		go publisher(cmd, string(ReadReqStr))
 		// receive response
 		s1, s2 := subscriber()
