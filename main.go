@@ -591,13 +591,13 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 
 			switch task.Cmd {
 			case "mbtcp.once.read":
-				response := MbtcpReadRes{
+				response = MbtcpReadRes{
 					Tid:    tid,
 					Status: res.Status,
 					Data:   res.Data,
 				}
 			case "mbtcp.poll.create", "mbtcp.polls.import":
-				response := MbtcpPollData{
+				response = MbtcpPollData{
 					TimeStamp: time.Now().UTC().UnixNano(),
 					Name:      task.Name,
 					Status:    res.Status,
@@ -606,7 +606,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			default: // should not reach here
 				//
 				log.Error("Should not reach here")
-				response := MbtcpSimpleRes{
+				response = MbtcpSimpleRes{
 					Tid:    tid,
 					Status: "not support command",
 				}
