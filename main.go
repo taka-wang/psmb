@@ -22,6 +22,40 @@ const (
 
 var sch gocron.Scheduler
 
+// PollingTask polling task map
+var PollingTask = struct {
+	sync.RWMutex
+	m map[string]MbtcpPollReq // m MbtcpPollReq map
+}{m: make(map[string]MbtcpPollReq)}
+
+// GetPollingTask get task from OneOffTask map
+func GetPollingTask(tid string) (MbtcpPollReq, bool) {
+	//log.Debug("GetOneOffTask IN")
+	PollingTask.RLock()
+	task, ok := PollingTask.m[tid]
+	PollingTask.RUnlock()
+	//log.Debug("GetOneOffTask OUT")
+	return task, ok
+}
+
+// RemovePollingTask remove task from OneOffTask map
+func RemovePollingTask(tid string) {
+	//log.Debug("RemoveOneOffTask IN")
+	PollingTask.Lock()
+	delete(PollingTask.m, tid) // remove from OneOffTask Map!!
+	PollingTask.Unlock()
+	//log.Debug("RemoveOneOffTask OUT")
+}
+
+// AddPollingTask add one-off task to OneOffTask map
+func AddPollingTask(name, tid, cmd string, req interface{}) {
+	//log.Debug("AddOneOffTask IN")
+	PollingTask.Lock()
+	PollingTask.m[tid] = MbtcpPollReq{name, cmd, req}
+	PollingTask.Unlock()
+	//log.Debug("AddOneOffTask OUT")
+}
+
 // OneOffTask one-off task map
 var OneOffTask = struct {
 	sync.RWMutex
@@ -370,8 +404,8 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		if req.Port == "" {
 			req.Port = DefaultPort
 		}
-
 		AddOneOffTask(TidStr, cmd, req) // add to task map
+		AddPollingTask(req.Name, TidStr, cmd, req)
 		command := DMbtcpReadReq{
 			Tid:   TidStr,
 			Cmd:   req.FC,
@@ -577,6 +611,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
 			if task, ok = GetOneOffTask(TidStr); !ok {
+				log.Error("req command not in map")
 				return errors.New("req command not in map")
 			}
 
