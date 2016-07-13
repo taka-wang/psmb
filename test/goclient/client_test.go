@@ -76,7 +76,7 @@ func TestPSMB(t *testing.T) {
 			Enabled:  true,
 			IP:       hostName,
 			Port:     portNum1,
-			FC:       3,
+			FC:       1,
 			Slave:    1,
 			Addr:     3,
 			Len:      7,

@@ -383,6 +383,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 	case "mbtcp.poll.create":
 
 		// TODO! check name
+		// TODO! check fc code!!!!!!!
 		req := r.(MbtcpPollStatus)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
