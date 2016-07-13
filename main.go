@@ -124,11 +124,11 @@ func SimpleTaskResponser(tid string, resp interface{}, socket *zmq.Socket) error
 		return err
 	}
 
-	if task, ok := GetSimpleTask(tid); ok {
+	if cmd, ok := GetSimpleTask(tid); ok {
 		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-		socket.Send(task.Cmd, zmq.SNDMORE) // task command
-		socket.Send(string(respStr), 0)    // convert to string; frame 2
-		RemoveSimpleTask(tid)              // remove from Map!!
+		socket.Send(cmd, zmq.SNDMORE)   // task command
+		socket.Send(string(respStr), 0) // convert to string; frame 2
+		RemoveSimpleTask(tid)           // remove from Map!!
 		return nil
 	}
 	return errors.New("Request command not in map")
