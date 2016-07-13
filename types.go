@@ -27,6 +27,12 @@ const (
 	getTimeout MbtcpCmdType = "51"
 )
 
+// MbtcpTaskReq task request
+type MbtcpTaskReq struct {
+	Cmd string
+	Req interface{}
+}
+
 // ScaleRange defines scale range
 type ScaleRange struct {
 	DomainLow  float64 `json:"a"`

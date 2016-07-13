@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"sync"
 
 	"github.com/taka-wang/gocron"
 	log "github.com/takawang/logrus"
@@ -15,14 +16,35 @@ const (
 	DefaultPort = "502"
 )
 
-// MbTaskReq task request
-type MbTaskReq struct {
-	Cmd string
-	Req interface{}
+var sch gocron.Scheduler
+
+// OneOffTask one-off task map
+var OneOffTask = struct {
+	sync.RWMutex
+	m map[string]MbtcpTaskReq // m MbtcpTaskReq map
+}{m: make(map[string]MbtcpTaskReq)}
+
+// GetOneOffTask get task from OneOffTask map
+func GetOneOffTask(tid string) (MbtcpTaskReq, bool) {
+	OneOffTask.RLock()
+	task, ok := OneOffTask.m[tid]
+	OneOffTask.RUnlock()
+	return task, ok
 }
 
-var taskMap map[string]MbTaskReq
-var sch gocron.Scheduler
+// RemoveOneOffTask remove task from OneOffTask map
+func RemoveOneOffTask(tid string) {
+	OneOffTask.Lock()
+	delete(OneOffTask.m, tid) // remove from OneOffTask Map!!
+	OneOffTask.Unlock()
+}
+
+// AddOneOffTask add one-off task to OneOffTask map
+func AddOneOffTask(tid, cmd string, req interface{}) {
+	OneOffTask.Lock()
+	OneOffTask.m[tid] = MbtcpTaskReq{cmd, req}
+	OneOffTask.Unlock()
+}
 
 // Init init func before main
 func init() {
@@ -259,15 +281,9 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 	switch cmd {
 	case "mbtcp.once.read": // done
 		req := r.(MbtcpReadReq)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		AddOneOffTask(TidStr, cmd, req)          // add to task map
 
-		// convert tid to string
-		TidStr := strconv.FormatInt(req.Tid, 10)
-
-		// add to task map
-		taskMap[TidStr] = MbTaskReq{
-			Cmd: cmd,
-			Req: req,
-		}
 		// build modbusd command
 		command := DMbtcpReadReq{
 			Tid:   TidStr,
@@ -283,14 +299,8 @@ func RequestHandler(cmd string, r interface{}, socket *zmq.Socket) error {
 		return nil
 	case "mbtcp.once.write": // done
 		req := r.(MbtcpWriteReq)
-		// convert tid to string
-		TidStr := strconv.FormatInt(req.Tid, 10)
-
-		// add to task map
-		taskMap[TidStr] = MbTaskReq{
-			Cmd: cmd,
-			Req: req,
-		}
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		AddOneOffTask(TidStr, cmd, req)          // add to task map
 
 		command := DMbtcpWriteReq{
 			Tid:   TidStr,
@@ -425,6 +435,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 	case fc5, fc6, fc15, fc16, setTimeout, getTimeout: // [done]: one-off requests
 		var TidStr string
 		var resp interface{}
+
 		switch cmd {
 		case setTimeout, getTimeout: // one-off timeout requests
 			res := r.(DMbtcpTimeout)
@@ -454,29 +465,29 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 		}
 
 		// check `Task Table`
-		if task, ok := taskMap[TidStr]; ok {
+		if task, ok := GetOneOffTask(TidStr); ok {
 			log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-			// remove from taskMap!!
-			// todo: mutex lock
-			delete(taskMap, TidStr)
-			socket.Send(task.Cmd, zmq.SNDMORE) // frame 1
+			RemoveOneOffTask(TidStr)           // remove from OneOffTask Map!!
+			socket.Send(task.Cmd, zmq.SNDMORE) // task command
 			socket.Send(string(respStr), 0)    // convert to string; frame 2
 			return nil
 		}
 		return errors.New("Request command not in map")
+
 		// ----------------- modulize end ---------------------------------------------
 
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		var cmdStr []byte
 		var TidStr string
-		var task MbTaskReq
+		var task MbtcpTaskReq
 		var ok bool
 		switch cmd {
 		case fc1, fc2:
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
-			if task, ok = taskMap[TidStr]; ok {
+
+			if task, ok = GetOneOffTask(TidStr); ok {
 				switch task.Cmd {
 				case "mbtcp.once.read":
 					command := MbtcpReadRes{
@@ -488,15 +499,14 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 				default:
 					//
 				}
-
-			} else {
-				return errors.New("req command not in map")
 			}
+			return errors.New("req command not in map")
+
 		case fc3, fc4:
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
-			if task, ok = taskMap[TidStr]; ok {
+			if task, ok = GetOneOffTask(TidStr); ok {
 				switch task.Cmd {
 				case "mbtcp.once.read":
 					// todo: if res.status != "ok" do something
@@ -602,14 +612,11 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 				default:
 					//
 				}
-
-			} else {
-				return errors.New("req command not in map")
 			}
+			return errors.New("req command not in map")
 		}
 		// different handle
 		log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
-		//delete(taskMap2, TidStr)
 		socket.Send(task.Cmd, zmq.SNDMORE) // frame 1
 		socket.Send(string(cmdStr), 0)     // convert to string; frame 2
 
@@ -622,8 +629,6 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 }
 
 func main() {
-
-	taskMap = make(map[string]MbTaskReq)
 
 	sch = gocron.NewScheduler()
 	sch.Start()
