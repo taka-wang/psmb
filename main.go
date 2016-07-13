@@ -698,7 +698,7 @@ func main() {
 				if err != nil {
 					// todo: send error back
 				} else {
-					err = ResponseHandler(msg[0], res, toService)
+					err = ResponseHandler(MbtcpCmdType(msg[0]), res, toService)
 				}
 			}
 		}
