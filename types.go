@@ -27,17 +27,11 @@ const (
 	getTimeout MbtcpCmdType = "51"
 )
 
-// MbtcpPollReq task request
-type MbtcpPollReq struct {
+// mbtcpReadTask read/poll task request
+type mbtcpReadTask struct {
 	Name string
 	Cmd  string
 	Req  interface{}
-}
-
-// MbtcpTaskReq task request
-type MbtcpTaskReq struct {
-	Cmd string
-	Req interface{}
 }
 
 // ScaleRange defines scale range
