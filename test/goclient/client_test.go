@@ -64,6 +64,47 @@ func TestPSMB(t *testing.T) {
 		hostName = host[0] //docker
 	}
 
+	s.Title("Poll request tests")
+
+	s.Assert("mbtcp.poll.create `FC3` read bytes Type 1 test: port 502", func(log sugar.Log) bool {
+		// send request
+		readReq := MbtcpPollStatus{
+			From:     "web",
+			Tid:      time.Now().UTC().UnixNano(),
+			Name:     "LED_1",
+			Interval: 3,
+			Enabled:  true,
+			IP:       hostName,
+			Port:     portNum1,
+			FC:       3,
+			Slave:    1,
+			Addr:     3,
+			Len:      7,
+			Type:     RegisterArray,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.poll.create"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
 	s.Title("Oneoff timeout request tests")
 
 	s.Assert("mbtcp.timeout.update test", func(log sugar.Log) bool {

@@ -248,7 +248,7 @@ type MbtcpPollStatus struct {
 	Tid      int64        `json:"tid"`
 	From     string       `json:"from,omitempty"`
 	Name     string       `json:"name"`
-	Interval int          `json:"interval"`
+	Interval uint64       `json:"interval"`
 	Enabled  bool         `json:"enabled"`
 	FC       int          `json:"fc"`
 	IP       string       `json:"ip"`
@@ -282,7 +282,7 @@ type MbtcpPollOpReq struct {
 	Tid      int64  `json:"tid"`
 	From     string `json:"from,omitempty"`
 	Name     string `json:"name,omitempty"`
-	Interval int    `json:"interval,omitempty"`
+	Interval uint64 `json:"interval,omitempty"`
 	Enabled  bool   `json:"enabled,omitempty"`
 }
 

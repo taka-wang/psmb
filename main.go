@@ -94,6 +94,24 @@ func Task(socket *zmq.Socket, req interface{}) {
 	socket.Send(string(str), 0)     // convert to string; frame 2
 }
 
+// NaiveResponser send simple response to service
+func NaiveResponser(tid string, resp interface{}, socket *zmq.Socket) error {
+	respStr, err := json.Marshal(resp)
+	if err != nil {
+		log.WithFields(log.Fields{"Error": err}).Error("Marshal failed:")
+		return err
+	}
+
+	if task, ok := GetOneOffTask(tid); ok {
+		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
+		socket.Send(task.Cmd, zmq.SNDMORE) // task command
+		socket.Send(string(respStr), 0)    // convert to string; frame 2
+		RemoveOneOffTask(tid)              // remove from OneOffTask Map!!
+		return nil
+	}
+	return errors.New("Request command not in map")
+}
+
 // ParseRequest parse message from services
 // R&R: only unmarshal request string to corresponding struct
 func ParseRequest(msg []string) (interface{}, error) {
@@ -339,6 +357,8 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		sch.Emergency().Do(Task, downSocket, command)
 		return nil
 	case "mbtcp.poll.create":
+
+		// TODO! check name
 		req := r.(MbtcpPollStatus)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
@@ -369,7 +389,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
-		return SendToService(TidStr, resp, upSocket)
+		return NaiveResponser(TidStr, resp, upSocket)
 	case "mbtcp.poll.update":
 		log.Warn("TODO")
 		return errors.New("TODO")
@@ -380,6 +400,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		log.Warn("TODO")
 		return errors.New("TODO")
 	case "mbtcp.poll.toggle":
+		// TODO! check name
 		req := r.(MbtcpPollOpReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		AddOneOffTask(TidStr, cmd, req)          // add to task map
@@ -395,7 +416,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
-		return SendToService(TidStr, resp, upSocket)
+		return NaiveResponser(TidStr, resp, upSocket)
 	case "mbtcp.polls.read":
 		log.Warn("TODO")
 		return errors.New("TODO")
@@ -485,24 +506,6 @@ func ParseResponse(msg []string) (interface{}, error) {
 	}
 }
 
-// SendToService send to service
-func SendToService(tid string, resp interface{}, socket *zmq.Socket) error {
-	respStr, err := json.Marshal(resp)
-	if err != nil {
-		log.WithFields(log.Fields{"Error": err}).Error("Marshal failed:")
-		return err
-	}
-
-	if task, ok := GetOneOffTask(tid); ok {
-		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-		socket.Send(task.Cmd, zmq.SNDMORE) // task command
-		socket.Send(string(respStr), 0)    // convert to string; frame 2
-		RemoveOneOffTask(tid)              // remove from OneOffTask Map!!
-		return nil
-	}
-	return errors.New("Request command not in map")
-}
-
 // ResponseHandler build command to services
 // Todo: filter, handle
 func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error {
@@ -541,7 +544,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			}
 		}
 		// send back
-		return SendToService(TidStr, resp, socket)
+		return NaiveResponser(TidStr, resp, socket)
 
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		var cmdStr []byte

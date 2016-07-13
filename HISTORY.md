@@ -32,6 +32,7 @@
 - [x] implement mutex lock for OneOffTask map
 - [x] implement integration test for mbtcp.timeout.read
 - [x] implement integration test for mbtcp.timeout.update
+- [x] implement NaiveResponser
 
 # TODO
 - [ ] define request type
