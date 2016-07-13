@@ -604,6 +604,8 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 					Status:    res.Status,
 					Data:      res.Data,
 				}
+				// test
+				log.WithFields(log.Fields{"TS": time.Now().Format("2006-01-02 15:04:05.000")}).Error("Time Stamp:")
 			default: // should not reach here
 				//
 				log.Error("Should not reach here")
