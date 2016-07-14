@@ -1,12 +1,9 @@
 package psmb
 
-import "fmt"
-
 var defaultProactiveService = NewPSMBTCP()
 
 // Start start bridge
 func Start() {
-	fmt.Println("start")
 	defaultProactiveService.Start()
 }
 
