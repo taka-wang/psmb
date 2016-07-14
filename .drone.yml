@@ -24,6 +24,7 @@ build:
             - go test -v
             - git clone https://github.com/taka-wang/psmb-srv.git && cd psmb-srv
             - go build -o psmb && ./psmb & 
+            - cd ..
 
 
             # goclient
