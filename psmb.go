@@ -12,7 +12,7 @@ func Start() {
 	sch := gocron.NewScheduler()
 	err := inject.Populate(sch, &defaultProactiveService)
 	if err != nil {
-		panic(err)
+		//panic(err)
 	}
 	defaultProactiveService.Start()
 }
