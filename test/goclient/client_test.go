@@ -120,7 +120,7 @@ func TestPSMB(t *testing.T) {
 			Slave:    1,
 			Addr:     3,
 			Len:      7,
-			Type:     RegisterArray,
+			Type:     psmb.RegisterArray,
 		}
 
 		readReqStr, _ := json.Marshal(readReq)
@@ -191,7 +191,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpTimeoutRes
+		var r2 psmb.MbtcpTimeoutRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -291,7 +291,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpSimpleRes
+		var r2 psmb.MbtcpSimpleRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -324,7 +324,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpSimpleRes
+		var r2 psmb.MbtcpSimpleRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -336,7 +336,7 @@ func TestPSMB(t *testing.T) {
 	})
 
 	s.Assert("`FC16` write `DEC` registers test: port 502", func(log sugar.Log) bool {
-		writeReq := MbtcpWriteReq{
+		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -358,7 +358,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpSimpleRes
+		var r2 psmb.MbtcpSimpleRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -370,7 +370,7 @@ func TestPSMB(t *testing.T) {
 	})
 
 	s.Assert("`FC16` write `HEX` registers test: port 502", func(log sugar.Log) bool {
-		writeReq := MbtcpWriteReq{
+		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -392,7 +392,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpSimpleRes
+		var r2 psmb.MbtcpSimpleRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -407,7 +407,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC1` read bits test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -429,7 +429,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -442,7 +442,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC1` read bits test: port 503", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -464,7 +464,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -477,7 +477,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC3` read bytes Type 1 test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -500,7 +500,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -513,7 +513,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC4` read bytes Type 2 test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -536,7 +536,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -549,7 +549,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC3` read bytes Type 3 length 4 test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -573,7 +573,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -586,7 +586,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC3` read bytes Type 3 length 7 test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -623,7 +623,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC4` read bytes Type 4 length 4 test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -647,7 +647,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -660,7 +660,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC4` read bytes Type 4 length 7 test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -684,7 +684,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -697,7 +697,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC4` read bytes Type 6 length 8 test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -721,7 +721,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -734,7 +734,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC4` read bytes Type 6 length 7 test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -758,7 +758,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -771,7 +771,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -808,7 +808,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Assert("`FC4` read bytes Type 8 length 7 test: port 502", func(log sugar.Log) bool {
 		// send request
-		readReq := MbtcpReadReq{
+		readReq := psmb.MbtcpReadReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
@@ -832,7 +832,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
