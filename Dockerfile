@@ -8,7 +8,8 @@ WORKDIR /go
 RUN go get github.com/takawang/sugar \
     && go get github.com/taka-wang/gocron \
     && go get github.com/takawang/logrus \
-    && go get -u -f github.com/taka-wang/psmb \
+    && git config --global url."git@github.com:".insteadOf "https://github.com/" \
+    && go get github.com/taka-wang/psmb 
 
 
 ## Load app files
