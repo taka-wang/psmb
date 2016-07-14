@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/taka-wang/gocron"
@@ -22,8 +23,29 @@ const (
 
 var sch gocron.Scheduler
 
+// NewScheduler create a new scheduler.
+// Note: the current implementation is not concurrency safe.
+func NewScheduler() Scheduler {
+	return &scheduler{
+		jobMap:    make(map[string]*Job),
+		isStopped: make(chan bool),
+		location:  time.Local,
+	}
+}
+
+// Scheduler contains jobs and a loop to run the jobs
+type scheduler struct {
+	jobMap    map[string]*Job
+	ejobs     []*Job // Emergency jobs
+	jobs      []*Job
+	isRunning bool
+	isStopped chan bool
+	location  *time.Location
+	mutex     sync.Mutex
+}
+
 // MbtcpReadTask read/poll task map
-var MbtcpReadTask = MbtcpReadTaskType{m: make(map[string]mbtcpReadTask)}
+var readTask MbtcpReadTask
 
 // SimpleTask simple task map
 var SimpleTask = SimpleTaskType{m: make(map[string]string)}
@@ -265,7 +287,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 			req.Port = DefaultPort
 		}
 
-		MbtcpReadTask.Add("", TidStr, cmd, req) // add to task map
+		readTask.Add("", TidStr, cmd, req) // add to task map
 		command := DMbtcpReadReq{
 			Tid:   TidStr,
 			Cmd:   req.FC,
@@ -345,8 +367,8 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 			req.Port = DefaultPort
 		}
 
-		SimpleTask.Add(TidStr, cmd)                   // simple request
-		MbtcpReadTask.Add(req.Name, TidStr, cmd, req) // read request
+		SimpleTask.Add(TidStr, cmd)              // simple request
+		readTask.Add(req.Name, TidStr, cmd, req) // read request
 
 		command := DMbtcpReadReq{
 			Tid:   TidStr,
@@ -533,7 +555,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 
 			// check read task table
-			if task, ok = MbtcpReadTask.Get(res.Tid); !ok {
+			if task, ok = readTask.Get(res.Tid); !ok {
 				return errors.New("req command not in map")
 			}
 
@@ -568,7 +590,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 		case fc3, fc4:
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-			if task, ok = MbtcpReadTask.Get(res.Tid); !ok {
+			if task, ok = readTask.Get(res.Tid); !ok {
 				log.Error("req command not in map")
 				return errors.New("req command not in map")
 			}
@@ -695,6 +717,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 
 func main() {
 
+	readTask = NewMbtcpReadTask()
 	sch = gocron.NewScheduler()
 	sch.Start()
 	// s.Every(1).Seconds().Do(publisher)
