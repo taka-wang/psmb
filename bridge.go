@@ -46,6 +46,20 @@ func NewMbtcpBridge() Bridge {
 	}
 }
 
+// Task for gocron
+func (b *mbtcpBridge) Task(socket *zmq.Socket, req interface{}) {
+	str, err := json.Marshal(req) // marshal to json string
+	if err != nil {
+		log.Error("Marshal request failed:", err)
+		// todo: remove table
+		return
+	}
+	log.WithFields(log.Fields{"JSON": string(str)}).Debug("Send request to modbusd:")
+
+	socket.Send("tcp", zmq.SNDMORE) // frame 1
+	socket.Send(string(str), 0)     // convert to string; frame 2
+}
+
 // initPub init zmq publisher
 // ex. initPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 func (b *mbtcpBridge) initPub(serviceEndpoint, modbusdEndpoint string) {
@@ -115,11 +129,11 @@ func (b *mbtcpBridge) Start() {
 				}).Debug("Receive from modbusd:")
 
 				// parse response
-				res, err := ParseResponse(msg)
+				res, err := b.ParseResponse(msg)
 				if err != nil {
 					// todo: send error back
 				} else {
-					err = ResponseHandler(MbtcpCmdType(msg[0]), res, b.toService)
+					err = b.ResponseHandler(MbtcpCmdType(msg[0]), res)
 				}
 			}
 		}
@@ -344,7 +358,7 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 			Len:   req.Len,
 		}
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(Task, b.toModbusd, command)
+		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
 		return nil
 	case "mbtcp.once.write": // done
 		req := r.(MbtcpWriteReq)
@@ -366,7 +380,7 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 		}
 
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(Task, b.toModbusd, command)
+		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
 		return nil
 	case "mbtcp.timeout.read": // done
 		req := r.(MbtcpTimeoutReq)
@@ -378,7 +392,7 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 			Cmd: cmdInt,
 		}
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(Task, b.toModbusd, command)
+		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
 		return nil
 	case "mbtcp.timeout.update": // done
 		req := r.(MbtcpTimeoutReq)
@@ -395,7 +409,7 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 			Timeout: req.Data,
 		}
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(Task, b.toModbusd, command)
+		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
 		return nil
 	case "mbtcp.poll.create":
 
@@ -427,7 +441,7 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 		}
 		// check name
 		// add to polling table
-		b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(Task, b.toModbusd, command)
+		b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.toModbusd, command)
 		if !req.Enabled {
 			b.scheduler.PauseWithName(req.Name)
 		}
