@@ -28,3 +28,4 @@ build:
             - go get github.com/taka-wang/psmb
             - cd test/goclient/
             - go test -v
+
