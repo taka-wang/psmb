@@ -589,7 +589,7 @@ func (b *mbtcpBridge) ResponseHandler(cmd MbtcpCmdType, r interface{}) error {
 			}
 		}
 		// send back
-		return SimpleTaskResponser(TidStr, resp)
+		return b.SimpleTaskResponser(TidStr, resp)
 
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		var cmdStr []byte

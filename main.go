@@ -1,15 +1,6 @@
 package main
 
-import (
-	"encoding/json"
-	"errors"
-	"strconv"
-	"time"
-
-	"github.com/taka-wang/gocron"
-	log "github.com/takawang/logrus"
-	zmq "github.com/takawang/zmq3"
-)
+import log "github.com/takawang/logrus"
 
 const (
 	// DefaultPort default modbus slave port number
@@ -20,6 +11,7 @@ const (
 	MinTCPPollInterval = 1
 )
 
+/*
 var sch gocron.Scheduler
 
 // readTaskMap read/poll task map
@@ -27,7 +19,7 @@ var readTaskMap MbtcpReadTask
 
 // simpleTaskMap simple task map
 var simpleTaskMap MbtcpSimpleTask
-
+*/
 // Init init func before main
 func init() {
 	// Log as JSON instead of the default ASCII formatter.
@@ -51,6 +43,13 @@ func init() {
 	log.SetLevel(log.DebugLevel)
 	//log.SetLevel(log.ErrorLevel)
 }
+
+func main() {
+	var bridge = NewMbtcpBridge()
+	bridge.Start()
+}
+
+/*
 
 // Task for gocron
 func Task(socket *zmq.Socket, req interface{}) {
@@ -771,3 +770,5 @@ func main() {
 //t := time.Now()
 //fmt.Println("zrecv" + t.Format("2006-01-02 15:04:05.000"))
 //sch.Every(1).Seconds().Do(modbusTask, socket, cmd)
+
+*/
