@@ -51,33 +51,35 @@ func AddMbtcpReadTask(name, tid, cmd string, req interface{}) {
 	MbtcpReadTaskMap.Unlock()
 }
 
-// SimpleTask simple task (except read request)
-var SimpleTask = struct {
+// SimpleTaskType simple task map type
+type SimpleTaskType struct {
 	sync.RWMutex
 	m map[string]string // tid: command
-}{m: make(map[string]string)}
+}
 
-// GetSimpleTask get command from map
-func GetSimpleTask(tid string) (string, bool) {
-	SimpleTask.RLock()
-	cmd, ok := SimpleTask.m[tid]
-	SimpleTask.RUnlock()
+// Get get command from map
+func (s *SimpleTaskType) Get(tid string) (string, bool) {
+	s.RLock()
+	cmd, ok := s.m[tid]
+	s.RUnlock()
 	return cmd, ok
 }
 
-// RemoveSimpleTask remove command from map
-func RemoveSimpleTask(tid string) {
-	SimpleTask.Lock()
-	delete(SimpleTask.m, tid)
-	SimpleTask.Unlock()
+// Delete remove command from map
+func (s *SimpleTaskType) Delete(tid string) {
+	s.Lock()
+	delete(s.m, tid)
+	s.Unlock()
 }
 
-// AddSimpleTask add cmd to map
-func AddSimpleTask(tid, cmd string) {
-	SimpleTask.Lock()
-	SimpleTask.m[tid] = cmd
-	SimpleTask.Unlock()
+// Add add cmd to map
+func (s *SimpleTaskType) Add(tid, cmd string) {
+	s.Lock()
+	s.m[tid] = cmd
+	s.Unlock()
 }
+
+var simpleTask = SimpleTaskType{m: make(map[string]string)}
 
 // Init init func before main
 func init() {
@@ -125,11 +127,11 @@ func SimpleTaskResponser(tid string, resp interface{}, socket *zmq.Socket) error
 		return err
 	}
 
-	if cmd, ok := GetSimpleTask(tid); ok {
+	if cmd, ok := simpleTask.Get(tid); ok {
 		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
 		socket.Send(cmd, zmq.SNDMORE)   // task command
 		socket.Send(string(respStr), 0) // convert to string; frame 2
-		RemoveSimpleTask(tid)           // remove from Map!!
+		simpleTask.Delete(tid)          // remove from Map!!
 		return nil
 	}
 	return errors.New("Request command not in map")
@@ -336,7 +338,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		if req.Port == "" {
 			req.Port = DefaultPort
 		}
-		AddSimpleTask(TidStr, cmd) // add to task map
+		simpleTask.Add(TidStr, cmd) // add to task map
 		command := DMbtcpWriteReq{
 			Tid:   TidStr,
 			Cmd:   req.FC,
@@ -354,7 +356,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 	case "mbtcp.timeout.read": // done
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		AddSimpleTask(TidStr, cmd)               // add to task map
+		simpleTask.Add(TidStr, cmd)              // add to task map
 		cmdInt, _ := strconv.Atoi(string(getTimeout))
 		command := DMbtcpTimeout{
 			Tid: TidStr,
@@ -370,7 +372,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		if req.Data < MinTCPTimeout {
 			req.Data = MinTCPTimeout
 		}
-		AddSimpleTask(TidStr, cmd) // add to task map
+		simpleTask.Add(TidStr, cmd) // add to task map
 		cmdInt, _ := strconv.Atoi(string(setTimeout))
 		command := DMbtcpTimeout{
 			Tid:     TidStr,
@@ -396,7 +398,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 			req.Port = DefaultPort
 		}
 
-		AddSimpleTask(TidStr, cmd)                   // simple request
+		simpleTask.Add(TidStr, cmd)                  // simple request
 		AddMbtcpReadTask(req.Name, TidStr, cmd, req) // read request
 
 		command := DMbtcpReadReq{
@@ -430,7 +432,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		// TODO! check name
 		req := r.(MbtcpPollOpReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		AddSimpleTask(TidStr, cmd)               // add to simple task map
+		simpleTask.Add(TidStr, cmd)              // add to simple task map
 
 		status := "ok"
 		if req.Enabled {
