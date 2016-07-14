@@ -11,6 +11,15 @@ import (
 	zmq "github.com/takawang/zmq3"
 )
 
+const (
+	// DefaultPort default modbus slave port number
+	DefaultPort = "502"
+	// MinTCPTimeout minimal modbus tcp connection timeout
+	MinTCPTimeout = 200000
+	// MinTCPPollInterval minimal modbus tcp poll interval
+	MinTCPPollInterval = 1
+)
+
 // ProactiveService proactive service contracts
 type ProactiveService interface {
 	Start()
@@ -109,61 +118,28 @@ func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 	return errors.New("Request command not in map")
 }
 
-// Start start proactive service
-func (b *mbtcpService) Start() {
-	b.scheduler.Start()
-	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
-	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
-	b.initZMQPoller()
+// initLogger init logger
+func (b *mbtcpService) initLogger() {
+	// Log as JSON instead of the default ASCII formatter.
+	//log.SetFormatter(&log.JSONFormatter{})
 
-	// process messages from both subscriber sockets
-	for b.enable {
-		sockets, _ := b.poller.Poll(-1)
-		for _, socket := range sockets {
-			switch s := socket.Socket; s {
-			case b.fromService:
-				// receive from upstream
-				msg, _ := b.fromService.RecvMessage(0)
-				log.WithFields(log.Fields{
-					"msg[0]": msg[0],
-					"msg[1]": msg[1],
-				}).Debug("Receive from service:")
+	// Output to stderr instead of stdout, could also be a file.
+	//log.SetOutput(os.Stderr)
 
-				// parse request
-				req, err := b.parseRequest(msg)
-				if err != nil {
-					// todo: send error back
-				} else {
-					err = b.handleRequest(msg[0], req)
-				}
-			case b.fromModbusd:
-				// receive from modbusd
-				msg, _ := b.fromModbusd.RecvMessage(0)
-				log.WithFields(log.Fields{
-					"msg[0]": msg[0],
-					"msg[1]": msg[1],
-				}).Debug("Receive from modbusd:")
+	// Only log the warning severity or above.
+	//log.SetLevel(log.WarnLevel)
 
-				// parse response
-				res, err := b.parseResponse(msg)
-				if err != nil {
-					// todo: send error back
-				} else {
-					err = b.handleResponse(msg[0], res)
-				}
-			}
+	/*
+		if Environment == "production" {
+			log.SetFormatter(&log.JSONFormatter{})
+		} else {
+			// The TextFormatter is default, you don't actually have to do this.
+			log.SetFormatter(&log.TextFormatter{})
 		}
-	}
-}
-
-// Stop stop proactive service
-func (b *mbtcpService) Stop() {
-	b.scheduler.Stop()
-	b.enable = false
-	b.fromService.Close()
-	b.toService.Close()
-	b.fromModbusd.Close()
-	b.toModbusd.Close()
+	*/
+	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	log.SetLevel(log.DebugLevel)
+	//log.SetLevel(log.ErrorLevel)
 }
 
 // parseRequest parse message from services
@@ -773,4 +749,62 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		log.WithFields(log.Fields{"cmd": cmd}).Warn("Response not support:")
 		return errors.New("Response not support")
 	}
+}
+
+// Start start proactive service
+func (b *mbtcpService) Start() {
+	b.initLogger()
+	b.scheduler.Start()
+	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
+	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
+	b.initZMQPoller()
+
+	// process messages from both subscriber sockets
+	for b.enable {
+		sockets, _ := b.poller.Poll(-1)
+		for _, socket := range sockets {
+			switch s := socket.Socket; s {
+			case b.fromService:
+				// receive from upstream
+				msg, _ := b.fromService.RecvMessage(0)
+				log.WithFields(log.Fields{
+					"msg[0]": msg[0],
+					"msg[1]": msg[1],
+				}).Debug("Receive from service:")
+
+				// parse request
+				req, err := b.parseRequest(msg)
+				if err != nil {
+					// todo: send error back
+				} else {
+					err = b.handleRequest(msg[0], req)
+				}
+			case b.fromModbusd:
+				// receive from modbusd
+				msg, _ := b.fromModbusd.RecvMessage(0)
+				log.WithFields(log.Fields{
+					"msg[0]": msg[0],
+					"msg[1]": msg[1],
+				}).Debug("Receive from modbusd:")
+
+				// parse response
+				res, err := b.parseResponse(msg)
+				if err != nil {
+					// todo: send error back
+				} else {
+					err = b.handleResponse(msg[0], res)
+				}
+			}
+		}
+	}
+}
+
+// Stop stop proactive service
+func (b *mbtcpService) Stop() {
+	b.scheduler.Stop()
+	b.enable = false
+	b.fromService.Close()
+	b.toService.Close()
+	b.fromModbusd.Close()
+	b.toModbusd.Close()
 }
