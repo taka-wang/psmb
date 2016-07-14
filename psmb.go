@@ -10,7 +10,7 @@ var defaultProactiveService = NewPSMBTCP()
 // Start start bridge
 func Start() {
 	sch := gocron.NewScheduler()
-	err := inject.Populate(sch, &defaultProactiveService)
+	err := inject.Populate(&defaultProactiveService, sch)
 	if err != nil {
 		//panic(err)
 	}
