@@ -74,6 +74,7 @@ func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
 // initZMQPub init zmq publisher
 // ex. initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 func (b *mbtcpService) initZMQPub(serviceEndpoint, modbusdEndpoint string) {
+	log.Debug("initZMQPub")
 	// upstream publisher
 	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
 	b.pub.upstream.Bind(serviceEndpoint)
@@ -86,6 +87,7 @@ func (b *mbtcpService) initZMQPub(serviceEndpoint, modbusdEndpoint string) {
 // initZMQSub init zmq subscriber
 // ex. initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
 func (b *mbtcpService) initZMQSub(serviceEndpoint, modbusdEndpoint string) {
+	log.Debug("initZMQSub")
 	// upstream subscriber
 	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
 	b.sub.upstream.Bind(serviceEndpoint)
@@ -99,6 +101,7 @@ func (b *mbtcpService) initZMQSub(serviceEndpoint, modbusdEndpoint string) {
 
 // initZMQPoller init zmq poller
 func (b *mbtcpService) initZMQPoller() {
+	log.Debug("initZMQPoller")
 	// initialize poll set
 	b.poller = zmq.NewPoller()
 	b.poller.Add(b.sub.upstream, zmq.POLLIN)
@@ -759,6 +762,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 func (b *mbtcpService) Start() {
 
 	b.initLogger()
+	log.Debug("Start Service")
 	b.scheduler.Start()
 	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
