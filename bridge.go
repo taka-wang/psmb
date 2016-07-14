@@ -1,6 +1,10 @@
 package main
 
-import "github.com/taka-wang/gocron"
+import (
+	"github.com/taka-wang/gocron"
+	log "github.com/takawang/logrus"
+	zmq "github.com/takawang/zmq3"
+)
 
 // Bridge proactive service
 type Bridge interface {
@@ -25,7 +29,7 @@ type mbtcpBridge struct {
 }
 
 // NewBridge init bridge
-func NewBridge() Bridge {
+func NewMbtcpBridge() Bridge {
 	return &mbtcpBridge{
 		enable:        true,
 		readTaskMap:   NewMbtcpReadTask(),
