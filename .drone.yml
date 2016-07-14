@@ -23,9 +23,9 @@ build:
             - go get github.com/takawang/sugar
             - go get github.com/takawang/logrus
             - go test -v
-            - go build -o psmb
-            - ./psmb &
+
 
             # goclient
+            - go get github.com/taka-wang/psmb
             - cd test/goclient/
             - go test -v
