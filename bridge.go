@@ -28,7 +28,7 @@ type mbtcpBridge struct {
 	poller        *zmq.Poller
 }
 
-// NewBridge init bridge
+// NewMbtcpBridge init bridge
 func NewMbtcpBridge() Bridge {
 	return &mbtcpBridge{
 		enable:        true,
@@ -74,8 +74,8 @@ func (b *mbtcpBridge) initPoller() {
 
 func (b *mbtcpBridge) Start() {
 	b.scheduler.Start()
-	b.initPub()
-	b.initSub()
+	b.initPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
+	b.initSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
 	b.initPoller()
 
 	// process messages from both subscriber sockets
