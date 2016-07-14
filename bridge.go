@@ -13,15 +13,15 @@ import (
 
 // Bridge proactive service
 type Bridge interface {
-	initPub(serviceEndpoint, modbusdEndpoint string)
-	initSub(serviceEndpoint, modbusdEndpoint string)
-	initPoller()
+	//initPub(serviceEndpoint, modbusdEndpoint string)
+	//initSub(serviceEndpoint, modbusdEndpoint string)
+	//initPoller()
 	Start()
 	Stop()
 	ParseRequest(msg []string) (interface{}, error)
 	RequestHandler(cmd string, r interface{}) error
 	ParseResponse(msg []string) (interface{}, error)
-	ResponseHandler(cmd MbtcpCmdType, r interface{}) error
+	ResponseHandler(cmd string, r interface{}) error
 }
 
 // BridgeType proactive service type
@@ -134,7 +134,7 @@ func (b *mbtcpBridge) Start() {
 				if err != nil {
 					// todo: send error back
 				} else {
-					err = b.ResponseHandler(MbtcpCmdType(msg[0]), res)
+					err = b.ResponseHandler(msg[0], res)
 				}
 			}
 		}
@@ -150,7 +150,7 @@ func (b *mbtcpBridge) Stop() {
 	b.toModbusd.Close()
 }
 
-func (b *mbtcpBridge) SimpleTaskResponser(tid string, resp interface{}) error {
+func (b *mbtcpBridge) simpleTaskResponser(tid string, resp interface{}) error {
 	respStr, err := json.Marshal(resp)
 	if err != nil {
 		log.WithFields(log.Fields{"Error": err}).Error("Marshal failed:")
@@ -448,7 +448,7 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
-		return b.SimpleTaskResponser(TidStr, resp)
+		return b.simpleTaskResponser(TidStr, resp)
 	case "mbtcp.poll.update":
 		log.Warn("TODO")
 		return errors.New("TODO")
@@ -476,7 +476,7 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
-		return b.SimpleTaskResponser(TidStr, resp)
+		return b.simpleTaskResponser(TidStr, resp)
 	case "mbtcp.polls.read":
 		log.Warn("TODO")
 		return errors.New("TODO")
@@ -568,15 +568,15 @@ func (b *mbtcpBridge) ParseResponse(msg []string) (interface{}, error) {
 
 // ResponseHandler build command to services
 // Todo: filter, handle
-func (b *mbtcpBridge) ResponseHandler(cmd MbtcpCmdType, r interface{}) error {
+func (b *mbtcpBridge) ResponseHandler(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response:")
 
-	switch cmd {
+	switch MbtcpCmdType(cmd) {
 	case fc5, fc6, fc15, fc16, setTimeout, getTimeout: // [done]: one-off requests
 		var TidStr string
 		var resp interface{}
 
-		switch cmd {
+		switch MbtcpCmdType(cmd) {
 		case setTimeout: // one-off timeout requests
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
@@ -604,13 +604,13 @@ func (b *mbtcpBridge) ResponseHandler(cmd MbtcpCmdType, r interface{}) error {
 			}
 		}
 		// send back
-		return b.SimpleTaskResponser(TidStr, resp)
+		return b.simpleTaskResponser(TidStr, resp)
 
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		var cmdStr []byte
 		var task mbtcpReadTask
 		var ok bool
-		switch cmd {
+		switch MbtcpCmdType(cmd) {
 		case fc1, fc2:
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
