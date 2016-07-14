@@ -35,7 +35,7 @@ type mbtcpService struct {
 	enable        bool
 	readTaskMap   MbtcpReadTask
 	simpleTaskMap MbtcpSimpleTask
-	scheduler     gocron.Scheduler `inject:""`
+	Scheduler     gocron.Scheduler `inject:""`
 	fromService   *zmq.Socket
 	toService     *zmq.Socket
 	fromModbusd   *zmq.Socket
@@ -334,7 +334,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Len:   req.Len,
 		}
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
+		b.Scheduler.Emergency().Do(b.Task, b.toModbusd, command)
 		return nil
 	case "mbtcp.once.write": // done
 		req := r.(MbtcpWriteReq)
@@ -356,7 +356,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
+		b.Scheduler.Emergency().Do(b.Task, b.toModbusd, command)
 		return nil
 	case "mbtcp.timeout.read": // done
 		req := r.(MbtcpTimeoutReq)
@@ -368,7 +368,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Cmd: cmdInt,
 		}
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
+		b.Scheduler.Emergency().Do(b.Task, b.toModbusd, command)
 		return nil
 	case "mbtcp.timeout.update": // done
 		req := r.(MbtcpTimeoutReq)
@@ -385,7 +385,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Timeout: req.Data,
 		}
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
+		b.Scheduler.Emergency().Do(b.Task, b.toModbusd, command)
 		return nil
 	case "mbtcp.poll.create":
 
@@ -417,9 +417,9 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 		// check name
 		// add to polling table
-		b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.toModbusd, command)
+		b.Scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.toModbusd, command)
 		if !req.Enabled {
-			b.scheduler.PauseWithName(req.Name)
+			b.Scheduler.PauseWithName(req.Name)
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
@@ -441,11 +441,11 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 
 		status := "ok"
 		if req.Enabled {
-			if ok := b.scheduler.ResumeWithName(req.Name); !ok {
+			if ok := b.Scheduler.ResumeWithName(req.Name); !ok {
 				status = "enable poll failed"
 			}
 		} else {
-			if ok := b.scheduler.PauseWithName(req.Name); !ok {
+			if ok := b.Scheduler.PauseWithName(req.Name); !ok {
 				status = "disable poll failed"
 			}
 		}
@@ -755,7 +755,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 func (b *mbtcpService) Start() {
 
 	b.initLogger()
-	b.scheduler.Start()
+	b.Scheduler.Start()
 	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
 	b.initZMQPoller()
@@ -802,7 +802,7 @@ func (b *mbtcpService) Start() {
 
 // Stop stop proactive service
 func (b *mbtcpService) Stop() {
-	b.scheduler.Stop()
+	b.Scheduler.Stop()
 	b.enable = false
 	b.fromService.Close()
 	b.toService.Close()
