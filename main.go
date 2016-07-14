@@ -22,10 +22,11 @@ const (
 
 var sch gocron.Scheduler
 
-var readTask MbtcpReadTask
+// ReadTaskMap read/poll task map
+var ReadTaskMap MbtcpReadTask
 
-// SimpleTask simple task map
-var SimpleTask = SimpleTaskType{m: make(map[string]string)}
+// SimpleTaskMap simple task map
+var SimpleTaskMap MbtcpSimpleTask
 
 // Init init func before main
 func init() {
@@ -73,11 +74,11 @@ func SimpleTaskResponser(tid string, resp interface{}, socket *zmq.Socket) error
 		return err
 	}
 
-	if cmd, ok := SimpleTask.Get(tid); ok {
+	if cmd, ok := SimpleTaskMap.Get(tid); ok {
 		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
 		socket.Send(cmd, zmq.SNDMORE)   // task command
 		socket.Send(string(respStr), 0) // convert to string; frame 2
-		SimpleTask.Delete(tid)          // remove from Map!!
+		SimpleTaskMap.Delete(tid)       // remove from Map!!
 		return nil
 	}
 	return errors.New("Request command not in map")
@@ -264,7 +265,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 			req.Port = DefaultPort
 		}
 
-		readTask.Add("", TidStr, cmd, req) // add to task map
+		ReadTaskMap.Add("", TidStr, cmd, req) // add to task map
 		command := DMbtcpReadReq{
 			Tid:   TidStr,
 			Cmd:   req.FC,
@@ -284,7 +285,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		if req.Port == "" {
 			req.Port = DefaultPort
 		}
-		SimpleTask.Add(TidStr, cmd) // add to task map
+		SimpleTaskMap.Add(TidStr, cmd) // add to task map
 		command := DMbtcpWriteReq{
 			Tid:   TidStr,
 			Cmd:   req.FC,
@@ -302,7 +303,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 	case "mbtcp.timeout.read": // done
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		SimpleTask.Add(TidStr, cmd)              // add to task map
+		SimpleTaskMap.Add(TidStr, cmd)           // add to task map
 		cmdInt, _ := strconv.Atoi(string(getTimeout))
 		command := DMbtcpTimeout{
 			Tid: TidStr,
@@ -318,7 +319,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		if req.Data < MinTCPTimeout {
 			req.Data = MinTCPTimeout
 		}
-		SimpleTask.Add(TidStr, cmd) // add to task map
+		SimpleTaskMap.Add(TidStr, cmd) // add to task map
 		cmdInt, _ := strconv.Atoi(string(setTimeout))
 		command := DMbtcpTimeout{
 			Tid:     TidStr,
@@ -344,8 +345,8 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 			req.Port = DefaultPort
 		}
 
-		SimpleTask.Add(TidStr, cmd)              // simple request
-		readTask.Add(req.Name, TidStr, cmd, req) // read request
+		SimpleTaskMap.Add(TidStr, cmd)              // simple request
+		ReadTaskMap.Add(req.Name, TidStr, cmd, req) // read request
 
 		command := DMbtcpReadReq{
 			Tid:   TidStr,
@@ -532,7 +533,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 
 			// check read task table
-			if task, ok = readTask.Get(res.Tid); !ok {
+			if task, ok = ReadTaskMap.Get(res.Tid); !ok {
 				return errors.New("req command not in map")
 			}
 
@@ -567,7 +568,7 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 		case fc3, fc4:
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-			if task, ok = readTask.Get(res.Tid); !ok {
+			if task, ok = ReadTaskMap.Get(res.Tid); !ok {
 				log.Error("req command not in map")
 				return errors.New("req command not in map")
 			}
@@ -694,7 +695,8 @@ func ResponseHandler(cmd MbtcpCmdType, r interface{}, socket *zmq.Socket) error 
 
 func main() {
 
-	readTask = NewMbtcpReadTask()
+	ReadTaskMap = NewMbtcpReadTask()
+	SimpleTaskMap = NewMbtcpSimpleTask()
 	sch = gocron.NewScheduler()
 	sch.Start()
 	// s.Every(1).Seconds().Do(publisher)
