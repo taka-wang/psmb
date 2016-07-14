@@ -2,7 +2,6 @@ package main
 
 import "sync"
 
-
 type MbtcpReadTask interface {
 	Get(tid string) (mbtcpReadTask, bool)
 	Delete(tid string)
@@ -11,7 +10,7 @@ type MbtcpReadTask interface {
 
 func NewMbtcpReadTask() MbtcpReadTask {
 	return &mbtcpReadTaskType{
-		m: make(map[string]mbtcpReadTask)
+		m: make(map[string]mbtcpReadTask),
 	}
 }
 

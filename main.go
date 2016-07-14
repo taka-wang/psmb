@@ -22,7 +22,6 @@ const (
 
 var sch gocron.Scheduler
 
-// MbtcpReadTask read/poll task map
 var readTask MbtcpReadTask
 
 // SimpleTask simple task map
