@@ -35,7 +35,7 @@ type mbtcpService struct {
 	enable        bool
 	readTaskMap   MbtcpReadTask
 	simpleTaskMap MbtcpSimpleTask
-	Scheduler     gocron.Scheduler `inject:""`
+	Scheduler     gocron.Scheduler `inject`
 	fromService   *zmq.Socket
 	toService     *zmq.Socket
 	fromModbusd   *zmq.Socket
