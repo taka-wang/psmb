@@ -2,20 +2,6 @@ package main
 
 import "sync"
 
-// NewMbtcpReadTask init mbtcp read task map
-func NewMbtcpReadTask() MbtcpReadTask {
-	return &mbtcpReadTaskType{
-		m: make(map[string]mbtcpReadTask),
-	}
-}
-
-// NewMbtcpSimpleTask init mbtcp simple task
-func NewMbtcpSimpleTask() MbtcpSimpleTask {
-	return &mbtcpSimpleTaskType{
-		m: make(map[string]string),
-	}
-}
-
 // MbtcpReadTask mbtcp read task interface
 type MbtcpReadTask interface {
 	// Get get command from read/poll task map
@@ -46,6 +32,20 @@ type mbtcpReadTaskType struct {
 type mbtcpSimpleTaskType struct {
 	sync.RWMutex
 	m map[string]string // tid: command
+}
+
+// NewMbtcpReadTask init mbtcp read task map
+func NewMbtcpReadTask() MbtcpReadTask {
+	return &mbtcpReadTaskType{
+		m: make(map[string]mbtcpReadTask),
+	}
+}
+
+// NewMbtcpSimpleTask init mbtcp simple task
+func NewMbtcpSimpleTask() MbtcpSimpleTask {
+	return &mbtcpSimpleTaskType{
+		m: make(map[string]string),
+	}
 }
 
 // Get get command from read/poll task map

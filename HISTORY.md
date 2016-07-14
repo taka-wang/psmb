@@ -34,6 +34,7 @@
 - [x] implement integration test for mbtcp.timeout.update
 - [x] implement NaiveResponser
 - [x] Refactor simple/read task map mechanism
+- [x] Refactor simple/read task to OO
 
 # TODO
 - [ ] define request type
