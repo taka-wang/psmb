@@ -1,3 +1,14 @@
+publish:
+  docker:
+    registry: quay.io
+    username: twang
+    password: 12345678
+    #email: robot@mydomain.com
+    repo: twang/psmb
+    #tag: $$TAG
+    file: Dockerfile
+    #when:
+    #  event: tag
 build:
     psmb_goclient:
         image: takawang/ubuntu-drone-psmb
