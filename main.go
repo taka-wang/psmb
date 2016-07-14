@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/taka-wang/gocron"
@@ -22,27 +21,6 @@ const (
 )
 
 var sch gocron.Scheduler
-
-// NewScheduler create a new scheduler.
-// Note: the current implementation is not concurrency safe.
-func NewScheduler() Scheduler {
-	return &scheduler{
-		jobMap:    make(map[string]*Job),
-		isStopped: make(chan bool),
-		location:  time.Local,
-	}
-}
-
-// Scheduler contains jobs and a loop to run the jobs
-type scheduler struct {
-	jobMap    map[string]*Job
-	ejobs     []*Job // Emergency jobs
-	jobs      []*Job
-	isRunning bool
-	isStopped chan bool
-	location  *time.Location
-	mutex     sync.Mutex
-}
 
 // MbtcpReadTask read/poll task map
 var readTask MbtcpReadTask
