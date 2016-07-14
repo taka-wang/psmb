@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/taka-wang/gocron"
 	log "github.com/takawang/logrus"
 	zmq "github.com/takawang/zmq3"
 )
@@ -29,20 +30,12 @@ type ProactiveService interface {
 	handleResponse(cmd string, r interface{}) error
 }
 
-// Scheduler scheduler interface
-type Scheduler interface {
-	// Start starts the scheduler
-	Start()
-	// Stop stops the scheduler from executing jobs
-	Stop()
-}
-
 // mbtcpService proactive service type
 type mbtcpService struct {
 	enable        bool
 	readTaskMap   MbtcpReadTask
 	simpleTaskMap MbtcpSimpleTask
-	scheduler     Scheduler `inject:""`
+	scheduler     gocron.Scheduler `inject:""`
 	fromService   *zmq.Socket
 	toService     *zmq.Socket
 	fromModbusd   *zmq.Socket
