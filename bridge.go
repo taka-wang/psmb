@@ -96,7 +96,7 @@ func (b *mbtcpBridge) Start() {
 				if err != nil {
 					// todo: send error back
 				} else {
-					err = RequestHandler(msg[0], req, toModbusd, toService)
+					err = RequestHandler(msg[0], req, b.toModbusd, b.toService)
 				}
 			case b.fromModbusd:
 				// receive from modbusd
@@ -111,7 +111,7 @@ func (b *mbtcpBridge) Start() {
 				if err != nil {
 					// todo: send error back
 				} else {
-					err = ResponseHandler(MbtcpCmdType(msg[0]), res, toService)
+					err = ResponseHandler(MbtcpCmdType(msg[0]), res, b.toService)
 				}
 			}
 		}
