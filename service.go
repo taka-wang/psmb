@@ -36,11 +36,15 @@ type mbtcpService struct {
 	readTaskMap   MbtcpReadTask
 	simpleTaskMap MbtcpSimpleTask
 	scheduler     gocron.Scheduler
-	fromService   *zmq.Socket
-	toService     *zmq.Socket
-	fromModbusd   *zmq.Socket
-	toModbusd     *zmq.Socket
-	poller        *zmq.Poller
+	sub           struct {
+		upstream   *zmq.Socket // fromService
+		downstream *zmq.Socket // from modbusd
+	}
+	pub struct {
+		upstream   *zmq.Socket // toService
+		downstream *zmq.Socket // to modbusd
+	}
+	poller *zmq.Poller
 }
 
 // NewPSMBTCP init modbus tcp proactive serivce
@@ -71,34 +75,34 @@ func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
 // ex. initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 func (b *mbtcpService) initZMQPub(serviceEndpoint, modbusdEndpoint string) {
 	// upstream publisher
-	b.toService, _ = zmq.NewSocket(zmq.PUB)
-	b.toService.Bind(serviceEndpoint)
+	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
+	b.pub.upstream.Bind(serviceEndpoint)
 
 	// downstream publisher
-	b.toModbusd, _ = zmq.NewSocket(zmq.PUB)
-	b.toModbusd.Connect(modbusdEndpoint)
+	b.pub.downstream, _ = zmq.NewSocket(zmq.PUB)
+	b.pub.downstream.Connect(modbusdEndpoint)
 }
 
 // initZMQSub init zmq subscriber
 // ex. initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
 func (b *mbtcpService) initZMQSub(serviceEndpoint, modbusdEndpoint string) {
 	// upstream subscriber
-	b.fromService, _ = zmq.NewSocket(zmq.SUB)
-	b.fromService.Bind(serviceEndpoint)
-	b.fromService.SetSubscribe("")
+	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
+	b.sub.upstream.Bind(serviceEndpoint)
+	b.sub.upstream.SetSubscribe("")
 
 	// downstream subscriber
-	b.fromModbusd, _ = zmq.NewSocket(zmq.SUB)
-	b.fromModbusd.Connect(modbusdEndpoint)
-	b.fromModbusd.SetSubscribe("")
+	b.sub.downstream, _ = zmq.NewSocket(zmq.SUB)
+	b.sub.downstream.Connect(modbusdEndpoint)
+	b.sub.downstream.SetSubscribe("")
 }
 
 // initZMQPoller init zmq poller
 func (b *mbtcpService) initZMQPoller() {
 	// initialize poll set
 	b.poller = zmq.NewPoller()
-	b.poller.Add(b.fromService, zmq.POLLIN)
-	b.poller.Add(b.fromModbusd, zmq.POLLIN)
+	b.poller.Add(b.sub.upstream, zmq.POLLIN)
+	b.poller.Add(b.sub.downstream, zmq.POLLIN)
 }
 
 func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
@@ -110,9 +114,9 @@ func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 
 	if cmd, ok := b.simpleTaskMap.Get(tid); ok {
 		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-		b.toService.Send(cmd, zmq.SNDMORE)   // task command
-		b.toService.Send(string(respStr), 0) // convert to string; frame 2
-		b.simpleTaskMap.Delete(tid)          // remove from Map!!
+		b.pub.upstream.Send(cmd, zmq.SNDMORE)   // task command
+		b.pub.upstream.Send(string(respStr), 0) // convert to string; frame 2
+		b.simpleTaskMap.Delete(tid)             // remove from Map!!
 		return nil
 	}
 	return errors.New("Request command not in map")
@@ -334,7 +338,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Len:   req.Len,
 		}
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
+		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
 	case "mbtcp.once.write": // done
 		req := r.(MbtcpWriteReq)
@@ -356,7 +360,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
+		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
 	case "mbtcp.timeout.read": // done
 		req := r.(MbtcpTimeoutReq)
@@ -368,7 +372,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Cmd: cmdInt,
 		}
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
+		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
 	case "mbtcp.timeout.update": // done
 		req := r.(MbtcpTimeoutReq)
@@ -385,7 +389,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Timeout: req.Data,
 		}
 		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.toModbusd, command)
+		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
 	case "mbtcp.poll.create":
 
@@ -417,7 +421,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 		// check name
 		// add to polling table
-		b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.toModbusd, command)
+		b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.pub.downstream, command)
 		if !req.Enabled {
 			b.scheduler.PauseWithName(req.Name)
 		}
@@ -740,8 +744,8 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		}
 		// different handle
 		log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
-		b.toService.Send(task.Cmd, zmq.SNDMORE) // frame 1
-		b.toService.Send(string(cmdStr), 0)     // convert to string; frame 2
+		b.pub.upstream.Send(task.Cmd, zmq.SNDMORE) // frame 1
+		b.pub.upstream.Send(string(cmdStr), 0)     // convert to string; frame 2
 
 		return nil
 	default:
@@ -765,9 +769,9 @@ func (b *mbtcpService) Start() {
 		sockets, _ := b.poller.Poll(-1)
 		for _, socket := range sockets {
 			switch s := socket.Socket; s {
-			case b.fromService:
+			case b.sub.upstream:
 				// receive from upstream
-				msg, _ := b.fromService.RecvMessage(0)
+				msg, _ := b.sub.upstream.RecvMessage(0)
 				log.WithFields(log.Fields{
 					"msg[0]": msg[0],
 					"msg[1]": msg[1],
@@ -780,9 +784,9 @@ func (b *mbtcpService) Start() {
 				} else {
 					err = b.handleRequest(msg[0], req)
 				}
-			case b.fromModbusd:
+			case b.sub.downstream:
 				// receive from modbusd
-				msg, _ := b.fromModbusd.RecvMessage(0)
+				msg, _ := b.sub.downstream.RecvMessage(0)
 				log.WithFields(log.Fields{
 					"msg[0]": msg[0],
 					"msg[1]": msg[1],
@@ -804,8 +808,8 @@ func (b *mbtcpService) Start() {
 func (b *mbtcpService) Stop() {
 	b.scheduler.Stop()
 	b.enable = false
-	b.fromService.Close()
-	b.toService.Close()
-	b.fromModbusd.Close()
-	b.toModbusd.Close()
+	b.sub.upstream.Close()
+	b.pub.upstream.Close()
+	b.sub.downstream.Close()
+	b.pub.downstream.Close()
 }
