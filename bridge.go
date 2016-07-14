@@ -17,6 +17,8 @@ type Bridge interface {
 	initPoller()
 	Start()
 	Stop()
+	ParseRequest(msg []string) (interface{}, error)
+	RequestHandler(cmd string, r interface{}) error
 }
 
 // BridgeType proactive service type
@@ -100,7 +102,7 @@ func (b *mbtcpBridge) Start() {
 				if err != nil {
 					// todo: send error back
 				} else {
-					err = RequestHandler(msg[0], req, b.toModbusd, b.toService)
+					err = b.RequestHandler(msg[0], req)
 				}
 			case b.fromModbusd:
 				// receive from modbusd
@@ -313,5 +315,202 @@ func (b *mbtcpBridge) ParseRequest(msg []string) (interface{}, error) {
 		// should not reach here!!
 		log.WithFields(log.Fields{"request": msg[0]}).Warn("Request not support:")
 		return nil, errors.New("Request not support")
+	}
+}
+
+// RequestHandler build command to services
+func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Build request command:")
+
+	switch cmd {
+	case "mbtcp.once.read": // done
+		req := r.(MbtcpReadReq)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		// default port checker
+		if req.Port == "" {
+			req.Port = DefaultPort
+		}
+
+		b.readTaskMap.Add("", TidStr, cmd, req) // add to task map
+		command := DMbtcpReadReq{
+			Tid:   TidStr,
+			Cmd:   req.FC,
+			IP:    req.IP,
+			Port:  req.Port,
+			Slave: req.Slave,
+			Addr:  req.Addr,
+			Len:   req.Len,
+		}
+		// add command to scheduler as emergency request
+		b.scheduler.Emergency().Do(Task, b.toModbusd, command)
+		return nil
+	case "mbtcp.once.write": // done
+		req := r.(MbtcpWriteReq)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		// default port checker
+		if req.Port == "" {
+			req.Port = DefaultPort
+		}
+		b.simpleTaskMap.Add(TidStr, cmd) // add to task map
+		command := DMbtcpWriteReq{
+			Tid:   TidStr,
+			Cmd:   req.FC,
+			IP:    req.IP,
+			Port:  req.Port,
+			Slave: req.Slave,
+			Addr:  req.Addr,
+			Len:   req.Len,
+			Data:  req.Data,
+		}
+
+		// add command to scheduler as emergency request
+		b.scheduler.Emergency().Do(Task, b.toModbusd, command)
+		return nil
+	case "mbtcp.timeout.read": // done
+		req := r.(MbtcpTimeoutReq)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		b.simpleTaskMap.Add(TidStr, cmd)         // add to task map
+		cmdInt, _ := strconv.Atoi(string(getTimeout))
+		command := DMbtcpTimeout{
+			Tid: TidStr,
+			Cmd: cmdInt,
+		}
+		// add command to scheduler as emergency request
+		b.scheduler.Emergency().Do(Task, b.toModbusd, command)
+		return nil
+	case "mbtcp.timeout.update": // done
+		req := r.(MbtcpTimeoutReq)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		// protect dummy input
+		if req.Data < MinTCPTimeout {
+			req.Data = MinTCPTimeout
+		}
+		b.simpleTaskMap.Add(TidStr, cmd) // add to task map
+		cmdInt, _ := strconv.Atoi(string(setTimeout))
+		command := DMbtcpTimeout{
+			Tid:     TidStr,
+			Cmd:     cmdInt,
+			Timeout: req.Data,
+		}
+		// add command to scheduler as emergency request
+		b.scheduler.Emergency().Do(Task, b.toModbusd, command)
+		return nil
+	case "mbtcp.poll.create":
+
+		// TODO! check name
+		// TODO! check fc code!!!!!!!
+		req := r.(MbtcpPollStatus)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+
+		// check interval value
+		if req.Interval < MinTCPPollInterval {
+			req.Interval = MinTCPPollInterval
+		}
+		// check port
+		if req.Port == "" {
+			req.Port = DefaultPort
+		}
+
+		b.simpleTaskMap.Add(TidStr, cmd)              // simple request
+		b.readTaskMap.Add(req.Name, TidStr, cmd, req) // read request
+
+		command := DMbtcpReadReq{
+			Tid:   TidStr,
+			Cmd:   req.FC,
+			IP:    req.IP,
+			Port:  req.Port,
+			Slave: req.Slave,
+			Addr:  req.Addr,
+			Len:   req.Len,
+		}
+		// check name
+		// add to polling table
+		b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(Task, b.toModbusd, command)
+		if !req.Enabled {
+			b.scheduler.PauseWithName(req.Name)
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		return b.SimpleTaskResponser(TidStr, resp, toService)
+	case "mbtcp.poll.update":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.poll.read":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.poll.delete":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.poll.toggle":
+		// TODO! check name
+		req := r.(MbtcpPollOpReq)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		b.simpleTaskMap.Add(TidStr, cmd)         // add to simple task map
+
+		status := "ok"
+		if req.Enabled {
+			if ok := b.scheduler.ResumeWithName(req.Name); !ok {
+				status = "enable poll failed"
+			}
+		} else {
+			if ok := b.scheduler.PauseWithName(req.Name); !ok {
+				status = "disable poll failed"
+			}
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+		return b.SimpleTaskResponser(TidStr, resp, toService)
+	case "mbtcp.polls.read":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.polls.delete":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.polls.toggle":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.polls.import":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.polls.export":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.poll.history":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filter.create":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filter.update":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filter.read":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filter.delete":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filter.toggle":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filters.read":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filters.delete":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filters.toggle":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filters.import":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	case "mbtcp.filters.export":
+		log.Warn("TODO")
+		return errors.New("TODO")
+	default:
+		// should not reach here!!
+		log.WithFields(log.Fields{"cmd": cmd}).Warn("Request not support:")
+		return errors.New("Request not support")
 	}
 }
