@@ -29,5 +29,4 @@ build:
 
             # goclient
             - cd test/goclient/
-            - go get github.com/takawang/sugar
             - go test -v
