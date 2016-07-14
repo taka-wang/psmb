@@ -45,8 +45,7 @@ func init() {
 }
 
 func main() {
-	var bridge = NewMbtcpBridge()
-	bridge.Start()
+	Start()
 }
 
 /*

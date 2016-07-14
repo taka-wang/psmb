@@ -21,6 +21,7 @@ type Bridge interface {
 	ParseRequest(msg []string) (interface{}, error)
 	RequestHandler(cmd string, r interface{}) error
 	ParseResponse(msg []string) (interface{}, error)
+	ResponseHandler(cmd MbtcpCmdType, r interface{})
 }
 
 // BridgeType proactive service type
