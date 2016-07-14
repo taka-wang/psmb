@@ -5,7 +5,7 @@ publish:
     password: 12345678
     #email: robot@mydomain.com
     repo: twang/psmb
-    #tag: $$TAG
+    tag: latest
     file: Dockerfile
     #when:
     #  event: tag
