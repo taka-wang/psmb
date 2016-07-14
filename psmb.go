@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/facebookgo/inject"
 	"github.com/taka-wang/gocron"
 )
@@ -12,7 +14,7 @@ func Start() {
 	sch := gocron.NewScheduler()
 	err := inject.Populate(&defaultProactiveService, sch)
 	if err != nil {
-		//panic(err)
+		fmt.Println(err)
 	}
 	defaultProactiveService.Start()
 }
