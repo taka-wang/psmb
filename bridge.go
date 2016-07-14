@@ -431,7 +431,7 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
-		return b.SimpleTaskResponser(TidStr, resp, toService)
+		return b.SimpleTaskResponser(TidStr, resp)
 	case "mbtcp.poll.update":
 		log.Warn("TODO")
 		return errors.New("TODO")
@@ -459,7 +459,7 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
-		return b.SimpleTaskResponser(TidStr, resp, toService)
+		return b.SimpleTaskResponser(TidStr, resp)
 	case "mbtcp.polls.read":
 		log.Warn("TODO")
 		return errors.New("TODO")
