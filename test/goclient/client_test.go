@@ -706,8 +706,8 @@ func TestPSMB(t *testing.T) {
 			Slave: 1,
 			Addr:  3,
 			Len:   8,
-			Type:  UInt32,
-			Order: BA,
+			Type:  psmb.UInt32,
+			Order: psmb.BA,
 		}
 
 		readReqStr, _ := json.Marshal(readReq)
@@ -743,8 +743,8 @@ func TestPSMB(t *testing.T) {
 			Slave: 1,
 			Addr:  3,
 			Len:   7,
-			Type:  UInt32,
-			Order: BA,
+			Type:  psmb.UInt32,
+			Order: psmb.BA,
 		}
 
 		readReqStr, _ := json.Marshal(readReq)
@@ -780,8 +780,8 @@ func TestPSMB(t *testing.T) {
 			Slave: 1,
 			Addr:  3,
 			Len:   8,
-			Type:  Float32,
-			Order: AB,
+			Type:  psmb.Float32,
+			Order: psmb.AB,
 		}
 
 		readReqStr, _ := json.Marshal(readReq)
@@ -795,7 +795,7 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 MbtcpReadRes
+		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -817,8 +817,8 @@ func TestPSMB(t *testing.T) {
 			Slave: 1,
 			Addr:  3,
 			Len:   7,
-			Type:  Float32,
-			Order: AB,
+			Type:  psmb.Float32,
+			Order: psmb.AB,
 		}
 
 		readReqStr, _ := json.Marshal(readReq)
