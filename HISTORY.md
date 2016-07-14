@@ -39,6 +39,7 @@
 
 # TODO
 - [ ] define request type
+- [ ] rewrite travis CI
 
 # Backlog:
 - if scheduler is stop, trigger requests directly.

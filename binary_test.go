@@ -229,9 +229,9 @@ func TestBinaryOps(t *testing.T) {
 
 	s.Title("Bytes/registers utility tests")
 
-	s.Assert("`bitStringToUInt8s` test", func(log sugar.Log) bool {
+	s.Assert("`BitStringToUInt8s` test", func(log sugar.Log) bool {
 		input := "1,0,1,1,0,1"
-		result, _ := bitStringToUInt8s(input)
+		result, _ := BitStringToUInt8s(input)
 		desire := []uint8{1, 0, 1, 1, 0, 1}
 		for idx := 0; idx < len(desire); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])

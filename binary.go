@@ -12,9 +12,9 @@ import (
 	log "github.com/takawang/logrus"
 )
 
-// bitStringToUInt8s converts bits string to uint8 array.
+// BitStringToUInt8s converts bits string to uint8 array.
 // Source: function code 15
-func bitStringToUInt8s(bitString string) ([]uint8, error) {
+func BitStringToUInt8s(bitString string) ([]uint8, error) {
 	var result = []uint8{}
 	for _, v := range strings.Split(bitString, ",") {
 		i, err := strconv.ParseUint(v, 10, 8)
