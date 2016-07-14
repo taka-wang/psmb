@@ -1,22 +1,25 @@
 #
 # psmb
 #
+#FROM golang:1.6
 FROM takawang/ubuntu-gozmq
 MAINTAINER Taka Wang <taka@cmwang.net>
 
-WORKDIR /go
-RUN go get github.com/takawang/sugar \
+ADD .  /go/src/github.com/taka-wang/psmb
+
+RUN echo "[url \"git@github.com:\"]\n\tinsteadOf = https://github.com/" >> /root/.gitconfig \
+    && mkdir /root/.ssh && echo "StrictHostKeyChecking no " > /root/.ssh/config \
+    cd /go/src/github.com/taka-wang/psmb \
+    && go get github.com/takawang/sugar \
     && go get github.com/taka-wang/gocron \
-    && go get github.com/takawang/logrus \
-    && git config --global url."git@github.com:".insteadOf "https://github.com/" \
-    && go get github.com/taka-wang/psmb 
+    && go get github.com/takawang/logrus 
+    
 
 
-## Load app files
-ADD . /go
 #RUN go test -v
 #RUN go build -o psmb
 
 ## Default command
 CMD ["go", "test", "-v"]
 #CMD ["/go/psmb"]
+
