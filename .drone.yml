@@ -17,7 +17,6 @@ build:
             - cd ../../../
 
             # psmb
-            
             - go get github.com/takawang/zmq3
             - go get github.com/taka-wang/gocron
             - go get github.com/takawang/sugar

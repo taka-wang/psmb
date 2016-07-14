@@ -49,11 +49,11 @@ func subscriber() (string, string) {
 }
 
 func TestPSMB(t *testing.T) {
-	// start psmb service 
-	go func ()  {
+	// start psmb service
+	go func() {
 		psmb.Start()
-	}
-	
+	}()
+
 	s := sugar.New(nil)
 
 	var hostName string
