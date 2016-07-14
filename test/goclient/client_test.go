@@ -49,10 +49,12 @@ func subscriber() (string, string) {
 }
 
 func TestPSMB(t *testing.T) {
-	// start psmb service
-	go func() {
-		psmb.Start()
-	}()
+	/*
+		// start psmb service
+		go func() {
+			psmb.Start()
+		}()
+	*/
 
 	time.Sleep(2000 * time.Millisecond)
 

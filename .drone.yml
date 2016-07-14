@@ -22,6 +22,8 @@ build:
             - go get github.com/takawang/sugar
             - go get github.com/takawang/logrus
             - go test -v
+            - git clone https://github.com/taka-wang/psmb-srv.git && cd psmb-srv
+            - go build -o psmb && ./psmb & 
 
 
             # goclient
