@@ -379,7 +379,7 @@ func RequestHandler(cmd string, r interface{}, downSocket, upSocket *zmq.Socket)
 		// TODO! check name
 		req := r.(MbtcpPollOpReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		SimpleTask.Add(TidStr, cmd)              // add to simple task map
+		SimpleTaskMap.Add(TidStr, cmd)           // add to simple task map
 
 		status := "ok"
 		if req.Enabled {
