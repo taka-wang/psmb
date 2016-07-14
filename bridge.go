@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"time"
 
 	"github.com/taka-wang/gocron"
 	log "github.com/takawang/logrus"
@@ -19,6 +20,7 @@ type Bridge interface {
 	Stop()
 	ParseRequest(msg []string) (interface{}, error)
 	RequestHandler(cmd string, r interface{}) error
+	ParseResponse(msg []string) (interface{}, error)
 }
 
 // BridgeType proactive service type
@@ -512,5 +514,249 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 		// should not reach here!!
 		log.WithFields(log.Fields{"cmd": cmd}).Warn("Request not support:")
 		return errors.New("Request not support")
+	}
+}
+
+// ParseResponse parse message from modbusd
+// Done.
+func (b *mbtcpBridge) ParseResponse(msg []string) (interface{}, error) {
+	// Check the length of multi-part message
+	if len(msg) != 2 {
+		log.Error("Request parser failed: invalid message length")
+		return nil, errors.New("Invalid message length")
+	}
+
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
+
+	switch MbtcpCmdType(msg[0]) {
+	case setTimeout, getTimeout: // set|get timeout
+		var res DMbtcpTimeout
+		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
+			return nil, err
+		}
+		return res, nil
+
+	case fc1, fc2, fc3, fc4, fc5, fc6, fc15, fc16:
+		var res DMbtcpRes
+		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
+			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
+			return nil, err
+		}
+		return res, nil
+	default:
+		// should not reach here!!
+		log.WithFields(log.Fields{"response": msg[0]}).Warn("Response not support:")
+		return nil, errors.New("Response not support")
+	}
+}
+
+// ResponseHandler build command to services
+// Todo: filter, handle
+func (b *mbtcpBridge) ResponseHandler(cmd MbtcpCmdType, r interface{}) error {
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response:")
+
+	switch cmd {
+	case fc5, fc6, fc15, fc16, setTimeout, getTimeout: // [done]: one-off requests
+		var TidStr string
+		var resp interface{}
+
+		switch cmd {
+		case setTimeout: // one-off timeout requests
+			res := r.(DMbtcpTimeout)
+			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+			TidStr = res.Tid
+			resp = MbtcpTimeoutRes{
+				Tid:    tid,
+				Status: res.Status,
+			}
+		case getTimeout: // one-off timeout requests
+			res := r.(DMbtcpTimeout)
+			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+			TidStr = res.Tid
+			resp = MbtcpTimeoutRes{
+				Tid:    tid,
+				Status: res.Status,
+				Data:   res.Timeout,
+			}
+		case fc5, fc6, fc15, fc16: // one-off write requests
+			res := r.(DMbtcpRes)
+			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+			TidStr = res.Tid
+			resp = MbtcpSimpleRes{
+				Tid:    tid,
+				Status: res.Status,
+			}
+		}
+		// send back
+		return SimpleTaskResponser(TidStr, resp)
+
+	case fc1, fc2, fc3, fc4: // one-off and polling requests
+		var cmdStr []byte
+		var task mbtcpReadTask
+		var ok bool
+		switch cmd {
+		case fc1, fc2:
+			res := r.(DMbtcpRes)
+			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+
+			// check read task table
+			if task, ok = b.readTaskMap.Get(res.Tid); !ok {
+				return errors.New("req command not in map")
+			}
+
+			var response interface{}
+
+			switch task.Cmd {
+			case "mbtcp.once.read":
+				response = MbtcpReadRes{
+					Tid:    tid,
+					Status: res.Status,
+					Data:   res.Data,
+				}
+			case "mbtcp.poll.create", "mbtcp.polls.import":
+				response = MbtcpPollData{
+					TimeStamp: time.Now().UTC().UnixNano(),
+					Name:      task.Name,
+					Status:    res.Status,
+					Data:      res.Data,
+				}
+				// test
+				// log.WithFields(log.Fields{"TS": time.Now().Format("2006-01-02 15:04:05.000")}).Debug("Time Stamp:")
+			default: // should not reach here
+				//
+				log.Error("Should not reach here")
+				response = MbtcpSimpleRes{
+					Tid:    tid,
+					Status: "not support command",
+				}
+			}
+			cmdStr, _ = json.Marshal(response)
+
+		case fc3, fc4:
+			res := r.(DMbtcpRes)
+			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+			if task, ok = b.readTaskMap.Get(res.Tid); !ok {
+				log.Error("req command not in map")
+				return errors.New("req command not in map")
+			}
+
+			switch task.Cmd {
+			case "mbtcp.once.read":
+				// todo: if res.status != "ok" do something
+				var command MbtcpReadRes
+				readReq := task.Req.(MbtcpReadReq)
+				log.WithFields(log.Fields{"Req type": readReq.Type}).Debug("Request type:")
+				switch readReq.Type {
+				case 2:
+					b, err := RegistersToBytes(res.Data)
+					if err != nil {
+						log.Error(err)
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: err.Error(),
+							Data:   res.Data,
+						}
+					}
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Bytes:  b,
+						Data:   BytesToHexString(b),
+					}
+				case 3:
+					if readReq.Len%2 != 0 {
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: "Conversion failed",
+							Data:   res.Data,
+						}
+					} else {
+						b, err := RegistersToBytes(res.Data)
+						if err != nil {
+							log.Error(err)
+							command = MbtcpReadRes{
+								Tid:    tid,
+								Status: err.Error(),
+								Data:   res.Data,
+							}
+						}
+
+						// todo: check range values
+
+						f := LinearScalingRegisters(res.Data,
+							readReq.Range.DomainLow,
+							readReq.Range.DomainHigh,
+							readReq.Range.RangeLow,
+							readReq.Range.RangeHigh,
+						)
+
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Bytes:  b,
+							Data:   f,
+						}
+					}
+
+				case 4:
+					// order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 5:
+					// order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 6:
+					// length, order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 7:
+					// length, order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				case 8:
+					// length, order
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				default: // case 0, 1
+					command = MbtcpReadRes{
+						Tid:    tid,
+						Status: res.Status,
+						Data:   res.Data,
+					}
+				}
+
+				cmdStr, _ = json.Marshal(command)
+			default:
+				//
+				log.Debug("Maybe polling request")
+			}
+		}
+		// different handle
+		log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
+		b.toService.Send(task.Cmd, zmq.SNDMORE) // frame 1
+		b.toService.Send(string(cmdStr), 0)     // convert to string; frame 2
+
+		return nil
+	default:
+		// should not reach here!!
+		log.WithFields(log.Fields{"cmd": cmd}).Warn("Response not support:")
+		return errors.New("Response not support")
 	}
 }
