@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/facebookgo/inject"
+	"github.com/codegangsta/inject"
 	"github.com/taka-wang/gocron"
 )
 
@@ -12,10 +10,9 @@ var defaultProactiveService = NewPSMBTCP()
 // Start start bridge
 func Start() {
 	sch := gocron.NewScheduler()
-	err := inject.Populate(&defaultProactiveService, sch)
-	if err != nil {
-		fmt.Println(err)
-	}
+	inj := inject.New()
+	inj.Map(sch)
+	inj.Apply(&defaultProactiveService)
 	defaultProactiveService.Start()
 }
 
