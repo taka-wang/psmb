@@ -5,18 +5,16 @@
 FROM takawang/ubuntu-gozmq
 MAINTAINER Taka Wang <taka@cmwang.net>
 
-ADD .  /go/src/github.com/taka-wang/psmb
-
+ADD . /go/src/github.com/taka-wang/psmb
 RUN go get github.com/takawang/sugar \
     && go get github.com/taka-wang/gocron \
-    && go get github.com/takawang/logrus 
-#RUN echo "[url \"git@github.com:\"]\n\tinsteadOf = https://github.com/" >> /root/.gitconfig
-#RUN mkdir /root/.ssh && echo "StrictHostKeyChecking no " > /root/.ssh/config
-RUN cd /go/src/github.com/taka-wang/psmb && go build
-RUN cd / && git clone https://github.com/taka-wang/psmb-srv.git && cd psmb-srv && go build
+    && go get github.com/takawang/logrus \ 
+    && cd /go/src/github.com/taka-wang/psmb \
+    && go build \
+	&& cd / \
+    && git clone https://github.com/taka-wang/psmb-srv.git \
+    && cd psmb-srv \
+    && go build
 
-
-## Default command
 CMD ["go", "test", "-v"]
-#CMD ["/go/psmb"]
 

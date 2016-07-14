@@ -26,7 +26,6 @@ build:
             - go build -o psmb && ./psmb & 
             - cd ..
 
-
             # goclient
             - go get github.com/taka-wang/psmb
             - cd test/goclient/
