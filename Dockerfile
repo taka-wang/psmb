@@ -12,7 +12,8 @@ RUN go get github.com/takawang/sugar \
     && go get github.com/takawang/logrus 
 RUN echo "[url \"git@github.com:\"]\n\tinsteadOf = https://github.com/" >> /root/.gitconfig
 RUN mkdir /root/.ssh && echo "StrictHostKeyChecking no " > /root/.ssh/config
-RUN cd /go/src/github.com/taka-wang/psmb
+RUN cd /go/src/github.com/taka-wang/psmb && go build
+RUN cd / && git clone https://github.com/taka-wang/psmb-srv.git && cd psmb-srv && go build
 
 #RUN go test -v
 #RUN go build -o psmb
