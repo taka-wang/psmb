@@ -35,6 +35,7 @@
 - [x] implement NaiveResponser
 - [x] Refactor simple/read task map mechanism
 - [x] Refactor simple/read task to OO
+- [x] Generalize proactive service implementation
 
 # TODO
 - [ ] define request type
