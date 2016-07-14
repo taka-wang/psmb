@@ -1,13 +1,13 @@
 package main
 
-var defaultBridge = NewMbtcpBridge()
+var defaultProactiveService = NewPSMBTCP()
 
 // Start start bridge
 func Start() {
-	defaultBridge.Start()
+	defaultProactiveService.Start()
 }
 
 // Stop stop bridge
 func Stop() {
-	defaultBridge.Stop()
+	defaultProactiveService.Stop()
 }

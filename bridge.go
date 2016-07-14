@@ -11,21 +11,18 @@ import (
 	zmq "github.com/takawang/zmq3"
 )
 
-// Bridge proactive service
-type Bridge interface {
-	//initPub(serviceEndpoint, modbusdEndpoint string)
-	//initSub(serviceEndpoint, modbusdEndpoint string)
-	//initPoller()
+// ProactiveService proactive service contracts
+type ProactiveService interface {
 	Start()
 	Stop()
-	ParseRequest(msg []string) (interface{}, error)
-	RequestHandler(cmd string, r interface{}) error
-	ParseResponse(msg []string) (interface{}, error)
-	ResponseHandler(cmd string, r interface{}) error
+	parseRequest(msg []string) (interface{}, error)
+	handleRequest(cmd string, r interface{}) error
+	parseResponse(msg []string) (interface{}, error)
+	handleResponse(cmd string, r interface{}) error
 }
 
-// BridgeType proactive service type
-type mbtcpBridge struct {
+// mbtcpService proactive service type
+type mbtcpService struct {
 	enable        bool
 	readTaskMap   MbtcpReadTask
 	simpleTaskMap MbtcpSimpleTask
@@ -37,9 +34,9 @@ type mbtcpBridge struct {
 	poller        *zmq.Poller
 }
 
-// NewMbtcpBridge init bridge
-func NewMbtcpBridge() Bridge {
-	return &mbtcpBridge{
+// NewPSMBTCP init modbus tcp proactive serivce
+func NewPSMBTCP() ProactiveService {
+	return &mbtcpService{
 		enable:        true,
 		readTaskMap:   NewMbtcpReadTask(),
 		simpleTaskMap: NewMbtcpSimpleTask(),
@@ -48,7 +45,7 @@ func NewMbtcpBridge() Bridge {
 }
 
 // Task for gocron
-func (b *mbtcpBridge) Task(socket *zmq.Socket, req interface{}) {
+func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
 	str, err := json.Marshal(req) // marshal to json string
 	if err != nil {
 		log.Error("Marshal request failed:", err)
@@ -61,9 +58,9 @@ func (b *mbtcpBridge) Task(socket *zmq.Socket, req interface{}) {
 	socket.Send(string(str), 0)     // convert to string; frame 2
 }
 
-// initPub init zmq publisher
-// ex. initPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
-func (b *mbtcpBridge) initPub(serviceEndpoint, modbusdEndpoint string) {
+// initZMQPub init zmq publisher
+// ex. initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
+func (b *mbtcpService) initZMQPub(serviceEndpoint, modbusdEndpoint string) {
 	// upstream publisher
 	b.toService, _ = zmq.NewSocket(zmq.PUB)
 	b.toService.Bind(serviceEndpoint)
@@ -73,9 +70,9 @@ func (b *mbtcpBridge) initPub(serviceEndpoint, modbusdEndpoint string) {
 	b.toModbusd.Connect(modbusdEndpoint)
 }
 
-// initSub init zmq subscriber
-// ex. initSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
-func (b *mbtcpBridge) initSub(serviceEndpoint, modbusdEndpoint string) {
+// initZMQSub init zmq subscriber
+// ex. initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
+func (b *mbtcpService) initZMQSub(serviceEndpoint, modbusdEndpoint string) {
 	// upstream subscriber
 	b.fromService, _ = zmq.NewSocket(zmq.SUB)
 	b.fromService.Bind(serviceEndpoint)
@@ -87,70 +84,15 @@ func (b *mbtcpBridge) initSub(serviceEndpoint, modbusdEndpoint string) {
 	b.fromModbusd.SetSubscribe("")
 }
 
-// initPoller init zmq poller
-func (b *mbtcpBridge) initPoller() {
+// initZMQPoller init zmq poller
+func (b *mbtcpService) initZMQPoller() {
 	// initialize poll set
 	b.poller = zmq.NewPoller()
 	b.poller.Add(b.fromService, zmq.POLLIN)
 	b.poller.Add(b.fromModbusd, zmq.POLLIN)
 }
 
-func (b *mbtcpBridge) Start() {
-	b.scheduler.Start()
-	b.initPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
-	b.initSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
-	b.initPoller()
-
-	// process messages from both subscriber sockets
-	for b.enable {
-		sockets, _ := b.poller.Poll(-1)
-		for _, socket := range sockets {
-			switch s := socket.Socket; s {
-			case b.fromService:
-				// receive from upstream
-				msg, _ := b.fromService.RecvMessage(0)
-				log.WithFields(log.Fields{
-					"msg[0]": msg[0],
-					"msg[1]": msg[1],
-				}).Debug("Receive from service:")
-
-				// parse request
-				req, err := b.ParseRequest(msg)
-				if err != nil {
-					// todo: send error back
-				} else {
-					err = b.RequestHandler(msg[0], req)
-				}
-			case b.fromModbusd:
-				// receive from modbusd
-				msg, _ := b.fromModbusd.RecvMessage(0)
-				log.WithFields(log.Fields{
-					"msg[0]": msg[0],
-					"msg[1]": msg[1],
-				}).Debug("Receive from modbusd:")
-
-				// parse response
-				res, err := b.ParseResponse(msg)
-				if err != nil {
-					// todo: send error back
-				} else {
-					err = b.ResponseHandler(msg[0], res)
-				}
-			}
-		}
-	}
-}
-
-func (b *mbtcpBridge) Stop() {
-	b.scheduler.Stop()
-	b.enable = false
-	b.fromService.Close()
-	b.toService.Close()
-	b.fromModbusd.Close()
-	b.toModbusd.Close()
-}
-
-func (b *mbtcpBridge) simpleTaskResponser(tid string, resp interface{}) error {
+func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 	respStr, err := json.Marshal(resp)
 	if err != nil {
 		log.WithFields(log.Fields{"Error": err}).Error("Marshal failed:")
@@ -167,9 +109,66 @@ func (b *mbtcpBridge) simpleTaskResponser(tid string, resp interface{}) error {
 	return errors.New("Request command not in map")
 }
 
-// ParseRequest parse message from services
+// Start start proactive service
+func (b *mbtcpService) Start() {
+	b.scheduler.Start()
+	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
+	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
+	b.initZMQPoller()
+
+	// process messages from both subscriber sockets
+	for b.enable {
+		sockets, _ := b.poller.Poll(-1)
+		for _, socket := range sockets {
+			switch s := socket.Socket; s {
+			case b.fromService:
+				// receive from upstream
+				msg, _ := b.fromService.RecvMessage(0)
+				log.WithFields(log.Fields{
+					"msg[0]": msg[0],
+					"msg[1]": msg[1],
+				}).Debug("Receive from service:")
+
+				// parse request
+				req, err := b.parseRequest(msg)
+				if err != nil {
+					// todo: send error back
+				} else {
+					err = b.handleRequest(msg[0], req)
+				}
+			case b.fromModbusd:
+				// receive from modbusd
+				msg, _ := b.fromModbusd.RecvMessage(0)
+				log.WithFields(log.Fields{
+					"msg[0]": msg[0],
+					"msg[1]": msg[1],
+				}).Debug("Receive from modbusd:")
+
+				// parse response
+				res, err := b.parseResponse(msg)
+				if err != nil {
+					// todo: send error back
+				} else {
+					err = b.handleResponse(msg[0], res)
+				}
+			}
+		}
+	}
+}
+
+// Stop stop proactive service
+func (b *mbtcpService) Stop() {
+	b.scheduler.Stop()
+	b.enable = false
+	b.fromService.Close()
+	b.toService.Close()
+	b.fromModbusd.Close()
+	b.toModbusd.Close()
+}
+
+// parseRequest parse message from services
 // R&R: only unmarshal request string to corresponding struct
-func (b *mbtcpBridge) ParseRequest(msg []string) (interface{}, error) {
+func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		// should not reach here!!
@@ -335,8 +334,8 @@ func (b *mbtcpBridge) ParseRequest(msg []string) (interface{}, error) {
 	}
 }
 
-// RequestHandler build command to services
-func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
+// handleRequest build command to services
+func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Build request command:")
 
 	switch cmd {
@@ -532,9 +531,9 @@ func (b *mbtcpBridge) RequestHandler(cmd string, r interface{}) error {
 	}
 }
 
-// ParseResponse parse message from modbusd
+// parseResponse parse message from modbusd
 // Done.
-func (b *mbtcpBridge) ParseResponse(msg []string) (interface{}, error) {
+func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		log.Error("Request parser failed: invalid message length")
@@ -566,9 +565,9 @@ func (b *mbtcpBridge) ParseResponse(msg []string) (interface{}, error) {
 	}
 }
 
-// ResponseHandler build command to services
+// handleResponse build command to services
 // Todo: filter, handle
-func (b *mbtcpBridge) ResponseHandler(cmd string, r interface{}) error {
+func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response:")
 
 	switch MbtcpCmdType(cmd) {
