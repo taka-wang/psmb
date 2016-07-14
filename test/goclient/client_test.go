@@ -54,7 +54,7 @@ func TestPSMB(t *testing.T) {
 		psmb.Start()
 	}()
 
-	time.Sleep(3000 * time.Millisecond)
+	time.Sleep(2000 * time.Millisecond)
 
 	s := sugar.New(nil)
 
