@@ -1,9 +1,19 @@
 package main
 
+import (
+	"github.com/facebookgo/inject"
+	"github.com/taka-wang/gocron"
+)
+
 var defaultProactiveService = NewPSMBTCP()
 
 // Start start bridge
 func Start() {
+	sch := gocron.NewScheduler()
+	err := inject.Populate(sch, &defaultProactiveService)
+	if err != nil {
+		panic(err)
+	}
 	defaultProactiveService.Start()
 }
 

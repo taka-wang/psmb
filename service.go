@@ -35,7 +35,7 @@ type mbtcpService struct {
 	enable        bool
 	readTaskMap   MbtcpReadTask
 	simpleTaskMap MbtcpSimpleTask
-	scheduler     gocron.Scheduler
+	scheduler     gocron.Scheduler `inject:""`
 	fromService   *zmq.Socket
 	toService     *zmq.Socket
 	fromModbusd   *zmq.Socket
@@ -49,7 +49,7 @@ func NewPSMBTCP() ProactiveService {
 		enable:        true,
 		readTaskMap:   NewMbtcpReadTask(),
 		simpleTaskMap: NewMbtcpSimpleTask(),
-		scheduler:     gocron.NewScheduler(),
+		//scheduler:     gocron.NewScheduler(),
 	}
 }
 
@@ -753,6 +753,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 
 // Start start proactive service
 func (b *mbtcpService) Start() {
+
 	b.initLogger()
 	b.scheduler.Start()
 	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
