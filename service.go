@@ -840,12 +840,12 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				//
 			default:
 				log.Error("Should not reach here")
-				response = MbtcpSimpleRes{
+				command = MbtcpSimpleRes{
 					Tid:    tid,
 					Status: "not support command",
 				}
 			}
-			return b.simpleResponser(task.Cmd, response)
+			return b.simpleResponser(task.Cmd, command)
 		}
 	default:
 		// should not reach here!!
