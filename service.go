@@ -781,48 +781,120 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					}
 				case UInt16:
 					// order
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
+					ret, err := BytesToUInt16s(res.Data, readReq.Order)
+					if err != nil {
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Type:   readReq.Type,
+							Status: err.Error(),
+						}
+					} else {
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Type:   readReq.Type,
+							Bytes:  bytes,
+							Data:   ret,
+						}
 					}
 				case Int16:
 					// order
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
+					ret, err := BytesToInt16s(res.Data, readReq.Order)
+					if err != nil {
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Type:   readReq.Type,
+							Status: err.Error(),
+						}
+					} else {
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: res.Status,
+							Type:   readReq.Type,
+							Bytes:  bytes,
+							Data:   ret,
+						}
 					}
 				case UInt32:
 					// length, order
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
+					if readReq.Len%2 != 0 {
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: "Conversion failed",
+							Type:   readReq.Type,
+							Bytes:  bytes,
+						}
+					} else {
+						ret, err := BytesToUInt32s(res.Data, readReq.Order)
+						if err != nil {
+							command = MbtcpReadRes{
+								Tid:    tid,
+								Type:   readReq.Type,
+								Status: err.Error(),
+							}
+						} else {
+							command = MbtcpReadRes{
+								Tid:    tid,
+								Status: res.Status,
+								Type:   readReq.Type,
+								Bytes:  bytes,
+								Data:   ret,
+							}
+						}
 					}
 				case Int32:
 					// length, order
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
+					if readReq.Len%2 != 0 {
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: "Conversion failed",
+							Type:   readReq.Type,
+							Bytes:  bytes,
+						}
+					} else {
+						ret, err := BytesToInt32s(res.Data, readReq.Order)
+						if err != nil {
+							command = MbtcpReadRes{
+								Tid:    tid,
+								Type:   readReq.Type,
+								Status: err.Error(),
+							}
+						} else {
+							command = MbtcpReadRes{
+								Tid:    tid,
+								Status: res.Status,
+								Type:   readReq.Type,
+								Bytes:  bytes,
+								Data:   ret,
+							}
+						}
 					}
 				case Float32:
 					// length, order
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
+					if readReq.Len%2 != 0 {
+						command = MbtcpReadRes{
+							Tid:    tid,
+							Status: "Conversion failed",
+							Type:   readReq.Type,
+							Bytes:  bytes,
+						}
+					} else {
+						ret, err := BytesToFloat32s(res.Data, readReq.Order)
+						if err != nil {
+							command = MbtcpReadRes{
+								Tid:    tid,
+								Type:   readReq.Type,
+								Status: err.Error(),
+							}
+						} else {
+							command = MbtcpReadRes{
+								Tid:    tid,
+								Status: res.Status,
+								Type:   readReq.Type,
+								Bytes:  bytes,
+								Data:   ret,
+							}
+						}
 					}
 				default: // case 0, 1(RegisterArray)
 					command = MbtcpReadRes{
@@ -847,12 +919,10 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				return b.simpleResponser(task.Cmd, command)
 			}
 		}
-	default:
-		// should not reach here!!
+	default: // should not reach here!!
 		log.WithFields(log.Fields{"cmd": cmd}).Warn("Response not support:")
 		return errors.New("Response not support")
 	}
-
 	return nil
 }
 
