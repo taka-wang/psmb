@@ -16,17 +16,11 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 
 ---
 
-# Module
-- [scheduler](https://github.com/taka-wang/gocron)
-- request parser
-- command builder
-- post processing (event mapper)
-    - filter
-    - on changed
-- zmq sub from upstream
-- zmq sub from downstream
-- logger
-- database?
+# Contracts (Interfaces)
+
+- ProactiveService: proactive service
+- MbtcpReadTask: read/poll task map
+- MbtcpSimpleTask: simple task map
 
 ---
 ## Docker 

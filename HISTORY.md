@@ -51,3 +51,8 @@
 - check timeout interval range
 - check polling interval range
 
+# Module
+- post processing (event mapper)
+    - filter
+    - on changed
+- database?
