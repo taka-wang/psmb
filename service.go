@@ -763,19 +763,21 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Bytes:  bytes,
 						}
 					} else {
+
 						// todo: check range values
+						f := LinearScalingRegisters(
+							res.Data,
+							readReq.Range.DomainLow,
+							readReq.Range.DomainHigh,
+							readReq.Range.RangeLow,
+							readReq.Range.RangeHigh)
+
 						command = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
 							Type:   readReq.Type,
 							Bytes:  bytes,
-							Data:   LinearScalingRegisters(
-										res.Data,
-										readReq.Range.DomainLow,
-										readReq.Range.DomainHigh,
-										readReq.Range.RangeLow,
-										readReq.Range.RangeHigh
-									),
+							Data:   f,
 						}
 					}
 				case UInt16:
