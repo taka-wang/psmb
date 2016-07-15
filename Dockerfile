@@ -17,5 +17,5 @@ RUN go get github.com/takawang/sugar \
     && cd psmb-srv \
     && go build -o psmb
 
-CMD ["psmb"]
+CMD ["./psmb"]
 

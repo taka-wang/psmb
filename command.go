@@ -1,6 +1,6 @@
 package psmb
 
-// upstream & downstream command tables
+// Upstream & Downstream command tables
 
 // modbusd command table
 const (
@@ -12,10 +12,10 @@ const (
 	fc6  MbtcpCmdType = "6"
 	fc15 MbtcpCmdType = "15"
 	fc16 MbtcpCmdType = "16"
-	// setTimeout set TCP connection timeout
-	setTimeout MbtcpCmdType = "50"
-	// getTimeout get TCP connection timeout
-	getTimeout MbtcpCmdType = "51"
+	// setTCPTimeout set TCP connection timeout
+	setTCPTimeout MbtcpCmdType = "50"
+	// getTCPTimeout get TCP connection timeout
+	getTCPTimeout MbtcpCmdType = "51"
 )
 
 // upstream command table

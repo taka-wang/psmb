@@ -393,7 +393,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		b.simpleTaskMap.Add(TidStr, cmd)         // add to simple task map
-		cmdInt, _ := strconv.Atoi(string(getTimeout))
+		cmdInt, _ := strconv.Atoi(string(getTCPTimeout))
 		command := DMbtcpTimeout{
 			Tid: TidStr,
 			Cmd: cmdInt,
@@ -409,7 +409,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			req.Data = minMbtcpTimeout
 		}
 		b.simpleTaskMap.Add(TidStr, cmd) // add to simple task map
-		cmdInt, _ := strconv.Atoi(string(setTimeout))
+		cmdInt, _ := strconv.Atoi(string(setTCPTimeout))
 		command := DMbtcpTimeout{
 			Tid:     TidStr,
 			Cmd:     cmdInt,
@@ -566,7 +566,7 @@ func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) {
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
 
 	switch MbtcpCmdType(msg[0]) {
-	case setTimeout, getTimeout: // set|get timeout
+	case setTCPTimeout, getTCPTimeout: // set|get timeout
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
@@ -594,12 +594,12 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response:")
 
 	switch MbtcpCmdType(cmd) {
-	case fc5, fc6, fc15, fc16, setTimeout, getTimeout: // [done]: one-off requests
+	case fc5, fc6, fc15, fc16, setTCPTimeout, getTCPTimeout: // [done]: one-off requests
 		var TidStr string
 		var resp interface{}
 
 		switch MbtcpCmdType(cmd) {
-		case setTimeout: // one-off timeout requests
+		case setTCPTimeout: // one-off timeout requests
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
@@ -607,7 +607,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				Tid:    tid,
 				Status: res.Status,
 			}
-		case getTimeout: // one-off timeout requests
+		case getTCPTimeout: // one-off timeout requests
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
