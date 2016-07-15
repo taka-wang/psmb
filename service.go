@@ -781,7 +781,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					}
 				case UInt16:
 					// order
-					ret, err := BytesToUInt16s(res.Data, readReq.Order)
+					ret, err := BytesToUInt16s(bytes, readReq.Order)
 					if err != nil {
 						command = MbtcpReadRes{
 							Tid:    tid,
@@ -799,7 +799,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					}
 				case Int16:
 					// order
-					ret, err := BytesToInt16s(res.Data, readReq.Order)
+					ret, err := BytesToInt16s(bytes, readReq.Order)
 					if err != nil {
 						command = MbtcpReadRes{
 							Tid:    tid,
@@ -825,7 +825,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Bytes:  bytes,
 						}
 					} else {
-						ret, err := BytesToUInt32s(res.Data, readReq.Order)
+						ret, err := BytesToUInt32s(bytes, readReq.Order)
 						if err != nil {
 							command = MbtcpReadRes{
 								Tid:    tid,
@@ -852,7 +852,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Bytes:  bytes,
 						}
 					} else {
-						ret, err := BytesToInt32s(res.Data, readReq.Order)
+						ret, err := BytesToInt32s(bytes, readReq.Order)
 						if err != nil {
 							command = MbtcpReadRes{
 								Tid:    tid,
@@ -879,7 +879,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Bytes:  bytes,
 						}
 					} else {
-						ret, err := BytesToFloat32s(res.Data, readReq.Order)
+						ret, err := BytesToFloat32s(bytes, readReq.Order)
 						if err != nil {
 							command = MbtcpReadRes{
 								Tid:    tid,
