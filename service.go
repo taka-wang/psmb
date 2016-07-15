@@ -173,7 +173,7 @@ func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 	return errors.New("Request not found!")
 }
 
-func (b *mbtcpService) simpleResponser(tid string, resp interface{}) error {
+func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
 	respStr, err := json.Marshal(resp)
 	if err != nil {
 		log.WithFields(log.Fields{"Error": err}).Error("Marshal failed:")
@@ -703,13 +703,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					Status: "not support command",
 				}
 			}
-
-			cmdStr, _ = json.Marshal(response) // marshal JSON
-			log.WithFields(log.Fields{"JSON": string(cmdStr)}).Debug("Send response to service:")
-			b.pub.upstream.Send(respCmd, zmq.SNDMORE) // frame 1
-			b.pub.upstream.Send(string(cmdStr), 0)    // convert to string; frame 2
-			return nil
-
+			return b.simpleResponser(respCmd, response)
 		case fc3, fc4:
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
@@ -721,14 +715,14 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 			}
 
 			switch task.Cmd {
-			case "mbtcp.once.read":
+			case mbtcpOnceRead:
 				var command MbtcpReadRes
 				readReq := task.Req.(MbtcpReadReq)
 				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
 
 				// check modbus response status
 				if res.Status != "ok" {
-					command = MbtcpSimpleRes{
+					command = MbtcpReadRes{
 						Tid:    tid,
 						Type:   readReq.Type,
 						Status: res.Status,
@@ -770,25 +764,21 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Bytes:  bytes,
 						}
 					} else {
-
 						// todo: check range values
-
-						f := LinearScalingRegisters(res.Data,
-							readReq.Range.DomainLow,
-							readReq.Range.DomainHigh,
-							readReq.Range.RangeLow,
-							readReq.Range.RangeHigh,
-						)
-
 						command = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
 							Type:   readReq.Type,
 							Bytes:  bytes,
-							Data:   f,
+							Data:   LinearScalingRegisters(
+								res.Data,
+								readReq.Range.DomainLow,
+								readReq.Range.DomainHigh,
+								readReq.Range.RangeLow,
+								readReq.Range.RangeHigh,
+							)
 						}
 					}
-
 				case UInt16:
 					// order
 					command = MbtcpReadRes{
@@ -844,13 +834,18 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					}
 				}
 				return b.simpleResponser(task.Cmd, command)
-			default:
-				log.Debug("Maybe polling request")
-			}
 
+			case mbtcpCreatePoll, mbtcpImportPolls: // data
+				//
+			default:
+				log.Error("Should not reach here")
+				response = MbtcpSimpleRes{
+					Tid:    tid,
+					Status: "not support command",
+				}
+			}
+			return b.simpleResponser(task.Cmd, response)
 		}
-		// different handle
-		return b.simpleResponser(task.Cmd, command)
 	default:
 		// should not reach here!!
 		log.WithFields(log.Fields{"cmd": cmd}).Warn("Response not support:")
