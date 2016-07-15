@@ -838,6 +838,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 			case mbtcpCreatePoll, mbtcpImportPolls: // data
 				//
 				//return b.simpleResponser(task.Cmd, command)
+				return nil
 			default:
 				log.Error("Should not reach here")
 				command := MbtcpSimpleRes{
