@@ -12,42 +12,61 @@ import (
 )
 
 const (
-	// DefaultPort default modbus slave port number
-	DefaultPort = "502"
-	// MinTCPTimeout minimal modbus tcp connection timeout
-	MinTCPTimeout = 200000
-	// MinTCPPollInterval minimal modbus tcp poll interval
-	MinTCPPollInterval = 1
+	// defaultMbtcpPort default modbus slave port number
+	defaultMbtcpPort = "502"
+	// minMbtcpTimeout minimal modbus tcp connection timeout
+	minMbtcpTimeout = 200000
+	// minMbtcpPollInterval minimal modbus tcp poll interval
+	minMbtcpPollInterval = 1
 )
 
-// ProactiveService proactive service contracts
+// ProactiveService proactive service contracts,
+// all services should implement the following methods.
 type ProactiveService interface {
+	// Start start proactive service
 	Start()
+	// Stop stop proactive service
 	Stop()
+
+	// parseRequest parse upstream requests
 	parseRequest(msg []string) (interface{}, error)
+	// handleRequest handle upstream requests
 	handleRequest(cmd string, r interface{}) error
+	// parseResponse parse downstream responses
 	parseResponse(msg []string) (interface{}, error)
+	// handleResponse handle downstream responses
 	handleResponse(cmd string, r interface{}) error
 }
 
-// mbtcpService proactive service type
+// mbtcpService modbusd tcp proactive service type
 type mbtcpService struct {
-	enable        bool
-	readTaskMap   MbtcpReadTask
+	// readTaskMap read/poll task map
+	readTaskMap MbtcpReadTask
+	// simpleTaskMap simple task map
 	simpleTaskMap MbtcpSimpleTask
-	scheduler     gocron.Scheduler
-	sub           struct {
-		upstream   *zmq.Socket // fromService
-		downstream *zmq.Socket // from modbusd
+	// scheduler gocron scheduler
+	scheduler gocron.Scheduler
+	// sub zmq subscriber endpoints
+	sub struct {
+		// upstream from services
+		upstream *zmq.Socket
+		// downstream from modbusd
+		downstream *zmq.Socket
 	}
+	// pub zmq publisher endpoints
 	pub struct {
-		upstream   *zmq.Socket // toService
-		downstream *zmq.Socket // to modbusd
+		// upstream publish to services
+		upstream *zmq.Socket
+		// downstream publish to modbusd
+		downstream *zmq.Socket
 	}
+	// poller zmq poller
 	poller *zmq.Poller
+	// enable poller flag
+	enable bool
 }
 
-// NewPSMBTCP init modbus tcp proactive serivce
+// NewPSMBTCP instantiate modbus tcp proactive serivce
 func NewPSMBTCP() ProactiveService {
 	return &mbtcpService{
 		enable:        true,
@@ -57,7 +76,7 @@ func NewPSMBTCP() ProactiveService {
 	}
 }
 
-// Task for gocron
+// Task for gocron scheduler
 func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
 	str, err := json.Marshal(req) // marshal to json string
 	if err != nil {
@@ -71,31 +90,33 @@ func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
 	socket.Send(string(str), 0)     // convert to string; frame 2
 }
 
-// initZMQPub init zmq publisher
-// ex. initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
-func (b *mbtcpService) initZMQPub(serviceEndpoint, modbusdEndpoint string) {
+// initZMQPub init zmq publisher.
+// Example:
+// 	initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
+func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
 	log.Debug("initZMQPub")
 	// upstream publisher
 	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
-	b.pub.upstream.Bind(serviceEndpoint)
+	b.pub.upstream.Bind(toServiceEndpoint)
 
 	// downstream publisher
 	b.pub.downstream, _ = zmq.NewSocket(zmq.PUB)
-	b.pub.downstream.Connect(modbusdEndpoint)
+	b.pub.downstream.Connect(toModbusdEndpoint)
 }
 
-// initZMQSub init zmq subscriber
-// ex. initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
-func (b *mbtcpService) initZMQSub(serviceEndpoint, modbusdEndpoint string) {
+// initZMQSub init zmq subscriber.
+// Example:
+// 	initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
+func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
 	log.Debug("initZMQSub")
 	// upstream subscriber
 	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
-	b.sub.upstream.Bind(serviceEndpoint)
+	b.sub.upstream.Bind(fromServiceEndpoint)
 	b.sub.upstream.SetSubscribe("")
 
 	// downstream subscriber
 	b.sub.downstream, _ = zmq.NewSocket(zmq.SUB)
-	b.sub.downstream.Connect(modbusdEndpoint)
+	b.sub.downstream.Connect(fromModbusdEndpoint)
 	b.sub.downstream.SetSubscribe("")
 }
 
@@ -108,6 +129,7 @@ func (b *mbtcpService) initZMQPoller() {
 	b.poller.Add(b.sub.downstream, zmq.POLLIN)
 }
 
+// simpleTaskResponser simeple response to upstream
 func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 	respStr, err := json.Marshal(resp)
 	if err != nil {
@@ -115,14 +137,16 @@ func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 		return err
 	}
 
+	// check simple task map
 	if cmd, ok := b.simpleTaskMap.Get(tid); ok {
 		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
 		b.pub.upstream.Send(cmd, zmq.SNDMORE)   // task command
 		b.pub.upstream.Send(string(respStr), 0) // convert to string; frame 2
-		b.simpleTaskMap.Delete(tid)             // remove from Map!!
+		// remove from map
+		b.simpleTaskMap.Delete(tid)
 		return nil
 	}
-	return errors.New("Request command not in map")
+	return errors.New("Request not found!")
 }
 
 // initLogger init logger
@@ -327,7 +351,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		// default port checker
 		if req.Port == "" {
-			req.Port = DefaultPort
+			req.Port = defaultMbtcpPort
 		}
 
 		b.readTaskMap.Add("", TidStr, cmd, req) // add to task map
@@ -348,7 +372,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		// default port checker
 		if req.Port == "" {
-			req.Port = DefaultPort
+			req.Port = defaultMbtcpPort
 		}
 		b.simpleTaskMap.Add(TidStr, cmd) // add to task map
 		command := DMbtcpWriteReq{
@@ -381,8 +405,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		// protect dummy input
-		if req.Data < MinTCPTimeout {
-			req.Data = MinTCPTimeout
+		if req.Data < minMbtcpTimeout {
+			req.Data = minMbtcpTimeout
 		}
 		b.simpleTaskMap.Add(TidStr, cmd) // add to task map
 		cmdInt, _ := strconv.Atoi(string(setTimeout))
@@ -402,12 +426,12 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
 		// check interval value
-		if req.Interval < MinTCPPollInterval {
-			req.Interval = MinTCPPollInterval
+		if req.Interval < minMbtcpPollInterval {
+			req.Interval = minMbtcpPollInterval
 		}
 		// check port
 		if req.Port == "" {
-			req.Port = DefaultPort
+			req.Port = defaultMbtcpPort
 		}
 
 		b.simpleTaskMap.Add(TidStr, cmd)              // simple request

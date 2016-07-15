@@ -10,11 +10,12 @@ RUN go get github.com/takawang/sugar \
     && go get github.com/taka-wang/gocron \
     && go get github.com/takawang/logrus \ 
     && cd /go/src/github.com/taka-wang/psmb \
+    && go test -v \
     && go build \
 	&& cd / \
     && git clone https://github.com/taka-wang/psmb-srv.git \
     && cd psmb-srv \
-    && go build
+    && go build -o psmb
 
-CMD ["go", "test", "-v"]
+CMD ["psmb"]
 

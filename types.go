@@ -5,35 +5,6 @@ import (
 	"strings"
 )
 
-// Endian defines byte endianness
-type Endian int
-
-// RegValueType defines how to inteprete registers
-type RegValueType int
-
-// MbtcpCmdType defines modbus tcp command type
-type MbtcpCmdType string
-
-const (
-	fc1        MbtcpCmdType = "1"
-	fc2        MbtcpCmdType = "2"
-	fc3        MbtcpCmdType = "3"
-	fc4        MbtcpCmdType = "4"
-	fc5        MbtcpCmdType = "5"
-	fc6        MbtcpCmdType = "6"
-	fc15       MbtcpCmdType = "15"
-	fc16       MbtcpCmdType = "16"
-	setTimeout MbtcpCmdType = "50"
-	getTimeout MbtcpCmdType = "51"
-)
-
-// mbtcpReadTask read/poll task request
-type mbtcpReadTask struct {
-	Name string
-	Cmd  string
-	Req  interface{}
-}
-
 // ScaleRange defines scale range
 type ScaleRange struct {
 	DomainLow  float64 `json:"a"`
@@ -41,6 +12,25 @@ type ScaleRange struct {
 	RangeLow   float64 `json:"c"`
 	RangeHigh  float64 `json:"d"`
 }
+
+// MbtcpCmdType defines modbus tcp command type
+type MbtcpCmdType string
+
+// modbusd command map
+const (
+	fc1  MbtcpCmdType = "1"
+	fc2  MbtcpCmdType = "2"
+	fc3  MbtcpCmdType = "3"
+	fc4  MbtcpCmdType = "4"
+	fc5  MbtcpCmdType = "5"
+	fc6  MbtcpCmdType = "6"
+	fc15 MbtcpCmdType = "15"
+	fc16 MbtcpCmdType = "16"
+	// setTimeout set TCP connection timeout
+	setTimeout MbtcpCmdType = "50"
+	// getTimeout get TCP connection timeout
+	getTimeout MbtcpCmdType = "51"
+)
 
 // JSONableByteSlice jsonable uint8 array
 type JSONableByteSlice []byte
@@ -57,6 +47,19 @@ func (u JSONableByteSlice) MarshalJSON() ([]byte, error) {
 	return []byte(result), nil
 }
 
+// Endian defines byte endianness
+type Endian int
+
+// 16-bits Endian
+const (
+	_ Endian = iota // ignore first value by assigning to blank identifier
+	// AB 16-bit words may be represented in big-endian format
+	AB
+	// BA 16-bit words may be represented in little-endian format
+	BA
+)
+
+// 32-bits Endian
 const (
 	_ Endian = iota // ignore first value by assigning to blank identifier
 	// ABCD 32-bit words may be represented in big-endian format
@@ -69,14 +72,7 @@ const (
 	CDAB
 )
 
-const (
-	_ Endian = iota // ignore first value by assigning to blank identifier
-	// AB 16-bit words may be represented in big-endian format
-	AB
-	// BA 16-bit words may be represented in little-endian format
-	BA
-)
-
+// 32-bits Endian
 const (
 	_ Endian = iota // ignore first value by assigning to blank identifier
 	// BigEndian 32-bit words may be represented in ABCD format
@@ -89,6 +85,11 @@ const (
 	MidLittleEndian
 )
 
+// RegValueType return value type defines how to inteprete registers, i.e.,
+//  for modbus read function codes only
+type RegValueType int
+
+// Register value type for read function
 const (
 	_ RegValueType = iota // ignore first value by assigning to blank identifier
 	// RegisterArray register array, ex: [12345, 23456, 5678]
@@ -109,7 +110,9 @@ const (
 	Float32
 )
 
+//
 // ======================= psmb to modbusd structures - downstream =======================
+//
 
 // DMbtcpRes downstream modbus tcp read/write response
 type DMbtcpRes struct {
@@ -171,11 +174,13 @@ type DMbtcpTimeout struct {
 	Timeout int64 `json:"timeout,omitempty"`
 }
 
+//
 // ======================= services to psmb structures - upstream =======================
+//
 
 // MbtcpReadReq read coil/register request (1.1).
 // Scale range field example:
-// Range: &ScaleRange{1,2,3,4},
+// 	Range: &ScaleRange{1,2,3,4},
 type MbtcpReadReq struct {
 	Tid   int64        `json:"tid"`
 	From  string       `json:"from,omitempty"`
@@ -192,7 +197,7 @@ type MbtcpReadReq struct {
 
 // MbtcpReadRes read coil/register response (1.1).
 // `Data interface` supports:
-// []uint16, []int16, []uint32, []int32, []float32, string
+//	[]uint16, []int16, []uint32, []int32, []float32, string
 type MbtcpReadRes struct {
 	Tid    int64        `json:"tid"`
 	Status string       `json:"status"`
@@ -267,7 +272,7 @@ type MbtcpPollStatus struct {
 
 // MbtcpPollData read coil/register response (1.1).
 // `Data interface` supports:
-// []uint16, []int16, []uint32, []int32, []float32, string
+// 	[]uint16, []int16, []uint32, []int32, []float32, string
 type MbtcpPollData struct {
 	TimeStamp int64        `json:"ts"`
 	Name      string       `json:"name"`
