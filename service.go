@@ -853,6 +853,8 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		log.WithFields(log.Fields{"cmd": cmd}).Warn("Response not support:")
 		return errors.New("Response not support")
 	}
+
+	return nil
 }
 
 // Start start proactive service
