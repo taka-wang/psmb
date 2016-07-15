@@ -770,12 +770,12 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Type:   readReq.Type,
 							Bytes:  bytes,
 							Data:   LinearScalingRegisters(
-								res.Data,
-								readReq.Range.DomainLow,
-								readReq.Range.DomainHigh,
-								readReq.Range.RangeLow,
-								readReq.Range.RangeHigh
-							)
+										res.Data,
+										readReq.Range.DomainLow,
+										readReq.Range.DomainHigh,
+										readReq.Range.RangeLow,
+										readReq.Range.RangeHigh
+									),
 						}
 					}
 				case UInt16:
