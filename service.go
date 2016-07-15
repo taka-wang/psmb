@@ -646,7 +646,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		return b.simpleTaskResponser(TidStr, resp)
 
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
-		var cmdStr []byte
 		var task mbtcpReadTask
 		var ok bool
 		switch MbtcpCmdType(cmd) {
