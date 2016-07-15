@@ -76,6 +76,30 @@ func NewPSMBTCP() ProactiveService {
 	}
 }
 
+// initLogger init logger
+func (b *mbtcpService) initLogger() {
+	// Log as JSON instead of the default ASCII formatter.
+	//log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stderr instead of stdout, could also be a file.
+	//log.SetOutput(os.Stderr)
+
+	// Only log the warning severity or above.
+	//log.SetLevel(log.WarnLevel)
+
+	/*
+		if Environment == "production" {
+			log.SetFormatter(&log.JSONFormatter{})
+		} else {
+			// The TextFormatter is default, you don't actually have to do this.
+			log.SetFormatter(&log.TextFormatter{})
+		}
+	*/
+	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	log.SetLevel(log.DebugLevel)
+	//log.SetLevel(log.ErrorLevel)
+}
+
 // Task for gocron scheduler
 func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
 	str, err := json.Marshal(req) // marshal to json string
@@ -149,30 +173,6 @@ func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 	return errors.New("Request not found!")
 }
 
-// initLogger init logger
-func (b *mbtcpService) initLogger() {
-	// Log as JSON instead of the default ASCII formatter.
-	//log.SetFormatter(&log.JSONFormatter{})
-
-	// Output to stderr instead of stdout, could also be a file.
-	//log.SetOutput(os.Stderr)
-
-	// Only log the warning severity or above.
-	//log.SetLevel(log.WarnLevel)
-
-	/*
-		if Environment == "production" {
-			log.SetFormatter(&log.JSONFormatter{})
-		} else {
-			// The TextFormatter is default, you don't actually have to do this.
-			log.SetFormatter(&log.TextFormatter{})
-		}
-	*/
-	log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	log.SetLevel(log.DebugLevel)
-	//log.SetLevel(log.ErrorLevel)
-}
-
 // parseRequest parse message from services
 // R&R: only unmarshal request string to corresponding struct
 func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
@@ -186,14 +186,14 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing request:")
 
 	switch msg[0] {
-	case "mbtcp.once.read": // done
+	case mbtcpOnceRead: // done
 		var req MbtcpReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
 			return nil, err
 		}
 		return req, nil
-	case "mbtcp.once.write": // done
+	case mbtcpOnceWrite: // done
 		var data json.RawMessage // raw []byte
 		req := MbtcpWriteReq{Data: &data}
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
@@ -278,60 +278,60 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 		default:
 			return nil, errors.New("Request not support")
 		}
-	case "mbtcp.timeout.read", "mbtcp.timeout.update": // done
+	case mbtcpGetTimeout, mbtcpSetTimeout: // done
 		var req MbtcpTimeoutReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
 			return nil, err
 		}
 		return req, nil
-	case "mbtcp.poll.create": // done
+	case mbtcpCreatePoll: // done
 		var req MbtcpPollStatus
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
 			return nil, err
 		}
 		return req, nil
-	case "mbtcp.poll.update", "mbtcp.poll.read", "mbtcp.poll.delete", // done
-		"mbtcp.polls.read", "mbtcp.poll.toggle", "mbtcp.polls.delete",
-		"mbtcp.polls.toggle", "mbtcp.poll.history", "mbtcp.polls.export":
+	case mbtcpUpdatePoll, mbtcpGetPoll, mbtcpDeletePoll, // done
+		mbtcpTogglePoll, mbtcpGetPolls, mbtcpDeletePolls,
+		mbtcpTogglePolls, mbtcpGetPollHistory, mbtcpExportPolls:
 		var req MbtcpPollOpReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
 			return nil, err
 		}
 		return req, nil
-	case "mbtcp.polls.import": // todo
+	case mbtcpImportPolls: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.filter.create": // todo
+	case mbtcpCreateFilter: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.filter.update": // todo
+	case mbtcpUpdateFilter: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.filter.read": // todo
+	case mbtcpGetFilter: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.filter.delete": // todo
+	case mbtcpDeleteFilter: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.filter.toggle": // todo
+	case mbtcpToggleFilter: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.filters.read": // todo
+	case mbtcpGetFilters: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.filters.delete": // todo
+	case mbtcpDeleteFilters: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.filters.toggle": // todo
+	case mbtcpToggleFilters: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.filters.import": // todo
+	case mbtcpImportFilters: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
-	case "mbtcp.filters.export": // todo
+	case mbtcpExportFilters: // todo
 		log.Warn("TODO")
 		return nil, errors.New("TODO")
 	default: // done
@@ -346,7 +346,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Build request command:")
 
 	switch cmd {
-	case "mbtcp.once.read": // done
+	case mbtcpOnceRead: // done
 		req := r.(MbtcpReadReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		// default port checker
@@ -354,7 +354,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			req.Port = defaultMbtcpPort
 		}
 
-		b.readTaskMap.Add("", TidStr, cmd, req) // add to task map
+		b.readTaskMap.Add("", TidStr, cmd, req) // add to read/poll task map
 		command := DMbtcpReadReq{
 			Tid:   TidStr,
 			Cmd:   req.FC,
@@ -367,14 +367,14 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
-	case "mbtcp.once.write": // done
+	case mbtcpOnceWrite: // done
 		req := r.(MbtcpWriteReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		// default port checker
 		if req.Port == "" {
 			req.Port = defaultMbtcpPort
 		}
-		b.simpleTaskMap.Add(TidStr, cmd) // add to task map
+		b.simpleTaskMap.Add(TidStr, cmd) // add to simple task map
 		command := DMbtcpWriteReq{
 			Tid:   TidStr,
 			Cmd:   req.FC,
@@ -389,10 +389,10 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
-	case "mbtcp.timeout.read": // done
+	case mbtcpGetTimeout: // done
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		b.simpleTaskMap.Add(TidStr, cmd)         // add to task map
+		b.simpleTaskMap.Add(TidStr, cmd)         // add to simple task map
 		cmdInt, _ := strconv.Atoi(string(getTimeout))
 		command := DMbtcpTimeout{
 			Tid: TidStr,
@@ -401,14 +401,14 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
-	case "mbtcp.timeout.update": // done
+	case mbtcpSetTimeout: // done
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		// protect dummy input
 		if req.Data < minMbtcpTimeout {
 			req.Data = minMbtcpTimeout
 		}
-		b.simpleTaskMap.Add(TidStr, cmd) // add to task map
+		b.simpleTaskMap.Add(TidStr, cmd) // add to simple task map
 		cmdInt, _ := strconv.Atoi(string(setTimeout))
 		command := DMbtcpTimeout{
 			Tid:     TidStr,
@@ -418,12 +418,29 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
-	case "mbtcp.poll.create":
+	case mbtcpCreatePoll:
 
-		// TODO! check name
-		// TODO! check fc code!!!!!!!
 		req := r.(MbtcpPollStatus)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		b.simpleTaskMap.Add(TidStr, cmd)         // simple request
+
+		// check fc
+		if req.FC < 1 || req.FC > 4 {
+			log.WithFields(log.Fields{"FC": req.FC}).Error("Invalid function code")
+			// send back
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: "Invalid function code"}
+			return b.simpleTaskResponser(TidStr, resp)
+		}
+
+		// check name
+		if req.Name == "" {
+			log.WithFields(log.Fields{"Name": req.Name}).Error("Invalid poll name")
+			// send back
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: "Invalid poll name"}
+			return b.simpleTaskResponser(TidStr, resp)
+		}
+
+		// todo:check name in map or not?
 
 		// check interval value
 		if req.Interval < minMbtcpPollInterval {
@@ -434,7 +451,6 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			req.Port = defaultMbtcpPort
 		}
 
-		b.simpleTaskMap.Add(TidStr, cmd)              // simple request
 		b.readTaskMap.Add(req.Name, TidStr, cmd, req) // read request
 
 		command := DMbtcpReadReq{
@@ -455,16 +471,16 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.simpleTaskResponser(TidStr, resp)
-	case "mbtcp.poll.update":
+	case mbtcpUpdatePoll:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.poll.read":
+	case mbtcpGetPoll:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.poll.delete":
+	case mbtcpDeletePoll:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.poll.toggle":
+	case mbtcpTogglePoll:
 		// TODO! check name
 		req := r.(MbtcpPollOpReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
@@ -483,52 +499,52 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.simpleTaskResponser(TidStr, resp)
-	case "mbtcp.polls.read":
+	case mbtcpGetPolls:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.polls.delete":
+	case mbtcpDeletePolls:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.polls.toggle":
+	case mbtcpTogglePolls:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.polls.import":
+	case mbtcpImportPolls:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.polls.export":
+	case mbtcpExportPolls:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.poll.history":
+	case mbtcpGetPollHistory:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.filter.create":
+	case mbtcpCreateFilter:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.filter.update":
+	case mbtcpUpdateFilter:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.filter.read":
+	case mbtcpGetFilter:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.filter.delete":
+	case mbtcpDeleteFilter:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.filter.toggle":
+	case mbtcpToggleFilter:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.filters.read":
+	case mbtcpGetFilters:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.filters.delete":
+	case mbtcpDeleteFilters:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.filters.toggle":
+	case mbtcpToggleFilters:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.filters.import":
+	case mbtcpImportFilters:
 		log.Warn("TODO")
 		return errors.New("TODO")
-	case "mbtcp.filters.export":
+	case mbtcpExportFilters:
 		log.Warn("TODO")
 		return errors.New("TODO")
 	default:
@@ -623,19 +639,19 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 
 			// check read task table
 			if task, ok = b.readTaskMap.Get(res.Tid); !ok {
-				return errors.New("req command not in map")
+				return errors.New("request not found")
 			}
 
 			var response interface{}
 
 			switch task.Cmd {
-			case "mbtcp.once.read":
+			case mbtcpOnceRead:
 				response = MbtcpReadRes{
 					Tid:    tid,
 					Status: res.Status,
 					Data:   res.Data,
 				}
-			case "mbtcp.poll.create", "mbtcp.polls.import":
+			case mbtcpCreatePoll, mbtcpImportPolls:
 				response = MbtcpPollData{
 					TimeStamp: time.Now().UTC().UnixNano(),
 					Name:      task.Name,

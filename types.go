@@ -16,22 +16,6 @@ type ScaleRange struct {
 // MbtcpCmdType defines modbus tcp command type
 type MbtcpCmdType string
 
-// modbusd command map
-const (
-	fc1  MbtcpCmdType = "1"
-	fc2  MbtcpCmdType = "2"
-	fc3  MbtcpCmdType = "3"
-	fc4  MbtcpCmdType = "4"
-	fc5  MbtcpCmdType = "5"
-	fc6  MbtcpCmdType = "6"
-	fc15 MbtcpCmdType = "15"
-	fc16 MbtcpCmdType = "16"
-	// setTimeout set TCP connection timeout
-	setTimeout MbtcpCmdType = "50"
-	// getTimeout get TCP connection timeout
-	getTimeout MbtcpCmdType = "51"
-)
-
 // JSONableByteSlice jsonable uint8 array
 type JSONableByteSlice []byte
 

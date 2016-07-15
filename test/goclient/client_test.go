@@ -210,7 +210,7 @@ func TestPSMB(t *testing.T) {
 		return true
 	})
 
-	s.Title("Oneoff write request `mbtcp.once.write` tests")
+	s.Title("`mbtcp.once.write` tests")
 
 	s.Assert("`FC5` write bit test: port 502", func(log sugar.Log) bool {
 		writeReq := psmb.MbtcpWriteReq{
@@ -411,7 +411,7 @@ func TestPSMB(t *testing.T) {
 		return true
 	})
 
-	s.Title("Oneoff read request `mbtcp.once.read` tests")
+	s.Title("`mbtcp.once.read` tests")
 
 	s.Assert("`FC1` read bits test: port 502", func(log sugar.Log) bool {
 		// send request
