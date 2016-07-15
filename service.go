@@ -643,7 +643,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				Status: res.Status,
 			}
 		}
-		// send back
 		return b.simpleTaskResponser(TidStr, resp)
 
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
@@ -775,7 +774,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 								readReq.Range.DomainLow,
 								readReq.Range.DomainHigh,
 								readReq.Range.RangeLow,
-								readReq.Range.RangeHigh,
+								readReq.Range.RangeHigh
 							)
 						}
 					}
