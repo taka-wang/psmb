@@ -1,5 +1,4 @@
 # psmb
-[![Build Status](https://travis-ci.org/taka-wang/psmb.svg?branch=dev)](https://travis-ci.org/taka-wang/psmb)
 [![GoDoc](https://godoc.org/github.com/taka-wang/psmb?status.svg)](http://godoc.org/github.com/taka-wang/psmb)
 [![GitHub tag](https://img.shields.io/github/tag/taka-wang/psmb.svg)](https://github.com/taka-wang/psmb/tags) 
 [![Release](https://img.shields.io/github/release/taka-wang/psmb.svg)](https://github.com/taka-wang/psmb/releases/latest)
@@ -36,8 +35,6 @@ docker-compose build
 ### Build images manually
 
 ```bash
-# build modbus simulator image
-docker build -t takawang/mbd test/mb/.
 # build psmb image
 docker build -t takawang/psmb .
 # build goclient image
@@ -46,8 +43,10 @@ docker build -t takawang/psmb-goclient test/goclient/.
 
 ### Run images
 ```bash
-# run modbus simulator
-docker run -v /tmp:/tmp -itd --name=mbd takawang/mbd 
+# run modbus server
+docker run -itd --name=slave takawang/c-modbus-slave
+# run modbusd
+docker run -v /tmp:/tmp --link slave -it --name=modbusd takawang/modbusd
 
 # run psmb
 docker run -v /tmp:/tmp -itd takawang/psmb

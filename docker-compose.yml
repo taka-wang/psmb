@@ -1,17 +1,18 @@
-mbd:
-    build: test/mb/.
+slave:
+    image: takawang/c-modbus-slave
+modbusd:
+    image: takawang/modbusd
     volumes:
         - /tmp:/tmp
-
+    links:
+        - slave
 psmb:
     build: .
     volumes_from:
-        - mbd
-
+        - modbusd
 goclient:
     build: test/goclient/.
     volumes_from:
-        - mbd
+        - modbusd
     links:
-        - mbd
-    
+        - slave

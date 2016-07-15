@@ -1,11 +1,11 @@
 #
 # golang client to modbusd
 #
-FROM takawang/ubuntu-gozmq
+FROM takawang/dummy-psmb
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 WORKDIR /go
-RUN go get github.com/takawang/sugar
+#RUN go get github.com/takawang/sugar
 
 ## Load app files
 ADD . /go

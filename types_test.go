@@ -10,7 +10,7 @@ import (
 
 func TestUpstreamStructTest(t *testing.T) {
 
-	s := sugar.New(nil)
+	s := sugar.New(t)
 
 	s.Title("One-off modbus tcp struct tests")
 

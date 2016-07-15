@@ -2,7 +2,6 @@ package psmb
 
 import (
 	"encoding/json"
-	"errors"
 	"strconv"
 	"time"
 
@@ -23,9 +22,9 @@ const (
 // ProactiveService proactive service contracts,
 // all services should implement the following methods.
 type ProactiveService interface {
-	// Start start proactive service
+	// Start enable proactive service
 	Start()
-	// Stop stop proactive service
+	// Stop disable proactive service
 	Stop()
 
 	// parseRequest parse upstream requests
@@ -46,27 +45,27 @@ type mbtcpService struct {
 	simpleTaskMap MbtcpSimpleTask
 	// scheduler gocron scheduler
 	scheduler gocron.Scheduler
-	// sub zmq subscriber endpoints
+	// sub ZMQ subscriber endpoints
 	sub struct {
-		// upstream from services
+		// upstream subscriber from services
 		upstream *zmq.Socket
-		// downstream from modbusd
+		// downstream subscriber from modbusd
 		downstream *zmq.Socket
 	}
-	// pub zmq publisher endpoints
+	// pub ZMQ publisher endpoints
 	pub struct {
-		// upstream publish to services
+		// upstream publisher to services
 		upstream *zmq.Socket
-		// downstream publish to modbusd
+		// downstream publisher to modbusd
 		downstream *zmq.Socket
 	}
-	// poller zmq poller
+	// poller ZMQ poller
 	poller *zmq.Poller
 	// enable poller flag
 	enable bool
 }
 
-// NewPSMBTCP instantiate modbus tcp proactive serivce
+// NewPSMBTCP modbus tcp proactive serivce constructor
 func NewPSMBTCP() ProactiveService {
 	return &mbtcpService{
 		enable:        true,
@@ -100,25 +99,35 @@ func (b *mbtcpService) initLogger() {
 	//log.SetLevel(log.ErrorLevel)
 }
 
+// Marshal helper function to marshal structure
+func Marshal(r interface{}) (string, error) {
+	bytes, err := json.Marshal(r) // marshal to json string
+	if err != nil {
+		// todo: remove table
+		return "", ErrMarshal
+	}
+	return string(bytes), nil
+}
+
 // Task for gocron scheduler
 func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
-	str, err := json.Marshal(req) // marshal to json string
+	str, err := Marshal(req)
 	if err != nil {
-		log.Error("Marshal request failed:", err)
 		// todo: remove table
 		return
 	}
-	log.WithFields(log.Fields{"JSON": string(str)}).Debug("Send request to modbusd:")
-
+	log.WithFields(log.Fields{"JSON": str}).Debug("Send request to modbusd:")
 	socket.Send("tcp", zmq.SNDMORE) // frame 1
-	socket.Send(string(str), 0)     // convert to string; frame 2
+	socket.Send(str, 0)             // convert to string; frame 2
 }
 
-// initZMQPub init zmq publisher.
+// initZMQPub init ZMQ publishers.
 // Example:
 // 	initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
-	log.Debug("initZMQPub")
+
+	log.Debug("Init ZMQ Publishers")
+
 	// upstream publisher
 	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
 	b.pub.upstream.Bind(toServiceEndpoint)
@@ -128,11 +137,13 @@ func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
 	b.pub.downstream.Connect(toModbusdEndpoint)
 }
 
-// initZMQSub init zmq subscriber.
+// initZMQSub init ZMQ subscribers.
 // Example:
 // 	initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
 func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
-	log.Debug("initZMQSub")
+
+	log.Debug("Init ZMQ Subscribers")
+
 	// upstream subscriber
 	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
 	b.sub.upstream.Bind(fromServiceEndpoint)
@@ -144,9 +155,12 @@ func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint strin
 	b.sub.downstream.SetSubscribe("")
 }
 
-// initZMQPoller init zmq poller
+// initZMQPoller init ZMQ poller.
+// polling from upstream services and downstream modbusd
 func (b *mbtcpService) initZMQPoller() {
-	log.Debug("initZMQPoller")
+
+	log.Debug("Init ZMQ Poller")
+
 	// initialize poll set
 	b.poller = zmq.NewPoller()
 	b.poller.Add(b.sub.upstream, zmq.POLLIN)
@@ -155,242 +169,220 @@ func (b *mbtcpService) initZMQPoller() {
 
 // simpleTaskResponser simeple response to upstream
 func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
-	respStr, err := json.Marshal(resp)
+
+	respStr, err := Marshal(resp)
 	if err != nil {
-		log.WithFields(log.Fields{"Error": err}).Error("Marshal failed:")
 		return err
 	}
 
 	// check simple task map
 	if cmd, ok := b.simpleTaskMap.Get(tid); ok {
-		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-		b.pub.upstream.Send(cmd, zmq.SNDMORE)   // task command
-		b.pub.upstream.Send(string(respStr), 0) // convert to string; frame 2
+		log.WithFields(log.Fields{"JSON": respStr}).Debug("Send response to service:")
+		b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
+		b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 		// remove from map
 		b.simpleTaskMap.Delete(tid)
 		return nil
 	}
-	return errors.New("Request not found!")
+	return ErrRequestNotFound
 }
 
+// simpleResponser simple reponser to upstream without checking simple task map
 func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
-	respStr, err := json.Marshal(resp)
+
+	respStr, err := Marshal(resp)
 	if err != nil {
-		log.WithFields(log.Fields{"Error": err}).Error("Marshal failed:")
 		return err
 	}
-	log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-	b.pub.upstream.Send(cmd, zmq.SNDMORE)   // task command
-	b.pub.upstream.Send(string(respStr), 0) // convert to string; frame 2
+
+	log.WithFields(log.Fields{"JSON": respStr}).Debug("Send response to service:")
+	b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
+	b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 	return nil
 }
 
-// parseRequest parse message from services
-// R&R: only unmarshal request string to corresponding struct
+// parseRequest parse requests from services
+// only unmarshal request string to corresponding struct
 func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
-		// should not reach here!!
-		log.Error("Request parser failed: invalid message length")
-		return nil, errors.New("Invalid message length")
+		return nil, ErrInvalidMessageLength
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing request:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing upstream request:")
 
 	switch msg[0] {
-	case mbtcpOnceRead: // done
-		var req MbtcpReadReq
-		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
-			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
-			return nil, err
-		}
-		return req, nil
-	case mbtcpOnceWrite: // done
-		var data json.RawMessage // raw []byte
-		req := MbtcpWriteReq{Data: &data}
-		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
-			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
-			return nil, err
-		}
-
-		switch req.FC {
-		case 5: // single bit; uint16
-			var d uint16
-			if err := json.Unmarshal(data, &d); err != nil {
-				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC5 request failed:")
-				return nil, err
-			}
-			req.Data = d
-			return req, nil
-		case 6: // single register in dec|hex
-			var d string
-			if err := json.Unmarshal(data, &d); err != nil {
-				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC6 request failed:")
-				return nil, err
-			}
-			if req.Hex {
-				dd, err := HexStringToRegisters(d)
-				if err != nil {
-					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC6 Hex request failed:")
-					return nil, err
-				}
-				req.Data = dd[0] // one register
-			} else {
-				dd, err := strconv.Atoi(d)
-				if err != nil {
-					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC6 Dec request failed:")
-					return nil, err
-				}
-				req.Data = dd
-			}
-			return req, nil
-		case 15: // multiple bits; []uint16
-			var d []uint16
-			if err := json.Unmarshal(data, &d); err != nil {
-				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC15 request failed:")
-				return nil, err
-			}
-			req.Data = d
-
-			// len checker
-			l := uint16(len(d))
-			if req.Len < l {
-				req.Len = l
-			}
-			return req, nil
-		case 16: // multiple register in dec/hex
-			var d string
-			if err := json.Unmarshal(data, &d); err != nil {
-				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC16 request failed:")
-				return nil, err
-			}
-			var l uint16 // length
-			if req.Hex {
-				dd, err := HexStringToRegisters(d)
-				if err != nil {
-					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC16 Hex request failed:")
-					return nil, err
-				}
-				req.Data = dd
-				l = uint16(len(dd))
-			} else {
-				dd, err := DecimalStringToRegisters(d)
-				if err != nil {
-					log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC16 Dec request failed:")
-					return nil, err
-				}
-				req.Data = dd
-				l = uint16(len(dd))
-			}
-			// len checker
-			if req.Len < l {
-				req.Len = l
-			}
-			return req, nil
-		default:
-			return nil, errors.New("Request not support")
-		}
 	case mbtcpGetTimeout, mbtcpSetTimeout: // done
 		var req MbtcpTimeoutReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
-			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
-			return nil, err
+			return nil, ErrUnmarshal
+		}
+		return req, nil
+	case mbtcpOnceWrite: // done
+		// unmarshal partial request
+		var data json.RawMessage // raw []byte
+		req := MbtcpWriteReq{Data: &data}
+		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
+			return nil, ErrUnmarshal
+		}
+
+		switch MbtcpCmdType(strconv.Itoa(req.FC)) {
+		case fc5: // write single bit; uint16
+			var d uint16
+			if err := json.Unmarshal(data, &d); err != nil {
+				return nil, ErrUnmarshal
+			}
+			req.Data = d // unmarshal to uint16
+			return req, nil
+		case fc15: // write multiple bits; []uint16
+			var d []uint16
+			if err := json.Unmarshal(data, &d); err != nil {
+				return nil, ErrUnmarshal
+			}
+			req.Data = d // unmarshal to uint16 array
+			return req, nil
+		case fc6: // write single register in dec|hex
+			var d string
+			if err := json.Unmarshal(data, &d); err != nil { // unmarshal to string
+				return nil, ErrUnmarshal
+			}
+
+			var dd []uint16
+			var err error
+			if req.Hex { // check dec or hex
+				dd, err = HexStringToRegisters(d)
+			} else {
+				dd, err = DecimalStringToRegisters(d)
+			}
+			if err != nil {
+				return nil, err
+			}
+			req.Data = dd[0] // retrieve only one register
+			return req, nil
+		case fc16: // write multiple register in dec/hex
+			var d string
+			if err := json.Unmarshal(data, &d); err != nil { // unmarshal to string
+				return nil, ErrUnmarshal
+			}
+
+			var dd []uint16
+			var err error
+			if req.Hex { // check dec or hex
+				dd, err = HexStringToRegisters(d)
+			} else {
+				dd, err = DecimalStringToRegisters(d)
+			}
+			if err != nil {
+				return nil, err
+			}
+			req.Data = dd
+			return req, nil
+		// should not reach here
+		default:
+			return nil, ErrRequestNotSupport
+		}
+	case mbtcpOnceRead: // done
+		var req MbtcpReadReq
+		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
+			return nil, ErrUnmarshal
 		}
 		return req, nil
 	case mbtcpCreatePoll: // done
 		var req MbtcpPollStatus
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
-			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
-			return nil, err
+			return nil, ErrUnmarshal
 		}
 		return req, nil
 	case mbtcpUpdatePoll, mbtcpGetPoll, mbtcpDeletePoll, // done
 		mbtcpTogglePoll, mbtcpGetPolls, mbtcpDeletePolls,
 		mbtcpTogglePolls, mbtcpGetPollHistory, mbtcpExportPolls:
+
 		var req MbtcpPollOpReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
-			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal request failed:")
-			return nil, err
+			return nil, ErrUnmarshal
 		}
 		return req, nil
 	case mbtcpImportPolls: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	case mbtcpCreateFilter: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	case mbtcpUpdateFilter: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	case mbtcpGetFilter: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	case mbtcpDeleteFilter: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	case mbtcpToggleFilter: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	case mbtcpGetFilters: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	case mbtcpDeleteFilters: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	case mbtcpToggleFilters: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	case mbtcpImportFilters: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	case mbtcpExportFilters: // todo
-		log.Warn("TODO")
-		return nil, errors.New("TODO")
+		return nil, ErrTodo
 	default: // done
 		// should not reach here!!
-		log.WithFields(log.Fields{"request": msg[0]}).Warn("Request not support:")
-		return nil, errors.New("Request not support")
+		return nil, ErrRequestNotSupport
 	}
 }
 
-// handleRequest build command to services
+// handleRequest handle requests from services
+// do error checking
 func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
-	log.WithFields(log.Fields{"cmd": cmd}).Debug("Build request command:")
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle upstream request:")
 
 	switch cmd {
-	case mbtcpOnceRead: // done
-		req := r.(MbtcpReadReq)
+	case mbtcpGetTimeout: // done
+		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		// default port checker
-		if req.Port == "" {
-			req.Port = defaultMbtcpPort
+		cmdInt, _ := strconv.Atoi(string(getTCPTimeout))
+		command := DMbtcpTimeout{
+			Tid: TidStr,
+			Cmd: cmdInt,
+		}
+		b.simpleTaskMap.Add(TidStr, cmd)                              // add to simple task map
+		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command) // add command to scheduler as emergency request
+		return nil
+	case mbtcpSetTimeout: // done
+		req := r.(MbtcpTimeoutReq)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		cmdInt, _ := strconv.Atoi(string(setTCPTimeout))
+		command := DMbtcpTimeout{
+			Tid: TidStr,
+			Cmd: cmdInt,
 		}
 
-		// add to read/poll task map
-		b.readTaskMap.Add("", TidStr, cmd, req)
-
-		command := DMbtcpReadReq{
-			Tid:   TidStr,
-			Cmd:   req.FC,
-			IP:    req.IP,
-			Port:  req.Port,
-			Slave: req.Slave,
-			Addr:  req.Addr,
-			Len:   req.Len,
+		// protect dummy input
+		if req.Data < minMbtcpTimeout {
+			command.Timeout = minMbtcpTimeout
+		} else {
+			command.Timeout = req.Data
 		}
-		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
+
+		b.simpleTaskMap.Add(TidStr, cmd)                              // add to simple task map
+		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command) // add command to scheduler as emergency request
 		return nil
 	case mbtcpOnceWrite: // done
 		req := r.(MbtcpWriteReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+
 		// default port checker
 		if req.Port == "" {
 			req.Port = defaultMbtcpPort
 		}
 
-		// add to simple task map
-		b.simpleTaskMap.Add(TidStr, cmd)
+		// length checker
+		switch MbtcpCmdType(strconv.Itoa(req.FC)) {
+		case fc15, fc16:
+			l := uint16(len(req.Data.([]uint16)))
+			if req.Len < l {
+				req.Len = l
+			}
+		}
 
 		command := DMbtcpWriteReq{
 			Tid:   TidStr,
@@ -403,74 +395,26 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Data:  req.Data,
 		}
 
-		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
+		b.simpleTaskMap.Add(TidStr, cmd)                              // Add task to simple task map
+		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command) // add command to scheduler as emergency request
 		return nil
-	case mbtcpGetTimeout: // done
-		req := r.(MbtcpTimeoutReq)
+	case mbtcpOnceRead: // done
+		req := r.(MbtcpReadReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		b.simpleTaskMap.Add(TidStr, cmd)         // add to simple task map
 
-		cmdInt, _ := strconv.Atoi(string(getTCPTimeout))
-		command := DMbtcpTimeout{
-			Tid: TidStr,
-			Cmd: cmdInt,
-		}
-		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
-		return nil
-	case mbtcpSetTimeout: // done
-		req := r.(MbtcpTimeoutReq)
-		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		// protect dummy input
-		if req.Data < minMbtcpTimeout {
-			req.Data = minMbtcpTimeout
-		}
-		b.simpleTaskMap.Add(TidStr, cmd) // add to simple task map
-
-		cmdInt, _ := strconv.Atoi(string(setTCPTimeout))
-		command := DMbtcpTimeout{
-			Tid:     TidStr,
-			Cmd:     cmdInt,
-			Timeout: req.Data,
-		}
-		// add command to scheduler as emergency request
-		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
-		return nil
-	case mbtcpCreatePoll:
-
-		req := r.(MbtcpPollStatus)
-		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		b.simpleTaskMap.Add(TidStr, cmd)         // simple request
-
-		// check fc
+		// function code checker
 		if req.FC < 1 || req.FC > 4 {
-			log.WithFields(log.Fields{"FC": req.FC}).Error("Invalid function code")
+			err := ErrInvalidFunctionCode
+			log.WithFields(log.Fields{"FC": req.FC}).Error(err.Error())
 			// send back
-			resp := MbtcpSimpleRes{Tid: req.Tid, Status: "Invalid function code"}
-			return b.simpleTaskResponser(TidStr, resp)
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+			return b.simpleResponser(cmd, resp)
 		}
 
-		// check name
-		if req.Name == "" {
-			log.WithFields(log.Fields{"Name": req.Name}).Error("Invalid poll name")
-			// send back
-			resp := MbtcpSimpleRes{Tid: req.Tid, Status: "Invalid poll name"}
-			return b.simpleTaskResponser(TidStr, resp)
-		}
-
-		// todo:check name in map or not?
-
-		// check interval value
-		if req.Interval < minMbtcpPollInterval {
-			req.Interval = minMbtcpPollInterval
-		}
-		// check port
+		// default port checker
 		if req.Port == "" {
 			req.Port = defaultMbtcpPort
 		}
-
-		b.readTaskMap.Add(req.Name, TidStr, cmd, req) // read request
 
 		command := DMbtcpReadReq{
 			Tid:   TidStr,
@@ -481,29 +425,79 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Addr:  req.Addr,
 			Len:   req.Len,
 		}
+
+		b.readTaskMap.Add("", TidStr, cmd, req)                       // Add task to read/poll task map
+		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command) // add command to scheduler as emergency request
+		return nil
+	case mbtcpCreatePoll:
+		req := r.(MbtcpPollStatus)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+
+		// function code checker
+		if req.FC < 1 || req.FC > 4 {
+			err := ErrInvalidFunctionCode
+			log.WithFields(log.Fields{"FC": req.FC}).Error(err.Error())
+			// send back
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+			return b.simpleResponser(cmd, resp)
+		}
+
 		// check name
-		// add to polling table
+		if req.Name == "" {
+			err := ErrInvalidPollName
+			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+			// send back
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+			return b.simpleResponser(cmd, resp)
+		}
+
+		// default port checker
+		if req.Port == "" {
+			req.Port = defaultMbtcpPort
+		}
+
+		// todo:check name in map or not?
+
+		// check interval value
+		if req.Interval < minMbtcpPollInterval {
+			req.Interval = minMbtcpPollInterval
+		}
+
+		// check port
+		if req.Port == "" {
+			req.Port = defaultMbtcpPort
+		}
+
+		command := DMbtcpReadReq{
+			Tid:   TidStr,
+			Cmd:   req.FC,
+			IP:    req.IP,
+			Port:  req.Port,
+			Slave: req.Slave,
+			Addr:  req.Addr,
+			Len:   req.Len,
+		}
+
+		// Add task to read/poll task map
+		b.readTaskMap.Add(req.Name, TidStr, cmd, req)
+		// check name; add to polling table
 		b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.pub.downstream, command)
 		if !req.Enabled {
 			b.scheduler.PauseWithName(req.Name)
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
-		return b.simpleTaskResponser(TidStr, resp)
+		return b.simpleResponser(cmd, resp)
 	case mbtcpUpdatePoll:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpGetPoll:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpDeletePoll:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpTogglePoll:
 		// TODO! check name
 		req := r.(MbtcpPollOpReq)
-		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		b.simpleTaskMap.Add(TidStr, cmd)         // add to simple task map
+		//TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
 		status := "ok"
 		if req.Enabled {
@@ -517,123 +511,103 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
-		return b.simpleTaskResponser(TidStr, resp)
+		return b.simpleResponser(cmd, resp)
 	case mbtcpGetPolls:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpDeletePolls:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpTogglePolls:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpImportPolls:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpExportPolls:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpGetPollHistory:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpCreateFilter:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpUpdateFilter:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpGetFilter:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpDeleteFilter:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpToggleFilter:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpGetFilters:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpDeleteFilters:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpToggleFilters:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpImportFilters:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	case mbtcpExportFilters:
-		log.Warn("TODO")
-		return errors.New("TODO")
+		return ErrTodo
 	default:
 		// should not reach here!!
 		log.WithFields(log.Fields{"cmd": cmd}).Warn("Request not support:")
-		return errors.New("Request not support")
+		return ErrRequestNotSupport
 	}
 }
 
-// parseResponse parse message from modbusd
+// parseResponse parse responses from modbusd
 func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) { // done.
 	// Check the length of multi-part message
 	if len(msg) != 2 {
-		log.Error("Request parser failed: invalid message length")
-		return nil, errors.New("Invalid message length")
+		return nil, ErrInvalidMessageLength
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing downstream response:")
 
 	switch MbtcpCmdType(msg[0]) {
-	case setTCPTimeout, getTCPTimeout: // set|get timeout
+	// set|get timeout
+	case setTCPTimeout, getTCPTimeout:
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
-			return nil, err
+			return nil, ErrUnmarshal
 		}
 		return res, nil
-
+	// modbus function codes
 	case fc1, fc2, fc3, fc4, fc5, fc6, fc15, fc16:
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
-			log.WithFields(log.Fields{"Error": err}).Error("Unmarshal failed:")
-			return nil, err
+			return nil, ErrUnmarshal
 		}
 		return res, nil
+	// should not reach here!!
 	default:
-		// should not reach here!!
-		log.WithFields(log.Fields{"response": msg[0]}).Warn("Response not support:")
-		return nil, errors.New("Response not support")
+		return nil, ErrResponseNotSupport
 	}
 }
 
-// handleResponse build command to services
-// Todo: filter, handle
+// handleResponse handle response from modbusd, Todo: filter, handle
 func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
-	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response:")
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle downstream response:")
 
 	switch MbtcpCmdType(cmd) {
-	case fc5, fc6, fc15, fc16, setTCPTimeout, getTCPTimeout: // [done]: one-off requests
+	// done: one-off requests
+	case fc5, fc6, fc15, fc16, setTCPTimeout, getTCPTimeout:
 		var TidStr string
 		var resp interface{}
 
 		switch MbtcpCmdType(cmd) {
-		case setTCPTimeout: // one-off timeout requests
+		case setTCPTimeout, getTCPTimeout: // one-off timeout requests
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
+
+			var data int64
+			if MbtcpCmdType(cmd) == getTCPTimeout {
+				data = res.Timeout
+			}
+
 			resp = MbtcpTimeoutRes{
 				Tid:    tid,
 				Status: res.Status,
+				Data:   data, // getTCPTimeout only
 			}
-		case getTCPTimeout: // one-off timeout requests
-			res := r.(DMbtcpTimeout)
-			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-			TidStr = res.Tid
-			resp = MbtcpTimeoutRes{
-				Tid:    tid,
-				Status: res.Status,
-				Data:   res.Timeout,
-			}
+
 		case fc5, fc6, fc15, fc16: // one-off write requests
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
@@ -643,224 +617,343 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				Status: res.Status,
 			}
 		}
+		// send back one-off task reponse
 		return b.simpleTaskResponser(TidStr, resp)
 
-	case fc1, fc2, fc3, fc4: // one-off and polling requests
+	// one-off and polling requests
+	case fc1, fc2, fc3, fc4:
+		res := r.(DMbtcpRes)
+		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+
+		var response interface{}
 		var task mbtcpReadTask
 		var ok bool
+
+		// check read task table
+		if task, ok = b.readTaskMap.Get(res.Tid); !ok {
+			return ErrRequestNotFound
+		}
+		// default response command string
+		respCmd := task.Cmd
+
 		switch MbtcpCmdType(cmd) {
-		case fc1, fc2: // done: todo: enhancement
-			res := r.(DMbtcpRes)
-			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-
-			// check read task table
-			if task, ok = b.readTaskMap.Get(res.Tid); !ok {
-				return errors.New("request not found")
-			}
-
-			var response interface{}
-			var respCmd = task.Cmd
-
+		// done: read bits
+		case fc1, fc2:
+			var data interface{} // shared variable
 			switch task.Cmd {
-			case mbtcpOnceRead:
+			case mbtcpOnceRead: // one-off requests
 				if res.Status != "ok" {
-					response = MbtcpSimpleRes{
-						Tid:    tid,
-						Status: res.Status,
-					}
+					data = nil
 				} else {
-					response = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Data:   res.Data,
-					}
+					data = res.Data
+				}
+				response = MbtcpReadRes{
+					Tid:    tid,
+					Status: res.Status,
+					Data:   data,
 				}
 				// remove from read/poll table
 				b.readTaskMap.Delete(res.Tid)
-			case mbtcpCreatePoll, mbtcpImportPolls: // data
-				if res.Status != "ok" {
-					response = MbtcpPollData{
-						TimeStamp: time.Now().UTC().UnixNano(),
-						Name:      task.Name,
-						Status:    res.Status,
-					}
-				} else {
-					// TODO: add to history
-					response = MbtcpPollData{
-						TimeStamp: time.Now().UTC().UnixNano(),
-						Name:      task.Name,
-						Status:    res.Status,
-						Data:      res.Data,
-					}
-				}
+			case mbtcpCreatePoll, mbtcpImportPolls: // poll data
 				respCmd = mbtcpData // set as "mbtcp.data"
+				if res.Status != "ok" {
+					data = nil
+				} else {
+					data = res.Data
+				}
+				response = MbtcpPollData{
+					TimeStamp: time.Now().UTC().UnixNano(),
+					Name:      task.Name,
+					Status:    res.Status,
+					Data:      data,
+				}
+				// TODOL if res.Status == "ok" then "add to history"
 			default: // should not reach here
-				log.Error("Should not reach here")
+				log.WithFields(log.Fields{"cmd": cmd}).Debug("handleResponse: should not reach here")
 				response = MbtcpSimpleRes{
 					Tid:    tid,
-					Status: "not support command",
+					Status: "Command not support",
 				}
 			}
 			return b.simpleResponser(respCmd, response)
+		// read registers
 		case fc3, fc4:
-			res := r.(DMbtcpRes)
-			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-
-			// check read task table
-			if task, ok = b.readTaskMap.Get(res.Tid); !ok {
-				log.Error("request not found")
-				return errors.New("request not found")
-			}
+			// shared variables
+			var status string
+			var data interface{}
 
 			switch task.Cmd {
+			// one-off requests
 			case mbtcpOnceRead:
-				var command MbtcpReadRes
-				readReq := task.Req.(MbtcpReadReq)
-				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
+				readReq := task.Req.(MbtcpReadReq) // type casting
 
 				// check modbus response status
 				if res.Status != "ok" {
-					command = MbtcpReadRes{
+					response = MbtcpReadRes{
 						Tid:    tid,
 						Type:   readReq.Type,
 						Status: res.Status,
 					}
 					// remove from read table
 					b.readTaskMap.Delete(res.Tid)
-					return b.simpleResponser(task.Cmd, command)
+					return b.simpleResponser(respCmd, response)
 				}
 
 				// convert register to byte array
 				bytes, err := RegistersToBytes(res.Data)
 				if err != nil {
-					log.Error(err)
-					command = MbtcpReadRes{
+					log.WithFields(log.Fields{"err": err}).Debug("handleResponse: RegistersToBytes failed")
+					response = MbtcpReadRes{
 						Tid:    tid,
 						Type:   readReq.Type,
 						Status: err.Error(),
 					}
 					// remove from read table
 					b.readTaskMap.Delete(res.Tid)
-					return b.simpleResponser(task.Cmd, command)
+					return b.simpleResponser(respCmd, response)
 				}
+
+				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
 
 				switch readReq.Type {
 				case HexString:
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   BytesToHexString(bytes), // convert byte to hex
-					}
-				case Scale:
-					if readReq.Len%2 != 0 {
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: "Conversion failed",
-							Type:   readReq.Type,
-							Bytes:  bytes,
-						}
-					} else {
-
-						// todo: check range values
-						f := LinearScalingRegisters(
-							res.Data,
-							readReq.Range.DomainLow,
-							readReq.Range.DomainHigh,
-							readReq.Range.RangeLow,
-							readReq.Range.RangeHigh)
-
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Type:   readReq.Type,
-							Bytes:  bytes,
-							Data:   f,
-						}
-					}
+					data = BytesToHexString(bytes) // convert byte to hex
+					status = res.Status
 				case UInt16:
-					// order
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
+					ret, err := BytesToUInt16s(bytes, readReq.Order) // order
+					if err != nil {
+						data = nil
+						status = err.Error()
+					} else {
+						data = ret
+						status = res.Status
 					}
 				case Int16:
-					// order
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
+					ret, err := BytesToInt16s(bytes, readReq.Order) // order
+					if err != nil {
+						data = nil
+						status = err.Error()
+					} else {
+						data = ret
+						status = res.Status
 					}
-				case UInt32:
-					// length, order
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
-					}
-				case Int32:
-					// length, order
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
-					}
-				case Float32:
-					// length, order
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
+				case Scale, UInt32, Int32, Float32: // 32-bits
+					if readReq.Len%2 != 0 {
+						data = nil
+						status = "Invalid length to convert"
+					} else {
+						switch readReq.Type {
+						case Scale:
+							ret, err := LinearScalingRegisters(
+								res.Data,
+								readReq.Range.DomainLow,
+								readReq.Range.DomainHigh,
+								readReq.Range.RangeLow,
+								readReq.Range.RangeHigh)
+							if err != nil {
+								data = nil
+								status = err.Error()
+							} else {
+								data = ret
+								status = res.Status
+							}
+						case UInt32:
+							ret, err := BytesToUInt32s(bytes, readReq.Order)
+							if err != nil {
+								data = nil
+								status = err.Error()
+							} else {
+								data = ret
+								status = res.Status
+							}
+						case Int32:
+							ret, err := BytesToInt32s(bytes, readReq.Order)
+							if err != nil {
+								data = nil
+								status = err.Error()
+							} else {
+								data = ret
+								status = res.Status
+							}
+						case Float32:
+							ret, err := BytesToFloat32s(bytes, readReq.Order)
+							if err != nil {
+								data = nil
+								status = err.Error()
+							} else {
+								data = ret
+								status = res.Status
+							}
+						}
 					}
 				default: // case 0, 1(RegisterArray)
-					command = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
-					}
+					data = res.Data
+					status = res.Status
 				}
-				return b.simpleResponser(task.Cmd, command)
-			case mbtcpCreatePoll, mbtcpImportPolls: // data
-				//
-				//return b.simpleResponser(task.Cmd, command)
-				return nil
-			default:
-				log.Error("Should not reach here")
-				command := MbtcpSimpleRes{
+
+				// shared response
+				response = MbtcpReadRes{
 					Tid:    tid,
-					Status: "not support command",
+					Type:   readReq.Type,
+					Bytes:  bytes,
+					Data:   data,
+					Status: status,
 				}
-				return b.simpleResponser(task.Cmd, command)
+
+				// remove from read table
+				b.readTaskMap.Delete(res.Tid)
+				return b.simpleResponser(respCmd, response)
+			// poll data
+			case mbtcpCreatePoll, mbtcpImportPolls:
+				readReq := task.Req.(MbtcpPollStatus) // type casting
+				respCmd = mbtcpData                   // set as "mbtcp.data"
+
+				// check modbus response status
+				if res.Status != "ok" {
+					response = MbtcpPollData{
+						TimeStamp: time.Now().UTC().UnixNano(),
+						Name:      task.Name,
+						Type:      readReq.Type,
+						// No Bytes and Data
+						Status: res.Status,
+					}
+					return b.simpleResponser(respCmd, response)
+				}
+
+				// convert register to byte array
+				bytes, err := RegistersToBytes(res.Data)
+				if err != nil {
+					response = MbtcpPollData{
+						TimeStamp: time.Now().UTC().UnixNano(),
+						Name:      task.Name,
+						Type:      readReq.Type,
+						// No Bytes and Data
+						Status: err.Error(),
+					}
+					return b.simpleResponser(respCmd, response)
+				}
+
+				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
+
+				switch readReq.Type {
+				case HexString:
+					data = BytesToHexString(bytes) // convert byte to hex
+					status = res.Status
+					// TODO: add to history
+				case UInt16:
+					ret, err := BytesToUInt16s(bytes, readReq.Order) // order
+					if err != nil {
+						data = nil
+						status = err.Error()
+					} else {
+						data = ret
+						status = res.Status
+						// TODO: add to history
+					}
+				case Int16:
+					ret, err := BytesToInt16s(bytes, readReq.Order) // order
+					if err != nil {
+						data = nil
+						status = err.Error()
+					} else {
+						data = ret
+						status = res.Status
+						// TODO: add to history
+					}
+				case Scale, UInt32, Int32, Float32: // 32-Bits
+					if readReq.Len%2 != 0 {
+						data = nil
+						status = "Invalid length to convert"
+					} else {
+						switch readReq.Type {
+						case Scale:
+							ret, err := LinearScalingRegisters(
+								res.Data,
+								readReq.Range.DomainLow,
+								readReq.Range.DomainHigh,
+								readReq.Range.RangeLow,
+								readReq.Range.RangeHigh)
+							if err != nil {
+								data = nil
+								status = err.Error()
+							} else {
+								data = ret
+								status = res.Status
+								// TODO: add to history
+							}
+						case UInt32:
+							ret, err := BytesToUInt32s(bytes, readReq.Order)
+							if err != nil {
+								data = nil
+								status = err.Error()
+							} else {
+								data = ret
+								status = res.Status
+								// TODO: add to history
+							}
+						case Int32:
+							ret, err := BytesToInt32s(bytes, readReq.Order)
+							if err != nil {
+								data = nil
+								status = err.Error()
+							} else {
+								data = ret
+								status = res.Status
+								// TODO: add to history
+							}
+						case Float32:
+							ret, err := BytesToFloat32s(bytes, readReq.Order)
+							if err != nil {
+								data = nil
+								status = err.Error()
+							} else {
+								data = ret
+								status = res.Status
+								// TODO: add to history
+							}
+						}
+					}
+				default: // case 0, 1(RegisterArray)
+					data = res.Data
+					status = res.Status
+					// TODO: add to history
+
+				}
+
+				// shared response
+				response = MbtcpPollData{
+					TimeStamp: time.Now().UTC().UnixNano(),
+					Name:      task.Name,
+					Type:      readReq.Type,
+					Bytes:     bytes,
+					Data:      data,
+					Status:    status,
+				}
+
+				return b.simpleResponser(respCmd, response)
+
+			// should not reach here
+			default:
+				log.WithFields(log.Fields{"cmd": task.Cmd}).Debug("handleResponse: should not reach here")
+				response = MbtcpSimpleRes{
+					Tid:    tid,
+					Status: "Command not support",
+				}
+				return b.simpleResponser(respCmd, response)
 			}
 		}
+	// Response not support: should not reach here!!
 	default:
-		// should not reach here!!
-		log.WithFields(log.Fields{"cmd": cmd}).Warn("Response not support:")
-		return errors.New("Response not support")
+		return ErrResponseNotSupport
 	}
-
 	return nil
 }
 
-// Start start proactive service
+// Start enable proactive service
 func (b *mbtcpService) Start() {
-
 	b.initLogger()
-	log.Debug("Start Service")
+
+	log.Debug("Start proactive service")
 	b.scheduler.Start()
 	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
@@ -875,29 +968,41 @@ func (b *mbtcpService) Start() {
 				// receive from upstream
 				msg, _ := b.sub.upstream.RecvMessage(0)
 				log.WithFields(log.Fields{
-					"msg[0]": msg[0],
-					"msg[1]": msg[1],
+					"cmd": msg[0],
+					"req": msg[1],
 				}).Debug("Receive from service:")
 
 				// parse request
 				req, err := b.parseRequest(msg)
-				if err != nil {
-					// todo: send error back
-				} else {
+				if req != nil {
+					// handle request
 					err = b.handleRequest(msg[0], req)
+				}
+
+				// send error back
+				if err != nil {
+					log.WithFields(log.Fields{
+						"cmd": msg[0],
+						"err": err,
+					}).Error("Parse request failed:")
+					// send back
+					b.simpleResponser(msg[0], MbtcpSimpleRes{Status: err.Error()})
 				}
 			case b.sub.downstream:
 				// receive from modbusd
 				msg, _ := b.sub.downstream.RecvMessage(0)
 				log.WithFields(log.Fields{
-					"msg[0]": msg[0],
-					"msg[1]": msg[1],
+					"cmd":  msg[0],
+					"resp": msg[1],
 				}).Debug("Receive from modbusd:")
 
 				// parse response
 				res, err := b.parseResponse(msg)
 				if err != nil {
-					// todo: send error back
+					log.WithFields(log.Fields{
+						"cmd": msg[0],
+						"err": err,
+					}).Error("Parse response failed:")
 				} else {
 					err = b.handleResponse(msg[0], res)
 				}
@@ -906,12 +1011,15 @@ func (b *mbtcpService) Start() {
 	}
 }
 
-// Stop stop proactive service
+// Stop disable proactive service
 func (b *mbtcpService) Stop() {
+	log.Debug("Stop proactive service")
 	b.scheduler.Stop()
 	b.enable = false
-	b.sub.upstream.Close()
-	b.pub.upstream.Close()
-	b.sub.downstream.Close()
-	b.pub.downstream.Close()
+	if b.sub.upstream != nil {
+		b.sub.upstream.Close()
+		b.pub.upstream.Close()
+		b.sub.downstream.Close()
+		b.pub.downstream.Close()
+	}
 }
