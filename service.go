@@ -835,17 +835,17 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					}
 				}
 				return b.simpleResponser(task.Cmd, command)
-
 			case mbtcpCreatePoll, mbtcpImportPolls: // data
 				//
+				//return b.simpleResponser(task.Cmd, command)
 			default:
 				log.Error("Should not reach here")
-				command = MbtcpSimpleRes{
+				command := MbtcpSimpleRes{
 					Tid:    tid,
 					Status: "not support command",
 				}
+				return b.simpleResponser(task.Cmd, command)
 			}
-			return b.simpleResponser(task.Cmd, command)
 		}
 	default:
 		// should not reach here!!
