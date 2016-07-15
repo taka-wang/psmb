@@ -242,17 +242,18 @@ Command name: **mbtcp.once.read**
 
 **Register read (FC3, FC4) - type 1, 2 (raw)**
 
-- success - type 1:
+- success - type 1 (RegisterArray):
 ```JavaScript
 {
     "tid": 123456,
     "status": "ok",
     "type": 1,
+    "bytes": [0XFF, 0X34, 0XAB],
     "data": [255, 1234, 789]
 }
 ```
 
-- success - type 2:
+- success - type 2 (HexString):
 ```JavaScript
 {
     "tid": 123456,
@@ -273,7 +274,7 @@ Command name: **mbtcp.once.read**
 
 **Register read (FC3, FC4) - type 3 (scale)**
 
-- success - type 3:
+- success - type 3 (Scale):
 ```JavaScript
 {
     "tid": 123456,
@@ -306,7 +307,7 @@ Command name: **mbtcp.once.read**
 
 **Register read (FC3, FC4) - type 4, 5 (16-bit)**
 
-- success - type 4, 5:
+- success - type 4, 5 (UInt16, Int16):
 ```JavaScript
 {
     "tid": 123456,
@@ -336,7 +337,7 @@ Command name: **mbtcp.once.read**
 
 **Register read (FC3, FC4) - type 6, 7, 8 (32-bit)**
 
-- success - type 6, 7:
+- success - type 6, 7 (UInt32, Int32):
 ```JavaScript
 {
     "tid": 123456,
@@ -346,7 +347,7 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- success - type 8:
+- success - type 8 (Float32):
 ```JavaScript
 {
     "tid": 123456,

@@ -45,4 +45,5 @@ const (
 	mbtcpToggleFilters  = "mbtcp.filters.toggle"
 	mbtcpImportFilters  = "mbtcp.filters.import"
 	mbtcpExportFilters  = "mbtcp.filters.export"
+	mbtcpData           = "mbtcp.data"
 )
