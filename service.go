@@ -657,21 +657,22 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		return b.simpleTaskResponser(TidStr, resp)
 
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
+		res := r.(DMbtcpRes)
+		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
+
+		var response interface{}
 		var task mbtcpReadTask
 		var ok bool
+		// check read task table
+		if task, ok = b.readTaskMap.Get(res.Tid); !ok {
+			log.Error("request not found")
+			return errors.New("request not found")
+		}
+
+		respCmd := task.Cmd
+
 		switch MbtcpCmdType(cmd) {
 		case fc1, fc2: // done: todo: enhancement
-			res := r.(DMbtcpRes)
-			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-
-			// check read task table
-			if task, ok = b.readTaskMap.Get(res.Tid); !ok {
-				return errors.New("request not found")
-			}
-
-			var response interface{}
-			var respCmd = task.Cmd
-
 			switch task.Cmd {
 			case mbtcpOnceRead:
 				if res.Status != "ok" {
@@ -689,6 +690,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				// remove from read/poll table
 				b.readTaskMap.Delete(res.Tid)
 			case mbtcpCreatePoll, mbtcpImportPolls: // data
+				respCmd = mbtcpData // set as "mbtcp.data"
 				if res.Status != "ok" {
 					response = MbtcpPollData{
 						TimeStamp: time.Now().UTC().UnixNano(),
@@ -704,7 +706,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Data:      res.Data,
 					}
 				}
-				respCmd = mbtcpData // set as "mbtcp.data"
+
 			default: // should not reach here
 				log.Error("Should not reach here")
 				response = MbtcpSimpleRes{
@@ -714,50 +716,42 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 			}
 			return b.simpleResponser(respCmd, response)
 		case fc3, fc4:
-			res := r.(DMbtcpRes)
-			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 
-			// check read task table
-			if task, ok = b.readTaskMap.Get(res.Tid); !ok {
-				log.Error("request not found")
-				return errors.New("request not found")
-			}
+			readReq := task.Req.(MbtcpReadReq)
 
 			switch task.Cmd {
 			case mbtcpOnceRead:
-				var command MbtcpReadRes
-				readReq := task.Req.(MbtcpReadReq)
-				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
-
 				// check modbus response status
 				if res.Status != "ok" {
-					command = MbtcpReadRes{
+					response = MbtcpReadRes{
 						Tid:    tid,
 						Type:   readReq.Type,
 						Status: res.Status,
 					}
 					// remove from read table
 					b.readTaskMap.Delete(res.Tid)
-					return b.simpleResponser(task.Cmd, command)
+					return b.simpleResponser(respCmd, response)
 				}
 
 				// convert register to byte array
 				bytes, err := RegistersToBytes(res.Data)
 				if err != nil {
 					log.Error(err)
-					command = MbtcpReadRes{
+					response = MbtcpReadRes{
 						Tid:    tid,
 						Type:   readReq.Type,
 						Status: err.Error(),
 					}
 					// remove from read table
 					b.readTaskMap.Delete(res.Tid)
-					return b.simpleResponser(task.Cmd, command)
+					return b.simpleResponser(respCmd, response)
 				}
+
+				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
 
 				switch readReq.Type {
 				case HexString:
-					command = MbtcpReadRes{
+					response = MbtcpReadRes{
 						Tid:    tid,
 						Status: res.Status,
 						Type:   readReq.Type,
@@ -769,13 +763,14 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					// order
 					ret, err := BytesToUInt16s(bytes, readReq.Order)
 					if err != nil {
-						command = MbtcpReadRes{
+						response = MbtcpReadRes{
 							Tid:    tid,
 							Type:   readReq.Type,
+							Bytes:  bytes,
 							Status: err.Error(),
 						}
 					} else {
-						command = MbtcpReadRes{
+						response = MbtcpReadRes{
 							Tid:    tid,
 							Status: res.Status,
 							Type:   readReq.Type,
@@ -787,28 +782,29 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					// order
 					ret, err := BytesToInt16s(bytes, readReq.Order)
 					if err != nil {
-						command = MbtcpReadRes{
+						response = MbtcpReadRes{
 							Tid:    tid,
 							Type:   readReq.Type,
+							Bytes:  bytes,
 							Status: err.Error(),
 						}
 					} else {
-						command = MbtcpReadRes{
+						response = MbtcpReadRes{
 							Tid:    tid,
-							Status: res.Status,
 							Type:   readReq.Type,
 							Bytes:  bytes,
 							Data:   ret,
+							Status: res.Status,
 						}
 					}
 
 				case Scale, UInt32, Int32, Float32: // 32-bits
 					if readReq.Len%2 != 0 {
-						command = MbtcpReadRes{
+						response = MbtcpReadRes{
 							Tid:    tid,
-							Status: "Conversion failed",
 							Type:   readReq.Type,
 							Bytes:  bytes,
+							Status: "Conversion failed",
 						}
 					} else {
 						switch readReq.Type {
@@ -821,40 +817,42 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 								readReq.Range.RangeLow,
 								readReq.Range.RangeHigh)
 
-							command = MbtcpReadRes{
+							response = MbtcpReadRes{
 								Tid:    tid,
-								Status: res.Status,
 								Type:   readReq.Type,
 								Bytes:  bytes,
 								Data:   f,
+								Status: res.Status,
 							}
 						case UInt32:
 							ret, err := BytesToUInt32s(bytes, readReq.Order)
 							if err != nil {
-								command = MbtcpReadRes{
+								response = MbtcpReadRes{
 									Tid:    tid,
 									Type:   readReq.Type,
+									Bytes:  bytes,
 									Status: err.Error(),
 								}
 							} else {
-								command = MbtcpReadRes{
+								response = MbtcpReadRes{
 									Tid:    tid,
-									Status: res.Status,
 									Type:   readReq.Type,
 									Bytes:  bytes,
 									Data:   ret,
+									Status: res.Status,
 								}
 							}
 						case Int32:
 							ret, err := BytesToInt32s(bytes, readReq.Order)
 							if err != nil {
-								command = MbtcpReadRes{
+								response = MbtcpReadRes{
 									Tid:    tid,
 									Type:   readReq.Type,
+									Bytes:  bytes,
 									Status: err.Error(),
 								}
 							} else {
-								command = MbtcpReadRes{
+								response = MbtcpReadRes{
 									Tid:    tid,
 									Status: res.Status,
 									Type:   readReq.Type,
@@ -865,13 +863,14 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						case Float32:
 							ret, err := BytesToFloat32s(bytes, readReq.Order)
 							if err != nil {
-								command = MbtcpReadRes{
+								response = MbtcpReadRes{
 									Tid:    tid,
 									Type:   readReq.Type,
+									Bytes:  bytes,
 									Status: err.Error(),
 								}
 							} else {
-								command = MbtcpReadRes{
+								response = MbtcpReadRes{
 									Tid:    tid,
 									Status: res.Status,
 									Type:   readReq.Type,
@@ -883,7 +882,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						}
 					}
 				default: // case 0, 1(RegisterArray)
-					command = MbtcpReadRes{
+					response = MbtcpReadRes{
 						Tid:    tid,
 						Status: res.Status,
 						Type:   readReq.Type,
@@ -893,18 +892,212 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				}
 				// remove from read table
 				b.readTaskMap.Delete(res.Tid)
-				return b.simpleResponser(task.Cmd, command)
+				return b.simpleResponser(respCmd, response)
 			case mbtcpCreatePoll, mbtcpImportPolls: // data
-				//
-				//return b.simpleResponser(task.Cmd, command)
-				return nil
+				respCmd = mbtcpData // set as "mbtcp.data"
+
+				if res.Status != "ok" {
+					response = MbtcpPollData{
+						TimeStamp: time.Now().UTC().UnixNano(),
+						Name:      task.Name,
+						Type:      readReq.Type,
+						Status:    res.Status,
+					}
+					return b.simpleResponser(respCmd, response)
+				}
+
+				// convert register to byte array
+				bytes, err := RegistersToBytes(res.Data)
+				if err != nil {
+					response = MbtcpPollData{
+						TimeStamp: time.Now().UTC().UnixNano(),
+						Name:      task.Name,
+						Type:      readReq.Type,
+						Status:    err.Error(),
+					}
+					return b.simpleResponser(respCmd, response)
+				}
+
+				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
+
+				/*
+					response = MbtcpPollData{
+						TimeStamp: time.Now().UTC().UnixNano(),
+						Name:      task.Name,
+						Type:      readReq.Type,
+						Bytes:     bytes,
+					}
+				*/
+				switch readReq.Type {
+				case HexString:
+					response = MbtcpPollData{
+						TimeStamp: time.Now().UTC().UnixNano(),
+						Name:      task.Name,
+						Type:      readReq.Type,
+						Bytes:     bytes,
+						Data:      BytesToHexString(bytes), // convert byte to hex
+						Status:    res.Status,
+					}
+				case UInt16:
+					// order
+					ret, err := BytesToUInt16s(bytes, readReq.Order)
+					if err != nil {
+						response = MbtcpPollData{
+							TimeStamp: time.Now().UTC().UnixNano(),
+							Name:      task.Name,
+							Type:      readReq.Type,
+							Bytes:     bytes,
+							// Data
+							Status: err.Error(),
+						}
+					} else {
+						response = MbtcpPollData{
+							TimeStamp: time.Now().UTC().UnixNano(),
+							Name:      task.Name,
+							Type:      readReq.Type,
+							Bytes:     bytes,
+							Data:      ret,
+							Status:    res.Status,
+						}
+					}
+				case Int16:
+					// order
+					ret, err := BytesToInt16s(bytes, readReq.Order)
+					if err != nil {
+						response = MbtcpPollData{
+							TimeStamp: time.Now().UTC().UnixNano(),
+							Name:      task.Name,
+							Type:      readReq.Type,
+							Bytes:     bytes,
+							// Data
+							Status: err.Error(),
+						}
+					} else {
+						response = MbtcpPollData{
+							TimeStamp: time.Now().UTC().UnixNano(),
+							Name:      task.Name,
+							Type:      readReq.Type,
+							Bytes:     bytes,
+							Data:      ret,
+							Status:    res.Status,
+						}
+					}
+
+				case Scale, UInt32, Int32, Float32: // 32-Bits
+					if readReq.Len%2 != 0 {
+						response = MbtcpPollData{
+							TimeStamp: time.Now().UTC().UnixNano(),
+							Name:      task.Name,
+							Type:      readReq.Type,
+							Bytes:     bytes,
+							// Data
+							Status: "Conversion failed",
+						}
+					} else {
+						switch readReq.Type {
+						case Scale:
+							// todo: check range values
+							f := LinearScalingRegisters(
+								res.Data,
+								readReq.Range.DomainLow,
+								readReq.Range.DomainHigh,
+								readReq.Range.RangeLow,
+								readReq.Range.RangeHigh)
+
+							response = MbtcpPollData{
+								TimeStamp: time.Now().UTC().UnixNano(),
+								Name:      task.Name,
+								Type:      readReq.Type,
+								Bytes:     bytes,
+								Data:      f,
+								Status:    res.Status,
+							}
+						case UInt32:
+							ret, err := BytesToUInt32s(bytes, readReq.Order)
+							if err != nil {
+								response = MbtcpPollData{
+									TimeStamp: time.Now().UTC().UnixNano(),
+									Name:      task.Name,
+									Type:      readReq.Type,
+									Bytes:     bytes,
+									// Data
+									Status: err.Error(),
+								}
+							} else {
+								response = MbtcpPollData{
+									TimeStamp: time.Now().UTC().UnixNano(),
+									Name:      task.Name,
+									Type:      readReq.Type,
+									Bytes:     bytes,
+									Data:      ret,
+									Status:    res.Status,
+								}
+							}
+						case Int32:
+							ret, err := BytesToInt32s(bytes, readReq.Order)
+							if err != nil {
+								response = MbtcpPollData{
+									TimeStamp: time.Now().UTC().UnixNano(),
+									Name:      task.Name,
+									Type:      readReq.Type,
+									Bytes:     bytes,
+									// Data
+									Status: err.Error(),
+								}
+							} else {
+								response = MbtcpPollData{
+									TimeStamp: time.Now().UTC().UnixNano(),
+									Name:      task.Name,
+									Type:      readReq.Type,
+									Bytes:     bytes,
+									Data:      ret,
+									Status:    res.Status,
+								}
+							}
+						case Float32:
+							ret, err := BytesToFloat32s(bytes, readReq.Order)
+							if err != nil {
+								response = MbtcpPollData{
+									TimeStamp: time.Now().UTC().UnixNano(),
+									Name:      task.Name,
+									Type:      readReq.Type,
+									Bytes:     bytes,
+									// Data
+									Status: err.Error(),
+								}
+							} else {
+								response = MbtcpPollData{
+									TimeStamp: time.Now().UTC().UnixNano(),
+									Name:      task.Name,
+									Type:      readReq.Type,
+									Bytes:     bytes,
+									Data:      ret,
+									Status:    res.Status,
+								}
+							}
+						}
+					}
+				default: // case 0, 1(RegisterArray)
+					response = MbtcpPollData{
+						TimeStamp: time.Now().UTC().UnixNano(),
+						Name:      task.Name,
+						Type:      readReq.Type,
+						Bytes:     bytes,
+						Data:      res.Data,
+						Status:    res.Status,
+					}
+				}
+
+				// TODO: add to history
+
+				return b.simpleResponser(respCmd, response)
 			default:
 				log.Error("Should not reach here")
-				command := MbtcpSimpleRes{
+				response = MbtcpSimpleRes{
 					Tid:    tid,
 					Status: "not support command",
 				}
-				return b.simpleResponser(task.Cmd, command)
+				return b.simpleResponser(respCmd, response)
 			}
 		}
 	default: // should not reach here!!
