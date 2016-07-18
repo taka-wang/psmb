@@ -249,8 +249,7 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 
 			var dd []uint16
 			var err error
-			// check dec or hex
-			if req.Hex {
+			if req.Hex { // check dec or hex
 				dd, err = HexStringToRegisters(d)
 			} else {
 				dd, err = DecimalStringToRegisters(d)
@@ -268,11 +267,10 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 
 			var dd []uint16
 			var err error
-			// check dec or hex
-			if req.Hex {
-				dd, err := HexStringToRegisters(d)
+			if req.Hex { // check dec or hex
+				dd, err = HexStringToRegisters(d)
 			} else {
-				dd, err := DecimalStringToRegisters(d)
+				dd, err = DecimalStringToRegisters(d)
 			}
 			if err != nil {
 				return nil, err
@@ -283,7 +281,6 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 		default:
 			return nil, ErrRequestNotSupport
 		}
-
 	case mbtcpOnceRead: // done
 		var req MbtcpReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
@@ -601,11 +598,13 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 			if MbtcpCmdType(cmd) == getTCPTimeout {
 				data = res.Timeout
 			}
+
 			resp = MbtcpTimeoutRes{
 				Tid:    tid,
 				Status: res.Status,
 				Data:   data, // getTCPTimeout only
 			}
+
 		case fc5, fc6, fc15, fc16: // one-off write requests
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
