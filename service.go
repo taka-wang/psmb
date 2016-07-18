@@ -698,15 +698,14 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Status:    res.Status,
 					}
 				} else {
-					// TODO: add to history
 					response = MbtcpPollData{
 						TimeStamp: time.Now().UTC().UnixNano(),
 						Name:      task.Name,
 						Status:    res.Status,
 						Data:      res.Data,
 					}
+					// TODO: add to history
 				}
-
 			default: // should not reach here
 				log.Error("Should not reach here")
 				response = MbtcpSimpleRes{
@@ -938,6 +937,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Data:      BytesToHexString(bytes), // convert byte to hex
 						Status:    res.Status,
 					}
+					// TODO: add to history
 				case UInt16:
 					// order
 					ret, err := BytesToUInt16s(bytes, readReq.Order)
@@ -959,6 +959,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Data:      ret,
 							Status:    res.Status,
 						}
+						// TODO: add to history
 					}
 				case Int16:
 					// order
@@ -981,6 +982,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Data:      ret,
 							Status:    res.Status,
 						}
+						// TODO: add to history
 					}
 
 				case Scale, UInt32, Int32, Float32: // 32-Bits
@@ -1012,6 +1014,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 								Data:      f,
 								Status:    res.Status,
 							}
+							// TODO: add to history
 						case UInt32:
 							ret, err := BytesToUInt32s(bytes, readReq.Order)
 							if err != nil {
@@ -1032,6 +1035,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 									Data:      ret,
 									Status:    res.Status,
 								}
+								// TODO: add to history
 							}
 						case Int32:
 							ret, err := BytesToInt32s(bytes, readReq.Order)
@@ -1053,6 +1057,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 									Data:      ret,
 									Status:    res.Status,
 								}
+								// TODO: add to history
 							}
 						case Float32:
 							ret, err := BytesToFloat32s(bytes, readReq.Order)
@@ -1074,6 +1079,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 									Data:      ret,
 									Status:    res.Status,
 								}
+								// TODO: add to history
 							}
 						}
 					}
@@ -1086,10 +1092,8 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Data:      res.Data,
 						Status:    res.Status,
 					}
+					// TODO: add to history
 				}
-
-				// TODO: add to history
-
 				return b.simpleResponser(respCmd, response)
 			default:
 				log.Error("Should not reach here")
@@ -1162,7 +1166,7 @@ func (b *mbtcpService) Stop() {
 	log.Debug("Stop proactive service")
 	b.scheduler.Stop()
 	b.enable = false
-	if b.sub.upstream {
+	if b.sub.upstream != nil {
 		b.sub.upstream.Close()
 		b.pub.upstream.Close()
 		b.sub.downstream.Close()
