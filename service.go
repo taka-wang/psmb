@@ -118,7 +118,7 @@ func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
 // Example:
 // 	initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
-	log.Debug("initZMQPub")
+	log.Debug("Init ZMQ Publishers")
 	// upstream publisher
 	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
 	b.pub.upstream.Bind(toServiceEndpoint)
@@ -132,7 +132,7 @@ func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
 // Example:
 // 	initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
 func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
-	log.Debug("initZMQSub")
+	log.Debug("Init ZMQ Subscribers")
 	// upstream subscriber
 	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
 	b.sub.upstream.Bind(fromServiceEndpoint)
@@ -146,7 +146,7 @@ func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint strin
 
 // initZMQPoller init zmq poller
 func (b *mbtcpService) initZMQPoller() {
-	log.Debug("initZMQPoller")
+	log.Debug("Init ZMQ Poller")
 	// initialize poll set
 	b.poller = zmq.NewPoller()
 	b.poller.Add(b.sub.upstream, zmq.POLLIN)
@@ -173,6 +173,7 @@ func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 	return errors.New("Request not found!")
 }
 
+// simpleResponser simple reponser to upstream without checking simple task map
 func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
 	respStr, err := json.Marshal(resp)
 	if err != nil {
@@ -185,7 +186,7 @@ func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
 	return nil
 }
 
-// parseRequest parse message from services
+// parseRequest parse requests from services
 // R&R: only unmarshal request string to corresponding struct
 func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
@@ -195,7 +196,7 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 		return nil, errors.New("Invalid message length")
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing request:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing upstream request:")
 
 	switch msg[0] {
 	case mbtcpOnceRead: // done
@@ -353,9 +354,9 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 	}
 }
 
-// handleRequest build command to services
+// handleRequest handle requests from services
 func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
-	log.WithFields(log.Fields{"cmd": cmd}).Debug("Build request command:")
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle upstream request:")
 
 	switch cmd {
 	case mbtcpOnceRead: // done
@@ -573,7 +574,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	}
 }
 
-// parseResponse parse message from modbusd
+// parseResponse parse responses from modbusd
 func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) { // done.
 	// Check the length of multi-part message
 	if len(msg) != 2 {
@@ -581,7 +582,7 @@ func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) { // don
 		return nil, errors.New("Invalid message length")
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing response:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing downstream response:")
 
 	switch MbtcpCmdType(msg[0]) {
 	case setTCPTimeout, getTCPTimeout: // set|get timeout
@@ -606,10 +607,9 @@ func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) { // don
 	}
 }
 
-// handleResponse build command to services
-// Todo: filter, handle
+// handleResponse handle response from modbusd, Todo: filter, handle
 func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
-	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response:")
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle downstream response:")
 
 	switch MbtcpCmdType(cmd) {
 	case fc5, fc6, fc15, fc16, setTCPTimeout, getTCPTimeout: // [done]: one-off requests
@@ -698,7 +698,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				log.Error("Should not reach here")
 				response = MbtcpSimpleRes{
 					Tid:    tid,
-					Status: "not support command",
+					Status: "Command not support",
 				}
 			}
 			return b.simpleResponser(respCmd, response)
@@ -926,11 +926,11 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 	return nil
 }
 
-// Start start proactive service
+// Start enable proactive service
 func (b *mbtcpService) Start() {
-
 	b.initLogger()
-	log.Debug("Start Service")
+
+	log.Debug("Start proactive service")
 	b.scheduler.Start()
 	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
@@ -976,12 +976,15 @@ func (b *mbtcpService) Start() {
 	}
 }
 
-// Stop stop proactive service
+// Stop disable proactive service
 func (b *mbtcpService) Stop() {
+	log.Debug("Stop proactive service")
 	b.scheduler.Stop()
 	b.enable = false
-	b.sub.upstream.Close()
-	b.pub.upstream.Close()
-	b.sub.downstream.Close()
-	b.pub.downstream.Close()
+	if b.sub.upstream {
+		b.sub.upstream.Close()
+		b.pub.upstream.Close()
+		b.sub.downstream.Close()
+		b.pub.downstream.Close()
+	}
 }
