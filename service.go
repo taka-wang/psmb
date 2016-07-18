@@ -745,42 +745,43 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				case UInt16:
 					// order
 					ret, err := BytesToUInt16s(bytes, readReq.Order)
+					var status string
+					var data interface{}
+
 					if err != nil {
-						response = MbtcpReadRes{
-							Tid:    tid,
-							Type:   readReq.Type,
-							Bytes:  bytes,
-							Status: err.Error(),
-						}
+						data = nil
+						status = err.Error()
 					} else {
-						response = MbtcpReadRes{
-							Tid:    tid,
-							Type:   readReq.Type,
-							Bytes:  bytes,
-							Data:   ret,
-							Status: res.Status,
-						}
+						data = ret
+						status = res.Status
+					}
+					response = MbtcpReadRes{
+						Tid:    tid,
+						Type:   readReq.Type,
+						Bytes:  bytes,
+						Data:   data,
+						Status: status,
 					}
 				case Int16:
 					// order
 					ret, err := BytesToInt16s(bytes, readReq.Order)
-					if err != nil {
-						response = MbtcpReadRes{
-							Tid:    tid,
-							Type:   readReq.Type,
-							Bytes:  bytes,
-							Status: err.Error(),
-						}
-					} else {
-						response = MbtcpReadRes{
-							Tid:    tid,
-							Type:   readReq.Type,
-							Bytes:  bytes,
-							Data:   ret,
-							Status: res.Status,
-						}
-					}
+					var status string
+					var data interface{}
 
+					if err != nil {
+						data = nil
+						status = err.Error()
+					} else {
+						data = ret
+						status = res.Status
+					}
+					response = MbtcpReadRes{
+						Tid:    tid,
+						Type:   readReq.Type,
+						Bytes:  bytes,
+						Data:   data,
+						Status: status,
+					}
 				case Scale, UInt32, Int32, Float32: // 32-bits
 					if readReq.Len%2 != 0 {
 						response = MbtcpReadRes{
@@ -792,76 +793,90 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					} else {
 						switch readReq.Type {
 						case Scale:
-							// todo: check range values
-							f := LinearScalingRegisters(
+							f, err := LinearScalingRegisters(
 								res.Data,
 								readReq.Range.DomainLow,
 								readReq.Range.DomainHigh,
 								readReq.Range.RangeLow,
 								readReq.Range.RangeHigh)
 
+							var status string
+							var data interface{}
+
+							if err != nil {
+								data = nil
+								status = err.Error()
+							} else {
+								data = f
+								status = res.Status
+							}
+
 							response = MbtcpReadRes{
 								Tid:    tid,
 								Type:   readReq.Type,
 								Bytes:  bytes,
 								Data:   f,
-								Status: res.Status,
+								Status: status,
 							}
 						case UInt32:
 							ret, err := BytesToUInt32s(bytes, readReq.Order)
+							var status string
+							var data interface{}
+
 							if err != nil {
-								response = MbtcpReadRes{
-									Tid:    tid,
-									Type:   readReq.Type,
-									Bytes:  bytes,
-									Status: err.Error(),
-								}
+								data = nil
+								status = err.Error()
 							} else {
-								response = MbtcpReadRes{
-									Tid:    tid,
-									Type:   readReq.Type,
-									Bytes:  bytes,
-									Data:   ret,
-									Status: res.Status,
-								}
+								data = ret
+								status = res.Status
+							}
+							response = MbtcpReadRes{
+								Tid:    tid,
+								Type:   readReq.Type,
+								Bytes:  bytes,
+								Data:   data,
+								Status: status,
 							}
 						case Int32:
 							ret, err := BytesToInt32s(bytes, readReq.Order)
+							var status string
+							var data interface{}
+
 							if err != nil {
-								response = MbtcpReadRes{
-									Tid:    tid,
-									Type:   readReq.Type,
-									Bytes:  bytes,
-									Status: err.Error(),
-								}
+								data = nil
+								status = err.Error()
 							} else {
-								response = MbtcpReadRes{
-									Tid:    tid,
-									Type:   readReq.Type,
-									Bytes:  bytes,
-									Data:   ret,
-									Status: res.Status,
-								}
+								data = ret
+								status = res.Status
+							}
+							response = MbtcpReadRes{
+								Tid:    tid,
+								Type:   readReq.Type,
+								Bytes:  bytes,
+								Data:   data,
+								Status: status,
 							}
 						case Float32:
 							ret, err := BytesToFloat32s(bytes, readReq.Order)
+
+							var status string
+							var data interface{}
+
 							if err != nil {
-								response = MbtcpReadRes{
-									Tid:    tid,
-									Type:   readReq.Type,
-									Bytes:  bytes,
-									Status: err.Error(),
-								}
+								data = nil
+								status = err.Error()
 							} else {
-								response = MbtcpReadRes{
-									Tid:    tid,
-									Type:   readReq.Type,
-									Bytes:  bytes,
-									Data:   ret,
-									Status: res.Status,
-								}
+								data = ret
+								status = res.Status
 							}
 
+							response = MbtcpReadRes{
+								Tid:    tid,
+								Type:   readReq.Type,
+								Bytes:  bytes,
+								Data:   data,
+								Status: status,
+							}
 						}
 					}
 				default: // case 0, 1(RegisterArray)
@@ -979,22 +994,33 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					} else {
 						switch readReq.Type {
 						case Scale:
-							// todo: check range values
-							f := LinearScalingRegisters(
+							f, err := LinearScalingRegisters(
 								res.Data,
 								readReq.Range.DomainLow,
 								readReq.Range.DomainHigh,
 								readReq.Range.RangeLow,
 								readReq.Range.RangeHigh)
 
+							var status string
+							var data interface{}
+
+							if err != nil {
+								data = nil
+								status = err.Error()
+							} else {
+								data = f
+								status = res.Status
+							}
+
 							response = MbtcpPollData{
 								TimeStamp: time.Now().UTC().UnixNano(),
 								Name:      task.Name,
 								Type:      readReq.Type,
 								Bytes:     bytes,
-								Data:      f,
-								Status:    res.Status,
+								Data:      data,
+								Status:    status,
 							}
+
 							// TODO: add to history
 						case UInt32:
 							ret, err := BytesToUInt32s(bytes, readReq.Order)

@@ -20,6 +20,9 @@ var (
 	// ErrBytesToFloat32s is the error of BytesToFloat32s converter
 	ErrBytesToFloat32s = errors.New("Converts byte array to float32 array in four endian orders failed")
 
+	// ErrNotANumber is the error of LinearScalingRegisters converter
+	ErrNotANumber = errors.New("Scales the registers linearly failed")
+
 	// ErrBytesToInt32s is the error of BytesToInt32s converter
 	ErrBytesToInt32s = errors.New("Converts byte array to UInt32 array in four endian orders failed")
 

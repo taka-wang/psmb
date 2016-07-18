@@ -75,16 +75,21 @@ func RegistersToBytes(data []uint16) ([]byte, error) {
 // Equation:
 // 	Let domainLow, domainHigh, rangeLow, rangeHigh as a, b, c, d accordingly.
 // 	Output = c + (d - c) * (input - a) / (b - a)
-func LinearScalingRegisters(data []uint16, domainLow, domainHigh, rangeLow, rangeHigh float64) []float32 {
+func LinearScalingRegisters(data []uint16, domainLow, domainHigh, rangeLow, rangeHigh float64) ([]float32, error) {
 	l := len(data)
 	low := math.Min(domainLow, domainHigh)
 	high := math.Max(domainLow, domainHigh)
 	result := make([]float32, l)
 
+	var tmp float64
 	for idx := 0; idx < l; idx++ {
-		result[idx] = float32(rangeLow + (rangeHigh-rangeLow)*(math.Min(math.Max(low, float64(data[idx])), high)-low)/(high-low))
+		tmp = rangeLow + (rangeHigh-rangeLow)*(math.Min(math.Max(low, float64(data[idx])), high)-low)/(high-low)
+		if math.IsNaN(tmp) {
+			return nil, ErrNotANumber
+		}
+		result[idx] = float32()
 	}
-	return result
+	return result, nil
 }
 
 // BytesToFloat32s converts byte array to float32 array in four endian orders. i.e.,
