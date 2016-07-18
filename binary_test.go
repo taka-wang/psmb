@@ -388,7 +388,7 @@ func TestBinaryOps(t *testing.T) {
 
 	s.Assert("`HexStringToRegisters` test - wrong length", func(log sugar.Log) bool {
 		input := "112C004F1234567"
-		result, err := HexStringToRegisters(input)
+		_, err := HexStringToRegisters(input)
 		if err != nil {
 			log(err)
 			return true
@@ -410,6 +410,32 @@ func TestBinaryOps(t *testing.T) {
 	s.Assert("`LinearScalingRegisters` test", func(log sugar.Log) bool {
 		// arr := []uint16{4396, 79, 4660, 22136} // 112C004F12345678
 		result := LinearScalingRegisters(arr, 0, 65535, 100, 200)
+		desire := []float32{106.70786602578775, 100.1205462729839, 107.11070420386054, 133.7773708705272}
+		for idx := 0; idx < len(desire); idx++ {
+			log("desire:%f, result:%f", desire[idx], result[idx])
+			if result[idx] != desire[idx] {
+				return false
+			}
+		}
+		return true
+	})
+
+	s.Assert("`LinearScalingRegisters` test - (0,0,0,0)", func(log sugar.Log) bool {
+		// arr := []uint16{4396, 79, 4660, 22136} // 112C004F12345678
+		result := LinearScalingRegisters(arr, 0, 0, 0, 0)
+		desire := []float32{106.70786602578775, 100.1205462729839, 107.11070420386054, 133.7773708705272}
+		for idx := 0; idx < len(desire); idx++ {
+			log("desire:%f, result:%f", desire[idx], result[idx])
+			if result[idx] != desire[idx] {
+				return false
+			}
+		}
+		return true
+	})
+
+	s.Assert("`LinearScalingRegisters` test - reverse", func(log sugar.Log) bool {
+		// arr := []uint16{4396, 79, 4660, 22136} // 112C004F12345678
+		result := LinearScalingRegisters(arr, 65535, 0, 200, 100)
 		desire := []float32{106.70786602578775, 100.1205462729839, 107.11070420386054, 133.7773708705272}
 		for idx := 0; idx < len(desire); idx++ {
 			log("desire:%f, result:%f", desire[idx], result[idx])
