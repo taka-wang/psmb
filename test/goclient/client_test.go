@@ -958,6 +958,7 @@ func TestOneOffFC16(t *testing.T) {
 }
 */
 
+/*
 func TestPSMB(t *testing.T) {
 	s := sugar.New(t)
 	s.Title("`mbtcp.once.write` tests")
@@ -1584,3 +1585,4 @@ func TestPSMB(t *testing.T) {
 	})
 
 }
+*/
