@@ -4,12 +4,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
-	"errors"
 	"math"
 	"strconv"
 	"strings"
-
-	log "github.com/takawang/logrus"
 )
 
 // Binary stuff.
@@ -21,7 +18,7 @@ func BitStringToUInt8s(bitString string) ([]uint8, error) {
 	for _, v := range strings.Split(bitString, ",") {
 		i, err := strconv.ParseUint(v, 10, 8)
 		if err != nil {
-			return nil, err
+			return nil, ErrBitStringToUInt8s
 		}
 		result = append(result, uint8(i))
 	}
@@ -36,7 +33,7 @@ func DecimalStringToRegisters(decString string) ([]uint16, error) {
 	for _, v := range strings.Split(decString, ",") {
 		i, err := strconv.ParseUint(v, 10, 16)
 		if err != nil {
-			return nil, err
+			return nil, ErrDecimalStringToRegisters
 		}
 		result = append(result, uint16(i))
 	}
@@ -48,7 +45,7 @@ func DecimalStringToRegisters(decString string) ([]uint16, error) {
 func HexStringToRegisters(hexString string) ([]uint16, error) {
 	bytes, err := hex.DecodeString(hexString)
 	if err != nil {
-		return nil, err
+		return nil, ErrHexStringToRegisters
 	}
 	return BytesToUInt16s(bytes, 0)
 }
@@ -66,8 +63,7 @@ func RegistersToBytes(data []uint16) ([]byte, error) {
 	for _, v := range data {
 		err := binary.Write(buf, binary.BigEndian, v)
 		if err != nil {
-			log.Error("RegistersToBytes failed:", err)
-			return nil, err
+			return nil, ErrRegistersToBytes
 		}
 	}
 	return buf.Bytes(), nil
@@ -97,7 +93,7 @@ func LinearScalingRegisters(data []uint16, domainLow, domainHigh, rangeLow, rang
 func BytesToFloat32s(buf []byte, endian Endian) ([]float32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
-		return nil, errors.New("Invalid data length")
+		return nil, ErrBytesToFloat32s
 	}
 
 	result := make([]float32, l/4)
@@ -124,7 +120,7 @@ func BytesToFloat32s(buf []byte, endian Endian) ([]float32, error) {
 func BytesToInt32s(buf []byte, endian Endian) ([]int32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
-		return nil, errors.New("Invalid data length")
+		return nil, ErrBytesToInt32s
 	}
 	result := make([]int32, l/4)
 	for idx := 0; idx < l/4; idx++ {
@@ -150,7 +146,7 @@ func BytesToInt32s(buf []byte, endian Endian) ([]int32, error) {
 func BytesToUInt32s(buf []byte, endian Endian) ([]uint32, error) {
 	l := len(buf)
 	if l == 0 || l%4 != 0 {
-		return nil, errors.New("Invalid data length")
+		return nil, ErrBytesToUInt32s
 	}
 	result := make([]uint32, l/4)
 	for idx := 0; idx < l/4; idx++ {
@@ -173,7 +169,7 @@ func BytesToUInt32s(buf []byte, endian Endian) ([]uint32, error) {
 func BytesToInt16s(buf []byte, endian Endian) ([]int16, error) {
 	l := len(buf)
 	if l == 0 || l%2 != 0 {
-		return nil, errors.New("Invalid data length")
+		return nil, ErrBytesToInt16s
 	}
 	result := make([]int16, l/2)
 	for idx := 0; idx < l/2; idx++ {
@@ -191,7 +187,7 @@ func BytesToInt16s(buf []byte, endian Endian) ([]int16, error) {
 func BytesToUInt16s(buf []byte, endian Endian) ([]uint16, error) {
 	l := len(buf)
 	if l == 0 || l%2 != 0 {
-		return nil, errors.New("Invalid data length")
+		return nil, ErrBytesToUInt16s
 	}
 	result := make([]uint16, l/2)
 	for idx := 0; idx < l/2; idx++ {
