@@ -98,6 +98,34 @@ func TestOneOffTimeout(t *testing.T) {
 		return true
 	})
 
+	s.Assert("mbtcp.timeout.update test - invalid json type", func(log sugar.Log) bool {
+		ReadReqStr :=
+			`{
+                "from": "web",
+                "tid": 123456,
+                "timeout": "210000"
+            }`
+		cmd := "mbtcp.timeout.update"
+		go publisher(cmd, string(ReadReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(ReadReqStr))
+		log("set timeout as 200000")
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpTimeoutRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
 	s.Assert("mbtcp.timeout.read test - invalid value", func(log sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
 			From: "web",
