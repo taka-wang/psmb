@@ -67,7 +67,7 @@ func init() {
 }
 
 func TestOneOffTimeout(t *testing.T) {
-	s := sugar.New(nil)
+	s := sugar.New(t)
 
 	s.Assert("mbtcp.timeout.update test - invalid value (1)", func(log sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
@@ -183,7 +183,7 @@ func TestOneOffTimeout(t *testing.T) {
 }
 
 func TestOneOffFC5(t *testing.T) {
-	s := sugar.New(nil)
+	s := sugar.New(t)
 
 	s.Assert("`FC5` write bit test: port 502 - invalid value(2)", func(log sugar.Log) bool {
 		// ---------------- write part
@@ -252,7 +252,7 @@ func TestOneOffFC5(t *testing.T) {
 
 		// ---------------- Compare
 		var r3 []uint16
-		if err := json.Unmarshal(data, &d); err != nil {
+		if err := json.Unmarshal(data, &r3); err != nil {
 			return false
 		}
 		if r3[0] != 1 {
@@ -329,7 +329,7 @@ func TestOneOffFC5(t *testing.T) {
 
 		// ---------------- Compare
 		var r3 []uint16
-		if err := json.Unmarshal(data, &d); err != nil {
+		if err := json.Unmarshal(data, &r3); err != nil {
 			return false
 		}
 		if r3[0] != 1 {
@@ -405,7 +405,7 @@ func TestOneOffFC5(t *testing.T) {
 
 		// ---------------- Compare
 		var r3 []uint16
-		if err := json.Unmarshal(data, &d); err != nil {
+		if err := json.Unmarshal(data, &r3); err != nil {
 			return false
 		}
 		if r3[0] != 0 {
@@ -417,8 +417,13 @@ func TestOneOffFC5(t *testing.T) {
 
 }
 
+func TestOneOffFC6(t *testing.T) {
+	s := sugar.New(t)
+	return true
+}
+
 func TestPSMB(t *testing.T) {
-	s := sugar.New(nil)
+	s := sugar.New(t)
 	s.Title("`mbtcp.once.write` tests")
 	s.Assert("`FC6` write `DEC` register test: port 502", func(log sugar.Log) bool {
 		writeReq := psmb.MbtcpWriteReq{
