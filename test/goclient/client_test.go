@@ -48,16 +48,11 @@ func subscriber() (string, string) {
 	}
 }
 
-func TestPSMB(t *testing.T) {
-	/*
-		// start psmb service
-		go func() {
-			psmb.Start()
-		}()
-	*/
-
+func init() {
 	time.Sleep(2000 * time.Millisecond)
+}
 
+func TestTimeout(t *testing.T) {
 	s := sugar.New(nil)
 
 	var hostName string
@@ -188,7 +183,25 @@ func TestPSMB(t *testing.T) {
 		return true
 	})
 
-	// ---------------------------------------------------------------//
+}
+
+func TestOneOffFC5(t *testing.T) {
+	s := sugar.New(nil)
+
+	var hostName string
+	portNum1 := "502"
+	portNum2 := "503"
+
+	// generalize host reslove for docker/local env
+	host, err := net.LookupHost("mbd")
+	if err != nil {
+		fmt.Println("local run")
+		hostName = "127.0.0.1"
+	} else {
+		fmt.Println("docker run")
+		hostName = host[0] //docker
+	}
+
 	s.Title("`mbtcp.once.write` tests")
 
 	s.Assert("`FC5` write bit test: port 502 - invalid value(2)", func(log sugar.Log) bool {
@@ -408,6 +421,34 @@ func TestPSMB(t *testing.T) {
 
 		return true
 	})
+
+}
+
+func TestPSMB(t *testing.T) {
+	/*
+		// start psmb service
+		go func() {
+			psmb.Start()
+		}()
+	*/
+
+	time.Sleep(2000 * time.Millisecond)
+
+	s := sugar.New(nil)
+
+	var hostName string
+	portNum1 := "502"
+	portNum2 := "503"
+
+	// generalize host reslove for docker/local env
+	host, err := net.LookupHost("mbd")
+	if err != nil {
+		fmt.Println("local run")
+		hostName = "127.0.0.1"
+	} else {
+		fmt.Println("docker run")
+		hostName = host[0] //docker
+	}
 
 	s.Assert("`FC6` write `DEC` register test: port 502", func(log sugar.Log) bool {
 		writeReq := psmb.MbtcpWriteReq{
