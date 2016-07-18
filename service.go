@@ -732,162 +732,94 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 
 				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
 
+				// shared variables
+				var status string
+				var data interface{}
+
 				switch readReq.Type {
 				case HexString:
-					response = MbtcpReadRes{
-						Tid:    tid,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   BytesToHexString(bytes), // convert byte to hex
-						Status: res.Status,
-					}
-
+					data = BytesToHexString(bytes) // convert byte to hex
+					status = res.Status
 				case UInt16:
-					// order
-					ret, err := BytesToUInt16s(bytes, readReq.Order)
-					var status string
-					var data interface{}
-
+					ret, err := BytesToUInt16s(bytes, readReq.Order) // order
 					if err != nil {
 						data = nil
 						status = err.Error()
 					} else {
 						data = ret
 						status = res.Status
-					}
-					response = MbtcpReadRes{
-						Tid:    tid,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   data,
-						Status: status,
 					}
 				case Int16:
-					// order
-					ret, err := BytesToInt16s(bytes, readReq.Order)
-					var status string
-					var data interface{}
-
+					ret, err := BytesToInt16s(bytes, readReq.Order) // order
 					if err != nil {
 						data = nil
 						status = err.Error()
 					} else {
 						data = ret
 						status = res.Status
-					}
-					response = MbtcpReadRes{
-						Tid:    tid,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   data,
-						Status: status,
 					}
 				case Scale, UInt32, Int32, Float32: // 32-bits
 					if readReq.Len%2 != 0 {
-						response = MbtcpReadRes{
-							Tid:    tid,
-							Type:   readReq.Type,
-							Bytes:  bytes,
-							Status: "Conversion failed",
-						}
+						data = nil
+						status = "Invalid length to convert"
 					} else {
 						switch readReq.Type {
 						case Scale:
-							f, err := LinearScalingRegisters(
+							ret, err := LinearScalingRegisters(
 								res.Data,
 								readReq.Range.DomainLow,
 								readReq.Range.DomainHigh,
 								readReq.Range.RangeLow,
 								readReq.Range.RangeHigh)
-
-							var status string
-							var data interface{}
-
 							if err != nil {
 								data = nil
 								status = err.Error()
 							} else {
-								data = f
+								data = ret
 								status = res.Status
-							}
-
-							response = MbtcpReadRes{
-								Tid:    tid,
-								Type:   readReq.Type,
-								Bytes:  bytes,
-								Data:   data,
-								Status: status,
 							}
 						case UInt32:
 							ret, err := BytesToUInt32s(bytes, readReq.Order)
-							var status string
-							var data interface{}
-
 							if err != nil {
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-							}
-							response = MbtcpReadRes{
-								Tid:    tid,
-								Type:   readReq.Type,
-								Bytes:  bytes,
-								Data:   data,
-								Status: status,
 							}
 						case Int32:
 							ret, err := BytesToInt32s(bytes, readReq.Order)
-							var status string
-							var data interface{}
-
 							if err != nil {
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-							}
-							response = MbtcpReadRes{
-								Tid:    tid,
-								Type:   readReq.Type,
-								Bytes:  bytes,
-								Data:   data,
-								Status: status,
 							}
 						case Float32:
 							ret, err := BytesToFloat32s(bytes, readReq.Order)
-
-							var status string
-							var data interface{}
-
 							if err != nil {
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-							}
-
-							response = MbtcpReadRes{
-								Tid:    tid,
-								Type:   readReq.Type,
-								Bytes:  bytes,
-								Data:   data,
-								Status: status,
 							}
 						}
 					}
 				default: // case 0, 1(RegisterArray)
-					response = MbtcpReadRes{
-						Tid:    tid,
-						Type:   readReq.Type,
-						Bytes:  bytes,
-						Data:   res.Data,
-						Status: res.Status,
-					}
+					data = res.Data
+					status = res.Status
 				}
+
+				response = MbtcpReadRes{
+					Tid:    tid,
+					Type:   readReq.Type,
+					Bytes:  bytes,
+					Data:   data,
+					Status: status,
+				}
+
 				// remove from read table
 				b.readTaskMap.Delete(res.Tid)
 				return b.simpleResponser(respCmd, response)
