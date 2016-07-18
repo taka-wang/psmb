@@ -246,6 +246,7 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 			if err := json.Unmarshal(data, &d); err != nil {
 				return nil, ErrUnmarshal
 			}
+
 			var dd []uint16
 			var err error
 			// check dec or hex
@@ -254,7 +255,6 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 			} else {
 				dd, err = DecimalStringToRegisters(d)
 			}
-
 			if err != nil {
 				return nil, err
 			}
@@ -266,20 +266,18 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 				return nil, ErrUnmarshal
 			}
 
+			var dd []uint16
+			var err error
 			// check dec or hex
 			if req.Hex {
 				dd, err := HexStringToRegisters(d)
-				if err != nil {
-					return nil, err
-				}
-				req.Data = dd
 			} else {
 				dd, err := DecimalStringToRegisters(d)
-				if err != nil {
-					return nil, err
-				}
-				req.Data = dd
 			}
+			if err != nil {
+				return nil, err
+			}
+			req.Data = dd
 			return req, nil
 		// should not reach here
 		default:
@@ -669,7 +667,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					Data:      data,
 				}
 				// TODOL if res.Status == "ok" then "add to history"
-				}
 			default: // should not reach here
 				log.WithFields(log.Fields{"cmd": cmd}).Debug("handleResponse: should not reach here")
 				response = MbtcpSimpleRes{
