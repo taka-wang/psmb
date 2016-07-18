@@ -258,11 +258,11 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 				}
 				req.Data = dd[0] // one register
 			} else {
-				dd, err := strconv.Atoi(d)
+				dd, err := DecimalStringToRegisters(d)
 				if err != nil {
 					return nil, err
 				}
-				req.Data = dd
+				req.Data = dd[0] // one register
 			}
 			return req, nil
 
