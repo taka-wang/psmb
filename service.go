@@ -716,10 +716,9 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 			return b.simpleResponser(respCmd, response)
 		case fc3, fc4:
 
-			readReq := task.Req.(MbtcpReadReq)
-
 			switch task.Cmd {
 			case mbtcpOnceRead:
+				readReq := task.Req.(MbtcpReadReq)
 				// check modbus response status
 				if res.Status != "ok" {
 					response = MbtcpReadRes{
@@ -893,6 +892,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				b.readTaskMap.Delete(res.Tid)
 				return b.simpleResponser(respCmd, response)
 			case mbtcpCreatePoll, mbtcpImportPolls: // data
+				readReq := task.Req.(MbtcpPollStatus)
 				respCmd = mbtcpData // set as "mbtcp.data"
 
 				if res.Status != "ok" {
