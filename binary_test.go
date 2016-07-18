@@ -335,6 +335,7 @@ func TestBinaryOps(t *testing.T) {
 		input := ",4396,79,4660,22136"
 		result, _ := DecimalStringToRegisters(input)
 		desire := []uint16{4396, 79, 4660, 22136}
+		log("input length: %d; desire length: %d", len(result), len(desire))
 		for idx := 0; idx < len(desire); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -348,6 +349,7 @@ func TestBinaryOps(t *testing.T) {
 		input := "4396,79,4660,22136,"
 		result, _ := DecimalStringToRegisters(input)
 		desire := []uint16{4396, 79, 4660, 22136}
+		log("input length: %d; desire length: %d", len(result), len(desire))
 		for idx := 0; idx < len(desire); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -361,6 +363,7 @@ func TestBinaryOps(t *testing.T) {
 		input := ",4396,79,4660,22136,"
 		result, _ := DecimalStringToRegisters(input)
 		desire := []uint16{4396, 79, 4660, 22136}
+		log("input length: %d; desire length: %d", len(result), len(desire))
 		for idx := 0; idx < len(desire); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -385,15 +388,23 @@ func TestBinaryOps(t *testing.T) {
 
 	s.Assert("`HexStringToRegisters` test - wrong length", func(log sugar.Log) bool {
 		input := "112C004F1234567"
-		result, _ := HexStringToRegisters(input)
-		desire := []uint16{4396, 79, 4660, 22136}
-		for idx := 0; idx < len(desire); idx++ {
-			log("desire:%d, result:%d", desire[idx], result[idx])
-			if result[idx] != desire[idx] {
-				return false
-			}
+		result, err := HexStringToRegisters(input)
+		if err != nil {
+			log(err)
+			return true
 		}
-		return true
+		return false
+
+		/*
+			desire := []uint16{4396, 79, 4660, 22136}
+			for idx := 0; idx < len(desire); idx++ {
+				log("desire:%d, result:%d", desire[idx], result[idx])
+				if result[idx] != desire[idx] {
+					return false
+				}
+			}
+			return true
+		*/
 	})
 
 	s.Assert("`LinearScalingRegisters` test", func(log sugar.Log) bool {
