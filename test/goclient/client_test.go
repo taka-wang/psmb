@@ -460,7 +460,7 @@ func TestOneOffFC6(t *testing.T) {
 			Port:  portNum1,
 			FC:    3,
 			Slave: 1,
-			Addr:  3,
+			Addr:  10,
 			Len:   7,
 			Type:  psmb.RegisterArray,
 		}
@@ -476,12 +476,22 @@ func TestOneOffFC6(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 psmb.MbtcpReadRes
+		var data json.RawMessage // raw []byte
+		r2 := psmb.MbtcpReadRes{Data: &data}
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
 		// check response
 		if r2.Status != "ok" {
+			return false
+		}
+
+		// ---------------- Compare
+		var r3 []uint16
+		if err := json.Unmarshal(data, &r3); err != nil {
+			return false
+		}
+		if r3[0] != 22 {
 			return false
 		}
 
