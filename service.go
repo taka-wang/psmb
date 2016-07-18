@@ -495,7 +495,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	case mbtcpTogglePoll:
 		// TODO! check name
 		req := r.(MbtcpPollOpReq)
-		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		//TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
 		status := "ok"
 		if req.Enabled {
