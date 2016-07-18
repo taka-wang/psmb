@@ -1529,11 +1529,11 @@ func TestPSMB(t *testing.T) {
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
-		// check response
+		// check fail response
 		if r2.Status != "ok" {
-			return false
+			return true
 		}
-		return true
+		return false
 	})
 
 	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502", func(log sugar.Log) bool {
@@ -1603,11 +1603,11 @@ func TestPSMB(t *testing.T) {
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
-		// check response
+		// check fail response
 		if r2.Status != "ok" {
-			return false
+			return true
 		}
-		return true
+		return false
 	})
 
 	s.Title("Poll request tests")
