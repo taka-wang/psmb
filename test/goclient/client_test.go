@@ -1382,7 +1382,7 @@ func TestPSMB(t *testing.T) {
 			fmt.Println("json err:", err)
 		}
 		// check response
-		if r2.Status != "Conversion failed" {
+		if r2.Status != "Invalid length to convert" {
 			return false
 		}
 		return true
@@ -1456,7 +1456,7 @@ func TestPSMB(t *testing.T) {
 			fmt.Println("json err:", err)
 		}
 		// check response
-		if r2.Status != "ok" {
+		if r2.Status != "Invalid length to convert" {
 			return false
 		}
 		return true
