@@ -246,6 +246,8 @@ func TestBinaryOps(t *testing.T) {
 		input := "1,0,1,1,0,1,"
 		result, _ := BitStringToUInt8s(input)
 		desire := []uint8{1, 0, 1, 1, 0, 1}
+		log("input length: %d; desire length: %d", len(result), len(desire))
+
 		for idx := 0; idx < len(desire); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
