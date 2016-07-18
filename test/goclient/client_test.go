@@ -419,7 +419,9 @@ func TestOneOffFC5(t *testing.T) {
 
 func TestOneOffFC6(t *testing.T) {
 	s := sugar.New(t)
-	return true
+	s.Must("dummy", func(_ sugar.Log) bool {
+		return true
+	})
 }
 
 func TestPSMB(t *testing.T) {
