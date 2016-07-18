@@ -384,7 +384,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	switch cmd {
 	case mbtcpOnceRead: // done
 		req := r.(MbtcpReadReq)
-		TidStr := strconv.Itoa(req.Tid) // convert tid to string
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
 		// default port checker
 		if req.Port == "" {
@@ -408,7 +408,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return nil
 	case mbtcpOnceWrite: // done
 		req := r.(MbtcpWriteReq)
-		TidStr := strconv.Itoa(req.Tid) // convert tid to string
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		// default port checker
 		if req.Port == "" {
 			req.Port = defaultMbtcpPort
@@ -441,7 +441,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return nil
 	case mbtcpGetTimeout: // done
 		req := r.(MbtcpTimeoutReq)
-		TidStr := strconv.Itoa(req.Tid) // convert tid to string
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
 		// Add task to simple task map
 		b.simpleTaskMap.Add(TidStr, cmd)
@@ -456,7 +456,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return nil
 	case mbtcpSetTimeout: // done
 		req := r.(MbtcpTimeoutReq)
-		TidStr := strconv.Itoa(req.Tid) // convert tid to string
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		// protect dummy input
 		if req.Data < minMbtcpTimeout {
 			req.Data = minMbtcpTimeout
@@ -475,8 +475,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	case mbtcpCreatePoll:
 
 		req := r.(MbtcpPollStatus)
-		TidStr := strconv.Itoa(req.Tid)  // convert tid to string
-		b.simpleTaskMap.Add(TidStr, cmd) // simple request
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		b.simpleTaskMap.Add(TidStr, cmd)         // simple request
 
 		// check fc
 		if req.FC < 1 || req.FC > 4 {
@@ -539,8 +539,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	case mbtcpTogglePoll:
 		// TODO! check name
 		req := r.(MbtcpPollOpReq)
-		TidStr := strconv.Itoa(req.Tid)  // convert tid to string
-		b.simpleTaskMap.Add(TidStr, cmd) // add to simple task map
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		b.simpleTaskMap.Add(TidStr, cmd)         // add to simple task map
 
 		status := "ok"
 		if req.Enabled {
