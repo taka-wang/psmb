@@ -65,7 +65,7 @@ type mbtcpService struct {
 	enable bool
 }
 
-// NewPSMBTCP instantiate modbus tcp proactive serivce
+// NewPSMBTCP modbus tcp proactive serivce constructor
 func NewPSMBTCP() ProactiveService {
 	return &mbtcpService{
 		enable:        true,

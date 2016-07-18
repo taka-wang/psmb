@@ -52,6 +52,7 @@ func subscriber() (string, string) {
 	}
 }
 
+// init functions
 func init() {
 	time.Sleep(2000 * time.Millisecond)
 
@@ -66,10 +67,38 @@ func init() {
 	}
 }
 
-func TestOneOffTimeout(t *testing.T) {
+func TestTimeoutOps(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("mbtcp.timeout.update test - invalid value (1)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.update` test - invalid json type", func(log sugar.Log) bool {
+		ReadReqStr :=
+			`{
+                "from": "web",
+                "tid": 123456,
+                "timeout": "210000"
+            }`
+		cmd := "mbtcp.timeout.update"
+		go publisher(cmd, string(ReadReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(ReadReqStr))
+		log("set timeout as 200000")
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpTimeoutRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check fail response
+		if r2.Status != "ok" {
+			return true
+		}
+		return false
+	})
+
+	s.Assert("`mbtcp.timeout.update` test - invalid value (1) - (1/2)", func(log sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
@@ -98,35 +127,7 @@ func TestOneOffTimeout(t *testing.T) {
 		return true
 	})
 
-	s.Assert("mbtcp.timeout.update test - invalid json type", func(log sugar.Log) bool {
-		ReadReqStr :=
-			`{
-                "from": "web",
-                "tid": 123456,
-                "timeout": "210000"
-            }`
-		cmd := "mbtcp.timeout.update"
-		go publisher(cmd, string(ReadReqStr))
-		// receive response
-		s1, s2 := subscriber()
-
-		log("req: %s, %s", cmd, string(ReadReqStr))
-		log("set timeout as 200000")
-		log("res: %s, %s", s1, s2)
-
-		// parse resonse
-		var r2 psmb.MbtcpTimeoutRes
-		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
-		}
-		// check response
-		if r2.Status != "ok" {
-			return false
-		}
-		return true
-	})
-
-	s.Assert("mbtcp.timeout.read test - invalid value", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.read` test - invalid value (1) - (2/2)", func(log sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
@@ -153,7 +154,7 @@ func TestOneOffTimeout(t *testing.T) {
 		return true
 	})
 
-	s.Assert("mbtcp.timeout.update test - valid value (212345)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.update` test - valid value (212345) - (1/2)", func(log sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
@@ -181,7 +182,7 @@ func TestOneOffTimeout(t *testing.T) {
 		return true
 	})
 
-	s.Assert("mbtcp.timeout.read test - valid value", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.read` test - valid value (212345) - (2/2) ", func(log sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
@@ -210,10 +211,10 @@ func TestOneOffTimeout(t *testing.T) {
 
 }
 
-func TestOneOffFC5(t *testing.T) {
+func TestOnceWriteFC5(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`FC5` write bit test: port 502 - invalid value(2)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - invalid value(2) - (1/4)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -290,7 +291,84 @@ func TestOneOffFC5(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC5` write bit test: port 502 - valid value(0)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - miss from & port - (2/4)", func(log sugar.Log) bool {
+		// ---------------- write part
+		writeReq := psmb.MbtcpWriteReq{
+			//From:  "web",
+			Tid: time.Now().UTC().UnixNano(),
+			IP:  hostName,
+			//Port:  portNum1,
+			FC:    5,
+			Slave: 1,
+			Addr:  10,
+			Data:  1,
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r1 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r1.Status != "ok" {
+			return false
+		}
+		//return true
+
+		// ---------------- read part
+		readReq := psmb.MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    1,
+			Slave: 1,
+			Addr:  10,
+			Len:   3,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd = "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 = subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var data json.RawMessage // raw []byte
+		r2 := psmb.MbtcpReadRes{Data: &data}
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		// ---------------- Compare
+		var r3 []uint16
+		if err := json.Unmarshal(data, &r3); err != nil {
+			return false
+		}
+		if r3[0] != 1 {
+			return false
+		}
+
+		return true
+	})
+
+	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - valid value(0) - (3/4)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -367,7 +445,7 @@ func TestOneOffFC5(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC5` write bit test: port 502 - valid value(1)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - valid value(1) - (4/4)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -445,10 +523,10 @@ func TestOneOffFC5(t *testing.T) {
 
 }
 
-func TestOneOffFC6(t *testing.T) {
+func TestOnceWriteFC6(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`FC6` write `DEC` register test: port 502 - valid value (22)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - valid value (22) - (1/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -525,7 +603,7 @@ func TestOneOffFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC6` write `DEC` register test: port 502 - miss hex type & port", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - miss hex type & port - (2/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -600,7 +678,7 @@ func TestOneOffFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC6` write `DEC` register test: port 502 - invalid value (array)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - invalid value (array) - (3/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -677,7 +755,7 @@ func TestOneOffFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC6` write `DEC` register test: port 502 - invalid hex type", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - invalid hex type - (4/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -711,7 +789,7 @@ func TestOneOffFC6(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`FC6` write `HEX` register test: port 502 - valid value (ABCD)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - valid value (ABCD) - (5/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -788,7 +866,7 @@ func TestOneOffFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC6` write `HEX` register test: port 502 - miss port (ABCD)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - miss port (ABCD) - (6/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -864,7 +942,7 @@ func TestOneOffFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC6` write `HEX` register test: port 502 - invalid value (ABCD1234)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid value (ABCD1234) - (7/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -941,7 +1019,7 @@ func TestOneOffFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC6` write `HEX` register test: port 502 - invalid hex type", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid hex type - (8/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
