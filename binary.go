@@ -87,7 +87,7 @@ func LinearScalingRegisters(data []uint16, domainLow, domainHigh, rangeLow, rang
 		if math.IsNaN(tmp) {
 			return nil, ErrNotANumber
 		}
-		result[idx] = float32()
+		result[idx] = float32(tmp)
 	}
 	return result, nil
 }
