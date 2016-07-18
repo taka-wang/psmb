@@ -1119,15 +1119,20 @@ func (b *mbtcpService) Start() {
 
 				// parse request
 				req, err := b.parseRequest(msg)
+				if req != nil {
+					// handle request
+					err = b.handleRequest(msg[0], req)
+				}
+
+				// send error back
 				if err != nil {
 					log.WithFields(log.Fields{
 						"cmd": msg[0],
 						"err": err,
 					}).Error("Parse request failed:")
-				} else {
-					err = b.handleRequest(msg[0], req)
+					// send back
+					b.simpleResponser(msg[0], MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()})
 				}
-
 			case b.sub.downstream:
 				// receive from modbusd
 				msg, _ := b.sub.downstream.RecvMessage(0)
