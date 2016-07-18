@@ -202,7 +202,7 @@ func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
 }
 
 // parseRequest parse requests from services
-// R&R: only unmarshal request string to corresponding struct
+// only unmarshal request string to corresponding struct
 func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
@@ -343,6 +343,7 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 }
 
 // handleRequest handle requests from services
+// do error checking
 func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle upstream request:")
 
@@ -470,6 +471,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		if req.Interval < minMbtcpPollInterval {
 			req.Interval = minMbtcpPollInterval
 		}
+
 		// check port
 		if req.Port == "" {
 			req.Port = defaultMbtcpPort
@@ -628,7 +630,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				Status: res.Status,
 			}
 		}
-
 		// send back one-off task reponse
 		return b.simpleTaskResponser(TidStr, resp)
 
@@ -735,10 +736,10 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				case HexString:
 					response = MbtcpReadRes{
 						Tid:    tid,
-						Status: res.Status,
 						Type:   readReq.Type,
 						Bytes:  bytes,
 						Data:   BytesToHexString(bytes), // convert byte to hex
+						Status: res.Status,
 					}
 
 				case UInt16:
@@ -754,10 +755,10 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					} else {
 						response = MbtcpReadRes{
 							Tid:    tid,
-							Status: res.Status,
 							Type:   readReq.Type,
 							Bytes:  bytes,
 							Data:   ret,
+							Status: res.Status,
 						}
 					}
 				case Int16:
@@ -836,10 +837,10 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							} else {
 								response = MbtcpReadRes{
 									Tid:    tid,
-									Status: res.Status,
 									Type:   readReq.Type,
 									Bytes:  bytes,
 									Data:   ret,
+									Status: res.Status,
 								}
 							}
 						case Float32:
@@ -854,10 +855,10 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							} else {
 								response = MbtcpReadRes{
 									Tid:    tid,
-									Status: res.Status,
 									Type:   readReq.Type,
 									Bytes:  bytes,
 									Data:   ret,
+									Status: res.Status,
 								}
 							}
 
@@ -866,10 +867,10 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				default: // case 0, 1(RegisterArray)
 					response = MbtcpReadRes{
 						Tid:    tid,
-						Status: res.Status,
 						Type:   readReq.Type,
 						Bytes:  bytes,
 						Data:   res.Data,
+						Status: res.Status,
 					}
 				}
 				// remove from read table
@@ -886,7 +887,8 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						TimeStamp: time.Now().UTC().UnixNano(),
 						Name:      task.Name,
 						Type:      readReq.Type,
-						Status:    res.Status,
+						// No Bytes and Data
+						Status: res.Status,
 					}
 					return b.simpleResponser(respCmd, response)
 				}
@@ -898,7 +900,8 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						TimeStamp: time.Now().UTC().UnixNano(),
 						Name:      task.Name,
 						Type:      readReq.Type,
-						Status:    err.Error(),
+						// No Bytes and Data
+						Status: err.Error(),
 					}
 					return b.simpleResponser(respCmd, response)
 				}
@@ -925,7 +928,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Name:      task.Name,
 							Type:      readReq.Type,
 							Bytes:     bytes,
-							// Data
+							// No Data
 							Status: err.Error(),
 						}
 					} else {
@@ -948,7 +951,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Name:      task.Name,
 							Type:      readReq.Type,
 							Bytes:     bytes,
-							// Data
+							// No Data
 							Status: err.Error(),
 						}
 					} else {
@@ -970,7 +973,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Name:      task.Name,
 							Type:      readReq.Type,
 							Bytes:     bytes,
-							// Data
+							// No Data
 							Status: "Conversion failed",
 						}
 					} else {
@@ -1001,7 +1004,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 									Name:      task.Name,
 									Type:      readReq.Type,
 									Bytes:     bytes,
-									// Data
+									// No Data
 									Status: err.Error(),
 								}
 							} else {
@@ -1023,7 +1026,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 									Name:      task.Name,
 									Type:      readReq.Type,
 									Bytes:     bytes,
-									// Data
+									// No Data
 									Status: err.Error(),
 								}
 							} else {
@@ -1045,7 +1048,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 									Name:      task.Name,
 									Type:      readReq.Type,
 									Bytes:     bytes,
-									// Data
+									// No Data
 									Status: err.Error(),
 								}
 							} else {
@@ -1079,7 +1082,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				log.WithFields(log.Fields{"cmd": task.Cmd}).Debug("handleResponse: should not reach here")
 				response = MbtcpSimpleRes{
 					Tid:    tid,
-					Status: "not support command",
+					Status: "Command not support",
 				}
 				return b.simpleResponser(respCmd, response)
 			}
