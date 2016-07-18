@@ -12,6 +12,10 @@ import (
 	zmq "github.com/takawang/zmq3"
 )
 
+var hostName string
+var portNum1 = "502"
+var portNum2 = "503"
+
 // generic tcp publisher
 func publisher(cmd, json string) {
 	sender, _ := zmq.NewSocket(zmq.PUB)
@@ -50,14 +54,6 @@ func subscriber() (string, string) {
 
 func init() {
 	time.Sleep(2000 * time.Millisecond)
-}
-
-func TestTimeout(t *testing.T) {
-	s := sugar.New(nil)
-
-	var hostName string
-	portNum1 := "502"
-	portNum2 := "503"
 
 	// generalize host reslove for docker/local env
 	host, err := net.LookupHost("mbd")
@@ -68,9 +64,10 @@ func TestTimeout(t *testing.T) {
 		fmt.Println("docker run")
 		hostName = host[0] //docker
 	}
+}
 
-	// ---------------------------------------------------------------//
-	s.Title("One-Off timeout request tests")
+func TestOneOffTimeout(t *testing.T) {
+	s := sugar.New(nil)
 
 	s.Assert("mbtcp.timeout.update test - invalid value (1)", func(log sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
@@ -187,22 +184,6 @@ func TestTimeout(t *testing.T) {
 
 func TestOneOffFC5(t *testing.T) {
 	s := sugar.New(nil)
-
-	var hostName string
-	portNum1 := "502"
-	portNum2 := "503"
-
-	// generalize host reslove for docker/local env
-	host, err := net.LookupHost("mbd")
-	if err != nil {
-		fmt.Println("local run")
-		hostName = "127.0.0.1"
-	} else {
-		fmt.Println("docker run")
-		hostName = host[0] //docker
-	}
-
-	s.Title("`mbtcp.once.write` tests")
 
 	s.Assert("`FC5` write bit test: port 502 - invalid value(2)", func(log sugar.Log) bool {
 		// ---------------- write part
@@ -425,31 +406,8 @@ func TestOneOffFC5(t *testing.T) {
 }
 
 func TestPSMB(t *testing.T) {
-	/*
-		// start psmb service
-		go func() {
-			psmb.Start()
-		}()
-	*/
-
-	time.Sleep(2000 * time.Millisecond)
-
 	s := sugar.New(nil)
-
-	var hostName string
-	portNum1 := "502"
-	portNum2 := "503"
-
-	// generalize host reslove for docker/local env
-	host, err := net.LookupHost("mbd")
-	if err != nil {
-		fmt.Println("local run")
-		hostName = "127.0.0.1"
-	} else {
-		fmt.Println("docker run")
-		hostName = host[0] //docker
-	}
-
+	s.Title("`mbtcp.once.write` tests")
 	s.Assert("`FC6` write `DEC` register test: port 502", func(log sugar.Log) bool {
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
