@@ -815,7 +815,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 								Tid:    tid,
 								Type:   readReq.Type,
 								Bytes:  bytes,
-								Data:   f,
+								Data:   data,
 								Status: status,
 							}
 						case UInt32:

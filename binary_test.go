@@ -422,7 +422,7 @@ func TestBinaryOps(t *testing.T) {
 
 	s.Assert("`LinearScalingRegisters` test - (0,0,0,0)", func(log sugar.Log) bool {
 		// arr := []uint16{4396, 79, 4660, 22136} // 112C004F12345678
-		result, err := LinearScalingRegisters(arr, 0, 0, 0, 0)
+		_, err := LinearScalingRegisters(arr, 0, 0, 0, 0)
 		if err != nil {
 			log(err)
 			return true
