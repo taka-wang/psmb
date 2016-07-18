@@ -693,7 +693,7 @@ func TestOneOffFC6(t *testing.T) {
 			FC:    6,
 			Slave: 1,
 			Addr:  10,
-			Hex:   false,
+			Hex:   true,
 			Data:  "ABCD",
 		}
 		writeReqStr, _ := json.Marshal(writeReq)
@@ -769,7 +769,7 @@ func TestOneOffFC6(t *testing.T) {
 			FC:    6,
 			Slave: 1,
 			Addr:  10,
-			Hex:   false,
+			Hex:   true,
 			Data:  "ABCD",
 		}
 		writeReqStr, _ := json.Marshal(writeReq)
@@ -846,7 +846,7 @@ func TestOneOffFC6(t *testing.T) {
 			FC:    6,
 			Slave: 1,
 			Addr:  10,
-			Hex:   false,
+			Hex:   true,
 			Data:  "ABCD1234",
 		}
 		writeReqStr, _ := json.Marshal(writeReq)
