@@ -519,7 +519,7 @@ Command name: **mbtcp.timeout.read**
 ```JavaScript
 {
     "from": "web",
-    "tid": 123456
+    "tid": 1468834562846161588
 }
 ```
 
@@ -528,8 +528,8 @@ Command name: **mbtcp.timeout.read**
 - success:
 ```JavaScript
 {
-    "tid": 123456,
-    "timeout": 210000,
+    "tid": 1468834562846161588,
+    "timeout": 212345,
     "status": "ok"
 }
 ```
@@ -537,8 +537,8 @@ Command name: **mbtcp.timeout.read**
 - fail:
 ```JavaScript
 {
-    "tid": 123456,
-    "status": "timeout"
+    "tid": 1468834562846161588,
+    "status": "failed"
 }
 ```
 
@@ -557,8 +557,8 @@ Command name: **mbtcp.timeout.update**
 ```JavaScript
 {
     "from": "web",
-    "tid": 123456,
-    "timeout": 210000
+    "tid": 1468834562846161588,
+    "timeout": 212345
 }
 ```
 
@@ -567,7 +567,7 @@ Command name: **mbtcp.timeout.update**
 - success:
 ```JavaScript
 {
-    "tid": 123456,
+    "tid": 1468834562846161588,
     "status": "ok"
 }
 ```
@@ -575,8 +575,8 @@ Command name: **mbtcp.timeout.update**
 - fail:
 ```JavaScript
 {
-    "tid": 123456,
-    "status": "timeout"
+    "tid": 1468834562846161588,
+    "status": "failed"
 }
 ```
 

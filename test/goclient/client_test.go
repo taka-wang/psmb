@@ -76,7 +76,62 @@ func TestPSMB(t *testing.T) {
 
 	s.Title("One-Off timeout request tests")
 
-	s.Assert("mbtcp.timeout.update test", func(log sugar.Log) bool {
+	s.Assert("mbtcp.timeout.update test - strange value", func(log sugar.Log) bool {
+		ReadReq := psmb.MbtcpTimeoutReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Data: 1,
+		}
+
+		ReadReqStr, _ := json.Marshal(ReadReq)
+		cmd := "mbtcp.timeout.update"
+		go publisher(cmd, string(ReadReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(ReadReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpTimeoutRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("mbtcp.timeout.read test - strange value", func(log sugar.Log) bool {
+		ReadReq := psmb.MbtcpTimeoutReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+		}
+
+		ReadReqStr, _ := json.Marshal(ReadReq)
+		cmd := "mbtcp.timeout.read"
+		go publisher(cmd, string(ReadReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(ReadReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpTimeoutRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" || r2.Data != 212345 {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("mbtcp.timeout.update test - 212345", func(log sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
