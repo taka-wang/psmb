@@ -191,7 +191,79 @@ func TestPSMB(t *testing.T) {
 	// ---------------------------------------------------------------//
 	s.Title("`mbtcp.once.write` tests")
 
-	s.Assert("`FC5` write bit test: port 502", func(log sugar.Log) bool {
+	s.Assert("`FC5` write bit test: port 502 - invalid value(2)", func(log sugar.Log) bool {
+		// ---------------- write part
+		writeReq := psmb.MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    5,
+			Slave: 1,
+			Addr:  10,
+			Data:  2,
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r1 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r1.Status != "ok" {
+			return false
+		}
+		//return true
+
+		// ---------------- read part
+		readReq := psmb.MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    1,
+			Slave: 1,
+			Addr:  10,
+			Len:   3,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd = "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 = subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		// ---------------- Compare
+		if r2.Data.(int) != 1 {
+			return false
+		}
+
+		return true
+	})
+
+	s.Assert("`FC5` write bit test: port 502 - valid value(1)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -257,6 +329,78 @@ func TestPSMB(t *testing.T) {
 
 		// ---------------- Compare
 		if r2.Data.(int) != 1 {
+			return false
+		}
+
+		return true
+	})
+
+	s.Assert("`FC5` write bit test: port 502 - valid value(0)", func(log sugar.Log) bool {
+		// ---------------- write part
+		writeReq := psmb.MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    5,
+			Slave: 1,
+			Addr:  10,
+			Data:  0,
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r1 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r1.Status != "ok" {
+			return false
+		}
+		//return true
+
+		// ---------------- read part
+		readReq := psmb.MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    1,
+			Slave: 1,
+			Addr:  10,
+			Len:   3,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd = "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 = subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpReadRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		// ---------------- Compare
+		if r2.Data.(int) != 0 {
 			return false
 		}
 
