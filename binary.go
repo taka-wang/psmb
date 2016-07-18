@@ -15,7 +15,8 @@ import (
 //	source: function code 15
 func BitStringToUInt8s(bitString string) ([]uint8, error) {
 	var result = []uint8{}
-	for _, v := range strings.Split(bitString, ",") {
+	s := strings.Trim(bitString, ",") // trim left, right
+	for _, v := range strings.Split(s, ",") {
 		i, err := strconv.ParseUint(v, 10, 8)
 		if err != nil {
 			return nil, ErrBitStringToUInt8s
@@ -30,7 +31,8 @@ func BitStringToUInt8s(bitString string) ([]uint8, error) {
 // 	source: upstream.
 func DecimalStringToRegisters(decString string) ([]uint16, error) {
 	var result = []uint16{}
-	for _, v := range strings.Split(decString, ",") {
+	s := strings.Trim(decString, ",") // trim left, right
+	for _, v := range strings.Split(s, ",") {
 		i, err := strconv.ParseUint(v, 10, 16)
 		if err != nil {
 			return nil, ErrDecimalStringToRegisters
