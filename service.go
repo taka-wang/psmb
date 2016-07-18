@@ -227,47 +227,40 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 		}
 
 		switch MbtcpCmdType(strconv.Itoa(req.FC)) {
-		// write single bit; uint16
-		case fc5:
+		case fc5: // write single bit; uint16
 			var d uint16
 			if err := json.Unmarshal(data, &d); err != nil {
 				return nil, ErrUnmarshal
 			}
 			req.Data = d
 			return req, nil
-		// write multiple bits; []uint16
-		case fc15:
+		case fc15: // write multiple bits; []uint16
 			var d []uint16
 			if err := json.Unmarshal(data, &d); err != nil {
 				return nil, ErrUnmarshal
 			}
 			req.Data = d
 			return req, nil
-		// write single register in dec|hex
-		case fc6:
+		case fc6: // write single register in dec|hex
 			var d string
 			if err := json.Unmarshal(data, &d); err != nil {
 				return nil, ErrUnmarshal
 			}
-
+			var dd []uint16
+			var err error
 			// check dec or hex
 			if req.Hex {
-				dd, err := HexStringToRegisters(d)
-				if err != nil {
-					return nil, err
-				}
-				req.Data = dd[0] // one register
+				dd, err = HexStringToRegisters(d)
 			} else {
-				dd, err := DecimalStringToRegisters(d)
-				if err != nil {
-					return nil, err
-				}
-				req.Data = dd[0] // one register
+				dd, err = DecimalStringToRegisters(d)
 			}
-			return req, nil
 
-		// write multiple register in dec/hex
-		case fc16:
+			if err != nil {
+				return nil, err
+			}
+			req.Data = dd[0] // one register
+			return req, nil
+		case fc16: // write multiple register in dec/hex
 			var d string
 			if err := json.Unmarshal(data, &d); err != nil {
 				return nil, ErrUnmarshal
@@ -601,24 +594,21 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		var resp interface{}
 
 		switch MbtcpCmdType(cmd) {
-		// one-off timeout requests
-		case setTCPTimeout, getTCPTimeout:
+		case setTCPTimeout, getTCPTimeout: // one-off timeout requests
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
-			var data int64
 
+			var data int64
 			if MbtcpCmdType(cmd) == getTCPTimeout {
 				data = res.Timeout
 			}
-
 			resp = MbtcpTimeoutRes{
 				Tid:    tid,
 				Status: res.Status,
-				Data:   data,
+				Data:   data, // getTCPTimeout only
 			}
-		// one-off write requests
-		case fc5, fc6, fc15, fc16:
+		case fc5, fc6, fc15, fc16: // one-off write requests
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
@@ -650,43 +640,37 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		switch MbtcpCmdType(cmd) {
 		// done: read bits
 		case fc1, fc2:
+			var data interface{} // shared variable
 			switch task.Cmd {
-			// one-off requests
-			case mbtcpOnceRead:
+			case mbtcpOnceRead: // one-off requests
 				if res.Status != "ok" {
-					response = MbtcpSimpleRes{
-						Tid:    tid,
-						Status: res.Status,
-					}
+					data = nil
 				} else {
-					response = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Data:   res.Data,
-					}
+					data = res.Data
+				}
+				response = MbtcpReadRes{
+					Tid:    tid,
+					Status: res.Status,
+					Data:   data,
 				}
 				// remove from read/poll table
 				b.readTaskMap.Delete(res.Tid)
-			// poll data
-			case mbtcpCreatePoll, mbtcpImportPolls: // data
+			case mbtcpCreatePoll, mbtcpImportPolls: // poll data
 				respCmd = mbtcpData // set as "mbtcp.data"
 				if res.Status != "ok" {
-					response = MbtcpPollData{
-						TimeStamp: time.Now().UTC().UnixNano(),
-						Name:      task.Name,
-						Status:    res.Status,
-					}
+					data = nil
 				} else {
-					response = MbtcpPollData{
-						TimeStamp: time.Now().UTC().UnixNano(),
-						Name:      task.Name,
-						Status:    res.Status,
-						Data:      res.Data,
-					}
-					// TODO: add to history
+					data = res.Data
 				}
-			// should not reach here
-			default:
+				response = MbtcpPollData{
+					TimeStamp: time.Now().UTC().UnixNano(),
+					Name:      task.Name,
+					Status:    res.Status,
+					Data:      data,
+				}
+				// TODOL if res.Status == "ok" then "add to history"
+				}
+			default: // should not reach here
 				log.WithFields(log.Fields{"cmd": cmd}).Debug("handleResponse: should not reach here")
 				response = MbtcpSimpleRes{
 					Tid:    tid,
@@ -809,6 +793,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					status = res.Status
 				}
 
+				// shared response
 				response = MbtcpReadRes{
 					Tid:    tid,
 					Type:   readReq.Type,
