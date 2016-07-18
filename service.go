@@ -23,9 +23,9 @@ const (
 // ProactiveService proactive service contracts,
 // all services should implement the following methods.
 type ProactiveService interface {
-	// Start start proactive service
+	// Start enable proactive service
 	Start()
-	// Stop stop proactive service
+	// Stop disable proactive service
 	Stop()
 
 	// parseRequest parse upstream requests
@@ -100,21 +100,30 @@ func (b *mbtcpService) initLogger() {
 	//log.SetLevel(log.ErrorLevel)
 }
 
+// Marshal helper function to marshal structure
+func Marshal(r interface{}) (string, error) {
+	bytes, err := json.Marshal(r) // marshal to json string
+	if err != nil {
+		log.WithFields(log.Fields{"Error": err}).Error("Marshal failed:")
+		// todo: remove table
+		return "", err
+	}
+	return string(bytes), nil
+}
+
 // Task for gocron scheduler
 func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
-	str, err := json.Marshal(req) // marshal to json string
+	str, err := Marshal(req)
 	if err != nil {
-		log.Error("Marshal request failed:", err)
 		// todo: remove table
 		return
 	}
-	log.WithFields(log.Fields{"JSON": string(str)}).Debug("Send request to modbusd:")
-
+	log.WithFields(log.Fields{"JSON": str}).Debug("Send request to modbusd:")
 	socket.Send("tcp", zmq.SNDMORE) // frame 1
-	socket.Send(string(str), 0)     // convert to string; frame 2
+	socket.Send(str, 0)             // convert to string; frame 2
 }
 
-// initZMQPub init zmq publisher.
+// initZMQPub init ZMQ publishers.
 // Example:
 // 	initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
@@ -128,7 +137,7 @@ func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
 	b.pub.downstream.Connect(toModbusdEndpoint)
 }
 
-// initZMQSub init zmq subscriber.
+// initZMQSub init ZMQ subscribers.
 // Example:
 // 	initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
 func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
@@ -144,7 +153,8 @@ func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint strin
 	b.sub.downstream.SetSubscribe("")
 }
 
-// initZMQPoller init zmq poller
+// initZMQPoller init ZMQ poller.
+// polling from upstream services and downstream modbusd
 func (b *mbtcpService) initZMQPoller() {
 	log.Debug("Init ZMQ Poller")
 	// initialize poll set
@@ -155,17 +165,16 @@ func (b *mbtcpService) initZMQPoller() {
 
 // simpleTaskResponser simeple response to upstream
 func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
-	respStr, err := json.Marshal(resp)
+	respStr, err := Marshal(resp)
 	if err != nil {
-		log.WithFields(log.Fields{"Error": err}).Error("Marshal failed:")
 		return err
 	}
 
 	// check simple task map
 	if cmd, ok := b.simpleTaskMap.Get(tid); ok {
-		log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-		b.pub.upstream.Send(cmd, zmq.SNDMORE)   // task command
-		b.pub.upstream.Send(string(respStr), 0) // convert to string; frame 2
+		log.WithFields(log.Fields{"JSON": respStr}).Debug("Send response to service:")
+		b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
+		b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 		// remove from map
 		b.simpleTaskMap.Delete(tid)
 		return nil
@@ -175,14 +184,13 @@ func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 
 // simpleResponser simple reponser to upstream without checking simple task map
 func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
-	respStr, err := json.Marshal(resp)
+	respStr, err := Marshal(resp)
 	if err != nil {
-		log.WithFields(log.Fields{"Error": err}).Error("Marshal failed:")
 		return err
 	}
-	log.WithFields(log.Fields{"JSON": string(respStr)}).Debug("Send response to service:")
-	b.pub.upstream.Send(cmd, zmq.SNDMORE)   // task command
-	b.pub.upstream.Send(string(respStr), 0) // convert to string; frame 2
+	log.WithFields(log.Fields{"JSON": respStr}).Debug("Send response to service:")
+	b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
+	b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 	return nil
 }
 
@@ -265,7 +273,9 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 				log.WithFields(log.Fields{"Error": err}).Error("Unmarshal FC16 request failed:")
 				return nil, err
 			}
-			var l uint16 // length
+
+			var l uint16 // length of registers
+
 			if req.Hex {
 				dd, err := HexStringToRegisters(d)
 				if err != nil {
@@ -362,6 +372,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	case mbtcpOnceRead: // done
 		req := r.(MbtcpReadReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+
 		// default port checker
 		if req.Port == "" {
 			req.Port = defaultMbtcpPort
@@ -612,7 +623,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle downstream response:")
 
 	switch MbtcpCmdType(cmd) {
-	case fc5, fc6, fc15, fc16, setTCPTimeout, getTCPTimeout: // [done]: one-off requests
+	case fc5, fc6, fc15, fc16, setTCPTimeout, getTCPTimeout: // done: one-off requests
 		var TidStr string
 		var resp interface{}
 
@@ -753,32 +764,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Bytes:  bytes,
 						Data:   BytesToHexString(bytes), // convert byte to hex
 					}
-				case Scale:
-					if readReq.Len%2 != 0 {
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: "Conversion failed",
-							Type:   readReq.Type,
-							Bytes:  bytes,
-						}
-					} else {
 
-						// todo: check range values
-						f := LinearScalingRegisters(
-							res.Data,
-							readReq.Range.DomainLow,
-							readReq.Range.DomainHigh,
-							readReq.Range.RangeLow,
-							readReq.Range.RangeHigh)
-
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Type:   readReq.Type,
-							Bytes:  bytes,
-							Data:   f,
-						}
-					}
 				case UInt16:
 					// order
 					ret, err := BytesToUInt16s(bytes, readReq.Order)
@@ -815,8 +801,8 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Data:   ret,
 						}
 					}
-				case UInt32:
-					// length, order
+
+				case Scale, UInt32, Int32, Float32: // 32-bits
 					if readReq.Len%2 != 0 {
 						command = MbtcpReadRes{
 							Tid:    tid,
@@ -825,75 +811,75 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 							Bytes:  bytes,
 						}
 					} else {
-						ret, err := BytesToUInt32s(bytes, readReq.Order)
-						if err != nil {
-							command = MbtcpReadRes{
-								Tid:    tid,
-								Type:   readReq.Type,
-								Status: err.Error(),
-							}
-						} else {
-							command = MbtcpReadRes{
-								Tid:    tid,
-								Status: res.Status,
-								Type:   readReq.Type,
-								Bytes:  bytes,
-								Data:   ret,
-							}
-						}
-					}
-				case Int32:
-					// length, order
-					if readReq.Len%2 != 0 {
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: "Conversion failed",
-							Type:   readReq.Type,
-							Bytes:  bytes,
-						}
-					} else {
-						ret, err := BytesToInt32s(bytes, readReq.Order)
-						if err != nil {
-							command = MbtcpReadRes{
-								Tid:    tid,
-								Type:   readReq.Type,
-								Status: err.Error(),
-							}
-						} else {
+						switch readReq.Type {
+						case Scale:
+							// todo: check range values
+							f := LinearScalingRegisters(
+								res.Data,
+								readReq.Range.DomainLow,
+								readReq.Range.DomainHigh,
+								readReq.Range.RangeLow,
+								readReq.Range.RangeHigh)
+
 							command = MbtcpReadRes{
 								Tid:    tid,
 								Status: res.Status,
 								Type:   readReq.Type,
 								Bytes:  bytes,
-								Data:   ret,
+								Data:   f,
 							}
-						}
-					}
-				case Float32:
-					// length, order
-					if readReq.Len%2 != 0 {
-						command = MbtcpReadRes{
-							Tid:    tid,
-							Status: "Conversion failed",
-							Type:   readReq.Type,
-							Bytes:  bytes,
-						}
-					} else {
-						ret, err := BytesToFloat32s(bytes, readReq.Order)
-						if err != nil {
-							command = MbtcpReadRes{
-								Tid:    tid,
-								Type:   readReq.Type,
-								Status: err.Error(),
+						case UInt32:
+							ret, err := BytesToUInt32s(bytes, readReq.Order)
+							if err != nil {
+								command = MbtcpReadRes{
+									Tid:    tid,
+									Type:   readReq.Type,
+									Status: err.Error(),
+								}
+							} else {
+								command = MbtcpReadRes{
+									Tid:    tid,
+									Status: res.Status,
+									Type:   readReq.Type,
+									Bytes:  bytes,
+									Data:   ret,
+								}
 							}
-						} else {
-							command = MbtcpReadRes{
-								Tid:    tid,
-								Status: res.Status,
-								Type:   readReq.Type,
-								Bytes:  bytes,
-								Data:   ret,
+						case Int32:
+							ret, err := BytesToInt32s(bytes, readReq.Order)
+							if err != nil {
+								command = MbtcpReadRes{
+									Tid:    tid,
+									Type:   readReq.Type,
+									Status: err.Error(),
+								}
+							} else {
+								command = MbtcpReadRes{
+									Tid:    tid,
+									Status: res.Status,
+									Type:   readReq.Type,
+									Bytes:  bytes,
+									Data:   ret,
+								}
 							}
+						case Float32:
+							ret, err := BytesToFloat32s(bytes, readReq.Order)
+							if err != nil {
+								command = MbtcpReadRes{
+									Tid:    tid,
+									Type:   readReq.Type,
+									Status: err.Error(),
+								}
+							} else {
+								command = MbtcpReadRes{
+									Tid:    tid,
+									Status: res.Status,
+									Type:   readReq.Type,
+									Bytes:  bytes,
+									Data:   ret,
+								}
+							}
+
 						}
 					}
 				default: // case 0, 1(RegisterArray)
@@ -905,6 +891,8 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Data:   res.Data,
 					}
 				}
+				// remove from read table
+				b.readTaskMap.Delete(res.Tid)
 				return b.simpleResponser(task.Cmd, command)
 			case mbtcpCreatePoll, mbtcpImportPolls: // data
 				//
