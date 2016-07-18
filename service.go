@@ -347,7 +347,18 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle upstream request:")
 
 	switch cmd {
-	case mbtcpGetTimeout, mbtcpSetTimeout: // done
+	case mbtcpGetTimeout: // done
+		req := r.(MbtcpTimeoutReq)
+		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		cmdInt, _ := strconv.Atoi(string(getTCPTimeout))
+		command := DMbtcpTimeout{
+			Tid: TidStr,
+			Cmd: cmdInt,
+		}
+		b.simpleTaskMap.Add(TidStr, cmd)                              // add to simple task map
+		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command) // add command to scheduler as emergency request
+		return nil
+	case mbtcpSetTimeout: // done
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		cmdInt, _ := strconv.Atoi(string(setTCPTimeout))
@@ -357,12 +368,10 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 
 		// protect dummy input
-		if cmd == mbtcpSetTimeout {
-			if req.Data < minMbtcpTimeout {
-				command.Timeout = minMbtcpTimeout
-			} else {
-				command.Timeout = req.Data
-			}
+		if req.Data < minMbtcpTimeout {
+			command.Timeout = minMbtcpTimeout
+		} else {
+			command.Timeout = req.Data
 		}
 
 		b.simpleTaskMap.Add(TidStr, cmd)                              // add to simple task map
