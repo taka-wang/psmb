@@ -206,8 +206,6 @@ func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
 func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
-		// should not reach here!!
-		log.Error("Request parser failed: invalid message length")
 		return nil, ErrInvalidMessageLength
 	}
 
@@ -375,10 +373,12 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	case mbtcpOnceWrite: // done
 		req := r.(MbtcpWriteReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+
 		// default port checker
 		if req.Port == "" {
 			req.Port = defaultMbtcpPort
 		}
+
 		// length checker
 		switch MbtcpCmdType(strconv.Itoa(req.FC)) {
 		case fc15, fc16:
@@ -439,7 +439,6 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
 	case mbtcpCreatePoll:
-
 		req := r.(MbtcpPollStatus)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		b.simpleTaskMap.Add(TidStr, cmd)         // simple request
@@ -1143,7 +1142,10 @@ func (b *mbtcpService) Start() {
 				// parse response
 				res, err := b.parseResponse(msg)
 				if err != nil {
-					// todo: send error back
+					log.WithFields(log.Fields{
+						"cmd": msg[0],
+						"err": err,
+					}).Error("Parse response failed:")
 				} else {
 					err = b.handleResponse(msg[0], res)
 				}
