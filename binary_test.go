@@ -12,6 +12,7 @@ func TestBinaryOps(t *testing.T) {
 	s := sugar.New(t)
 	arr := []uint16{4396, 79, 4660, 22136} // 112C004F12345678
 
+	// --------------------------------------------//
 	s.Title("Bytes to 16-bit integer array tests")
 
 	s.Assert("`BytesToUInt16s` in big endian order - (1/4)", func(log sugar.Log) bool {
@@ -66,6 +67,7 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
+	// --------------------------------------------//
 	s.Title("Bytes to 32-bit integer array tests")
 
 	s.Assert("`BytesToUInt32s` in (ABCD) Big Endian order - (1/4)", func(log sugar.Log) bool {
@@ -172,6 +174,7 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
+	// --------------------------------------------//
 	s.Title("Bytes to 32-bit float array tests")
 
 	s.Assert("`BytesToFloat32s` in (ABCD) Big Endian order - (1/4)", func(log sugar.Log) bool {
@@ -227,6 +230,7 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
+	// --------------------------------------------//
 	s.Title("Bytes/registers utility tests")
 
 	s.Assert("`BitStringToUInt8s` test", func(log sugar.Log) bool {
@@ -242,8 +246,42 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`BitStringToUInt8s` test - one more comma", func(log sugar.Log) bool {
+	s.Assert("`BitStringToUInt8s` test - left comma", func(log sugar.Log) bool {
+		input := ",1,0,1,1,0,1"
+		result, err := BitStringToUInt8s(input)
+		if err != nil {
+			log(err)
+			return true
+		}
+		desire := []uint8{1, 0, 1, 1, 0, 1}
+		log("input length: %d; desire length: %d", len(result), len(desire))
+
+		for idx := 0; idx < len(desire); idx++ {
+			log("desire:%d, result:%d", desire[idx], result[idx])
+			if result[idx] != desire[idx] {
+				return false
+			}
+		}
+		return true
+	})
+
+	s.Assert("`BitStringToUInt8s` test - right comma", func(log sugar.Log) bool {
 		input := "1,0,1,1,0,1,"
+		result, _ := BitStringToUInt8s(input)
+		desire := []uint8{1, 0, 1, 1, 0, 1}
+		log("input length: %d; desire length: %d", len(result), len(desire))
+
+		for idx := 0; idx < len(desire); idx++ {
+			log("desire:%d, result:%d", desire[idx], result[idx])
+			if result[idx] != desire[idx] {
+				return false
+			}
+		}
+		return true
+	})
+
+	s.Assert("`BitStringToUInt8s` test - left, right comma", func(log sugar.Log) bool {
+		input := ",1,0,1,1,0,1,"
 		result, _ := BitStringToUInt8s(input)
 		desire := []uint8{1, 0, 1, 1, 0, 1}
 		log("input length: %d; desire length: %d", len(result), len(desire))
