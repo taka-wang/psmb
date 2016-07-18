@@ -256,7 +256,8 @@ func TestPSMB(t *testing.T) {
 		}
 
 		// ---------------- Compare
-		if r2.Data.(int) != 1 {
+		r3 := r2.Data.([]uint16)
+		if r3[0] != 1 {
 			return false
 		}
 
@@ -328,10 +329,10 @@ func TestPSMB(t *testing.T) {
 		}
 
 		// ---------------- Compare
-		if r2.Data.(int) != 1 {
+		r3 := r2.Data.([]uint16)
+		if r3[0] != 1 {
 			return false
 		}
-
 		return true
 	})
 
@@ -400,7 +401,8 @@ func TestPSMB(t *testing.T) {
 		}
 
 		// ---------------- Compare
-		if r2.Data.(int) != 0 {
+		r3 := r2.Data.([]uint16)
+		if r3[0] != 0 {
 			return false
 		}
 
