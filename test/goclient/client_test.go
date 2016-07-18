@@ -240,7 +240,8 @@ func TestOneOffFC5(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 psmb.MbtcpReadRes
+		var data json.RawMessage // raw []byte
+		r2 := psmb.MbtcpReadRes{Data: &data}
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -250,7 +251,10 @@ func TestOneOffFC5(t *testing.T) {
 		}
 
 		// ---------------- Compare
-		r3 := r2.Data.([]uint16)
+		var r3 []uint16
+		if err := json.Unmarshal(data, &d); err != nil {
+			return false
+		}
 		if r3[0] != 1 {
 			return false
 		}
@@ -313,7 +317,8 @@ func TestOneOffFC5(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 psmb.MbtcpReadRes
+		var data json.RawMessage // raw []byte
+		r2 := psmb.MbtcpReadRes{Data: &data}
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -323,7 +328,10 @@ func TestOneOffFC5(t *testing.T) {
 		}
 
 		// ---------------- Compare
-		r3 := r2.Data.([]uint16)
+		var r3 []uint16
+		if err := json.Unmarshal(data, &d); err != nil {
+			return false
+		}
 		if r3[0] != 1 {
 			return false
 		}
@@ -385,7 +393,8 @@ func TestOneOffFC5(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 psmb.MbtcpReadRes
+		var data json.RawMessage // raw []byte
+		r2 := psmb.MbtcpReadRes{Data: &data}
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -395,7 +404,10 @@ func TestOneOffFC5(t *testing.T) {
 		}
 
 		// ---------------- Compare
-		r3 := r2.Data.([]uint16)
+		var r3 []uint16
+		if err := json.Unmarshal(data, &d); err != nil {
+			return false
+		}
 		if r3[0] != 0 {
 			return false
 		}
