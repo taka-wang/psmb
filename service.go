@@ -602,25 +602,22 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 
 		switch MbtcpCmdType(cmd) {
 		// one-off timeout requests
-		case setTCPTimeout:
+		case setTCPTimeout, getTCPTimeout:
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
+			var data int64
+
+			if MbtcpCmdType(cmd) == getTCPTimeout {
+				data = res.Timeout
+			}
+
 			resp = MbtcpTimeoutRes{
 				Tid:    tid,
 				Status: res.Status,
+				Data:   data,
 			}
-		// one-off timeout requests
-		case getTCPTimeout:
-			res := r.(DMbtcpTimeout)
-			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
-			TidStr = res.Tid
-			resp = MbtcpTimeoutRes{
-				Tid:    tid,
-				Status: res.Status,
-				Data:   res.Timeout,
-			}
-			// one-off write requests
+		// one-off write requests
 		case fc5, fc6, fc15, fc16:
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
