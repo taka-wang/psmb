@@ -32,7 +32,8 @@ build:
 
             # dummy upstream
             - go get github.com/taka-wang/psmb
-            - cd test/goclient/
+            - git clone https://github.com/taka-wang/dummy-srv.git
+            - cd dummy-srv
             - go test -v
 
 

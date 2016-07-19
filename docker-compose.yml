@@ -11,8 +11,9 @@ psmb:
     volumes_from:
         - modbusd
 goclient:
-    build: test/goclient/.
+    image: takawang/dummy-srv
     volumes_from:
         - modbusd
     links:
         - slave
+

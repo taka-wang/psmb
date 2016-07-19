@@ -39,8 +39,6 @@ docker-compose build
 ```bash
 # build psmb image
 docker build -t takawang/psmb .
-# build goclient image
-docker build -t takawang/psmb-goclient test/goclient/.
 ```
 
 ### Run images
@@ -54,8 +52,8 @@ docker run -v /tmp:/tmp --link slave -it --name=modbusd takawang/modbusd
 docker run -v /tmp:/tmp -itd takawang/psmb
 #docker run -v /tmp:/tmp -it takawang/psmb /bin/bash
 
-# run goclient
-docker run -v /tmp:/tmp --link mbd -it takawang/psmb-goclient
+# run dummy-srv
+docker run -v /tmp:/tmp --link slave -it takawang/dummy-srv
 
 ```
 
