@@ -1,28 +1,22 @@
-redis:
-    image: redis
-    ports:
-        - "6379"
-
 slave:
-    image: takawang/c-modbus-slave:x86
+    image: takawang/c-modbus-slave:armhf
 
 modbusd:
-    image: edgepro/modbusd:nolog
+    image: edgepro/modbusd:armhf
     volumes:
         - /tmp:/tmp
     links:
         - slave
+
 psmbtcpsrv:
     build: tcp-srv/.
     volumes_from:
         - modbusd
-    links:
-        - redis
+
 dummysrv:
     build: tcp-srv/test/dummy-srv/.
     volumes_from:
         - modbusd
     links:
         - slave
-        
 

@@ -1,38 +1,74 @@
-build:
-    psmb_goclient:
-        image: takawang/ubuntu-drone-psmb
+# drone.io:0.5
+
+pipeline:
+
+    test-rhistory: # redis-based history data store
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            # modbusd
-            - git clone https://github.com/taka-wang/modbusd.git
-            - mkdir -p modbusd/build
-            - cd modbusd/build
-            - cmake .. && make && make install
-            - cd ..
-            - cp "config/service.sh" "/etc/init.d/modbusd" && chmod +x /etc/init.d/modbusd && update-rc.d modbusd defaults
-            - service modbusd start
+            - docker-compose -f rhistory/docker-compose.yml rm -f -a
+            - docker-compose -f rhistory/docker-compose.yml pull
+            - docker-compose -f rhistory/docker-compose.yml build
+            - docker-compose -f rhistory/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f rhistory/docker-compose.yml stop
+            - docker-compose -f rhistory/docker-compose.yml rm -f -a
 
-            # slaves
-            - cd ..
-            - git clone https://github.com/taka-wang/c-modbus-slave.git
-            - cd c-modbus-slave
-            - gcc server.c -o server -Wall -std=c99 `pkg-config --libs --cflags libmodbus`
-            - ./server &
-            - ./server 503 &
-            - cd ..
+    test-dbwds: # redis-based writer data store
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker-compose -f dbwds/docker-compose.yml rm -f -a
+            - docker-compose -f dbwds/docker-compose.yml pull
+            - docker-compose -f dbwds/docker-compose.yml build
+            - docker-compose -f dbwds/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f dbwds/docker-compose.yml stop
+            - docker-compose -f dbwds/docker-compose.yml rm -f -a
 
-            # psmb
-            - go get github.com/takawang/zmq3
-            - go get github.com/takawang/sugar
-            - go get github.com/takawang/logrus
-            - go get github.com/taka-wang/gocron
-            - go test -v
-            - git clone https://github.com/taka-wang/psmb-srv.git && cd psmb-srv
-            - go build -o psmb && ./psmb & 
-            - cd ..
+    test-cron: # scheduler
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true cron/.
 
-            # dummy upstream
-            - go get github.com/taka-wang/psmb
-            - cd test/goclient/
-            - go test -v
+    test-mreader: # in-memory reader data store
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true mrds/.
 
+    test-mwriter: # in-memory writer data store
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true mrds/.
 
+    test-psmb: # psmb lib
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true .
+
+    test-psmb-tcp: # psmb/tcp lib
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true tcp/.
+
+    ci:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker-compose rm -f -a
+            - docker-compose pull
+            - docker-compose build
+            - docker-compose up --abort-on-container-exit
+            - docker-compose stop
+            - docker-compose rm -f -a

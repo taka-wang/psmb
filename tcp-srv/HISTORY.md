@@ -1,7 +1,4 @@
-# psmb
-
-## Done
-
+# Done
 - [x] evaluate scheduler
 - [x] evaluate scheduler with zmq
 - [x] hacking cron package
@@ -25,32 +22,17 @@
 - [x] implement downstream struct test cases
 - [x] unify types definitions
 - [x] support docker compose
-- [x] refactor main flow
-- [x] implement uint test for mbtcp.once.write
-- [x] implement integration test for mbtcp.once.read
-- [x] implement integration test for mbtcp.once.write
-- [x] handle default port and fc15/fc16 length
-- [x] define polling commands
-- [x] define MbCmdType for modbusd
-- [x] implement mutex lock for write map
-- [x] implement integration test for mbtcp.timeout.read
-- [x] implement integration test for mbtcp.timeout.update
-- [x] implement NaiveResponser
-- [x] Refactor read task map mechanism
-- [x] Refactor write task to OO
-- [x] implement factory pattern
-- [x] Generalize proactive service implementation
-- [x] Re-org test cases and integrate with drone.io
-- [x] Handle default port if not set
-- [x] implement GetTaskByID and GetTaskByName for ReadTaskType
-- [x] implement all poll request handlers (except mbtcp.poll.history)
-- [x] implement all polls request handlers
 
-## Backlog:
+# TODO
+- [ ] define request type
 
+# Backlog:
 - if scheduler is stop, trigger requests directly.
-- sqlite3 for history
-- task test cases
-- table size limit
-- fix handleResponse last return issue
-- add to log and filter
+- handle default port if not set
+- handle data length
+    - read: default = 1
+    - write: check length with data, or set it automatically
+- if the length of the response data equal to 1, should we put it data 'array'
+- check timeout interval range
+- check polling interval range
+

@@ -1,0 +1,4 @@
+package dummysrv
+
+func main() {
+}

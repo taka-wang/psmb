@@ -9,8 +9,6 @@ import (
 	"strings"
 )
 
-// Binary stuff.
-
 // BitStringToUInt8s converts bits string to uint8 array.
 //	source: function code 15
 func BitStringToUInt8s(bitString string) ([]uint8, error) {

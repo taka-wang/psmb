@@ -1,63 +1,127 @@
 # psmb
+
+[![Build Status](http://dev.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://dev.cmwang.net/taka-wang/psmb)
 [![GoDoc](https://godoc.org/github.com/taka-wang/psmb?status.svg)](http://godoc.org/github.com/taka-wang/psmb)
-[![GitHub tag](https://img.shields.io/github/tag/taka-wang/psmb.svg)](https://github.com/taka-wang/psmb/tags) 
-[![Release](https://img.shields.io/github/release/taka-wang/psmb.svg)](https://github.com/taka-wang/psmb/releases/latest)
-[![](https://imagelayers.io/badge/takawang/psmb:latest.svg)](https://imagelayers.io/?images=takawang/psmb:latest)
 
-Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
+Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ---
 
-# Unit tests
+## Contracts (Interfaces)
 
-- [binary](binary_test.go)
-- [types](types_test.go)
+- IProactiveService: proactive service
+- IReaderTaskDataStore:  read/poll task map
+- IWriterTaskDataStore: write task map
+- IHistoryDataStore: history map
 
----
 
-# Contracts (Interfaces)
-
-- ProactiveService: proactive service
-- MbtcpReadTask: read/poll task map
-- MbtcpSimpleTask: simple task map
-
----
-## Docker 
+## Docker
 
 ### Docker Compose
 
 ```bash
-docker-compose up
-# rebuild images
-docker-compose build
+docker-compose build  --pull
+docker-compose up --abort-on-container-exit
 ```
 
-### Build images manually
+### From docker images
 
 ```bash
-# build psmb image
-docker build -t takawang/psmb .
-# build goclient image
-docker build -t takawang/psmb-goclient test/goclient/.
-```
 
-### Run images
-```bash
-# run modbus server
-docker run -itd --name=slave takawang/c-modbus-slave
+# run modbus slave
+docker run -itd --name=slave takawang/c-modbus-slave:x86
+
 # run modbusd
-docker run -v /tmp:/tmp --link slave -it --name=modbusd takawang/modbusd
+docker run -v /tmp:/tmp --link slave -it --name=modbusd takawang/modbusd:x86
 
-# run psmb
-docker run -v /tmp:/tmp -itd takawang/psmb
-#docker run -v /tmp:/tmp -it takawang/psmb /bin/bash
+# run psmbtcp-srv
+docker build -t takawang/psmbtcp-srv tcp-srv/.
+docker run -v /tmp:/tmp -itd takawang/psmbtcp-srv
 
-# run goclient
-docker run -v /tmp:/tmp --link mbd -it takawang/psmb-goclient
-
+# run dummy-srv
+docker build -t takawang/dummy-srv test/dummy-srv/.
+docker run -v /tmp:/tmp --link slave -it takawang/dummy-srv
 ```
 
-### Deployment Diagram
+## Continuous Integration
 
-![deployment](image/deployment.png)
+I do continuous integration and build docker images after git push by self-hosted drone.io server and [dockerhub]((https://hub.docker.com/r/takawang/c-modbus-slave/)) service.
 
+
+## Deployment Diagram
+
+![deployment](_image/ndeployment.png)
+
+---
+
+## Unit tests
+
+- binary
+- types
+
+## Test cases
+
+### Binary
+
+- [x] Bytes to 16-bit integer array tests
+    - [x] `BytesToUInt16s` in big endian order - (1/4)
+    - [x] `BytesToUInt16s` in little endian order - (2/4)
+    - [x] `BytesToInt16s` in big endian order - (3/4)
+    - [x] `BytesToInt16s` in little endian order - (4/4)
+- [x] Bytes to 32-bit integer array tests
+    - [x] `BytesToUInt32s` in (ABCD) Big Endian order - (1/4)
+    - [x] `BytesToUInt32s` in (DCBA) Little Endian order - (2/4)
+    - [x] `BytesToUInt32s` in (BADC) Mid-Big Endian order - (3/4)
+    - [x] `BytesToUInt32s` in (CDAB) Mid-Little Endian order - (4/4)
+    - [x] `BytesToInt32s` in (ABCD) Big Endian order - (1/4)
+    - [x] `BytesToInt32s` in (DCBA) Little Endian order - (2/4)
+    - [x] `BytesToInt32s` in (BADC) Mid-Big Endian order - (3/4)
+    - [x] `BytesToInt32s` in (CDAB) Mid-Little Endian order - (4/4)
+- [x] Bytes to 32-bit float array tests
+    - [x] `BytesToFloat32s` in (ABCD) Big Endian order - (1/4)
+    - [x] `BytesToFloat32s` in (DCBA) Little Endian order - (2/4)
+    - [x] `BytesToFloat32s` in (BADC) Mid-Big Endian order - (3/4)
+    - [x] `BytesToFloat32s` in (CDAB) Mid-Little Endian order - (4/4)
+- [x] Bytes/registers utility tests
+    - [x] `BitStringToUInt8s` test
+    - [x] `BitStringToUInt8s` test - left comma
+    - [x] `BitStringToUInt8s` test - right comma
+    - [x] `BitStringToUInt8s` test - left, right comma
+    - [x] `RegistersToBytes` test
+    - [x] `BytesToHexString` test
+    - [x] `DecimalStringToRegisters` test
+    - [x] `DecimalStringToRegisters` test - left comma
+    - [x] `DecimalStringToRegisters` test - right comma
+    - [x] `DecimalStringToRegisters` test - left, right comma
+    - [x] `HexStringToRegisters` test
+    - [x] `HexStringToRegisters` test - wrong length
+    - [x] `LinearScalingRegisters` test
+    - [x] `LinearScalingRegisters` test - (0,0,0,0)
+    - [x] `LinearScalingRegisters` test - reverse
+
+
+### Types
+
+#### Upstream structure test
+
+- [x] One-off modbus tcp struct tests
+    - [x] `mbtcp.once.read` request test
+    - [x] `mbtcp.once.read` response test
+- [x] get/set modbus tcp timeout struct tests
+    - [x] `mbtcp.timeout.read` request test
+    - [x] `mbtcp.timeout.read` response test
+    - [x] `mbtcp.timeout.update` request test
+    - [x] `mbtcp.timeout.update` response test
+    - [x] `mbtcp.once.write` request test
+    - [x] `mbtcp.once.write` response test
+
+#### Downstream structure test
+
+- [x] modbus tcp downstreamstruct tests
+    - [x] `read` request test
+    - [x] `single read` response test
+    - [x] `multiple read` response test
+    - [x] `single write` request test
+    - [x] `multiple write` request test
+    - [x] `set timeout` request test
+    - [x] `get timeout` response test
