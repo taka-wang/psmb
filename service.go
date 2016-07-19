@@ -630,7 +630,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		if task, ok = b.readTaskMap.Get(res.Tid); !ok {
 			return ErrRequestNotFound
 		}
-
 		// default response command string
 		respCmd := task.Cmd
 
@@ -879,7 +878,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 								status = res.Status
 								// TODO: add to history
 							}
-
 						case UInt32:
 							ret, err := BytesToUInt32s(bytes, readReq.Order)
 							if err != nil {
@@ -890,7 +888,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 								status = res.Status
 								// TODO: add to history
 							}
-							ret, err := BytesToUInt32s(bytes, readReq.Order)
 						case Int32:
 							ret, err := BytesToInt32s(bytes, readReq.Order)
 							if err != nil {
@@ -919,6 +916,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					// TODO: add to history
 
 				}
+
 				// shared response
 				response = MbtcpPollData{
 					TimeStamp: time.Now().UTC().UnixNano(),
@@ -928,6 +926,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					Data:      data,
 					Status:    status,
 				}
+
 				return b.simpleResponser(respCmd, response)
 
 			// should not reach here
