@@ -1375,27 +1375,22 @@ func TestOneOffFC15(t *testing.T) {
 	})
 }
 
-/*
-func TestOneOffFC16(t *testing.T) {
+func TestOnceWriteFC16(t *testing.T) {
 	s := sugar.New(t)
-}
-*/
 
-func TestPSMB(t *testing.T) {
-	s := sugar.New(t)
-	s.Title("`mbtcp.once.write` tests")
-
-	s.Assert("`FC15` write multiple bits test: port 502", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - valid value (11,22,33,44) - (1/8)", func(log sugar.Log) bool {
+		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
 			Tid:   time.Now().UTC().UnixNano(),
 			IP:    hostName,
 			Port:  portNum1,
-			FC:    15,
+			FC:    16,
 			Slave: 1,
 			Addr:  10,
 			Len:   4,
-			Data:  []uint16{1, 0, 1, 0},
+			Hex:   false,
+			Data:  "11,22,33,44",
 		}
 		writeReqStr, _ := json.Marshal(writeReq)
 		cmd := "mbtcp.once.write"
@@ -1407,7 +1402,41 @@ func TestPSMB(t *testing.T) {
 		log("res: %s, %s", s1, s2)
 
 		// parse resonse
-		var r2 psmb.MbtcpSimpleRes
+		var r1 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r1.Status != "ok" {
+			return false
+		}
+
+		// ---------------- read part
+		readReq := psmb.MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    3,
+			Slave: 1,
+			Addr:  10,
+			Len:   7,
+			Type:  psmb.RegisterArray,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd = "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 = subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var data json.RawMessage // raw []byte
+		r2 := psmb.MbtcpReadRes{Data: &data}
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
 			fmt.Println("json err:", err)
 		}
@@ -1415,8 +1444,479 @@ func TestPSMB(t *testing.T) {
 		if r2.Status != "ok" {
 			return false
 		}
+
+		// ---------------- Compare
+		var r3 []uint16
+		if err := json.Unmarshal(data, &r3); err != nil {
+			return false
+		}
+		if r3[0] != 22 {
+			return false
+		}
 		return true
 	})
+
+	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - miss hex type & port - (2/8)", func(log sugar.Log) bool {
+		// ---------------- write part
+		writeReq := psmb.MbtcpWriteReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			IP:   hostName,
+			//Port:  portNum1,
+			FC:    16,
+			Slave: 1,
+			Addr:  10,
+			Len:   4,
+			//Hex:   false,
+			Data: "11,22,33,44",
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r1 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r1.Status != "ok" {
+			return false
+		}
+
+		// ---------------- read part
+		readReq := psmb.MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    3,
+			Slave: 1,
+			Addr:  10,
+			Len:   7,
+			Type:  psmb.RegisterArray,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd = "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 = subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var data json.RawMessage // raw []byte
+		r2 := psmb.MbtcpReadRes{Data: &data}
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		// ---------------- Compare
+		var r3 []uint16
+		if err := json.Unmarshal(data, &r3); err != nil {
+			return false
+		}
+		if r3[0] != 22 {
+			return false
+		}
+		return true
+	})
+
+	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - invalid hex type - (3/8)", func(log sugar.Log) bool {
+		// ---------------- write part
+		writeReq := psmb.MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    16,
+			Slave: 1,
+			Addr:  10,
+			Len:   4,
+			Hex:   false,
+			Data:  "ABCD1234",
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r1 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check fail response
+		if r1.Status != "ok" {
+			return true
+		}
+		return false
+	})
+
+	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - invalid length - (4/8)", func(log sugar.Log) bool {
+		// ---------------- write part
+		writeReq := psmb.MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    16,
+			Slave: 1,
+			Addr:  10,
+			Len:   8,
+			Hex:   false,
+			Data:  "11,22,33,44",
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r1 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r1.Status != "ok" {
+			return false
+		}
+
+		// ---------------- read part
+		readReq := psmb.MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    3,
+			Slave: 1,
+			Addr:  10,
+			Len:   7,
+			Type:  psmb.RegisterArray,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd = "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 = subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var data json.RawMessage // raw []byte
+		r2 := psmb.MbtcpReadRes{Data: &data}
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		// ---------------- Compare
+		var r3 []uint16
+		if err := json.Unmarshal(data, &r3); err != nil {
+			return false
+		}
+		if r3[0] != 22 {
+			return false
+		}
+		return true
+	})
+
+	/*
+		s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - valid value (ABCD) - (5/8)", func(log sugar.Log) bool {
+			// ---------------- write part
+			writeReq := psmb.MbtcpWriteReq{
+				From:  "web",
+				Tid:   time.Now().UTC().UnixNano(),
+				IP:    hostName,
+				Port:  portNum1,
+				FC:    6,
+				Slave: 1,
+				Addr:  10,
+				Hex:   true,
+				Data:  "ABCD",
+			}
+			writeReqStr, _ := json.Marshal(writeReq)
+			cmd := "mbtcp.once.write"
+			go publisher(cmd, string(writeReqStr))
+			// receive response
+			s1, s2 := subscriber()
+
+			log("req: %s, %s", cmd, string(writeReqStr))
+			log("res: %s, %s", s1, s2)
+
+			// parse resonse
+			var r1 psmb.MbtcpSimpleRes
+			if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+				fmt.Println("json err:", err)
+			}
+			// check response
+			if r1.Status != "ok" {
+				return false
+			}
+
+			// ---------------- read part
+			readReq := psmb.MbtcpReadReq{
+				From:  "web",
+				Tid:   time.Now().UTC().UnixNano(),
+				IP:    hostName,
+				Port:  portNum1,
+				FC:    3,
+				Slave: 1,
+				Addr:  10,
+				Len:   7,
+				Type:  psmb.RegisterArray,
+			}
+
+			readReqStr, _ := json.Marshal(readReq)
+			cmd = "mbtcp.once.read"
+			go publisher(cmd, string(readReqStr))
+
+			// receive response
+			s1, s2 = subscriber()
+
+			log("req: %s, %s", cmd, string(readReqStr))
+			log("res: %s, %s", s1, s2)
+
+			// parse resonse
+			var data json.RawMessage // raw []byte
+			r2 := psmb.MbtcpReadRes{Data: &data}
+			if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+				fmt.Println("json err:", err)
+			}
+			// check response
+			if r2.Status != "ok" {
+				return false
+			}
+
+			// ---------------- Compare
+			var r3 []uint16
+			if err := json.Unmarshal(data, &r3); err != nil {
+				return false
+			}
+			if r3[0] != 43981 {
+				return false
+			}
+			return true
+		})
+
+		s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - miss port (ABCD) - (6/8)", func(log sugar.Log) bool {
+			// ---------------- write part
+			writeReq := psmb.MbtcpWriteReq{
+				From:  "web",
+				Tid:   time.Now().UTC().UnixNano(),
+				IP:    hostName,
+				FC:    6,
+				Slave: 1,
+				Addr:  10,
+				Hex:   true,
+				Data:  "ABCD",
+			}
+			writeReqStr, _ := json.Marshal(writeReq)
+			cmd := "mbtcp.once.write"
+			go publisher(cmd, string(writeReqStr))
+			// receive response
+			s1, s2 := subscriber()
+
+			log("req: %s, %s", cmd, string(writeReqStr))
+			log("res: %s, %s", s1, s2)
+
+			// parse resonse
+			var r1 psmb.MbtcpSimpleRes
+			if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+				fmt.Println("json err:", err)
+			}
+			// check response
+			if r1.Status != "ok" {
+				return false
+			}
+
+			// ---------------- read part
+			readReq := psmb.MbtcpReadReq{
+				From:  "web",
+				Tid:   time.Now().UTC().UnixNano(),
+				IP:    hostName,
+				Port:  portNum1,
+				FC:    3,
+				Slave: 1,
+				Addr:  10,
+				Len:   7,
+				Type:  psmb.RegisterArray,
+			}
+
+			readReqStr, _ := json.Marshal(readReq)
+			cmd = "mbtcp.once.read"
+			go publisher(cmd, string(readReqStr))
+
+			// receive response
+			s1, s2 = subscriber()
+
+			log("req: %s, %s", cmd, string(readReqStr))
+			log("res: %s, %s", s1, s2)
+
+			// parse resonse
+			var data json.RawMessage // raw []byte
+			r2 := psmb.MbtcpReadRes{Data: &data}
+			if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+				fmt.Println("json err:", err)
+			}
+			// check response
+			if r2.Status != "ok" {
+				return false
+			}
+
+			// ---------------- Compare
+			var r3 []uint16
+			if err := json.Unmarshal(data, &r3); err != nil {
+				return false
+			}
+			if r3[0] != 43981 {
+				return false
+			}
+			return true
+		})
+
+		s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid value (ABCD1234) - (7/8)", func(log sugar.Log) bool {
+			// ---------------- write part
+			writeReq := psmb.MbtcpWriteReq{
+				From:  "web",
+				Tid:   time.Now().UTC().UnixNano(),
+				IP:    hostName,
+				Port:  portNum1,
+				FC:    6,
+				Slave: 1,
+				Addr:  10,
+				Hex:   true,
+				Data:  "ABCD1234",
+			}
+			writeReqStr, _ := json.Marshal(writeReq)
+			cmd := "mbtcp.once.write"
+			go publisher(cmd, string(writeReqStr))
+			// receive response
+			s1, s2 := subscriber()
+
+			log("req: %s, %s", cmd, string(writeReqStr))
+			log("res: %s, %s", s1, s2)
+
+			// parse resonse
+			var r1 psmb.MbtcpSimpleRes
+			if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+				fmt.Println("json err:", err)
+			}
+			// check response
+			if r1.Status != "ok" {
+				return false
+			}
+
+			// ---------------- read part
+			readReq := psmb.MbtcpReadReq{
+				From:  "web",
+				Tid:   time.Now().UTC().UnixNano(),
+				IP:    hostName,
+				Port:  portNum1,
+				FC:    3,
+				Slave: 1,
+				Addr:  10,
+				Len:   7,
+				Type:  psmb.RegisterArray,
+			}
+
+			readReqStr, _ := json.Marshal(readReq)
+			cmd = "mbtcp.once.read"
+			go publisher(cmd, string(readReqStr))
+
+			// receive response
+			s1, s2 = subscriber()
+
+			log("req: %s, %s", cmd, string(readReqStr))
+			log("res: %s, %s", s1, s2)
+
+			// parse resonse
+			var data json.RawMessage // raw []byte
+			r2 := psmb.MbtcpReadRes{Data: &data}
+			if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+				fmt.Println("json err:", err)
+			}
+			// check response
+			if r2.Status != "ok" {
+				return false
+			}
+
+			// ---------------- Compare
+			var r3 []uint16
+			if err := json.Unmarshal(data, &r3); err != nil {
+				return false
+			}
+			if r3[0] != 43981 {
+				return false
+			}
+			return true
+		})
+
+		s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid hex type - (8/8)", func(log sugar.Log) bool {
+			// ---------------- write part
+			writeReq := psmb.MbtcpWriteReq{
+				From:  "web",
+				Tid:   time.Now().UTC().UnixNano(),
+				IP:    hostName,
+				Port:  portNum1,
+				FC:    6,
+				Slave: 1,
+				Addr:  10,
+				Hex:   true,
+				Data:  "22,11",
+			}
+			writeReqStr, _ := json.Marshal(writeReq)
+			cmd := "mbtcp.once.write"
+			go publisher(cmd, string(writeReqStr))
+			// receive response
+			s1, s2 := subscriber()
+
+			log("req: %s, %s", cmd, string(writeReqStr))
+			log("res: %s, %s", s1, s2)
+
+			// parse resonse
+			var r1 psmb.MbtcpSimpleRes
+			if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+				fmt.Println("json err:", err)
+			}
+			// check fail response
+			if r1.Status != "ok" {
+				return true
+			}
+			return false
+		})
+	*/
+}
+
+func TestPSMB(t *testing.T) {
+	s := sugar.New(t)
+	s.Title("`mbtcp.once.write` tests")
 
 	s.Assert("`FC16` write `DEC` registers test: port 502", func(log sugar.Log) bool {
 		writeReq := psmb.MbtcpWriteReq{
