@@ -1945,7 +1945,7 @@ func TestOnceWriteFC16(t *testing.T) {
 			return false
 		}
 
-		desire := []uint16{171, 205, 18, 52}
+		desire := []uint16{0xABCD, 0x1234}
 		for idx := 0; idx < len(desire); idx++ {
 			log("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
