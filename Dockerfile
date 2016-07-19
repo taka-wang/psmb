@@ -16,7 +16,8 @@ RUN go get github.com/takawang/sugar \
     && git clone https://github.com/taka-wang/psmb-srv.git \
     && cd psmb-srv \
     && go build -o psmb \
-    && cp psmb /usr/bin/ \
+    && ls
+    #&& cp psmb /usr/bin/ \
 
 CMD ["/usr/bin/psmb"]
 
