@@ -36,18 +36,18 @@
 - [x] Refactor simple/read task map mechanism
 - [x] Refactor simple/read task to OO
 - [x] Generalize proactive service implementation
+- [x] Re-org test cases and integrate with drone.io
+- [x] Handle default port if not set
 
 # TODO
 - [ ] define request type
-- [ ] rewrite travis CI
 
 # Backlog:
 - if scheduler is stop, trigger requests directly.
-- handle default port if not set
+
 - handle data length
     - read: default = 1
     - write: check length with data, or set it automatically
-- if the length of the response data equal to 1, should we put it data 'array'
 - check timeout interval range
 - check polling interval range
 
