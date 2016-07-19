@@ -232,18 +232,18 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 			if err := json.Unmarshal(data, &d); err != nil {
 				return nil, ErrUnmarshal
 			}
-			req.Data = d
+			req.Data = d // unmarshal to uint16
 			return req, nil
 		case fc15: // write multiple bits; []uint16
 			var d []uint16
 			if err := json.Unmarshal(data, &d); err != nil {
 				return nil, ErrUnmarshal
 			}
-			req.Data = d
+			req.Data = d // unmarshal to uint16 array
 			return req, nil
 		case fc6: // write single register in dec|hex
 			var d string
-			if err := json.Unmarshal(data, &d); err != nil {
+			if err := json.Unmarshal(data, &d); err != nil { // unmarshal to string
 				return nil, ErrUnmarshal
 			}
 
@@ -257,11 +257,11 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 			if err != nil {
 				return nil, err
 			}
-			req.Data = dd[0] // one register
+			req.Data = dd[0] // retrieve only one register
 			return req, nil
 		case fc16: // write multiple register in dec/hex
 			var d string
-			if err := json.Unmarshal(data, &d); err != nil {
+			if err := json.Unmarshal(data, &d); err != nil { // unmarshal to string
 				return nil, ErrUnmarshal
 			}
 
@@ -404,9 +404,10 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 
 		// function code checker
 		if req.FC < 1 || req.FC > 4 {
-			log.WithFields(log.Fields{"FC": req.FC}).Error("Invalid function code")
+			err := ErrInvalidFunctionCode
+			log.WithFields(log.Fields{"FC": req.FC}).Error(err.Error())
 			// send back
-			resp := MbtcpSimpleRes{Tid: req.Tid, Status: "Invalid function code"}
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.simpleResponser(cmd, resp)
 		}
 
@@ -434,17 +435,19 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 
 		// function code checker
 		if req.FC < 1 || req.FC > 4 {
-			log.WithFields(log.Fields{"FC": req.FC}).Error("Invalid function code")
+			err := ErrInvalidFunctionCode
+			log.WithFields(log.Fields{"FC": req.FC}).Error(err.Error())
 			// send back
-			resp := MbtcpSimpleRes{Tid: req.Tid, Status: "Invalid function code"}
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.simpleResponser(cmd, resp)
 		}
 
 		// check name
 		if req.Name == "" {
-			log.WithFields(log.Fields{"Name": req.Name}).Error("Invalid poll name")
+			err := ErrInvalidPollName
+			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
 			// send back
-			resp := MbtcpSimpleRes{Tid: req.Tid, Status: "Invalid poll name"}
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.simpleResponser(cmd, resp)
 		}
 

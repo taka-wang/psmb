@@ -59,4 +59,10 @@ var (
 
 	// ErrUnmarshal is the error when unmarshal json string to structure failed
 	ErrUnmarshal = errors.New("Fail to unmarshal!")
+
+	// ErrInvalidFunctionCode is the error when the function code is mismatch command
+	ErrInvalidFunctionCode = errors.New("Invalid function code!")
+
+	// ErrInvalidPollName is the error when the poll name is empty
+	ErrInvalidPollName = errors.New("Invalid poll name!")
 )
