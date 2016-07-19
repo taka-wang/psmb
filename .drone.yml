@@ -11,6 +11,7 @@ build:
             - cp "config/service.sh" "/etc/init.d/modbusd" && chmod +x /etc/init.d/modbusd && update-rc.d modbusd defaults
             - service modbusd start
 
+            # slaves
             - cd ..
             - git clone https://github.com/taka-wang/c-modbus-slave.git
             - cd c-modbus-slave
@@ -21,15 +22,15 @@ build:
 
             # psmb
             - go get github.com/takawang/zmq3
-            - go get github.com/taka-wang/gocron
             - go get github.com/takawang/sugar
             - go get github.com/takawang/logrus
+            - go get github.com/taka-wang/gocron
             - go test -v
             - git clone https://github.com/taka-wang/psmb-srv.git && cd psmb-srv
             - go build -o psmb && ./psmb & 
             - cd ..
 
-            # goclient
+            # dummy upstream
             - go get github.com/taka-wang/psmb
             - cd test/goclient/
             - go test -v
