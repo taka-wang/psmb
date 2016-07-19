@@ -28,6 +28,7 @@ pipeline:
             - go get github.com/takawang/sugar
             - go get github.com/takawang/logrus
             - go get github.com/taka-wang/gocron
+            - go get github.com/taka-wang/psmb
             - go test -v
             - pwd
             - git clone https://github.com/taka-wang/psmb-srv.git 
