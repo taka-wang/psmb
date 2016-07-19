@@ -1,4 +1,5 @@
 # taka's private drone server
+# drone.io 0.5 format
 
 pipeline:
     build:
@@ -28,7 +29,8 @@ pipeline:
             - go get github.com/takawang/logrus
             - go get github.com/taka-wang/gocron
             - go test -v
-            - git clone https://github.com/taka-wang/psmb-srv.git && cd psmb-srv
+            - git clone https://github.com/taka-wang/psmb-srv.git 
+            - cd psmb-srv
             - go build -o psmb && ./psmb & 
             - cd ..
 
