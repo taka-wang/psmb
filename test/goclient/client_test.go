@@ -57,7 +57,7 @@ func init() {
 	time.Sleep(2000 * time.Millisecond)
 
 	// generalize host reslove for docker/local env
-	host, err := net.LookupHost("mbd")
+	host, err := net.LookupHost("slave")
 	if err != nil {
 		fmt.Println("local run")
 		hostName = "127.0.0.1"
