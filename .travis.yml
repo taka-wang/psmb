@@ -14,10 +14,6 @@ install:
 
 script:
 
-### build modbus slave server image
-- docker build -t $PSMB_MODBUS_IMG test/mb/.
-- if [ ! -z "$TRAVIS_TAG" ]; then docker tag $PSMB_MODBUS_IMG:latest $PSMB_MODBUS_IMG:$TRAVIS_TAG; fi && docker push $PSMB_MODBUS_IMG
-
 ### build psmb image
 - docker build -t $PSMB_IMG .
 - if [ ! -z "$TRAVIS_TAG" ]; then docker tag $PSMB_IMG:latest $PSMB_IMG:$TRAVIS_TAG; fi && docker push $PSMB_IMG
@@ -26,27 +22,30 @@ script:
 - docker build -t $PSMB_GOCLIENT_IMG test/goclient/.
 - if [ ! -z "$TRAVIS_TAG" ]; then docker tag $PSMB_GOCLIENT_IMG:latest $PSMB_GOCLIENT_IMG:$TRAVIS_TAG; fi && docker push $PSMB_GOCLIENT_IMG
 
-### run modbus
-- docker run -v /tmp:/tmp -itd --name=$PSMB_MODBUS_NAME $PSMB_MODBUS_IMG
+### run modbus slave server
+- docker run -itd --name=$MODBUS_SLAVE_NAME $MODBUS_SLAVE_IMG
+- docker run -v /tmp:/tmp --link $MODBUS_SLAVE_NAME -itd --name=$MODBUSD_NAME $MODBUSD_IMG
+
 
 ### run psmb
 - docker run -v /tmp:/tmp -itd --name=$PSMB_NAME $PSMB_IMG
 
 ### run goclient
-- docker run -v /tmp:/tmp --link $PSMB_MODBUS_NAME -it --name=$PSMB_GOCLIENT_NAME $PSMB_GOCLIENT_IMG
+- docker run -v /tmp:/tmp --link $MODBUS_SLAVE_NAME -it --name=$PSMB_GOCLIENT_NAME $PSMB_GOCLIENT_IMG
 
 ### stop all containers
-- docker stop $PSMB_MODBUS_NAME $PSMB_NAME $PSMB_GOCLIENT_NAME
+- docker stop $MODBUS_SLAVE_NAME $MODBUSD_NAME $PSMB_NAME $PSMB_GOCLIENT_NAME
 
 
 env:
   global:
-
-  - PSMB_MODBUS_IMG=takawang/mbd
-  - PSMB_MODBUS_NAME=mbd
+  - MODBUS_SLAVE_IMG=takawang/c-modbus-slave
+  - MODBUSD_IMG=takawang/modbusd
   - PSMB_IMG=takawang/psmb
-  - PSMB_NAME=psmb
   - PSMB_GOCLIENT_IMG=takawang/psmb-goclient
+
+  - PSMB_NAME=psmb
+  - MODBUS_SLAVE_NAME=slave
   - PSMB_GOCLIENT_NAME=goclient
 
 notifications:
