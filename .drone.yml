@@ -1,3 +1,5 @@
+# taka's private drone server
+
 build:
     psmb_goclient:
         image: takawang/ubuntu-drone-psmb
@@ -30,7 +32,7 @@ build:
             - go build -o psmb && ./psmb & 
             - cd ..
 
-            # dummy upstream
+            # dummy upstream service
             - go get github.com/taka-wang/psmb
             - git clone https://github.com/taka-wang/dummy-srv.git
             - cd dummy-srv
