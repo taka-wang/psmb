@@ -520,7 +520,6 @@ func TestOnceWriteFC5(t *testing.T) {
 		}
 		return true
 	})
-
 }
 
 func TestOnceWriteFC6(t *testing.T) {
@@ -1069,7 +1068,7 @@ func TestOneOffFC15(t *testing.T) {
 			Slave: 1,
 			Addr:  10,
 			Len:   4,
-			Data:  []uint16{1, 0, 1, 0},
+			Data:  []uint16{2, 0, 2, 0},
 		}
 		writeReqStr, _ := json.Marshal(writeReq)
 		cmd := "mbtcp.once.write"
@@ -1140,6 +1139,169 @@ func TestOneOffFC15(t *testing.T) {
 		return true
 	})
 
+	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - miss from & port - (2/4)", func(log sugar.Log) bool {
+		// ---------------- write part
+		writeReq := psmb.MbtcpWriteReq{
+			//From:  "web",
+			Tid: time.Now().UTC().UnixNano(),
+			IP:  hostName,
+			//Port:  portNum1,
+			FC:    15,
+			Slave: 1,
+			Addr:  10,
+			Len:   4,
+			Data:  []uint16{2, 0, 2, 0},
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r1 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r1.Status != "ok" {
+			return false
+		}
+		//return true
+
+		// ---------------- read part
+		readReq := psmb.MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    1,
+			Slave: 1,
+			Addr:  10,
+			Len:   4,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd = "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 = subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var data json.RawMessage // raw []byte
+		r2 := psmb.MbtcpReadRes{Data: &data}
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		// ---------------- Compare
+		var r3 []uint16
+		if err := json.Unmarshal(data, &r3); err != nil {
+			return false
+		}
+
+		desire := []uint16{1, 0, 1, 0}
+		for idx := 0; idx < len(desire); idx++ {
+			log("desire:%d, result:%d", desire[idx], r3[idx])
+			if r3[idx] != desire[idx] {
+				return false
+			}
+		}
+		return true
+	})
+
+	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - valid value(0) - (3/4)", func(log sugar.Log) bool {
+		// ---------------- write part
+		writeReq := psmb.MbtcpWriteReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    15,
+			Slave: 1,
+			Addr:  10,
+			Len:   4,
+			Data:  []uint16{0, 1, 1, 0},
+		}
+		writeReqStr, _ := json.Marshal(writeReq)
+		cmd := "mbtcp.once.write"
+		go publisher(cmd, string(writeReqStr))
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(writeReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r1 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r1.Status != "ok" {
+			return false
+		}
+		//return true
+
+		// ---------------- read part
+		readReq := psmb.MbtcpReadReq{
+			From:  "web",
+			Tid:   time.Now().UTC().UnixNano(),
+			IP:    hostName,
+			Port:  portNum1,
+			FC:    1,
+			Slave: 1,
+			Addr:  10,
+			Len:   4,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd = "mbtcp.once.read"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 = subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var data json.RawMessage // raw []byte
+		r2 := psmb.MbtcpReadRes{Data: &data}
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		// ---------------- Compare
+		var r3 []uint16
+		if err := json.Unmarshal(data, &r3); err != nil {
+			return false
+		}
+
+		desire := []uint16{0, 1, 1, 0}
+		for idx := 0; idx < len(desire); idx++ {
+			log("desire:%d, result:%d", desire[idx], r3[idx])
+			if r3[idx] != desire[idx] {
+				return false
+			}
+		}
+		return true
+	})
 }
 
 /*
