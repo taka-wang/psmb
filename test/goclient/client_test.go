@@ -1830,7 +1830,7 @@ func TestOnceWriteFC16(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - invalid value (11,22,33,44) - (7/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - invalid hex type (11,22,33,44) - (7/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 
 		writeReq := psmb.MbtcpWriteReq{
@@ -1868,7 +1868,7 @@ func TestOnceWriteFC16(t *testing.T) {
 
 	})
 
-	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid hex type - (8/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid length - (8/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -1897,11 +1897,11 @@ func TestOnceWriteFC16(t *testing.T) {
 		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
 			fmt.Println("json err:", err)
 		}
+
 		// check response
 		if r1.Status != "ok" {
-			return true
+			return false
 		}
-		return false
 
 		// ---------------- read part
 		readReq := psmb.MbtcpReadReq{
