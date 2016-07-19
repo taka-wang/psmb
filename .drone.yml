@@ -29,9 +29,12 @@ pipeline:
             - go get github.com/takawang/logrus
             - go get github.com/taka-wang/gocron
             - go test -v
+            - pwd
             - git clone https://github.com/taka-wang/psmb-srv.git 
+            - ls
             - cd psmb-srv
-            - go build -o psmb && ./psmb & 
+            - go build -o psmb
+            - ./psmb & 
             - cd ..
 
             # dummy upstream service
