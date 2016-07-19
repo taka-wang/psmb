@@ -2,7 +2,7 @@ build:
     psmb_goclient:
         image: takawang/ubuntu-drone-psmb
         commands:
-            # mbd
+            # modbusd
             - git clone https://github.com/taka-wang/modbusd.git
             - mkdir -p modbusd/build
             - cd modbusd/build
@@ -10,11 +10,14 @@ build:
             - cd ..
             - cp "config/service.sh" "/etc/init.d/modbusd" && chmod +x /etc/init.d/modbusd && update-rc.d modbusd defaults
             - service modbusd start
-            - cd tests/cmbserver
+
+            - cd ..
+            - git clone https://github.com/taka-wang/c-modbus-slave.git
+            - cd c-modbus-slave
             - gcc server.c -o server -Wall -std=c99 `pkg-config --libs --cflags libmodbus`
             - ./server &
             - ./server 503 &
-            - cd ../../../
+            - cd ..
 
             # psmb
             - go get github.com/takawang/zmq3
