@@ -1,5 +1,6 @@
 # taka's private drone server
 
+
 pipeline:
     build:
         psmb_goclient:
