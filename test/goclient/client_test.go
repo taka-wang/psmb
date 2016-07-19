@@ -1868,7 +1868,7 @@ func TestOnceWriteFC16(t *testing.T) {
 
 	})
 
-	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid length - (8/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - invalid length - (8/8)", func(log sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
