@@ -1055,6 +1055,7 @@ func TestOnceWriteFC6(t *testing.T) {
 }
 
 func TestOneOffFC15(t *testing.T) {
+
 	s := sugar.New(t)
 
 	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - invalid json type - (1/5)", func(log sugar.Log) bool {
@@ -1376,6 +1377,7 @@ func TestOneOffFC15(t *testing.T) {
 }
 
 func TestOnceWriteFC16(t *testing.T) {
+
 	s := sugar.New(t)
 
 	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - valid value (11,22,33,44) - (1/8)", func(log sugar.Log) bool {
@@ -1736,7 +1738,7 @@ func TestOnceWriteFC16(t *testing.T) {
 			return false
 		}
 
-		desire := []uint16{171, 205, 18, 52}
+		desire := []uint16{0xABCD, 0x1234}
 		for idx := 0; idx < len(desire); idx++ {
 			log("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
@@ -1820,7 +1822,7 @@ func TestOnceWriteFC16(t *testing.T) {
 			return false
 		}
 
-		desire := []uint16{171, 205, 18, 52}
+		desire := []uint16{0xABCD, 0x1234}
 		for idx := 0; idx < len(desire); idx++ {
 			log("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
