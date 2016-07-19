@@ -1100,7 +1100,7 @@ func TestOneOffFC15(t *testing.T) {
 			FC:    1,
 			Slave: 1,
 			Addr:  10,
-			Len:   3,
+			Len:   4,
 		}
 
 		readReqStr, _ := json.Marshal(readReq)
@@ -1129,10 +1129,14 @@ func TestOneOffFC15(t *testing.T) {
 		if err := json.Unmarshal(data, &r3); err != nil {
 			return false
 		}
-		if r3[0] != 1 {
-			return false
-		}
 
+		desire := []uint16{1, 0, 1, 0}
+		for idx := 0; idx < len(desire); idx++ {
+			log("desire:%d, result:%d", desire[idx], r3[idx])
+			if r3[idx] != desire[idx] {
+				return false
+			}
+		}
 		return true
 	})
 
