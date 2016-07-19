@@ -16,4 +16,3 @@ goclient:
         - modbusd
     links:
         - slave
-    
