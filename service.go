@@ -676,6 +676,10 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 			return b.simpleResponser(respCmd, response)
 		// read registers
 		case fc3, fc4:
+			// shared variables
+			var status string
+			var data interface{}
+
 			switch task.Cmd {
 			// one-off requests
 			case mbtcpOnceRead:
@@ -708,10 +712,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				}
 
 				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
-
-				// shared variables
-				var status string
-				var data interface{}
 
 				switch readReq.Type {
 				case HexString:
@@ -835,181 +835,98 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 
 				switch readReq.Type {
 				case HexString:
-					response = MbtcpPollData{
-						TimeStamp: time.Now().UTC().UnixNano(),
-						Name:      task.Name,
-						Type:      readReq.Type,
-						Bytes:     bytes,
-						Data:      BytesToHexString(bytes), // convert byte to hex
-						Status:    res.Status,
-					}
+					data = BytesToHexString(bytes) // convert byte to hex
+					status = res.Status
 					// TODO: add to history
 				case UInt16:
-					// order
-					ret, err := BytesToUInt16s(bytes, readReq.Order)
+					ret, err := BytesToUInt16s(bytes, readReq.Order) // order
 					if err != nil {
-						response = MbtcpPollData{
-							TimeStamp: time.Now().UTC().UnixNano(),
-							Name:      task.Name,
-							Type:      readReq.Type,
-							Bytes:     bytes,
-							// No Data
-							Status: err.Error(),
-						}
+						data = nil
+						status = err.Error()
 					} else {
-						response = MbtcpPollData{
-							TimeStamp: time.Now().UTC().UnixNano(),
-							Name:      task.Name,
-							Type:      readReq.Type,
-							Bytes:     bytes,
-							Data:      ret,
-							Status:    res.Status,
-						}
+						data = ret
+						status = res.Status
 						// TODO: add to history
 					}
 				case Int16:
-					// order
-					ret, err := BytesToInt16s(bytes, readReq.Order)
+					ret, err := BytesToInt16s(bytes, readReq.Order) // order
 					if err != nil {
-						response = MbtcpPollData{
-							TimeStamp: time.Now().UTC().UnixNano(),
-							Name:      task.Name,
-							Type:      readReq.Type,
-							Bytes:     bytes,
-							// No Data
-							Status: err.Error(),
-						}
+						data = nil
+						status = err.Error()
 					} else {
-						response = MbtcpPollData{
-							TimeStamp: time.Now().UTC().UnixNano(),
-							Name:      task.Name,
-							Type:      readReq.Type,
-							Bytes:     bytes,
-							Data:      ret,
-							Status:    res.Status,
-						}
+						data = ret
+						status = res.Status
 						// TODO: add to history
 					}
-
 				case Scale, UInt32, Int32, Float32: // 32-Bits
 					if readReq.Len%2 != 0 {
-						response = MbtcpPollData{
-							TimeStamp: time.Now().UTC().UnixNano(),
-							Name:      task.Name,
-							Type:      readReq.Type,
-							Bytes:     bytes,
-							// No Data
-							Status: "Conversion failed",
-						}
+						data = nil
+						status = "Invalid length to convert"
 					} else {
 						switch readReq.Type {
 						case Scale:
-							f, err := LinearScalingRegisters(
+							ret, err := LinearScalingRegisters(
 								res.Data,
 								readReq.Range.DomainLow,
 								readReq.Range.DomainHigh,
 								readReq.Range.RangeLow,
 								readReq.Range.RangeHigh)
-
-							var status string
-							var data interface{}
-
 							if err != nil {
 								data = nil
 								status = err.Error()
 							} else {
-								data = f
+								data = ret
 								status = res.Status
+								// TODO: add to history
 							}
 
-							response = MbtcpPollData{
-								TimeStamp: time.Now().UTC().UnixNano(),
-								Name:      task.Name,
-								Type:      readReq.Type,
-								Bytes:     bytes,
-								Data:      data,
-								Status:    status,
-							}
-
-							// TODO: add to history
 						case UInt32:
 							ret, err := BytesToUInt32s(bytes, readReq.Order)
 							if err != nil {
-								response = MbtcpPollData{
-									TimeStamp: time.Now().UTC().UnixNano(),
-									Name:      task.Name,
-									Type:      readReq.Type,
-									Bytes:     bytes,
-									// No Data
-									Status: err.Error(),
-								}
+								data = nil
+								status = err.Error()
 							} else {
-								response = MbtcpPollData{
-									TimeStamp: time.Now().UTC().UnixNano(),
-									Name:      task.Name,
-									Type:      readReq.Type,
-									Bytes:     bytes,
-									Data:      ret,
-									Status:    res.Status,
-								}
+								data = ret
+								status = res.Status
 								// TODO: add to history
 							}
+							ret, err := BytesToUInt32s(bytes, readReq.Order)
 						case Int32:
 							ret, err := BytesToInt32s(bytes, readReq.Order)
 							if err != nil {
-								response = MbtcpPollData{
-									TimeStamp: time.Now().UTC().UnixNano(),
-									Name:      task.Name,
-									Type:      readReq.Type,
-									Bytes:     bytes,
-									// No Data
-									Status: err.Error(),
-								}
+								data = nil
+								status = err.Error()
 							} else {
-								response = MbtcpPollData{
-									TimeStamp: time.Now().UTC().UnixNano(),
-									Name:      task.Name,
-									Type:      readReq.Type,
-									Bytes:     bytes,
-									Data:      ret,
-									Status:    res.Status,
-								}
+								data = ret
+								status = res.Status
 								// TODO: add to history
 							}
 						case Float32:
 							ret, err := BytesToFloat32s(bytes, readReq.Order)
 							if err != nil {
-								response = MbtcpPollData{
-									TimeStamp: time.Now().UTC().UnixNano(),
-									Name:      task.Name,
-									Type:      readReq.Type,
-									Bytes:     bytes,
-									// No Data
-									Status: err.Error(),
-								}
+								data = nil
+								status = err.Error()
 							} else {
-								response = MbtcpPollData{
-									TimeStamp: time.Now().UTC().UnixNano(),
-									Name:      task.Name,
-									Type:      readReq.Type,
-									Bytes:     bytes,
-									Data:      ret,
-									Status:    res.Status,
-								}
+								data = ret
+								status = res.Status
 								// TODO: add to history
 							}
 						}
 					}
 				default: // case 0, 1(RegisterArray)
-					response = MbtcpPollData{
-						TimeStamp: time.Now().UTC().UnixNano(),
-						Name:      task.Name,
-						Type:      readReq.Type,
-						Bytes:     bytes,
-						Data:      res.Data,
-						Status:    res.Status,
-					}
+					data = res.Data
+					status = res.Status
 					// TODO: add to history
+
+				}
+				// shared response
+				response = MbtcpPollData{
+					TimeStamp: time.Now().UTC().UnixNano(),
+					Name:      task.Name,
+					Type:      readReq.Type,
+					Bytes:     bytes,
+					Data:      data,
+					Status:    status,
 				}
 				return b.simpleResponser(respCmd, response)
 
