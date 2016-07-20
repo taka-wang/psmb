@@ -1,47 +1,12 @@
 # taka's private drone server
-# drone.io 0.5 format
+# for v0.5
 
 pipeline:
-    build:
-        image: takawang/ubuntu-drone-psmb
+    ci:
+        image: takawang/dind:push # docker in docker wiht compose
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock # docker in docker trick
         commands:
-            # modbusd
-            - git clone https://github.com/taka-wang/modbusd.git
-            - mkdir -p modbusd/build
-            - cd modbusd/build
-            - cmake .. && make && make install
-            - cd ..
-            - cp "config/service.sh" "/etc/init.d/modbusd" && chmod +x /etc/init.d/modbusd && update-rc.d modbusd defaults
-            - service modbusd start
-
-            # slaves
-            - cd ..
-            - git clone https://github.com/taka-wang/c-modbus-slave.git
-            - cd c-modbus-slave
-            - gcc server.c -o server -Wall -std=c99 `pkg-config --libs --cflags libmodbus`
-            - ./server &
-            - ./server 503 &
-            - cd ..
-
-            # psmb
-            - go get github.com/takawang/zmq3
-            - go get github.com/takawang/sugar
-            - go get github.com/takawang/logrus
-            - go get github.com/taka-wang/gocron
-            - go get github.com/taka-wang/psmb
-            - go test -v
-            - pwd
-            - git clone https://github.com/taka-wang/psmb-srv.git 
-            - ls
-            - cd psmb-srv
-            - go build -o psmb
-            - ./psmb & 
-            - cd ..
-
-            # dummy upstream service
-            - go get github.com/taka-wang/psmb
-            - git clone https://github.com/taka-wang/dummy-srv.git
-            - cd dummy-srv
-            - go test -v
-
-
+            - docker-compose rm -f -a
+            - docker-compose build
+            - docker-compose up --abort-on-container-exit

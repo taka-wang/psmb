@@ -1,7 +1,7 @@
 slave:
     image: takawang/c-modbus-slave
 modbusd:
-    image: takawang/modbusd
+    image: takawang/modbusd:alpine
     volumes:
         - /tmp:/tmp
     links:
