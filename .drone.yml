@@ -3,7 +3,7 @@
 
 pipeline:
     ci:
-        image: takawang/dind:push # docker in docker wiht compose
+        image: takawang/dind # docker in docker wiht compose
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock # docker in docker trick
         commands:
