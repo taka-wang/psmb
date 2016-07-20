@@ -1,15 +1,19 @@
 slave:
     image: takawang/c-modbus-slave
+    command: /usr/bin/server & && /usr/bin/server 503
+
 modbusd:
     image: takawang/modbusd:alpine
     volumes:
         - /tmp:/tmp
     links:
         - slave
+
 psmb:
     build: .
     volumes_from:
         - modbusd
+
 dummy-srv:
     image: takawang/dummy-srv
     volumes_from:
