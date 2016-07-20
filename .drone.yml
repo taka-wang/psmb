@@ -8,5 +8,5 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock # docker in docker trick
         commands:
             - docker-compose rm -f -a
-            - docker-compose build
+            - docker-compose build --pull
             - docker-compose up --abort-on-container-exit
