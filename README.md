@@ -28,9 +28,8 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 ### Docker Compose
 
 ```bash
-docker-compose up
-# rebuild images
-docker-compose build
+docker-compose build  --pull
+docker-compose up --abort-on-container-exit
 ```
 
 ### Build images manually
