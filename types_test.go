@@ -664,5 +664,4 @@ func TestDownstreamStruct(t *testing.T) {
 		log(r1)
 		return true
 	})
-
 }

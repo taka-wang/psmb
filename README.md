@@ -7,13 +7,6 @@ Proactive service for [modbusd](https://github.com/taka-wang/modbusd)
 
 ---
 
-## // Unit tests
-
-- [binary](binary_test.go)
-- [types](types_test.go)
-
----
-
 ## // Contracts (Interfaces)
 
 - ProactiveService: proactive service
@@ -40,14 +33,15 @@ docker build -t takawang/psmb .
 ### Run images
 
 ```bash
-# run modbus server
+
+# run modbus slave
 docker run -itd --name=slave takawang/c-modbus-slave
+
 # run modbusd
 docker run -v /tmp:/tmp --link slave -it --name=modbusd takawang/modbusd
 
 # run psmb
 docker run -v /tmp:/tmp -itd takawang/psmb
-#docker run -v /tmp:/tmp -it takawang/psmb /bin/bash
 
 # run dummy-srv
 docker run -v /tmp:/tmp --link slave -it takawang/dummy-srv
