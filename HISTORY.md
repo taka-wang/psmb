@@ -1,4 +1,5 @@
 # Done
+
 - [x] evaluate scheduler
 - [x] evaluate scheduler with zmq
 - [x] hacking gocron package
@@ -35,14 +36,17 @@
 - [x] implement NaiveResponser
 - [x] Refactor simple/read task map mechanism
 - [x] Refactor simple/read task to OO
+- [x] implement factory pattern
 - [x] Generalize proactive service implementation
 - [x] Re-org test cases and integrate with drone.io
 - [x] Handle default port if not set
 
 # TODO
+
 - [ ] define request type
 
 # Backlog:
+
 - if scheduler is stop, trigger requests directly.
 
 - handle data length
@@ -52,6 +56,7 @@
 - check polling interval range
 
 # Module
+
 - post processing (event mapper)
     - filter
     - on changed
