@@ -14,7 +14,7 @@ psmb:
         - modbusd
 
 dummy-srv:
-    image: takawang/dummy-srv
+    build: test/dummy-srv/.
     volumes_from:
         - modbusd
     links:
