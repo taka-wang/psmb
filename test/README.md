@@ -6,8 +6,8 @@
 
 ## // Unit tests
 
-- [binary](binary_test.go)
-- [types](types_test.go)
+- binary
+- types
 
 ## // Unit test cases
 
