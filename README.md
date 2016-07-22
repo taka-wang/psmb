@@ -56,4 +56,3 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ![deployment](image/deployment.png)
 
-
