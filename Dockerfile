@@ -1,7 +1,3 @@
-#
-# psmb
-#
-#FROM golang:1.6
 FROM takawang/ubuntu-gozmq
 MAINTAINER Taka Wang <taka@cmwang.net>
 
