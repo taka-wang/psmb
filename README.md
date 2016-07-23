@@ -23,14 +23,7 @@ docker-compose build  --pull
 docker-compose up --abort-on-container-exit
 ```
 
-### Build images manually
-
-```bash
-# build psmb image
-docker build -t takawang/psmb .
-```
-
-### Run images
+### From docker images
 
 ```bash
 
