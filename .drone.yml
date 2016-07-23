@@ -10,3 +10,4 @@ pipeline:
             - docker-compose rm -f -a
             - docker-compose build --pull
             - docker-compose up --abort-on-container-exit
+            - docker-compose rm -f -a
