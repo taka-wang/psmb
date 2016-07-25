@@ -26,7 +26,6 @@ type ProactiveService interface {
 	Start()
 	// Stop disable proactive service
 	Stop()
-
 	// parseRequest parse upstream requests
 	parseRequest(msg []string) (interface{}, error)
 	// handleRequest handle upstream requests
@@ -429,7 +428,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		b.readTaskMap.Add("", TidStr, cmd, req)                       // Add task to read/poll task map
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command) // add command to scheduler as emergency request
 		return nil
-	case mbtcpCreatePoll:
+	case mbtcpCreatePoll: // done
 		req := r.(MbtcpPollStatus)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
@@ -455,8 +454,6 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		if req.Port == "" {
 			req.Port = defaultMbtcpPort
 		}
-
-		// todo:check name in map or not?
 
 		// check interval value
 		if req.Interval < minMbtcpPollInterval {
@@ -488,25 +485,54 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.simpleResponser(cmd, resp)
-	case mbtcpUpdatePoll:
-		return ErrTodo
-	case mbtcpGetPoll:
-		return ErrTodo
-	case mbtcpDeletePoll:
-		return ErrTodo
-	case mbtcpTogglePoll:
-		// TODO! check name
+	case mbtcpUpdatePoll: // done
 		req := r.(MbtcpPollOpReq)
-		//TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+		// check interval value
+		if req.Interval < minMbtcpPollInterval {
+			req.Interval = minMbtcpPollInterval
+		}
+
+		// update interval
+		if ok := b.scheduler.UpdateIntervalWithName(req.Name, req.Interval); !ok {
+			err := ErrInvalidPollName
+			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+			// send back
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+			return b.simpleResponser(cmd, resp)
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		return b.simpleResponser(cmd, resp)
+	case mbtcpGetPoll: // todo
+		return ErrTodo
+	case mbtcpDeletePoll: // done
+		req := r.(MbtcpPollOpReq)
+		// remove task
+		if ok := b.scheduler.RemoveWithName(req.Name); !ok {
+			err := ErrInvalidPollName
+			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+			// send back
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+			return b.simpleResponser(cmd, resp)
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		return b.simpleResponser(cmd, resp)
+	case mbtcpTogglePoll: // done
+		req := r.(MbtcpPollOpReq)
 
 		status := "ok"
 		if req.Enabled {
 			if ok := b.scheduler.ResumeWithName(req.Name); !ok {
-				status = "enable poll failed"
+				err := ErrInvalidPollName
+				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+				status = err.Error()
 			}
 		} else {
 			if ok := b.scheduler.PauseWithName(req.Name); !ok {
-				status = "disable poll failed"
+				err := ErrInvalidPollName
+				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+				status = err.Error()
 			}
 		}
 		// send back
