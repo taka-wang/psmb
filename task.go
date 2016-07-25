@@ -8,8 +8,10 @@ import "sync"
 
 // MbtcpReadTask mbtcp read task interface
 type MbtcpReadTask interface {
-	// Get get command from read/poll task map
-	Get(tid string) (mbtcpReadTask, bool)
+	// GetTID get command from read/poll task map
+	GetTID(tid string) (mbtcpReadTask, bool)
+	// GetName get command from read/poll task map
+	GetName(name string) (mbtcpReadTask, bool)
 	// Delete remove command from read/poll task map
 	Delete(tid string)
 	// Add add cmd to read/poll task map
@@ -45,6 +47,8 @@ type mbtcpReadTaskType struct {
 	sync.RWMutex
 	// m key-value map: (tid, mbtcpReadTask)
 	m map[string]mbtcpReadTask
+	// p key-value map: (name, tid)
+	p map[string]string
 }
 
 // mbtcpSimpleTaskType simple task map type
@@ -62,6 +66,7 @@ type mbtcpSimpleTaskType struct {
 func NewMbtcpReadTask() MbtcpReadTask {
 	return &mbtcpReadTaskType{
 		m: make(map[string]mbtcpReadTask),
+		p: make(map[string]string),
 	}
 }
 
@@ -72,17 +77,37 @@ func NewMbtcpSimpleTask() MbtcpSimpleTask {
 	}
 }
 
-// Get get command from read/poll task map
-func (s *mbtcpReadTaskType) Get(tid string) (mbtcpReadTask, bool) {
+// GetTID get command from read/poll task map
+func (s *mbtcpReadTaskType) GetTID(tid string) (mbtcpReadTask, bool) {
 	s.RLock()
 	task, ok := s.m[tid]
 	s.RUnlock()
 	return task, ok
 }
 
+// GetName get command from read/poll task map
+func (s *mbtcpReadTaskType) GetName(name string) (mbtcpReadTask, bool) {
+	s.RLock()
+	if id, ok1 := s.p[name]; ok1 {
+		task, ok2 := s.m[id]
+		s.RUnlock()
+		return task, ok
+	}
+	s.RUnlock()
+	return nil, ok1
+}
+
 // Delete remove request from read/poll task map
 func (s *mbtcpReadTaskType) Delete(tid string) {
 	s.Lock()
+
+	// remove from p table
+	if task, ok := s.m[tid]; ok {
+		if task.Name != "" {
+			delete(s.p, task.Name)
+		}
+	}
+	// remove from m table
 	delete(s.m, tid)
 	s.Unlock()
 }
@@ -90,7 +115,12 @@ func (s *mbtcpReadTaskType) Delete(tid string) {
 // Add add request to read/poll task map
 func (s *mbtcpReadTaskType) Add(name, tid, cmd string, req interface{}) {
 	s.Lock()
+	// add to m table
 	s.m[tid] = mbtcpReadTask{name, cmd, req}
+	// add to p table
+	if name != "" {
+		s.p[name] = tid
+	}
 	s.Unlock()
 }
 

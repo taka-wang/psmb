@@ -504,7 +504,45 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.simpleResponser(cmd, resp)
 	case mbtcpGetPoll: // todo
-		return ErrTodo
+		req := r.(MbtcpPollOpReq)
+		/*
+			if req.Name == "" {
+				err := ErrInvalidPollName
+				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+				// send back
+				resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+				return b.simpleResponser(cmd, resp)
+			}
+		*/
+		task, ok := b.readTaskMap.GetName(req.Name)
+		if !ok {
+			err := ErrInvalidPollName
+			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+			// send back
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+			return b.simpleResponser(cmd, resp)
+		}
+
+		req2 := task.Req.(MbtcpPollStatus)
+		// send back
+		resp := MbtcpPollStatus{
+			Tid:      req2.Tid,
+			Name:     req2.Name,
+			Interval: req2.Interval,
+			Enabled:  req2.Enabled,
+			FC:       req2.FC,
+			IP:       req2.IP,
+			Port:     req2.Port,
+			Slave:    req2.Slave,
+			Addr:     req2.Addr,
+			Len:      req2.Len,
+			Type:     req2.Type,
+			Order:    req2.Order,
+			Range:    req2.Range,
+			Status:   "ok",
+		}
+		return b.simpleResponser(cmd, resp)
+
 	case mbtcpDeletePoll: // done
 		req := r.(MbtcpPollOpReq)
 		// remove task
@@ -656,7 +694,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		var ok bool
 
 		// check read task table
-		if task, ok = b.readTaskMap.Get(res.Tid); !ok {
+		if task, ok = b.readTaskMap.GetTID(res.Tid); !ok {
 			return ErrRequestNotFound
 		}
 		// default response command string
