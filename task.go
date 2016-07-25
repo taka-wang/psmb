@@ -91,10 +91,10 @@ func (s *mbtcpReadTaskType) GetName(name string) (mbtcpReadTask, bool) {
 	if id, ok1 := s.p[name]; ok1 {
 		task, ok2 := s.m[id]
 		s.RUnlock()
-		return task, ok
+		return task, ok2
 	}
 	s.RUnlock()
-	return nil, ok1
+	return nil, false
 }
 
 // Delete remove request from read/poll task map

@@ -503,7 +503,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.simpleResponser(cmd, resp)
-	case mbtcpGetPoll: // todo
+	case mbtcpGetPoll: // done
 		req := r.(MbtcpPollOpReq)
 		/*
 			if req.Name == "" {
