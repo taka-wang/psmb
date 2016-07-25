@@ -102,7 +102,7 @@ func (b *mbtcpService) initLogger() {
 func Marshal(r interface{}) (string, error) {
 	bytes, err := json.Marshal(r) // marshal to json string
 	if err != nil {
-		// todo: remove table
+		// TODO: remove table
 		return "", ErrMarshal
 	}
 	return string(bytes), nil
@@ -112,7 +112,7 @@ func Marshal(r interface{}) (string, error) {
 func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
 	str, err := Marshal(req)
 	if err != nil {
-		// todo: remove table
+		// TODO: remove table
 		return
 	}
 	log.WithFields(log.Fields{"JSON": str}).Debug("Send request to modbusd:")
@@ -168,7 +168,6 @@ func (b *mbtcpService) initZMQPoller() {
 
 // simpleTaskResponser simeple response to upstream
 func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
-
 	respStr, err := Marshal(resp)
 	if err != nil {
 		return err
@@ -188,7 +187,6 @@ func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 
 // simpleResponser simple reponser to upstream without checking simple task map
 func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
-
 	respStr, err := Marshal(resp)
 	if err != nil {
 		return err
@@ -200,7 +198,7 @@ func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
 	return nil
 }
 
-// parseRequest parse requests from services
+// parseRequest parse requests from services,
 // only unmarshal request string to corresponding struct
 func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
@@ -505,15 +503,6 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.simpleResponser(cmd, resp)
 	case mbtcpGetPoll: // done
 		req := r.(MbtcpPollOpReq)
-		/*
-			if req.Name == "" {
-				err := ErrInvalidPollName
-				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
-				// send back
-				resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
-				return b.simpleResponser(cmd, resp)
-			}
-		*/
 		task, ok := b.readTaskMap.GetName(req.Name)
 		if !ok {
 			err := ErrInvalidPollName
@@ -523,8 +512,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			return b.simpleResponser(cmd, resp)
 		}
 
-		req2 := task.Req.(MbtcpPollStatus)
 		// send back
+		req2 := task.Req.(MbtcpPollStatus)
 		resp := MbtcpPollStatus{
 			Tid:      req2.Tid,
 			Name:     req2.Name,
@@ -542,7 +531,6 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Status:   "ok",
 		}
 		return b.simpleResponser(cmd, resp)
-
 	case mbtcpDeletePoll: // done
 		req := r.(MbtcpPollOpReq)
 		// remove task
@@ -645,7 +633,8 @@ func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) { // don
 	}
 }
 
-// handleResponse handle response from modbusd, Todo: filter, handle
+// handleResponse handle response from modbusd,
+// Todo: filter, handle
 func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle downstream response:")
 
