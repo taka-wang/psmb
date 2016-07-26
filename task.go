@@ -56,7 +56,7 @@ type mbtcpReadTaskType struct {
 	// nameID (name, tid)
 	nameID map[string]string
 	// idMap (tid, mbtcpReadTask)
-	idMap map[string]*mbtcpReadTask
+	idMap map[string]mbtcpReadTask
 	// nameMap (name, mbtcpReadTask)
 	nameMap map[string]mbtcpReadTask
 }
@@ -77,7 +77,7 @@ func NewMbtcpReadTask() MbtcpReadTask {
 	return &mbtcpReadTaskType{
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
-		idMap:   make(map[string]*mbtcpReadTask),
+		idMap:   make(map[string]mbtcpReadTask),
 		nameMap: make(map[string]mbtcpReadTask),
 	}
 }
@@ -107,7 +107,7 @@ func (s *mbtcpReadTaskType) GetTID(tid string) (mbtcpReadTask, bool) {
 	s.RLock()
 	task, ok := s.idMap[tid]
 	s.RUnlock()
-	return *task, ok
+	return task, ok
 }
 
 // GetName get command from read/poll task map
