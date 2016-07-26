@@ -98,26 +98,26 @@ const (
 type FilterType int
 
 const (
-	// change change or not
-	change FilterType = iota
-	// ge greater than or equal
-	ge
-	// gt greater than
-	gt
-	// eq equal
-	eq
-	// lt less than
-	lt
-	// le less than or equal
-	le
-	// inside range
-	inside
-	// inside range (include)
-	insideIn
-	// outside range
-	outside
-	// outside range (include)
-	outsideIn
+	// Change change or not
+	Change FilterType = iota
+	// GreaterEqual greater than or equal
+	GreaterEqual
+	// Greater greater than
+	Greater
+	// Equal equal
+	Equal
+	// Less less than
+	Less
+	// LessEqual less than or equal
+	LessEqual
+	// InsideRange inside range
+	InsideRange
+	// InsideIncRange inside range (include)
+	InsideIncRange
+	// OutsideRange outside range
+	OutsideRange
+	// OutsideIncRange outside range (include)
+	OutsideIncRange
 )
 
 //

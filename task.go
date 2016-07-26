@@ -10,20 +10,28 @@ import "sync"
 type MbtcpReadTask interface {
 	// GetByTID get command via TID from read/poll task map
 	GetByTID(tid string) (mbtcpReadTask, bool)
+
 	// GetByName get command via Name from read/poll task map
 	GetByName(name string) (mbtcpReadTask, bool)
+
 	// GetAll get all read/poll tasks
 	GetAll() []MbtcpPollStatus
+
 	// DeleteByTID remove request via TID from read/poll task map
 	DeleteByTID(tid string)
+
 	// DeleteByName remove request via Name from read/poll task map
 	DeleteByName(name string)
+
 	// DeleteAll remove all requests from read/poll task map
 	DeleteAll()
+
 	// Add add cmd to read/poll task map
 	Add(name, tid, cmd string, req interface{})
+
 	// UpdateInterval update request interval
 	UpdateInterval(name string, interval uint64) error
+
 	// UpdateToggle update request enable flag
 	UpdateToggle(name string, toggle bool) error
 	// UpdateAllToggles update all request enable flag
@@ -34,8 +42,10 @@ type MbtcpReadTask interface {
 type MbtcpSimpleTask interface {
 	// Get get command from simple task map
 	Get(tid string) (string, bool)
+
 	// Delete remove command from simple task map
 	Delete(tid string)
+
 	// Add add cmd to simple task map
 	Add(tid, cmd string)
 }
@@ -126,16 +136,16 @@ func (s *mbtcpReadTaskType) GetByName(name string) (mbtcpReadTask, bool) {
 
 // GetAll get all read/poll tasks
 func (s *mbtcpReadTaskType) GetAll() []MbtcpPollStatus {
-	ret := []MbtcpPollStatus{}
+	arr := []MbtcpPollStatus{}
 	s.RLock()
 	for _, v := range s.nameMap {
-		// type casting check
+		// type casting check!
 		if item, ok := v.Req.(MbtcpPollStatus); ok {
-			ret = append(ret, item)
+			arr = append(arr, item)
 		}
 	}
 	s.RUnlock()
-	return ret
+	return arr
 }
 
 // DeleteAll remove all requests from read/poll task map
@@ -151,24 +161,28 @@ func (s *mbtcpReadTaskType) DeleteAll() {
 // DeleteByTID remove request from read/poll task map
 func (s *mbtcpReadTaskType) DeleteByTID(tid string) {
 	s.RLock()
-	name, _ := s.idName[tid]
+	name, ok := s.idName[tid]
 	s.RUnlock()
 	s.Lock()
 	delete(s.idName, tid)
 	delete(s.idMap, tid)
-	delete(s.nameID, name)
-	delete(s.nameMap, name)
+	if ok {
+		delete(s.nameID, name)
+		delete(s.nameMap, name)
+	}
 	s.Unlock()
 }
 
 // DeleteByName remove request from read/poll task map
 func (s *mbtcpReadTaskType) DeleteByName(name string) {
 	s.RLock()
-	tid, _ := s.nameID[name]
+	tid, ok := s.nameID[name]
 	s.RUnlock()
 	s.Lock()
-	delete(s.idName, tid)
-	delete(s.idMap, tid)
+	if ok {
+		delete(s.idName, tid)
+		delete(s.idMap, tid)
+	}
 	delete(s.nameID, name)
 	delete(s.nameMap, name)
 	s.Unlock()

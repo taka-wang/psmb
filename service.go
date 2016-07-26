@@ -551,14 +551,13 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.simpleResponser(cmd, resp)
 		}
-		// update readTaskMap
-		b.readTaskMap.DeleteByName(req.Name)
-		// send back
-		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		b.readTaskMap.DeleteByName(req.Name)               // update readTaskMap
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"} // send back
 		return b.simpleResponser(cmd, resp)
 	case mbtcpTogglePoll: // done
 		req := r.(MbtcpPollOpReq)
 		status := "ok"
+		// update scheduler
 		if req.Enabled {
 			if ok := b.scheduler.ResumeWithName(req.Name); !ok {
 				err := ErrInvalidPollName
@@ -591,15 +590,12 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Status: "ok",
 			Polls:  reqs,
 		}
-		// send back
-		return b.simpleResponser(cmd, resp)
+		return b.simpleResponser(cmd, resp) // send back
 	case mbtcpDeletePolls: // done
 		req := r.(MbtcpPollOpReq)
-		b.scheduler.Clear()
-		// update readTaskMap
-		b.readTaskMap.DeleteAll()
-		// send back
-		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		b.scheduler.Clear()                                // clear scheduler
+		b.readTaskMap.DeleteAll()                          // update readTaskMap
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"} // send back
 		return b.simpleResponser(cmd, resp)
 	case mbtcpTogglePolls: // done
 		req := r.(MbtcpPollOpReq)
@@ -608,10 +604,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		} else {
 			b.scheduler.PauseAll()
 		}
-		// update readTaskMap
-		b.readTaskMap.UpdateAllToggles(req.Enabled)
-		// send back
-		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		b.readTaskMap.UpdateAllToggles(req.Enabled)        // update readTaskMap
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"} // send back
 		return b.simpleResponser(cmd, resp)
 	case mbtcpImportPolls:
 		return ErrTodo

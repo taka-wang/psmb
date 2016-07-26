@@ -35,7 +35,7 @@ func TestMbtcpSimpleTask(t *testing.T) {
 		simpleTaskMap.Delete("123456")
 		log("delete `123456` from table")
 		simpleTaskMap.Delete("1234567")
-		log("delete `1234567` from table <-- not available")
+		log("delete `1234567` from table")
 
 		_, b3 := simpleTaskMap.Get("123456")
 		log("get `123456` from table")
