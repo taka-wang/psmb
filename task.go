@@ -1,6 +1,9 @@
 package psmb
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 //
 // Task Interfaces
@@ -126,16 +129,16 @@ func (s *mbtcpReadTaskType) GetByName(name string) (mbtcpReadTask, bool) {
 
 // GetAll get all read/poll tasks
 func (s *mbtcpReadTaskType) GetAll() []MbtcpPollStatus {
-	log.Debug("taka: before make")
+	fmt.Println("taka: before make")
 	ret := make([]MbtcpPollStatus, 1000) // TODO: enhance fix capacity
-	log.Debug("taka: after make")
+	fmt.Println("taka: after make")
 	s.RLock()
-	log.Debug("start looping")
+	fmt.Println("start looping")
 	for _, v := range s.nameMap {
-		log.Debug("looping")
+		fmt.Println("looping")
 		// type casting check
 		if item, ok := v.Req.(MbtcpPollStatus); ok {
-			log.Debug("append")
+			fmt.Println("append")
 			ret = append(ret, item)
 		}
 	}
