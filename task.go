@@ -8,13 +8,13 @@ import "sync"
 
 // MbtcpReadTask mbtcp read task interface
 type MbtcpReadTask interface {
-	// GetTID get command from read/poll task map
+	// GetTID get command via TID from read/poll task map
 	GetTID(tid string) (mbtcpReadTask, bool)
-	// GetName get command from read/poll task map
+	// GetName get command via Name from read/poll task map
 	GetName(name string) (mbtcpReadTask, bool)
-	// DeleteTID remove request from read/poll task map
+	// DeleteTID remove request via TID from read/poll task map
 	DeleteTID(tid string)
-	// DeleteName remove request from read/poll task map
+	// DeleteName remove request via Name from read/poll task map
 	DeleteName(name string)
 	// Add add cmd to read/poll task map
 	Add(name, tid, cmd string, req interface{})
@@ -58,7 +58,7 @@ type mbtcpReadTaskType struct {
 	// idMap (tid, mbtcpReadTask)
 	idMap map[string]*mbtcpReadTask
 	// nameMap (name, mbtcpReadTask)
-	nameMap map[string]*mbtcpReadTask
+	nameMap map[string]mbtcpReadTask
 }
 
 // mbtcpSimpleTaskType simple task map type
@@ -78,7 +78,7 @@ func NewMbtcpReadTask() MbtcpReadTask {
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
 		idMap:   make(map[string]*mbtcpReadTask),
-		nameMap: make(map[string]*mbtcpReadTask),
+		nameMap: make(map[string]mbtcpReadTask),
 	}
 }
 
@@ -97,9 +97,8 @@ func (s *mbtcpReadTaskType) Add(name, tid, cmd string, req interface{}) {
 	s.Lock()
 	s.idName[tid] = name
 	s.nameID[name] = tid
-	r := mbtcpReadTask{name, cmd, req}
-	s.idMap[tid] = &r
-	s.nameMap[name] = &r
+	s.nameMap[name] = mbtcpReadTask{name, cmd, req}
+	s.idMap[tid] = &s.nameMap[name]
 	s.Unlock()
 }
 
@@ -116,7 +115,7 @@ func (s *mbtcpReadTaskType) GetName(name string) (mbtcpReadTask, bool) {
 	s.RLock()
 	task, ok := s.nameMap[name]
 	s.RUnlock()
-	return *task, ok
+	return task, ok
 }
 
 // DeleteTID remove request from read/poll task map
@@ -156,10 +155,9 @@ func (s *mbtcpReadTaskType) UpdateInterval(name string, interval uint64) error {
 	}
 	req := task.Req.(MbtcpPollStatus)
 	req.Interval = interval
-	r := mbtcpReadTask{name, task.Cmd, req}
 	s.Lock()
-	s.idMap[tid] = &r
-	s.nameMap[name] = &r
+	s.nameMap[name] = mbtcpReadTask{name, task.Cmd, req}
+	s.idMap[tid] = &s.nameMap[name]
 	s.Unlock()
 	return nil
 }
@@ -175,10 +173,9 @@ func (s *mbtcpReadTaskType) UpdateToggle(name string, toggle bool) error {
 	}
 	req := task.Req.(MbtcpPollStatus)
 	req.Enabled = toggle
-	r := mbtcpReadTask{name, task.Cmd, req}
 	s.Lock()
-	s.idMap[tid] = &r
-	s.nameMap[name] = &r
+	s.nameMap[name] = mbtcpReadTask{name, task.Cmd, req}
+	s.idMap[tid] = &s.nameMap[name]
 	s.Unlock()
 	return nil
 }

@@ -548,6 +548,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.simpleResponser(cmd, resp)
 		}
+		// update readTaskMap
+		b.readTaskMap.DeleteName(req.Name)
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.simpleResponser(cmd, resp)
