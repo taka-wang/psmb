@@ -6,83 +6,8 @@
 
 - [0. Multipart message](#0-multipart-message)
 - [1. One-off requests](#1-one-off-requests)
-	- [1.1 Read coil/register (**mbtcp.once.read**)](#11-read-coilregister-mbtcponceread)
-		- [1.1.1 Services to PSMB](#111-services-to-psmb)
-		- [1.1.2 PSMB to Services](#112-psmb-to-services)
-	- [1.2 Write coil/register (**mbtcp.once.write**)](#12-write-coilregister-mbtcponcewrite)
-		- [1.2.1 Services to PSMB](#121-services-to-psmb)
-		- [1.2.2 PSMB to Services](#122-psmb-to-services)
-	- [1.3 Get TCP connection timeout (**mbtcp.timeout.read**)](#13-get-tcp-connection-timeout-mbtcptimeoutread)
-		- [1.3.1 Services to PSMB](#131-services-to-psmb)
-		- [1.3.2 PSMB to Services](#132-psmb-to-services)
-	- [1.4 Set TCP connection timeout (**mbtcp.timeout.update**)](#14-set-tcp-connection-timeout-mbtcptimeoutupdate)
-		- [1.4.1 Services to PSMB](#141-services-to-psmb)
-		- [1.4.2 PSMB to Services](#142-psmb-to-services)
 - [2. Polling requests](#2-polling-requests)
-	- [2.1 Add request (**mbtcp.poll.create**)](#21-add-request-mbtcppollcreate)
-		- [2.1.1 Services to PSMB](#211-services-to-psmb)
-		- [2.1.2 PSMB to Services](#212-psmb-to-services)
-	- [2.2 Update request interval (**mbtcp.poll.update**)](#22-update-request-interval-mbtcppollupdate)
-		- [2.2.1 Services to PSMB](#221-services-to-psmb)
-		- [2.2.2 PSMB to Services](#222-psmb-to-services)
-	- [2.3 Read request status (**mbtcp.poll.read**)](#23-read-request-status-mbtcppollread)
-		- [2.3.1 Services to PSMB](#231-services-to-psmb)
-		- [2.3.2 PSMB to Services](#232-psmb-to-services)
-	- [2.4 Delete request (**mbtcp.poll.delete**)](#24-delete-request-mbtcppolldelete)
-		- [2.4.1 Services to PSMB](#241-services-to-psmb)
-		- [2.4.2 PSMB to Services](#242-psmb-to-services)
-	- [2.5 Enable/Disable request (**mbtcp.poll.toggle**)](#25-enabledisable-request-mbtcppolltoggle)
-		- [2.5.1 Services to PSMB](#251-services-to-psmb)
-		- [2.5.2 PSMB to Services](#252-psmb-to-services)
-	- [2.6 Read all requests status (**mbtcp.polls.read**)](#26-read-all-requests-status-mbtcppollsread)
-		- [2.6.1 Services to PSMB](#261-services-to-psmb)
-		- [2.6.2 PSMB to Services](#262-psmb-to-services)
-	- [2.7 Delete all requests (**mbtcp.polls.delete**)](#27-delete-all-requests-mbtcppollsdelete)
-		- [2.7.1 Services to PSMB](#271-services-to-psmb)
-		- [2.7.2 PSMB to Services](#272-psmb-to-services)
-	- [2.8 Enable/Disable all requests (**mbtcp.polls.toggle**)](#28-enabledisable-all-requests-mbtcppollstoggle)
-		- [2.8.1 Services to PSMB](#281-services-to-psmb)
-		- [2.8.2 PSMB to Services](#282-psmb-to-services)
-	- [2.9 Import requests (**mbtcp.polls.import**)](#29-import-requests-mbtcppollsimport)
-		- [2.9.1 Services to PSMB](#291-services-to-psmb)
-		- [2.9.2 PSMB to Services](#292-psmb-to-services)
-	- [2.10 Export requests (**mbtcp.polls.export**)](#210-export-requests-mbtcppollsexport)
-		- [2.10.1 Services to PSMB](#2101-services-to-psmb)
-		- [2.10.2 PSMB to Services](#2102-psmb-to-services)
-	- [2.11 Read history (**mbtcp.poll.history**)](#211-read-history-mbtcppollhistory)
-		- [2.11.1 Services to PSMB](#2111-services-to-psmb)
-		- [2.11.2 PSMB to Services](#2112-psmb-to-services)
 - [3. Filter requests](#3-filter-requests)
-	- [3.1 Add filter (**mbtcp.filter.create**)](#31-add-filter-mbtcpfiltercreate)
-		- [3.1.1 Services to PSMB](#311-services-to-psmb)
-		- [3.1.2 PSMB to Services](#312-psmb-to-services)
-	- [3.2 Update filter (**mbtcp.filter.update**)](#32-update-filter-mbtcpfilterupdate)
-		- [3.2.1 Services to PSMB](#321-services-to-psmb)
-		- [3.2.2 PSMB to Services](#322-psmb-to-services)
-	- [3.3 Read filter status (**mbtcp.filter.read**)](#33-read-filter-status-mbtcpfilterread)
-		- [3.3.1 Services to PSMB](#331-services-to-psmb)
-		- [3.3.2 PSMB to Services](#332-psmb-to-services)
-	- [3.4 Delete filter (**mbtcp.filter.delete**)](#34-delete-filter-mbtcpfilterdelete)
-		- [3.4.1 Services to PSMB](#341-services-to-psmb)
-		- [3.4.2 PSMB to Services](#342-psmb-to-services)
-	- [3.5 Enable/Disable filter (**mbtcp.filter.toggle**)](#35-enabledisable-filter-mbtcpfiltertoggle)
-		- [3.5.1 Services to PSMB](#351-services-to-psmb)
-		- [3.5.2 PSMB to Services](#352-psmb-to-services)
-	- [3.6 Read all filters (**mbtcp.filters.read**)](#36-read-all-filters-mbtcpfiltersread)
-		- [3.6.1 Services to PSMB](#361-services-to-psmb)
-		- [3.6.2 PSMB to Services](#362-psmb-to-services)
-	- [3.7 Delete all filters (**mbtcp.filters.delete**)](#37-delete-all-filters-mbtcpfiltersdelete)
-		- [3.7.1 Services to PSMB](#371-services-to-psmb)
-		- [3.7.2 PSMB to Services](#372-psmb-to-services)
-	- [3.8 Enable/Disable all filters (**mbtcp.filters.toggle**)](#38-enabledisable-all-filters-mbtcpfilterstoggle)
-		- [3.8.1 Services to PSMB](#381-services-to-psmb)
-		- [3.8.2 PSMB to Services](#382-psmb-to-services)
-	- [3.9 Import filters (**mbtcp.filters.import**)](#39-import-filters-mbtcpfiltersimport)
-		- [3.9.1 Services to PSMB](#391-services-to-psmb)
-		- [3.9.2 PSMB to Services](#392-psmb-to-services)
-	- [3.10 Export filters (**mbtcp.filters.export**)](#310-export-filters-mbtcpfiltersexport)
-		- [3.10.1 Services to PSMB](#3101-services-to-psmb)
-		- [3.10.2 PSMB to Services](#3102-psmb-to-services)
 
 <!-- /TOC -->
 
@@ -971,6 +896,7 @@ Command name: **mbtcp.poll.update**
 Command name: **mbtcp.poll.read**
 
 #### 2.3.1 Services to PSMB
+
 ```JavaScript
 {
     "from": "web",
@@ -1056,11 +982,11 @@ Command name: **mbtcp.poll.toggle**
 Command name: **mbtcp.polls.read**
 
 #### 2.6.1 Services to PSMB
+
 ```JavaScript
 {
     "from": "web",
     "tid": 123456,
-    "enabled": true
 }
 ```
 
@@ -1187,6 +1113,7 @@ Command name: **mbtcp.poll.history**
 ```JavaScript
 {
     "from": "web",
+    "name": "led_1",
     "tid": 123456
 }
 ```
@@ -1198,32 +1125,234 @@ Command name: **mbtcp.poll.history**
 
 ## 3. Filter requests
 
+**Equality Type**
+
+>| type| description                  |  symbol | 
+>|:----|:-----------------------------|:--------|
+>| 0   | change                       |         |
+>| 1   | greater than or equal (ge)   | >=      | 
+>| 2   | greater than (gt)            | >       |
+>| 3   | equal (eq)                   | ==      |
+>| 4   | less than (lt)               | <       |
+>| 5   | less than or equal (le)      | <=      |
+>| 6   | inside range                 |         |
+>| 7   | inside range (include)       |         |
+>| 8   | outside range                |         |
+>| 9   | outside range (include)      |         |
+
+
 ### 3.1 Add filter (**mbtcp.filter.create**)
 Command name: **mbtcp.filter.create**
 
+>| params       | description            | type          | range     | example     | required            |
+>|:-------------|:-----------------------|:--------------|:----------|:------------|:--------------------|
+>| from         | Service name           | string        | -         | "web"       | optional            |
+>| **poll**     | poller name            | unique string | -         | "led_1"     | :heavy_check_mark:  |
+>| **name**     | filter name            | unique string | -         | "filter_1"  | :heavy_check_mark:  |
+>| tid          | Transaction ID         | integer       | int64     | 12345       | :heavy_check_mark:  |
+>| type         | Comparison type        | category      | [0, 9]    |             | :heavy_check_mark:  |
+>| data         | value                  | array         |           |             | optional            |
+>|**enabled**   | polling enabled flag   | boolean       |true, false|true         | :heavy_check_mark:  |
+>| status       | Response status        | string        | -         | "ok"        | :heavy_check_mark:  |
+
+
 #### 3.1.1 Services to PSMB
-**TODO**
+
+- type 0:
+
+```JavaScript
+{
+    "from": "web",
+    "poll": "led_1",
+    "name": "filter_1",
+    "tid": 123456,
+    "enabled": true,
+    "type": 0
+}
+```
+
+- type 1, 2, 3, 4, 5:
+
+```JavaScript
+{
+    "from": "web",
+    "poll": "led_1",
+    "name": "filter",
+    "tid": 123456,
+    "enabled": true,
+    "type": 1,
+    "arg": [1.0]
+}
+```
+
+- type 6, 7, 8, 9:
+
+```JavaScript
+{
+    "from": "web",
+    "poll": "led_1",
+    "name": "filter",
+    "tid": 123456,
+    "enabled": true,
+    "type": 6,
+    "arg": [1.0, 2.0]
+}
+```
 
 #### 3.1.2 PSMB to Services
-**TODO**
+
+- success:
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "ok"
+}
+```
+
+- fail:
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "fail"
+}
+```
 
 ### 3.2 Update filter (**mbtcp.filter.update**)
 Command name: **mbtcp.filter.update**
 
 #### 3.2.1 Services to PSMB
-**TODO**
+
+- type 0:
+
+```JavaScript
+{
+    "from": "web",
+    "poll": "led_1",
+    "name": "filter_1",
+    "tid": 123456,
+    "enabled": true,
+    "type": 0
+}
+```
+
+- type 1, 2, 3, 4, 5:
+
+```JavaScript
+{
+    "from": "web",
+    "poll": "led_1",
+    "name": "filter",
+    "tid": 123456,
+    "enabled": true,
+    "type": 1,
+    "arg": [1.0]
+}
+```
+
+- type 6, 7, 8, 9:
+
+```JavaScript
+{
+    "from": "web",
+    "poll": "led_1",
+    "name": "filter",
+    "tid": 123456,
+    "enabled": true,
+    "type": 6,
+    "arg": [1.0, 2.0]
+}
+```
 
 #### 3.2.2 PSMB to Services
-**TODO**
+
+- success:
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "ok"
+}
+```
+
+- fail:
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "fail"
+}
+```
 
 ### 3.3 Read filter status (**mbtcp.filter.read**)
 Command name: **mbtcp.filter.read**
 
 #### 3.3.1 Services to PSMB
-**TODO**
+
+```JavaScript
+{
+    "from": "web",
+    "name": "led_1",
+    "tid": 123456
+}
+```
 
 #### 3.3.2 PSMB to Services
-**TODO**
+
+- success - type 0:
+
+```JavaScript
+{
+    "from": "web",
+    "poll": "led_1",
+    "name": "filter_1",
+    "tid": 123456,
+    "enabled": true,
+    "type": 0,
+    "status": "ok"
+}
+```
+
+- Success - type 1, 2, 3, 4, 5:
+
+```JavaScript
+{
+    "from": "web",
+    "poll": "led_1",
+    "name": "filter",
+    "tid": 123456,
+    "enabled": true,
+    "type": 1,
+    "arg": [1.0],
+    "status": "ok"
+}
+```
+
+- Success - type 6, 7, 8, 9:
+
+```JavaScript
+{
+    "from": "web",
+    "poll": "led_1",
+    "name": "filter",
+    "tid": 123456,
+    "enabled": true,
+    "type": 6,
+    "arg": [1.0, 2.0],
+    "status": "ok"
+}
+```
+
+- Fail:
+
+```JavaScript
+{
+    "name": "filter_1",
+    "tid": 123456,
+    "status": "not exist"
+}
+```
 
 ### 3.4 Delete filter (**mbtcp.filter.delete**)
 Command name: **mbtcp.filter.delete**
@@ -1233,7 +1362,7 @@ Command name: **mbtcp.filter.delete**
 ```JavaScript
 {
     "from": "web",
-    "name": "f_1",
+    "name": "filter_1",
     "tid": 123456
 }
 ```
@@ -1274,7 +1403,13 @@ Command name: **mbtcp.filter.toggle**
 Command name: **mbtcp.filters.read**
 
 #### 3.6.1 Services to PSMB
-**TODO**
+
+```JavaScript
+{
+    "from": "web",
+    "tid": 123456
+}
+```
 
 #### 3.6.2 PSMB to Services
 **TODO**
@@ -1283,7 +1418,13 @@ Command name: **mbtcp.filters.read**
 Command name: **mbtcp.filters.delete**
 
 #### 3.7.1 Services to PSMB
-**TODO**
+
+```JavaScript
+{
+    "from": "web",
+    "tid": 123456
+}
+```
 
 #### 3.7.2 PSMB to Services
 **TODO**
@@ -1292,10 +1433,23 @@ Command name: **mbtcp.filters.delete**
 Command name: **mbtcp.filters.toggle**
 
 #### 3.8.1 Services to PSMB
-**TODO**
+
+```JavaScript
+{
+    "from": "web",
+    "tid": 123456,
+    "enabled": true
+}
+```
 
 #### 3.8.2 PSMB to Services
-**TODO**
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "ok"
+}
+```
 
 ### 3.9 Import filters (**mbtcp.filters.import**)
 Command name: **mbtcp.filters.import**
@@ -1304,13 +1458,25 @@ Command name: **mbtcp.filters.import**
 **TODO**
 
 #### 3.9.2 PSMB to Services
-**TODO**
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "ok"
+}
+```
 
 ### 3.10 Export filters (**mbtcp.filters.export**)
 Command name: **mbtcp.filters.export**
 
 #### 3.10.1 Services to PSMB
-**TODO**
+
+```JavaScript
+{
+    "from": "web",
+    "tid": 123456
+}
+```
 
 #### 3.10.2 PSMB to Services
 **TODO**
