@@ -126,11 +126,16 @@ func (s *mbtcpReadTaskType) GetByName(name string) (mbtcpReadTask, bool) {
 
 // GetAll get all read/poll tasks
 func (s *mbtcpReadTaskType) GetAll() []MbtcpPollStatus {
+	log.Debug("taka: before make")
 	ret := make([]MbtcpPollStatus, 1000) // TODO: enhance fix capacity
+	log.Debug("taka: after make")
 	s.RLock()
+	log.Debug("start looping")
 	for _, v := range s.nameMap {
+		log.Debug("looping")
 		// type casting check
 		if item, ok := v.Req.(MbtcpPollStatus); ok {
+			log.Debug("append")
 			ret = append(ret, item)
 		}
 	}
