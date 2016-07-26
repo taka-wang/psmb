@@ -1,4 +1,4 @@
-FROM takawang/ubuntu-gozmq
+FROM takawang/gozmq:x86
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 ADD . /go/src/github.com/taka-wang/psmb
