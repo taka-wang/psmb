@@ -9,7 +9,7 @@ modbusd:
         - slave
 
 psmb:
-    build: .
+    image: takawang/psmb:x86
     volumes_from:
         - modbusd
 
