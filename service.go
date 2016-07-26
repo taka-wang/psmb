@@ -510,7 +510,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.simpleResponser(cmd, resp)
 	case mbtcpGetPoll: // done
 		req := r.(MbtcpPollOpReq)
-		task, ok := b.readTaskMap.GetName(req.Name)
+		task, ok := b.readTaskMap.GetByName(req.Name)
 		if !ok {
 			err := ErrInvalidPollName
 			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
@@ -585,6 +585,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 	case mbtcpDeletePolls: // done
 		req := r.(MbtcpPollOpReq)
 		b.scheduler.Clear()
+		// update readTaskMap
+		b.readTaskMap.DeleteAll()
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.simpleResponser(cmd, resp)
@@ -704,7 +706,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		var ok bool
 
 		// check read task table
-		if task, ok = b.readTaskMap.GetTID(res.Tid); !ok {
+		if task, ok = b.readTaskMap.GetByTID(res.Tid); !ok {
 			return ErrRequestNotFound
 		}
 		// default response command string
@@ -727,7 +729,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					Data:   data,
 				}
 				// remove from read/poll table
-				b.readTaskMap.DeleteTID(res.Tid)
+				b.readTaskMap.DeleteByTID(res.Tid)
 			case mbtcpCreatePoll, mbtcpImportPolls: // poll data
 				respCmd = mbtcpData // set as "mbtcp.data"
 				if res.Status != "ok" {
@@ -769,7 +771,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Status: res.Status,
 					}
 					// remove from read table
-					b.readTaskMap.DeleteTID(res.Tid)
+					b.readTaskMap.DeleteByTID(res.Tid)
 					return b.simpleResponser(respCmd, response)
 				}
 
@@ -783,7 +785,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Status: err.Error(),
 					}
 					// remove from read table
-					b.readTaskMap.DeleteTID(res.Tid)
+					b.readTaskMap.DeleteByTID(res.Tid)
 					return b.simpleResponser(respCmd, response)
 				}
 
@@ -875,7 +877,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				}
 
 				// remove from read table
-				b.readTaskMap.DeleteTID(res.Tid)
+				b.readTaskMap.DeleteByTID(res.Tid)
 				return b.simpleResponser(respCmd, response)
 			// poll data
 			case mbtcpCreatePoll, mbtcpImportPolls:

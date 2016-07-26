@@ -40,7 +40,7 @@
 - [x] Generalize proactive service implementation
 - [x] Re-org test cases and integrate with drone.io
 - [x] Handle default port if not set
-- [x] implement GetTID and GetName for mbtcpReadTaskType
+- [x] implement GetByTID and GetByName for mbtcpReadTaskType
 - [x] implement poll handlers
 
 # Backlog:
