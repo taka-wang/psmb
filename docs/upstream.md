@@ -233,169 +233,169 @@ Command name: **mbtcp.once.read**
 
 - Success:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok",
-    "data": [0,1,0,1,0,1]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "data": [0,1,0,1,0,1]
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 **Register read (FC3, FC4) - type 1, 2 (raw)**
 
 - Success - type 1 (RegisterArray):
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok",
-    "type": 1,
-    "bytes": [0XFF, 0X34, 0XAB],
-    "data": [255, 1234, 789]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "type": 1,
+        "bytes": [0XFF, 0X34, 0XAB],
+        "data": [255, 1234, 789]
+    }
+    ```
 
 - Success - type 2 (HexString):
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok",
-    "type": 2,
-    "bytes": [0XFF, 0X34, 0XAB],
-    "data": "112C004F12345678"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "type": 2,
+        "bytes": [0XFF, 0X34, 0XAB],
+        "data": "112C004F12345678"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 **Register read (FC3, FC4) - type 3 (scale)**
 
 - Success - type 3 (Scale):
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok",
-    "type": 3,
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-    "data": [22.34, 33.12, 44.56]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "type": 3,
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+        "data": [22.34, 33.12, 44.56]
+    }
+    ```
 
 - Fail - conversion fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "type": 3,
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-    "status": "conversion fail"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "type": 3,
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+        "status": "conversion fail"
+    }
+    ```
 
 - Fail - modbus fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "type": 3,
-    "bytes": null,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "type": 3,
+        "bytes": null,
+        "status": "timeout"
+    }
+    ```
 
 **Register read (FC3, FC4) - type 4, 5 (16-bit)**
 
 - Success - type 4, 5 (UInt16, Int16):
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok",
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-    "data": [255, 1234, 789]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+        "data": [255, 1234, 789]
+    }
+    ```
 
 - Fail - conversion fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-    "status": "conversion fail"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+        "status": "conversion fail"
+    }
+    ```
 
 - Fail - modbus fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "bytes": null,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "bytes": null,
+        "status": "timeout"
+    }
+    ```
 
 **Register read (FC3, FC4) - type 6, 7, 8 (32-bit)**
 
 - Success - type 6, 7 (UInt32, Int32):
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok",
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-    "data": [255, 1234, 789]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+        "data": [255, 1234, 789]
+    }
+    ```
 
 - Success - type 8 (Float32):
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok",
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-    "data": [22.34, 33.12, 44.56]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+        "data": [22.34, 33.12, 44.56]
+    }
+    ```
 
 - Fail - Conversion fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-    "status": "conversion fail"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+        "status": "conversion fail"
+    }
+    ```
 
 - Fail - Modbus fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 ### 1.2 Write coil/register (**mbtcp.once.write**)
 
@@ -520,21 +520,21 @@ Command name: **mbtcp.once.write**
 
 - Success:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 ### 1.3 Get TCP connection timeout (**mbtcp.timeout.read**)
 
@@ -560,22 +560,22 @@ Command name: **mbtcp.timeout.read**
 
 - Success:
 
-```JavaScript
-{
-    "tid": 1468834562846161588,
-    "timeout": 212345,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "tid": 1468834562846161588,
+        "timeout": 212345,
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 1468834562846161588,
-    "status": "failed"
-}
-```
+    ```JavaScript
+    {
+        "tid": 1468834562846161588,
+        "status": "failed"
+    }
+    ```
 
 ### 1.4 Set TCP connection timeout (**mbtcp.timeout.update**)
 
@@ -602,21 +602,21 @@ Command name: **mbtcp.timeout.update**
 
 - Success:
 
-```JavaScript
-{
-    "tid": 1468834562846161588,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "tid": 1468834562846161588,
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 1468834562846161588,
-    "status": "failed"
-}
-```
+    ```JavaScript
+    {
+        "tid": 1468834562846161588,
+        "status": "failed"
+    }
+    ```
 
 ---
 
@@ -760,259 +760,259 @@ Command name: **mbtcp.poll.create**
 
 - Success:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 - Data:
 
-```JavaScript
-{
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "ok",
-    "data": [0,1,0,1,0,1]
-}
-```
+    ```JavaScript
+    {
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "ok",
+        "data": [0,1,0,1,0,1]
+    }
+    ```
 
 **Register read (FC3, FC4) - type 1, 2 (raw)**
 
 - Success - type 1, 2:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 - Data - type 1:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "ok",
-    "type": 1,
-    "data": [255, 1234, 789]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "ok",
+        "type": 1,
+        "data": [255, 1234, 789]
+    }
+    ```
 
 - Data - type 2:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "ok",
-    "type": 2,
-    "bytes": [0XFF, 0X34, 0XAB],
-    "data": "112C004F12345678"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "ok",
+        "type": 2,
+        "bytes": [0XFF, 0X34, 0XAB],
+        "data": "112C004F12345678"
+    }
+    ```
 
 **Register read (FC3, FC4) - type 3 (scale)**
 
 - Success - type 3:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 - Data - type 3:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "ok",
-    "type": 3,
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-    "data": [22.34, 33.12, 44.56]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "ok",
+        "type": 3,
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+        "data": [22.34, 33.12, 44.56]
+    }
+    ```
 
 - Data - conversion fail - type 3:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "conversion fail",
-    "type": 3,
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "conversion fail",
+        "type": 3,
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34]
+    }
+    ```
 
 - Data - modbus fail - type 3:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "timeout",
-    "type": 3,
-    "bytes": null
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "timeout",
+        "type": 3,
+        "bytes": null
+    }
+    ```
 
 **Register read (FC3, FC4) - type 4, 5 (16-bit)**
 
 - Success - type 4, 5:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 - Data - type 4,5:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "ok",
-    "type": 4,
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-    "data": [255, 1234, 789]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "ok",
+        "type": 4,
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+        "data": [255, 1234, 789]
+    }
+    ```
 
 - Data - conversion fail - type 4, 5:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "conversion fail",
-    "type": 4,
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "conversion fail",
+        "type": 4,
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34]
+    }
+    ```
 
 - Data - modbus fail - type 4, 5:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "timeout",
-    "type": 3,
-    "bytes": null
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "timeout",
+        "type": 3,
+        "bytes": null
+    }
+    ```
 
 **Register read (FC3, FC4) - type 6, 7, 8 (32-bit)**
 
 - Success - type 6, 7, 8:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "timeout"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 - Data - type 8:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "ok",
-    "type": 8,
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
-    "data": [22.34, 33.12, 44.56]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "ok",
+        "type": 8,
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
+        "data": [22.34, 33.12, 44.56]
+    }
+    ```
 
 - Data - conversion fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "conversion fail",
-    "type": 6,
-    "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "conversion fail",
+        "type": 6,
+        "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34]
+    }
+    ```
 
 - Data - modbus fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "name": "led_1",
-    "ts": 123456789,
-    "status": "timeout",
-    "type": 6,
-    "bytes": null
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "name": "led_1",
+        "ts": 123456789,
+        "status": "timeout",
+        "type": 6,
+        "bytes": null
+    }
+    ```
 
 ### 2.2 Update poll request interval (**mbtcp.poll.update**)
 
@@ -1056,34 +1056,34 @@ Command name: **mbtcp.poll.read**
 
 - Success:
 
-```JavaScript
-{
-    "name": "led_1",
-    "tid": 123456,
-    "fc": 1,
-    "ip": "192.168.3.2",
-    "port": "502",
-    "slave": 22,
-    "addr": 250,
-    "len": 10,
-    "interval" : 3,
-    "status": "ok",
-    "enabled": true,
-    "type": xx,
-    "order": yy,
-    "range": {}
-}
-```
+    ```JavaScript
+    {
+        "name": "led_1",
+        "tid": 123456,
+        "fc": 1,
+        "ip": "192.168.3.2",
+        "port": "502",
+        "slave": 22,
+        "addr": 250,
+        "len": 10,
+        "interval" : 3,
+        "status": "ok",
+        "enabled": true,
+        "type": xx,
+        "order": yy,
+        "range": {}
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "name": "led_1",
-    "tid": 123456,
-    "status": "not exist"
-}
-```
+    ```JavaScript
+    {
+        "name": "led_1",
+        "tid": 123456,
+        "status": "not exist"
+    }
+    ```
 
 ### 2.4 Delete poll request (**mbtcp.poll.delete**)
 
@@ -1420,64 +1420,64 @@ Command name: **mbtcp.filter.create**
 
 - type 0:
 
-```JavaScript
-{
-    "from": "web",
-    "poll": "led_1",
-    "name": "filter_1",
-    "tid": 123456,
-    "enabled": true,
-    "type": 0
-}
-```
+    ```JavaScript
+    {
+        "from": "web",
+        "poll": "led_1",
+        "name": "filter_1",
+        "tid": 123456,
+        "enabled": true,
+        "type": 0
+    }
+    ```
 
 - type 1, 2, 3, 4, 5:
 
-```JavaScript
-{
-    "from": "web",
-    "poll": "led_1",
-    "name": "filter",
-    "tid": 123456,
-    "enabled": true,
-    "type": 1,
-    "arg": [1.0]
-}
-```
+    ```JavaScript
+    {
+        "from": "web",
+        "poll": "led_1",
+        "name": "filter",
+        "tid": 123456,
+        "enabled": true,
+        "type": 1,
+        "arg": [1.0]
+    }
+    ```
 
 - type 6, 7, 8, 9:
 
-```JavaScript
-{
-    "from": "web",
-    "poll": "led_1",
-    "name": "filter",
-    "tid": 123456,
-    "enabled": true,
-    "type": 6,
-    "arg": [1.0, 2.0]
-}
-```
+    ```JavaScript
+    {
+        "from": "web",
+        "poll": "led_1",
+        "name": "filter",
+        "tid": 123456,
+        "enabled": true,
+        "type": 6,
+        "arg": [1.0, 2.0]
+    }
+    ```
 
 #### 3.1.2 PSMB to Services
 
 - Success:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "fail"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "fail"
+    }
+    ```
 
 ### 3.2 Update filter request (**mbtcp.filter.update**)
 
@@ -1487,64 +1487,64 @@ Command name: **mbtcp.filter.update**
 
 - type 0:
 
-```JavaScript
-{
-    "from": "web",
-    "poll": "led_1",
-    "name": "filter_1",
-    "tid": 123456,
-    "enabled": true,
-    "type": 0
-}
-```
+    ```JavaScript
+    {
+        "from": "web",
+        "poll": "led_1",
+        "name": "filter_1",
+        "tid": 123456,
+        "enabled": true,
+        "type": 0
+    }
+    ```
 
 - type 1, 2, 3, 4, 5:
 
-```JavaScript
-{
-    "from": "web",
-    "poll": "led_1",
-    "name": "filter",
-    "tid": 123456,
-    "enabled": true,
-    "type": 1,
-    "arg": [1.0]
-}
-```
+    ```JavaScript
+    {
+        "from": "web",
+        "poll": "led_1",
+        "name": "filter",
+        "tid": 123456,
+        "enabled": true,
+        "type": 1,
+        "arg": [1.0]
+    }
+    ```
 
 - type 6, 7, 8, 9:
 
-```JavaScript
-{
-    "from": "web",
-    "poll": "led_1",
-    "name": "filter",
-    "tid": 123456,
-    "enabled": true,
-    "type": 6,
-    "arg": [1.0, 2.0]
-}
-```
+    ```JavaScript
+    {
+        "from": "web",
+        "poll": "led_1",
+        "name": "filter",
+        "tid": 123456,
+        "enabled": true,
+        "type": 6,
+        "arg": [1.0, 2.0]
+    }
+    ```
 
 #### 3.2.2 PSMB to Services
 
 - Success:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "fail"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "fail"
+    }
+    ```
 
 ### 3.3 Read filter request status (**mbtcp.filter.read**)
 
@@ -1564,57 +1564,57 @@ Command name: **mbtcp.filter.read**
 
 - Success - type 0:
 
-```JavaScript
-{
-    "from": "web",
-    "poll": "led_1",
-    "name": "filter_1",
-    "tid": 123456,
-    "enabled": true,
-    "type": 0,
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "from": "web",
+        "poll": "led_1",
+        "name": "filter_1",
+        "tid": 123456,
+        "enabled": true,
+        "type": 0,
+        "status": "ok"
+    }
+    ```
 
 - Success - type 1, 2, 3, 4, 5:
 
-```JavaScript
-{
-    "from": "web",
-    "poll": "led_1",
-    "name": "filter",
-    "tid": 123456,
-    "enabled": true,
-    "type": 1,
-    "arg": [1.0],
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "from": "web",
+        "poll": "led_1",
+        "name": "filter",
+        "tid": 123456,
+        "enabled": true,
+        "type": 1,
+        "arg": [1.0],
+        "status": "ok"
+    }
+    ```
 
 - Success - type 6, 7, 8, 9:
 
-```JavaScript
-{
-    "from": "web",
-    "poll": "led_1",
-    "name": "filter",
-    "tid": 123456,
-    "enabled": true,
-    "type": 6,
-    "arg": [1.0, 2.0],
-    "status": "ok"
-}
-```
+    ```JavaScript
+    {
+        "from": "web",
+        "poll": "led_1",
+        "name": "filter",
+        "tid": 123456,
+        "enabled": true,
+        "type": 6,
+        "arg": [1.0, 2.0],
+        "status": "ok"
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "name": "filter_1",
-    "tid": 123456,
-    "status": "not exist"
-}
-```
+    ```JavaScript
+    {
+        "name": "filter_1",
+        "tid": 123456,
+        "status": "not exist"
+    }
+    ```
 
 ### 3.4 Delete filter request (**mbtcp.filter.delete**)
 
@@ -1786,7 +1786,7 @@ Command name: **mbtcp.filters.import**
             "tid": 123456,
             "enabled": true,
             "type": 6,
-            "arg": [1.0, 2.0]            
+            "arg": [1.0, 2.0]
         }
     ]
 }
@@ -1818,38 +1818,38 @@ Command name: **mbtcp.filters.export**
 
 - Success:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "ok",
-    "filters": [
-        {
-            "from": "web",
-            "poll": "led_1",
-            "name": "filter1",
-            "tid": 123456,
-            "enabled": true,
-            "type": 6,
-            "arg": [1.0, 2.0]
-        },
-        {
-            "from": "web",
-            "poll": "led_2",
-            "name": "filter2",
-            "tid": 123456,
-            "enabled": true,
-            "type": 6,
-            "arg": [1.0, 2.0]
-        }
-    ]
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "filters": [
+            {
+                "from": "web",
+                "poll": "led_1",
+                "name": "filter1",
+                "tid": 123456,
+                "enabled": true,
+                "type": 6,
+                "arg": [1.0, 2.0]
+            },
+            {
+                "from": "web",
+                "poll": "led_2",
+                "name": "filter2",
+                "tid": 123456,
+                "enabled": true,
+                "type": 6,
+                "arg": [1.0, 2.0]
+            }
+        ]
+    }
+    ```
 
 - Fail:
 
-```JavaScript
-{
-    "tid": 123456,
-    "status": "fail"
-}
-```
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "fail"
+    }
+    ```
