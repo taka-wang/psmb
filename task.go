@@ -130,7 +130,7 @@ func (s *mbtcpReadTaskType) GetByName(name string) (mbtcpReadTask, bool) {
 // GetAll get all read/poll tasks
 func (s *mbtcpReadTaskType) GetAll() []MbtcpPollStatus {
 	fmt.Println("taka: before make")
-	ret := make([]MbtcpPollStatus, 1000) // TODO: enhance fix capacity
+	ret := make([]MbtcpPollStatus, 10) // TODO: enhance fix capacity
 	fmt.Println("taka: after make")
 	s.RLock()
 	fmt.Println("start looping")
