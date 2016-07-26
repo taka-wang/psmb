@@ -293,14 +293,17 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 	case mbtcpUpdatePoll, mbtcpGetPoll, mbtcpDeletePoll,
 		mbtcpTogglePoll, mbtcpGetPolls, mbtcpDeletePolls,
 		mbtcpTogglePolls, mbtcpGetPollHistory, mbtcpExportPolls:
-
 		var req MbtcpPollOpReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			return nil, ErrUnmarshal
 		}
 		return req, nil
-	case mbtcpImportPolls: // todo
-		return nil, ErrTodo
+	case mbtcpImportPolls:
+		var req MbtcpPollsStatus
+		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
+			return nil, ErrUnmarshal
+		}
+		return req, nil
 	case mbtcpCreateFilter, mbtcpUpdateFilter:
 		var req MbtcpFilterStatus
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
@@ -308,15 +311,18 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 		}
 		return req, nil
 	case mbtcpGetFilter, mbtcpDeleteFilter, mbtcpToggleFilter,
-		mbtcpGetFilters, mbtcpDeleteFilters, mbtcpToggleFilters,
-		mbtcpExportFilters:
+		mbtcpGetFilters, mbtcpDeleteFilters, mbtcpToggleFilters, mbtcpExportFilters:
 		var req MbtcpFilterOpReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			return nil, ErrUnmarshal
 		}
 		return req, nil
-	case mbtcpImportFilters: // todo
-		return nil, ErrTodo
+	case mbtcpImportFilters:
+		var req MbtcpFiltersStatus
+		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
+			return nil, ErrUnmarshal
+		}
+		return req, nil
 	default:
 		// should not reach here!!
 		return nil, ErrRequestNotSupport
@@ -481,21 +487,26 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.simpleResponser(cmd, resp)
 	case mbtcpUpdatePoll: // done
 		req := r.(MbtcpPollOpReq)
+		status := "ok"
 		// check interval value
 		if req.Interval < minMbtcpPollInterval {
 			req.Interval = minMbtcpPollInterval
 		}
-
 		// update interval
 		if ok := b.scheduler.UpdateIntervalWithName(req.Name, req.Interval); !ok {
 			err := ErrInvalidPollName
 			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
-			// send back
-			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
-			return b.simpleResponser(cmd, resp)
+			status = err.Error()
+		}
+		// update readTaskMap
+		if status == "ok" {
+			if err := b.readTaskMap.UpdateInterval(req.Name, req.Interval); err {
+				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+				status = err.Error()
+			}
 		}
 		// send back
-		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.simpleResponser(cmd, resp)
 	case mbtcpGetPoll: // done
 		req := r.(MbtcpPollOpReq)
@@ -542,7 +553,6 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.simpleResponser(cmd, resp)
 	case mbtcpTogglePoll: // done
 		req := r.(MbtcpPollOpReq)
-
 		status := "ok"
 		if req.Enabled {
 			if ok := b.scheduler.ResumeWithName(req.Name); !ok {
@@ -557,20 +567,35 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 				status = err.Error()
 			}
 		}
+		// update readTaskMap
+		if status == "ok" {
+			if err := b.readTaskMap.UpdateToggle(req.Name, req.Enabled); err {
+				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+				status = err.Error()
+			}
+		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.simpleResponser(cmd, resp)
 	case mbtcpGetPolls:
+		req := r.(MbtcpPollOpReq)
 		return ErrTodo
-	case mbtcpDeletePolls:
-		return ErrTodo
+	case mbtcpDeletePolls: // done
+		req := r.(MbtcpPollOpReq)
+		b.scheduler.Clear()
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		return b.simpleResponser(cmd, resp)
 	case mbtcpTogglePolls:
+		req := r.(MbtcpPollOpReq)
 		return ErrTodo
 	case mbtcpImportPolls:
 		return ErrTodo
 	case mbtcpExportPolls:
+		req := r.(MbtcpPollOpReq)
 		return ErrTodo
 	case mbtcpGetPollHistory:
+		req := r.(MbtcpPollOpReq)
 		return ErrTodo
 	case mbtcpCreateFilter:
 		return ErrTodo
@@ -600,7 +625,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 }
 
 // parseResponse parse responses from modbusd
-func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) { // done.
+// only unmarshal response string to corresponding struct
+func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
