@@ -591,7 +591,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		resp := MbtcpPollsStatus{
 			Tid:    req.Tid,
 			Status: "ok",
-			//Polls:  reqs,
+			Polls:  reqs,
 		}
 		// send back
 		return b.simpleResponser(cmd, resp)
