@@ -1,14 +1,13 @@
-# taka's private drone server
-# for v0.5
+# drone.io:0.5
 
 pipeline:
-    publish:
-        image: takawang/dind:push
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock # docker in docker trick
-        commands:
-            - docker build --no-cache=true -t takawang/psmb:x86 .
-            - docker push takawang/psmb:x86
+#    publish:
+#        image: takawang/dind:push
+#        volumes:
+#            - /var/run/docker.sock:/var/run/docker.sock # docker in docker trick
+#        commands:
+#            - docker build --no-cache=true -t takawang/psmb:x86 .
+#            - docker push takawang/psmb:x86
     ci:
         image: takawang/dind # docker in docker wiht compose
         volumes:
