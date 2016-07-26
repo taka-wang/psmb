@@ -1,9 +1,10 @@
 # Zero MQ Command Definition
 
-# Table of contents
+## Table of contents
 
 <!-- TOC depthFrom:2 depthTo:4 insertAnchor:false orderedList:false updateOnSave:true withLinks:true -->
 
+- [Table of contents](#table-of-contents)
 - [0. Multipart message](#0-multipart-message)
 	- [To modbusd](#to-modbusd)
 	- [From modbusd](#from-modbusd)
@@ -20,6 +21,8 @@
 	- [1.4 Generic fail response](#14-generic-fail-response)
 
 <!-- /TOC -->
+
+---
 
 ## 0. Multipart message
 
@@ -61,74 +64,84 @@ Please refer to [command code](https://github.com/taka-wang/modbusd#command-mapp
 ### 1.1 Read request
 
 #### 1.1.1 psmb to modbusd
+
 **mbtcp read request**
+
 ```javascript
 {
-	"tid": "123456",
-	"cmd": 1,
-	"ip": "192.168.3.2",
-	"port": "502",
-	"slave": 22,
-	"addr": 250,
-	"len": 10
+    "tid": "123456",
+    "cmd": 1,
+    "ip": "192.168.3.2",
+    "port": "502",
+    "slave": 22,
+    "addr": 250,
+    "len": 10
 }
 ```
 
 #### 1.1.2 modbusd to psmb
+
 **mbtcp single read response**
+
 ```javascript
 {
-	"tid": "123456",
-	"data": [1],
-	"status": "ok"
+    "tid": "123456",
+    "data": [1],
+    "status": "ok"
 }
 ```
 
 **mbtcp multiple read response**
+
 ```javascript
 {
-	"tid": "123456",
-	"data": [1,2,3,4],
-	"status": "ok"
+    "tid": "123456",
+    "data": [1,2,3,4],
+    "status": "ok"
 }
 ```
 
 ### 1.2 Write request
 
 #### 1.2.1 psmb to modbusd
+
 **mbtcp single write request**
+
 ```javascript
 {
-	"tid": "123456",
-	"cmd": 6,
-	"ip": "192.168.3.2",
-	"port": "502",
-	"slave": 22,
-	"addr": 80,
-	"data": 1234
+    "tid": "123456",
+    "cmd": 6,
+    "ip": "192.168.3.2",
+    "port": "502",
+    "slave": 22,
+    "addr": 80,
+    "data": 1234
 }
 ```
 
 **mbtcp multiple write request**
+
 ```javascript
 {
-	"ip": "192.168.3.2",
-	"port": "502",
-	"slave": 22,
-	"tid": "123456",
-	"cmd": 16,
-	"addr": 80,
-	"len": 4,
-	"data": [1, 2, 3, 4]
+    "ip": "192.168.3.2",
+    "port": "502",
+    "slave": 22,
+    "tid": "123456",
+    "cmd": 16,
+    "addr": 80,
+    "len": 4,
+    "data": [1, 2, 3, 4]
 }
 ```
+
 #### 1.2.2 modbusd to psmb
 
 **mbtcp write response**
+
 ```javascript
 {
-	"tid": "123456",
-	"status": "ok"
+    "tid": "123456",
+    "status": "ok"
 }
 ```
 
@@ -137,46 +150,52 @@ Please refer to [command code](https://github.com/taka-wang/modbusd#command-mapp
 #### 1.3.1 psmb to modbusd
 
 **mbtcp set timeout request**
+
 ```javascript
 {
-	"tid": "123456",
-	"cmd": 50,
-	"timeout": 210000
+    "tid": "123456",
+    "cmd": 50,
+    "timeout": 210000
 }
 ```
 
 **mbtcp get timeout request**
+
 ```javascript
 {
-	"tid": "123456",
-	"cmd": 51
+    "tid": "123456",
+    "cmd": 51
 }
 ```
 
 #### 1.3.2 modbusd to psmb
 
 **mbtcp set timeout response**
+
 ```javascript
 {
-	"tid": "123456",
-	"status": "ok"
+    "tid": "123456",
+    "status": "ok"
 }
 ```
 
 **mbtcp get timeout response**
+
 ```javascript
 {
-	"tid": "123456",
-	"status": "ok",
-	"timeout": 210000
+    "tid": "123456",
+    "status": "ok",
+    "timeout": 210000
 }
 ```
+
 ### 1.4 Generic fail response
 
 **mbtcp fail response**
+
 ```javascript
 {
-	"tid": "123456",
-	"status": "fail reason"
+    "tid": "123456",
+    "status": "fail reason"
 }
 ```
