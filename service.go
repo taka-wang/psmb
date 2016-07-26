@@ -580,8 +580,15 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.simpleResponser(cmd, resp)
 	case mbtcpGetPolls:
-		//req := r.(MbtcpPollOpReq)
-		return ErrTodo
+		req := r.(MbtcpPollOpReq)
+		//reqs := b.readTaskMap.GetAll()
+		resp := MbtcpPollsStatus{
+			Tid: req.Tid,
+			Status: "ok",
+			Polls: b.readTaskMap.GetAll()
+		}
+		// send back
+		return b.simpleResponser(cmd, resp)
 	case mbtcpDeletePolls: // done
 		req := r.(MbtcpPollOpReq)
 		b.scheduler.Clear()
@@ -590,9 +597,18 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.simpleResponser(cmd, resp)
-	case mbtcpTogglePolls:
-		//req := r.(MbtcpPollOpReq)
-		return ErrTodo
+	case mbtcpTogglePolls: // done
+		req := r.(MbtcpPollOpReq)
+		if req.Enabled {
+			b.scheduler.ResumeAll()
+		} else {
+			b.scheduler.PauseAll()
+		}
+		// update readTaskMap
+		b.readTaskMap.UpdateAllToggles(req.Enabled)
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		return b.simpleResponser(cmd, resp)
 	case mbtcpImportPolls:
 		return ErrTodo
 	case mbtcpExportPolls:
