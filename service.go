@@ -578,7 +578,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.simpleResponser(cmd, resp)
 	case mbtcpGetPolls:
-		req := r.(MbtcpPollOpReq)
+		//req := r.(MbtcpPollOpReq)
 		return ErrTodo
 	case mbtcpDeletePolls: // done
 		req := r.(MbtcpPollOpReq)
@@ -587,15 +587,15 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.simpleResponser(cmd, resp)
 	case mbtcpTogglePolls:
-		req := r.(MbtcpPollOpReq)
+		//req := r.(MbtcpPollOpReq)
 		return ErrTodo
 	case mbtcpImportPolls:
 		return ErrTodo
 	case mbtcpExportPolls:
-		req := r.(MbtcpPollOpReq)
+		//req := r.(MbtcpPollOpReq)
 		return ErrTodo
 	case mbtcpGetPollHistory:
-		req := r.(MbtcpPollOpReq)
+		//req := r.(MbtcpPollOpReq)
 		return ErrTodo
 	case mbtcpCreateFilter:
 		return ErrTodo
