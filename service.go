@@ -1,3 +1,6 @@
+/*
+Package psmb provides a proactive service library for modbus daemon.
+*/
 package psmb
 
 import (
