@@ -148,6 +148,7 @@ func (s *mbtcpReadTaskType) DeleteName(name string) {
 // UpdateInterval update request interval
 func (s *mbtcpReadTaskType) UpdateInterval(name string, interval uint64) error {
 	s.RLock()
+	tid, _ := s.nameID[name]
 	task, ok := s.nameMap[name]
 	s.RUnlock()
 	if !ok {
@@ -166,6 +167,7 @@ func (s *mbtcpReadTaskType) UpdateInterval(name string, interval uint64) error {
 // UpdateToggle update request enable flag
 func (s *mbtcpReadTaskType) UpdateToggle(name string, toggle bool) error {
 	s.RLock()
+	tid, _ := s.nameID[name]
 	task, ok := s.nameMap[name]
 	s.RUnlock()
 	if !ok {
