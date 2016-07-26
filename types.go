@@ -308,3 +308,29 @@ type MbtcpPollsStatus struct {
 	Status string            `json:"status"`
 	Polls  []MbtcpPollStatus `json:"polls"`
 }
+
+// MbtcpFilterStatus filter status
+type MbtcpFilterStatus struct {
+	Tid     int64        `json:"tid"`
+	From    string       `json:"from,omitempty"`
+	Poll    string       `json:"poll"`
+	Name    string       `json:"name"`
+	Enabled bool         `json:"enabled"`
+	Type    RegValueType `json:"type,omitempty"`
+	Arg     []float32    `json:"arg,omitempty"`
+}
+
+// MbtcpFilterOpReq generic modbus tcp filter operation request
+type MbtcpFilterOpReq struct {
+	Tid     int64  `json:"tid"`
+	From    string `json:"from,omitempty"`
+	Name    string `json:"name,omitempty"`
+	Enabled bool   `json:"enabled,omitempty"`
+}
+
+// MbtcpFiltersStatus requests status
+type MbtcpFiltersStatus struct {
+	Tid     int64               `json:"tid"`
+	Status  string              `json:"status"`
+	Filters []MbtcpFilterStatus `json:"filters"`
+}

@@ -209,13 +209,13 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing upstream request:")
 
 	switch msg[0] {
-	case mbtcpGetTimeout, mbtcpSetTimeout: // done
+	case mbtcpGetTimeout, mbtcpSetTimeout:
 		var req MbtcpTimeoutReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			return nil, ErrUnmarshal
 		}
 		return req, nil
-	case mbtcpOnceWrite: // done
+	case mbtcpOnceWrite:
 		// unmarshal partial request
 		var data json.RawMessage // raw []byte
 		req := MbtcpWriteReq{Data: &data}
@@ -278,19 +278,19 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 		default:
 			return nil, ErrRequestNotSupport
 		}
-	case mbtcpOnceRead: // done
+	case mbtcpOnceRead:
 		var req MbtcpReadReq
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			return nil, ErrUnmarshal
 		}
 		return req, nil
-	case mbtcpCreatePoll: // done
+	case mbtcpCreatePoll:
 		var req MbtcpPollStatus
 		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
 			return nil, ErrUnmarshal
 		}
 		return req, nil
-	case mbtcpUpdatePoll, mbtcpGetPoll, mbtcpDeletePoll, // done
+	case mbtcpUpdatePoll, mbtcpGetPoll, mbtcpDeletePoll,
 		mbtcpTogglePoll, mbtcpGetPolls, mbtcpDeletePolls,
 		mbtcpTogglePolls, mbtcpGetPollHistory, mbtcpExportPolls:
 
@@ -301,27 +301,23 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 		return req, nil
 	case mbtcpImportPolls: // todo
 		return nil, ErrTodo
-	case mbtcpCreateFilter: // todo
-		return nil, ErrTodo
-	case mbtcpUpdateFilter: // todo
-		return nil, ErrTodo
-	case mbtcpGetFilter: // todo
-		return nil, ErrTodo
-	case mbtcpDeleteFilter: // todo
-		return nil, ErrTodo
-	case mbtcpToggleFilter: // todo
-		return nil, ErrTodo
-	case mbtcpGetFilters: // todo
-		return nil, ErrTodo
-	case mbtcpDeleteFilters: // todo
-		return nil, ErrTodo
-	case mbtcpToggleFilters: // todo
-		return nil, ErrTodo
+	case mbtcpCreateFilter, mbtcpUpdateFilter:
+		var req MbtcpFilterStatus
+		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
+			return nil, ErrUnmarshal
+		}
+		return req, nil
+	case mbtcpGetFilter, mbtcpDeleteFilter, mbtcpToggleFilter,
+		mbtcpGetFilters, mbtcpDeleteFilters, mbtcpToggleFilters,
+		mbtcpExportFilters:
+		var req MbtcpFilterOpReq
+		if err := json.Unmarshal([]byte(msg[1]), &req); err != nil {
+			return nil, ErrUnmarshal
+		}
+		return req, nil
 	case mbtcpImportFilters: // todo
 		return nil, ErrTodo
-	case mbtcpExportFilters: // todo
-		return nil, ErrTodo
-	default: // done
+	default:
 		// should not reach here!!
 		return nil, ErrRequestNotSupport
 	}
@@ -613,22 +609,19 @@ func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) { // don
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing downstream response:")
 
 	switch MbtcpCmdType(msg[0]) {
-	// set|get timeout
 	case setTCPTimeout, getTCPTimeout:
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			return nil, ErrUnmarshal
 		}
 		return res, nil
-	// modbus function codes
 	case fc1, fc2, fc3, fc4, fc5, fc6, fc15, fc16:
 		var res DMbtcpRes
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			return nil, ErrUnmarshal
 		}
 		return res, nil
-	// should not reach here!!
-	default:
+	default: // should not reach here!!
 		return nil, ErrResponseNotSupport
 	}
 }

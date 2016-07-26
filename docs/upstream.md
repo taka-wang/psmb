@@ -1222,7 +1222,7 @@ Command name: **mbtcp.filter.create**
 >| **name**     | filter name            | unique string | -         | "filter_1"  | :heavy_check_mark:  |
 >| tid          | Transaction ID         | integer       | int64     | 12345       | :heavy_check_mark:  |
 >| type         | Comparison type        | category      | [0, 9]    |             | :heavy_check_mark:  |
->| data         | value                  | array         |           |             | optional            |
+>| arg          | value                  | array         |           |             | optional            |
 >|**enabled**   | polling enabled flag   | boolean       |true, false|true         | :heavy_check_mark:  |
 >| status       | Response status        | string        | -         | "ok"        | :heavy_check_mark:  |
 
