@@ -586,11 +586,11 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		req := r.(MbtcpPollOpReq)
 		log.Debug("taka: before GetAll")
 		reqs := b.readTaskMap.GetAll()
-		log.WithFields(log.Fields{"reqs": reqs}).Debug("taka: after GetAll")
+		//log.WithFields(log.Fields{"reqs": reqs}).Debug("taka: after GetAll")
 		resp := MbtcpPollsStatus{
 			Tid:    req.Tid,
 			Status: "ok",
-			Polls:  reqs,
+			//Polls:  reqs,
 		}
 		// send back
 		return b.simpleResponser(cmd, resp)
