@@ -103,15 +103,19 @@ func (s *mbtcpReadTaskType) GetName(name string) (mbtcpReadTask, bool) {
 
 // Delete remove request from read/poll task map
 func (s *mbtcpReadTaskType) Delete(tid string) {
-	s.Lock()
+	s.RLock()
+	task, ok := s.m[tid]
+	s.RUnlock()
 
 	// remove from p table
-	if task, ok := s.m[tid]; ok {
-		if task.Name != "" {
-			delete(s.p, task.Name)
-		}
+	if ok && task.Name != "" {
+		s.Lock()
+		delete(s.p, task.Name)
+		s.Unlock()
 	}
+
 	// remove from m table
+	s.Lock()
 	delete(s.m, tid)
 	s.Unlock()
 }
