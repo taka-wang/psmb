@@ -305,7 +305,8 @@ type MbtcpPollOpReq struct {
 // MbtcpPollsStatus requests status
 type MbtcpPollsStatus struct {
 	Tid    int64             `json:"tid"`
-	Status string            `json:"status"`
+	From   string            `json:"from,omitempty"`
+	Status string            `json:"status,omitempty"`
 	Polls  []MbtcpPollStatus `json:"polls"`
 }
 
@@ -331,6 +332,7 @@ type MbtcpFilterOpReq struct {
 // MbtcpFiltersStatus requests status
 type MbtcpFiltersStatus struct {
 	Tid     int64               `json:"tid"`
-	Status  string              `json:"status"`
+	From    string              `json:"from,omitempty"`
+	Status  string              `json:"status,omitempty"`
 	Filters []MbtcpFilterStatus `json:"filters"`
 }

@@ -1060,7 +1060,7 @@ Command name: **mbtcp.polls.read**
 
 #### 2.6.2 PSMB to Services
 
-- success:
+- Success:
 
     ```JavaScript
     {
@@ -1076,7 +1076,6 @@ Command name: **mbtcp.polls.read**
                 "addr": 250,
                 "len": 10,
                 "interval" : 3,
-                "status": "ok",
                 "enabled": true
             },
             {
@@ -1088,13 +1087,12 @@ Command name: **mbtcp.polls.read**
                 "addr": 250,
                 "len": 10,
                 "interval" : 3,
-                "status": "ok",
                 "enabled": true
             }]
     }
     ```
 
-- fail:
+- Fail:
 
     ```JavaScript
     {
@@ -1150,7 +1148,36 @@ Command name: **mbtcp.polls.toggle**
 Command name: **mbtcp.polls.import**
 
 #### 2.9.1 Services to PSMB
-**TODO**
+
+```JavaScript
+{
+    "tid": 123456,
+    "from": "web",
+    "polls": [
+        {
+            "name": "led_1",
+            "fc": 1,
+            "ip": "192.168.3.2",
+            "port": "502",
+            "slave": 22,
+            "addr": 250,
+            "len": 10,
+            "interval" : 3,
+            "enabled": true
+        },
+        {
+            "name": "led_2",
+            "fc": 1,
+            "ip": "192.168.3.2",
+            "port": "502",
+            "slave": 22,
+            "addr": 250,
+            "len": 10,
+            "interval" : 3,
+            "enabled": true
+        }]
+}
+```
 
 #### 2.9.2 PSMB to Services
 
@@ -1174,7 +1201,47 @@ Command name: **mbtcp.polls.export**
 ```
 
 #### 2.10.2 PSMB to Services
-**TODO**
+
+- Success:
+
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "polls": [
+            {
+                "name": "led_1",
+                "fc": 1,
+                "ip": "192.168.3.2",
+                "port": "502",
+                "slave": 22,
+                "addr": 250,
+                "len": 10,
+                "interval" : 3,
+                "enabled": true
+            },
+            {
+                "name": "led_2",
+                "fc": 1,
+                "ip": "192.168.3.2",
+                "port": "502",
+                "slave": 22,
+                "addr": 250,
+                "len": 10,
+                "interval" : 3,
+                "enabled": true
+            }]
+    }
+    ```
+
+- Fail:
+
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 ### 2.11 Read history (**mbtcp.poll.history**)
 Command name: **mbtcp.poll.history**
@@ -1190,8 +1257,37 @@ Command name: **mbtcp.poll.history**
 ```
 
 #### 2.11.2 PSMB to Services
-**TODO**
 
+- Success:
+
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "history": [
+            {
+                "ts": "1232132321",
+                "data": [123, 234, 456]
+            },
+            {
+                "ts": "1232132321",
+                "data": [123, 234, 456]
+            },
+            {
+                "ts": "1232132321",
+                "data": [123, 234, 456]
+            }]
+    }
+    ```
+
+- Fail:
+
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 ---
 
 ## 3. Filter requests
@@ -1483,7 +1579,42 @@ Command name: **mbtcp.filters.read**
 ```
 
 #### 3.6.2 PSMB to Services
-**TODO**
+
+- success:
+
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "ok",
+        "filters": [
+            {
+                "from": "web",
+                "poll": "led_1",
+                "name": "filter1",
+                "tid": 123456,
+                "enabled": true,
+                "type": 6,
+                "arg": [1.0, 2.0]
+            },
+            {
+                "from": "web",
+                "poll": "led_2",
+                "name": "filter2",
+                "tid": 123456,
+                "enabled": true,
+                "type": 6,
+                "arg": [1.0, 2.0]
+            }]
+    }
+    ```
+- fail:
+
+    ```JavaScript
+    {
+        "tid": 123456,
+        "status": "timeout"
+    }
+    ```
 
 ### 3.7 Delete all filters (**mbtcp.filters.delete**)
 Command name: **mbtcp.filters.delete**
@@ -1498,7 +1629,13 @@ Command name: **mbtcp.filters.delete**
 ```
 
 #### 3.7.2 PSMB to Services
-**TODO**
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "ok"
+}
+```
 
 ### 3.8 Enable/Disable all filters (**mbtcp.filters.toggle**)
 Command name: **mbtcp.filters.toggle**
@@ -1526,7 +1663,33 @@ Command name: **mbtcp.filters.toggle**
 Command name: **mbtcp.filters.import**
 
 #### 3.9.1 Services to PSMB
-**TODO**
+
+```JavaScript
+{
+    "tid": 123456,
+    "from": "web",
+    "filters": [
+        {
+            "from": "web",
+            "poll": "led_1",
+            "name": "filter1",
+            "tid": 123456,
+            "enabled": true,
+            "type": 6,
+            "arg": [1.0, 2.0]
+        },
+        {
+            "from": "web",
+            "poll": "led_2",
+            "name": "filter2",
+            "tid": 123456,
+            "enabled": true,
+            "type": 6,
+            "arg": [1.0, 2.0]            
+        }
+    ]
+}
+```
 
 #### 3.9.2 PSMB to Services
 
@@ -1550,4 +1713,41 @@ Command name: **mbtcp.filters.export**
 ```
 
 #### 3.10.2 PSMB to Services
-**TODO**
+
+- Success:
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "ok",
+    "filters": [
+        {
+            "from": "web",
+            "poll": "led_1",
+            "name": "filter1",
+            "tid": 123456,
+            "enabled": true,
+            "type": 6,
+            "arg": [1.0, 2.0]
+        },
+        {
+            "from": "web",
+            "poll": "led_2",
+            "name": "filter2",
+            "tid": 123456,
+            "enabled": true,
+            "type": 6,
+            "arg": [1.0, 2.0]
+        }
+    ]
+}
+```
+
+- Fail:
+
+```JavaScript
+{
+    "tid": 123456,
+    "status": "fail"
+}
+```
