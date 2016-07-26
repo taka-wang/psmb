@@ -47,6 +47,7 @@
 
 - if scheduler is stop, trigger requests directly.
 - sqlite3 for history
+- task test cases
 
 # Module
 
