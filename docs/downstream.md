@@ -2,7 +2,7 @@
 
 # Table of contents
 
-<!-- TOC depthFrom:2 depthTo:2 insertAnchor:false orderedList:false updateOnSave:true withLinks:true -->
+<!-- TOC depthFrom:2 depthTo:4 insertAnchor:false orderedList:false updateOnSave:true withLinks:true -->
 
 - [0. Multipart message](#0-multipart-message)
 	- [To modbusd](#to-modbusd)

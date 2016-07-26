@@ -1,13 +1,89 @@
 # Zero MQ Command Definition
 
-# Table of contents
+## Table of contents
 
-<!-- TOC depthFrom:2 depthTo:2 insertAnchor:false orderedList:false updateOnSave:true withLinks:true -->
+<!-- TOC depthFrom:2 depthTo:4 insertAnchor:false orderedList:false updateOnSave:true withLinks:true -->
 
+- [Table of contents](#table-of-contents)
 - [0. Multipart message](#0-multipart-message)
 - [1. One-off requests](#1-one-off-requests)
+	- [1.1 Read coil/register (**mbtcp.once.read**)](#11-read-coilregister-mbtcponceread)
+		- [1.1.1 Services to PSMB](#111-services-to-psmb)
+		- [1.1.2 PSMB to Services](#112-psmb-to-services)
+	- [1.2 Write coil/register (**mbtcp.once.write**)](#12-write-coilregister-mbtcponcewrite)
+		- [1.2.1 Services to PSMB](#121-services-to-psmb)
+		- [1.2.2 PSMB to Services](#122-psmb-to-services)
+	- [1.3 Get TCP connection timeout (**mbtcp.timeout.read**)](#13-get-tcp-connection-timeout-mbtcptimeoutread)
+		- [1.3.1 Services to PSMB](#131-services-to-psmb)
+		- [1.3.2 PSMB to Services](#132-psmb-to-services)
+	- [1.4 Set TCP connection timeout (**mbtcp.timeout.update**)](#14-set-tcp-connection-timeout-mbtcptimeoutupdate)
+		- [1.4.1 Services to PSMB](#141-services-to-psmb)
+		- [1.4.2 PSMB to Services](#142-psmb-to-services)
 - [2. Polling requests](#2-polling-requests)
+	- [2.1 Add poll request (**mbtcp.poll.create**)](#21-add-poll-request-mbtcppollcreate)
+		- [2.1.1 Services to PSMB](#211-services-to-psmb)
+		- [2.1.2 PSMB to Services](#212-psmb-to-services)
+	- [2.2 Update poll request interval (**mbtcp.poll.update**)](#22-update-poll-request-interval-mbtcppollupdate)
+		- [2.2.1 Services to PSMB](#221-services-to-psmb)
+		- [2.2.2 PSMB to Services](#222-psmb-to-services)
+	- [2.3 Read poll request status (**mbtcp.poll.read**)](#23-read-poll-request-status-mbtcppollread)
+		- [2.3.1 Services to PSMB](#231-services-to-psmb)
+		- [2.3.2 PSMB to Services](#232-psmb-to-services)
+	- [2.4 Delete poll request (**mbtcp.poll.delete**)](#24-delete-poll-request-mbtcppolldelete)
+		- [2.4.1 Services to PSMB](#241-services-to-psmb)
+		- [2.4.2 PSMB to Services](#242-psmb-to-services)
+	- [2.5 Enable/Disable poll request (**mbtcp.poll.toggle**)](#25-enabledisable-poll-request-mbtcppolltoggle)
+		- [2.5.1 Services to PSMB](#251-services-to-psmb)
+		- [2.5.2 PSMB to Services](#252-psmb-to-services)
+	- [2.6 Read all poll requests status (**mbtcp.polls.read**)](#26-read-all-poll-requests-status-mbtcppollsread)
+		- [2.6.1 Services to PSMB](#261-services-to-psmb)
+		- [2.6.2 PSMB to Services](#262-psmb-to-services)
+	- [2.7 Delete all poll requests (**mbtcp.polls.delete**)](#27-delete-all-poll-requests-mbtcppollsdelete)
+		- [2.7.1 Services to PSMB](#271-services-to-psmb)
+		- [2.7.2 PSMB to Services](#272-psmb-to-services)
+	- [2.8 Enable/Disable all poll requests (**mbtcp.polls.toggle**)](#28-enabledisable-all-poll-requests-mbtcppollstoggle)
+		- [2.8.1 Services to PSMB](#281-services-to-psmb)
+		- [2.8.2 PSMB to Services](#282-psmb-to-services)
+	- [2.9 Import poll requests (**mbtcp.polls.import**)](#29-import-poll-requests-mbtcppollsimport)
+		- [2.9.1 Services to PSMB](#291-services-to-psmb)
+		- [2.9.2 PSMB to Services](#292-psmb-to-services)
+	- [2.10 Export poll requests (**mbtcp.polls.export**)](#210-export-poll-requests-mbtcppollsexport)
+		- [2.10.1 Services to PSMB](#2101-services-to-psmb)
+		- [2.10.2 PSMB to Services](#2102-psmb-to-services)
+	- [2.11 Read history (**mbtcp.poll.history**)](#211-read-history-mbtcppollhistory)
+		- [2.11.1 Services to PSMB](#2111-services-to-psmb)
+		- [2.11.2 PSMB to Services](#2112-psmb-to-services)
 - [3. Filter requests](#3-filter-requests)
+	- [3.1 Add filter request (**mbtcp.filter.create**)](#31-add-filter-request-mbtcpfiltercreate)
+		- [3.1.1 Services to PSMB](#311-services-to-psmb)
+		- [3.1.2 PSMB to Services](#312-psmb-to-services)
+	- [3.2 Update filter request (**mbtcp.filter.update**)](#32-update-filter-request-mbtcpfilterupdate)
+		- [3.2.1 Services to PSMB](#321-services-to-psmb)
+		- [3.2.2 PSMB to Services](#322-psmb-to-services)
+	- [3.3 Read filter request status (**mbtcp.filter.read**)](#33-read-filter-request-status-mbtcpfilterread)
+		- [3.3.1 Services to PSMB](#331-services-to-psmb)
+		- [3.3.2 PSMB to Services](#332-psmb-to-services)
+	- [3.4 Delete filter request (**mbtcp.filter.delete**)](#34-delete-filter-request-mbtcpfilterdelete)
+		- [3.4.1 Services to PSMB](#341-services-to-psmb)
+		- [3.4.2 PSMB to Services](#342-psmb-to-services)
+	- [3.5 Enable/Disable filter request (**mbtcp.filter.toggle**)](#35-enabledisable-filter-request-mbtcpfiltertoggle)
+		- [3.5.1 Services to PSMB](#351-services-to-psmb)
+		- [3.5.2 PSMB to Services](#352-psmb-to-services)
+	- [3.6 Read all filter requests (**mbtcp.filters.read**)](#36-read-all-filter-requests-mbtcpfiltersread)
+		- [3.6.1 Services to PSMB](#361-services-to-psmb)
+		- [3.6.2 PSMB to Services](#362-psmb-to-services)
+	- [3.7 Delete all filter requests (**mbtcp.filters.delete**)](#37-delete-all-filter-requests-mbtcpfiltersdelete)
+		- [3.7.1 Services to PSMB](#371-services-to-psmb)
+		- [3.7.2 PSMB to Services](#372-psmb-to-services)
+	- [3.8 Enable/Disable all filter requests (**mbtcp.filters.toggle**)](#38-enabledisable-all-filter-requests-mbtcpfilterstoggle)
+		- [3.8.1 Services to PSMB](#381-services-to-psmb)
+		- [3.8.2 PSMB to Services](#382-psmb-to-services)
+	- [3.9 Import filter requests (**mbtcp.filters.import**)](#39-import-filter-requests-mbtcpfiltersimport)
+		- [3.9.1 Services to PSMB](#391-services-to-psmb)
+		- [3.9.2 PSMB to Services](#392-psmb-to-services)
+	- [3.10 Export filter requests (**mbtcp.filters.export**)](#310-export-filter-requests-mbtcpfiltersexport)
+		- [3.10.1 Services to PSMB](#3101-services-to-psmb)
+		- [3.10.2 PSMB to Services](#3102-psmb-to-services)
 
 <!-- /TOC -->
 
@@ -17,9 +93,9 @@
 We can compose a message out of several frames, and then receiver will receive all parts of a message, or none at all.
 Thanks to the all-or-nothing characteristics, we can screen what we are interested from the first frame without parsing the whole JSON payload. 
 
->| Frame 1     |  Frame 2      |
->|:-----------:|:-------------:|
->| Method Name |  JSON Command |
+>| Frame 1        |  Frame 2        |
+>|:--------------:|:---------------:|
+>| Method Name    |  JSON Command   |
 
 ---
 
@@ -39,6 +115,7 @@ Thanks to the all-or-nothing characteristics, we can screen what we are interest
 >| 8   | float32                                | order: 1 (ABCD), 2 (DCBA), 3 (BADC), 4 (CDAB) | [22.34, 33.12, 44.56]       | len: 2x |
 
 ### 1.1 Read coil/register (**mbtcp.once.read**)
+
 Command name: **mbtcp.once.read**
 
 >| params   | description            | type          | range     | example           | required                                 |
@@ -320,6 +397,7 @@ Command name: **mbtcp.once.read**
 ```
 
 ### 1.2 Write coil/register (**mbtcp.once.write**)
+
 Command name: **mbtcp.once.write**
 
 >| params   | description            | type          | range          | example        | required            |
@@ -458,6 +536,7 @@ Command name: **mbtcp.once.write**
 ```
 
 ### 1.3 Get TCP connection timeout (**mbtcp.timeout.read**)
+
 Command name: **mbtcp.timeout.read**
 
 >| params   | description            | type          | range          | example        | required                                     |
@@ -498,6 +577,7 @@ Command name: **mbtcp.timeout.read**
 ```
 
 ### 1.4 Set TCP connection timeout (**mbtcp.timeout.update**)
+
 Command name: **mbtcp.timeout.update**
 
 >| params   | description            | type          | range          | example        | required                                     |
@@ -564,7 +644,8 @@ Command name: **mbtcp.timeout.update**
 
 
 
-### 2.1 Add request (**mbtcp.poll.create**)
+### 2.1 Add poll request (**mbtcp.poll.create**)
+
 Command name: **mbtcp.poll.create**
 
 #### 2.1.1 Services to PSMB
@@ -932,7 +1013,8 @@ Command name: **mbtcp.poll.create**
 }
 ```
 
-### 2.2 Update request interval (**mbtcp.poll.update**)
+### 2.2 Update poll request interval (**mbtcp.poll.update**)
+
 Command name: **mbtcp.poll.update**
 
 #### 2.2.1 Services to PSMB
@@ -955,7 +1037,8 @@ Command name: **mbtcp.poll.update**
 }
 ```
 
-### 2.3 Read request status (**mbtcp.poll.read**)
+### 2.3 Read poll request status (**mbtcp.poll.read**)
+
 Command name: **mbtcp.poll.read**
 
 #### 2.3.1 Services to PSMB
@@ -1001,7 +1084,8 @@ Command name: **mbtcp.poll.read**
 }
 ```
 
-### 2.4 Delete request (**mbtcp.poll.delete**)
+### 2.4 Delete poll request (**mbtcp.poll.delete**)
+
 Command name: **mbtcp.poll.delete**
 
 #### 2.4.1 Services to PSMB
@@ -1023,7 +1107,8 @@ Command name: **mbtcp.poll.delete**
 }
 ```
 
-### 2.5 Enable/Disable request (**mbtcp.poll.toggle**)
+### 2.5 Enable/Disable poll request (**mbtcp.poll.toggle**)
+
 Command name: **mbtcp.poll.toggle**
 
 #### 2.5.1 Services to PSMB
@@ -1046,7 +1131,8 @@ Command name: **mbtcp.poll.toggle**
 }
 ```
 
-### 2.6 Read all requests status (**mbtcp.polls.read**)
+### 2.6 Read all poll requests status (**mbtcp.polls.read**)
+
 Command name: **mbtcp.polls.read**
 
 #### 2.6.1 Services to PSMB
@@ -1101,7 +1187,8 @@ Command name: **mbtcp.polls.read**
     }
     ```
 
-### 2.7 Delete all requests (**mbtcp.polls.delete**)
+### 2.7 Delete all poll requests (**mbtcp.polls.delete**)
+
 Command name: **mbtcp.polls.delete**
 
 #### 2.7.1 Services to PSMB
@@ -1122,7 +1209,8 @@ Command name: **mbtcp.polls.delete**
 }
 ```
 
-### 2.8 Enable/Disable all requests (**mbtcp.polls.toggle**)
+### 2.8 Enable/Disable all poll requests (**mbtcp.polls.toggle**)
+
 Command name: **mbtcp.polls.toggle**
 
 #### 2.8.1 Services to PSMB
@@ -1144,7 +1232,8 @@ Command name: **mbtcp.polls.toggle**
 }
 ```
 
-### 2.9 Import requests (**mbtcp.polls.import**)
+### 2.9 Import poll requests (**mbtcp.polls.import**)
+
 Command name: **mbtcp.polls.import**
 
 #### 2.9.1 Services to PSMB
@@ -1188,7 +1277,8 @@ Command name: **mbtcp.polls.import**
 }
 ```
 
-### 2.10 Export requests (**mbtcp.polls.export**)
+### 2.10 Export poll requests (**mbtcp.polls.export**)
+
 Command name: **mbtcp.polls.export**
 
 #### 2.10.1 Services to PSMB
@@ -1244,6 +1334,7 @@ Command name: **mbtcp.polls.export**
     ```
 
 ### 2.11 Read history (**mbtcp.poll.history**)
+
 Command name: **mbtcp.poll.history**
 
 #### 2.11.1 Services to PSMB
@@ -1308,7 +1399,8 @@ Command name: **mbtcp.poll.history**
 >| 9   | outside range (include)      |         |
 
 
-### 3.1 Add filter (**mbtcp.filter.create**)
+### 3.1 Add filter request (**mbtcp.filter.create**)
+
 Command name: **mbtcp.filter.create**
 
 >| params       | description            | type          | range     | example     | required            |
@@ -1386,7 +1478,8 @@ Command name: **mbtcp.filter.create**
 }
 ```
 
-### 3.2 Update filter (**mbtcp.filter.update**)
+### 3.2 Update filter request (**mbtcp.filter.update**)
+
 Command name: **mbtcp.filter.update**
 
 #### 3.2.1 Services to PSMB
@@ -1452,7 +1545,8 @@ Command name: **mbtcp.filter.update**
 }
 ```
 
-### 3.3 Read filter status (**mbtcp.filter.read**)
+### 3.3 Read filter request status (**mbtcp.filter.read**)
+
 Command name: **mbtcp.filter.read**
 
 #### 3.3.1 Services to PSMB
@@ -1521,7 +1615,8 @@ Command name: **mbtcp.filter.read**
 }
 ```
 
-### 3.4 Delete filter (**mbtcp.filter.delete**)
+### 3.4 Delete filter request (**mbtcp.filter.delete**)
+
 Command name: **mbtcp.filter.delete**
 
 #### 3.4.1 Services to PSMB
@@ -1543,7 +1638,8 @@ Command name: **mbtcp.filter.delete**
 }
 ```
 
-### 3.5 Enable/Disable filter (**mbtcp.filter.toggle**)
+### 3.5 Enable/Disable filter request (**mbtcp.filter.toggle**)
+
 Command name: **mbtcp.filter.toggle**
 
 #### 3.5.1 Services to PSMB
@@ -1566,7 +1662,8 @@ Command name: **mbtcp.filter.toggle**
 }
 ```
 
-### 3.6 Read all filters (**mbtcp.filters.read**)
+### 3.6 Read all filter requests (**mbtcp.filters.read**)
+
 Command name: **mbtcp.filters.read**
 
 #### 3.6.1 Services to PSMB
@@ -1616,7 +1713,8 @@ Command name: **mbtcp.filters.read**
     }
     ```
 
-### 3.7 Delete all filters (**mbtcp.filters.delete**)
+### 3.7 Delete all filter requests (**mbtcp.filters.delete**)
+
 Command name: **mbtcp.filters.delete**
 
 #### 3.7.1 Services to PSMB
@@ -1637,7 +1735,8 @@ Command name: **mbtcp.filters.delete**
 }
 ```
 
-### 3.8 Enable/Disable all filters (**mbtcp.filters.toggle**)
+### 3.8 Enable/Disable all filter requests (**mbtcp.filters.toggle**)
+
 Command name: **mbtcp.filters.toggle**
 
 #### 3.8.1 Services to PSMB
@@ -1659,7 +1758,8 @@ Command name: **mbtcp.filters.toggle**
 }
 ```
 
-### 3.9 Import filters (**mbtcp.filters.import**)
+### 3.9 Import filter requests (**mbtcp.filters.import**)
+
 Command name: **mbtcp.filters.import**
 
 #### 3.9.1 Services to PSMB
@@ -1700,7 +1800,8 @@ Command name: **mbtcp.filters.import**
 }
 ```
 
-### 3.10 Export filters (**mbtcp.filters.export**)
+### 3.10 Export filter requests (**mbtcp.filters.export**)
+
 Command name: **mbtcp.filters.export**
 
 #### 3.10.1 Services to PSMB
