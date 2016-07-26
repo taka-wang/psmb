@@ -129,7 +129,10 @@ func (s *mbtcpReadTaskType) GetAll() []MbtcpPollStatus {
 	ret := make([]MbtcpPollStatus, 1000) // TODO: enhance fix capacity
 	s.RLock()
 	for _, v := range s.nameMap {
-		ret = append(ret, v.Req.(MbtcpPollStatus))
+		// type casting check
+		if item, ok := v.Req.(MbtcpPollStatus); ok {
+			ret = append(ret, item)
+		}
 	}
 	s.RUnlock()
 	return ret

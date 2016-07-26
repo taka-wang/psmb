@@ -3,7 +3,7 @@ package psmb
 import (
 	"testing"
 
-	"github.com/marksalpeter/sugar"
+	"github.com/takawang/sugar"
 )
 
 func TestMbtcpSimpleTask(t *testing.T) {
