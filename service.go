@@ -583,9 +583,9 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		req := r.(MbtcpPollOpReq)
 		//reqs := b.readTaskMap.GetAll()
 		resp := MbtcpPollsStatus{
-			Tid: req.Tid,
+			Tid:    req.Tid,
 			Status: "ok",
-			Polls: b.readTaskMap.GetAll()
+			Polls:  b.readTaskMap.GetAll(),
 		}
 		// send back
 		return b.simpleResponser(cmd, resp)
