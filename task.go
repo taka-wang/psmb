@@ -151,7 +151,7 @@ func (s *mbtcpReadTaskType) UpdateInterval(name string, interval uint64) error {
 	req.Interval = interval
 
 	s.Lock()
-	s.m[tid] = mbtcpReadTask{name, task.Cmd, req}
+	s.m[id] = mbtcpReadTask{name, task.Cmd, req}
 	s.Unlock()
 	return nil
 }
@@ -175,7 +175,7 @@ func (s *mbtcpReadTaskType) UpdateToggle(name string, toggle bool) error {
 	req.Enabled = toggle
 
 	s.Lock()
-	s.m[tid] = mbtcpReadTask{name, task.Cmd, req}
+	s.m[id] = mbtcpReadTask{name, task.Cmd, req}
 	s.Unlock()
 	return nil
 }
