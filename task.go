@@ -17,9 +17,9 @@ type MbtcpReadTask interface {
 	// Add add cmd to read/poll task map
 	Add(name, tid, cmd string, req interface{})
 	// UpdateInterval update request interval
-	UpdateInterval(name, interval uint64) error
+	UpdateInterval(name string, interval uint64) error
 	// UpdateToggle update request enable flag
-	UpdateToggle(name, toggle bool) error
+	UpdateToggle(name string, toggle bool) error
 }
 
 // MbtcpSimpleTask mbtcp simple task interface
@@ -129,7 +129,7 @@ func (s *mbtcpReadTaskType) Add(name, tid, cmd string, req interface{}) {
 }
 
 // UpdateInterval update request interval
-func (s *mbtcpReadTaskType) UpdateInterval(name, interval uint64) error {
+func (s *mbtcpReadTaskType) UpdateInterval(name string, interval uint64) error {
 	s.RLock()
 	id, ok1 := s.p[name]
 	if !ok1 {
@@ -153,7 +153,7 @@ func (s *mbtcpReadTaskType) UpdateInterval(name, interval uint64) error {
 }
 
 // UpdateToggle update request enable flag
-func (s *mbtcpReadTaskType) UpdateToggle(name, toggle bool) error {
+func (s *mbtcpReadTaskType) UpdateToggle(name string, toggle bool) error {
 	s.RLock()
 	id, ok1 := s.p[name]
 	if !ok1 {
