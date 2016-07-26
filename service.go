@@ -579,13 +579,13 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.simpleResponser(cmd, resp)
-	case mbtcpGetPolls:
+	case mbtcpGetPolls: // done
 		req := r.(MbtcpPollOpReq)
-		//reqs := b.readTaskMap.GetAll()
+		reqs := b.readTaskMap.GetAll()
 		resp := MbtcpPollsStatus{
 			Tid:    req.Tid,
 			Status: "ok",
-			Polls:  b.readTaskMap.GetAll(),
+			Polls:  reqs,
 		}
 		// send back
 		return b.simpleResponser(cmd, resp)
