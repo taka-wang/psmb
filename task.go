@@ -12,6 +12,8 @@ type MbtcpReadTask interface {
 	GetByTID(tid string) (mbtcpReadTask, bool)
 	// GetByName get command via Name from read/poll task map
 	GetByName(name string) (mbtcpReadTask, bool)
+	// GetAll get all read/poll tasks
+	GetAll() []MbtcpPollStatus
 	// DeleteByTID remove request via TID from read/poll task map
 	DeleteByTID(tid string)
 	// DeleteByName remove request via Name from read/poll task map
@@ -24,6 +26,8 @@ type MbtcpReadTask interface {
 	UpdateInterval(name string, interval uint64) error
 	// UpdateToggle update request enable flag
 	UpdateToggle(name string, toggle bool) error
+	// UpdateAllToggles update all request enable flag
+	UpdateAllToggles(toggle bool)
 }
 
 // MbtcpSimpleTask mbtcp simple task interface
@@ -120,6 +124,17 @@ func (s *mbtcpReadTaskType) GetByName(name string) (mbtcpReadTask, bool) {
 	return task, ok
 }
 
+// GetAll get all read/poll tasks
+func (s *mbtcpReadTaskType) GetAll() []MbtcpPollStatus {
+	ret := make([]MbtcpPollStatus, 1000) // TODO: enhance fix capacity
+	s.RLock()
+	for k, v := range s.nameMap {
+		ret = append(ret, v.Req.(MbtcpPollStatus))
+	}
+	s.RUnlock()
+	return ret
+}
+
 // DeleteAll remove all requests from read/poll task map
 func (s *mbtcpReadTaskType) DeleteAll() {
 	s.Lock()
@@ -190,6 +205,19 @@ func (s *mbtcpReadTaskType) UpdateToggle(name string, toggle bool) error {
 	s.idMap[tid] = s.nameMap[name]
 	s.Unlock()
 	return nil
+}
+
+// UpdateAllToggles update all request enable flag
+func (s *mbtcpReadTaskType) UpdateAllToggles(toggle bool) {
+	s.Lock()
+	for name, task := range s.nameMap {
+		tid, _ := s.nameID[name]
+		req := task.Req.(MbtcpPollStatus)
+		req.Enabled = toggle
+		s.nameMap[name] = mbtcpReadTask{name, task.Cmd, req}
+		s.idMap[tid] = s.nameMap[name]
+	}
+	s.Unlock()
 }
 
 // Get get request from simple task map
