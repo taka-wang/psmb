@@ -98,7 +98,7 @@ func (s *mbtcpReadTaskType) Add(name, tid, cmd string, req interface{}) {
 	s.idName[tid] = name
 	s.nameID[name] = tid
 	s.nameMap[name] = mbtcpReadTask{name, cmd, req}
-	s.idMap[tid] = &s.nameMap[name]
+	s.idMap[tid] = s.nameMap[name]
 	s.Unlock()
 }
 
@@ -157,7 +157,7 @@ func (s *mbtcpReadTaskType) UpdateInterval(name string, interval uint64) error {
 	req.Interval = interval
 	s.Lock()
 	s.nameMap[name] = mbtcpReadTask{name, task.Cmd, req}
-	s.idMap[tid] = &s.nameMap[name]
+	s.idMap[tid] = s.nameMap[name]
 	s.Unlock()
 	return nil
 }
@@ -175,7 +175,7 @@ func (s *mbtcpReadTaskType) UpdateToggle(name string, toggle bool) error {
 	req.Enabled = toggle
 	s.Lock()
 	s.nameMap[name] = mbtcpReadTask{name, task.Cmd, req}
-	s.idMap[tid] = &s.nameMap[name]
+	s.idMap[tid] = s.nameMap[name]
 	s.Unlock()
 	return nil
 }
