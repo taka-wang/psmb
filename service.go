@@ -500,7 +500,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 		// update readTaskMap
 		if status == "ok" {
-			if err := b.readTaskMap.UpdateInterval(req.Name, req.Interval); err {
+			if err := b.readTaskMap.UpdateInterval(req.Name, req.Interval); err != nil {
 				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
 				status = err.Error()
 			}
@@ -569,7 +569,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 		// update readTaskMap
 		if status == "ok" {
-			if err := b.readTaskMap.UpdateToggle(req.Name, req.Enabled); err {
+			if err := b.readTaskMap.UpdateToggle(req.Name, req.Enabled); err != nil {
 				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
 				status = err.Error()
 			}
