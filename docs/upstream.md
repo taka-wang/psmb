@@ -62,6 +62,7 @@ Command name: **mbtcp.once.read**
 #### 1.1.1 Services to PSMB
 
 **Bits read (FC1, FC2)**
+
 ```JavaScript
 {
     "from": "web",
@@ -76,6 +77,7 @@ Command name: **mbtcp.once.read**
 ```
 
 **Register read (FC3, FC4) - type 1, 2 (raw)**
+
 ```JavaScript
 {
     "from": "web",
@@ -91,6 +93,7 @@ Command name: **mbtcp.once.read**
 ```
 
 **Register read (FC3, FC4) - type 3 (scale)**
+
 ```JavaScript
 {
     "from": "web",
@@ -113,6 +116,7 @@ Command name: **mbtcp.once.read**
 ```
 
 **Register read (FC3, FC4) - type 4, 5 (16-bit)**
+
 ```JavaScript
 {
     "from": "web",
@@ -129,6 +133,7 @@ Command name: **mbtcp.once.read**
 ```
 
 **Register read (FC3, FC4) - type 6, 7, 8 (32-bit)**
+
 ```JavaScript
 {
     "from": "web",
@@ -148,7 +153,8 @@ Command name: **mbtcp.once.read**
 
 **Bits read (FC1, FC2)**
 
-- success:
+- Success:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -157,7 +163,8 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -167,7 +174,8 @@ Command name: **mbtcp.once.read**
 
 **Register read (FC3, FC4) - type 1, 2 (raw)**
 
-- success - type 1 (RegisterArray):
+- Success - type 1 (RegisterArray):
+
 ```JavaScript
 {
     "tid": 123456,
@@ -178,7 +186,8 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- success - type 2 (HexString):
+- Success - type 2 (HexString):
+
 ```JavaScript
 {
     "tid": 123456,
@@ -189,7 +198,8 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -199,7 +209,8 @@ Command name: **mbtcp.once.read**
 
 **Register read (FC3, FC4) - type 3 (scale)**
 
-- success - type 3 (Scale):
+- Success - type 3 (Scale):
+
 ```JavaScript
 {
     "tid": 123456,
@@ -210,7 +221,8 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- fail - conversion fail:
+- Fail - conversion fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -220,7 +232,8 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- fail - modbus fail:
+- Fail - modbus fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -232,7 +245,8 @@ Command name: **mbtcp.once.read**
 
 **Register read (FC3, FC4) - type 4, 5 (16-bit)**
 
-- success - type 4, 5 (UInt16, Int16):
+- Success - type 4, 5 (UInt16, Int16):
+
 ```JavaScript
 {
     "tid": 123456,
@@ -242,7 +256,8 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- fail - conversion fail:
+- Fail - conversion fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -251,7 +266,8 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- fail - modbus fail:
+- Fail - modbus fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -262,7 +278,8 @@ Command name: **mbtcp.once.read**
 
 **Register read (FC3, FC4) - type 6, 7, 8 (32-bit)**
 
-- success - type 6, 7 (UInt32, Int32):
+- Success - type 6, 7 (UInt32, Int32):
+
 ```JavaScript
 {
     "tid": 123456,
@@ -272,7 +289,8 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- success - type 8 (Float32):
+- Success - type 8 (Float32):
+
 ```JavaScript
 {
     "tid": 123456,
@@ -282,7 +300,8 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- fail - Conversion fail:
+- Fail - Conversion fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -291,7 +310,8 @@ Command name: **mbtcp.once.read**
 }
 ```
 
-- fail - Modbus fail:
+- Fail - Modbus fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -321,6 +341,7 @@ Command name: **mbtcp.once.write**
 #### 1.2.1 Services to PSMB
 
 **bit write (FC5) - write single bit**
+
 ```JavaScript
 {
     "from": "web",
@@ -335,6 +356,7 @@ Command name: **mbtcp.once.write**
 ```
 
 **register write (FC6) - write single register (dec)**
+
 ```JavaScript
 {
     "from": "web",
@@ -350,6 +372,7 @@ Command name: **mbtcp.once.write**
 ```
 
 **register write (FC6) - write single register (hex)**
+
 ```JavaScript
 {
     "from": "web",
@@ -365,6 +388,7 @@ Command name: **mbtcp.once.write**
 ```
 
 **bits write (FC15) - write multiple bits**
+
 ```JavaScript
 {
     "from": "web",
@@ -380,6 +404,7 @@ Command name: **mbtcp.once.write**
 ```
 
 **registers write (FC16) - write multiple registers (dec)**
+
 ```JavaScript
 {
     "from": "web",
@@ -396,6 +421,7 @@ Command name: **mbtcp.once.write**
 ```
 
 **registers write (FC16) - write multiple registers (hex)**
+
 ```JavaScript
 {
     "from": "web",
@@ -413,7 +439,8 @@ Command name: **mbtcp.once.write**
 
 #### 1.2.2 PSMB to Services
 
-- success:
+- Success:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -421,7 +448,8 @@ Command name: **mbtcp.once.write**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -450,7 +478,8 @@ Command name: **mbtcp.timeout.read**
 
 #### 1.3.2 PSMB to Services
 
-- success:
+- Success:
+
 ```JavaScript
 {
     "tid": 1468834562846161588,
@@ -459,7 +488,8 @@ Command name: **mbtcp.timeout.read**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "tid": 1468834562846161588,
@@ -489,7 +519,8 @@ Command name: **mbtcp.timeout.update**
 
 #### 1.4.2 PSMB to Services
 
-- success:
+- Success:
+
 ```JavaScript
 {
     "tid": 1468834562846161588,
@@ -497,7 +528,8 @@ Command name: **mbtcp.timeout.update**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "tid": 1468834562846161588,
@@ -538,6 +570,7 @@ Command name: **mbtcp.poll.create**
 #### 2.1.1 Services to PSMB
 
 **Bits read (FC1, FC2)**
+
 ```JavaScript
 {
     "from": "web",
@@ -555,6 +588,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 **Register read (FC3, FC4) - type 1, 2 (raw)**
+
 ```JavaScript
 {
     "from": "web",
@@ -573,6 +607,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 **Register read (FC3, FC4) - type 3 (scale)**
+
 ```JavaScript
 {
     "from": "web",
@@ -598,6 +633,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 **Register read (FC3, FC4) - type 4, 5 (16-bit)**
+
 ```JavaScript
 {
     "from": "web",
@@ -617,6 +653,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 **Register read (FC3, FC4) - type 6, 7, 8 (32-bit)**
+
 ```JavaScript
 {
     "from": "web",
@@ -638,7 +675,9 @@ Command name: **mbtcp.poll.create**
 #### 2.1.2 PSMB to Services
 
 **Bits read (FC1, FC2)**
-- success:
+
+- Success:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -646,7 +685,8 @@ Command name: **mbtcp.poll.create**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -655,6 +695,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data:
+
 ```JavaScript
 {
     "name": "led_1",
@@ -665,7 +706,9 @@ Command name: **mbtcp.poll.create**
 ```
 
 **Register read (FC3, FC4) - type 1, 2 (raw)**
-- success - type 1, 2:
+
+- Success - type 1, 2:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -673,7 +716,8 @@ Command name: **mbtcp.poll.create**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -682,6 +726,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - type 1:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -694,6 +739,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - type 2:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -708,7 +754,8 @@ Command name: **mbtcp.poll.create**
 
 **Register read (FC3, FC4) - type 3 (scale)**
 
-- success - type 3:
+- Success - type 3:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -716,7 +763,8 @@ Command name: **mbtcp.poll.create**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -725,6 +773,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - type 3:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -738,6 +787,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - conversion fail - type 3:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -750,6 +800,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - modbus fail - type 3:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -762,7 +813,9 @@ Command name: **mbtcp.poll.create**
 ```
 
 **Register read (FC3, FC4) - type 4, 5 (16-bit)**
-- success - type 4, 5:
+
+- Success - type 4, 5:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -770,7 +823,8 @@ Command name: **mbtcp.poll.create**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -779,6 +833,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - type 4,5:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -792,6 +847,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - conversion fail - type 4, 5:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -804,6 +860,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - modbus fail - type 4, 5:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -816,7 +873,9 @@ Command name: **mbtcp.poll.create**
 ```
 
 **Register read (FC3, FC4) - type 6, 7, 8 (32-bit)**
-- success - type 6, 7, 8:
+
+- Success - type 6, 7, 8:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -824,7 +883,8 @@ Command name: **mbtcp.poll.create**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -833,6 +893,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - type 8:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -846,6 +907,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - conversion fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -858,6 +920,7 @@ Command name: **mbtcp.poll.create**
 ```
 
 - Data - modbus fail:
+
 ```JavaScript
 {
     "tid": 123456,
@@ -907,7 +970,8 @@ Command name: **mbtcp.poll.read**
 
 #### 2.3.2 PSMB to Services
 
-- success:
+- Success:
+
 ```JavaScript
 {
     "name": "led_1",
@@ -927,7 +991,8 @@ Command name: **mbtcp.poll.read**
 }
 ```
 
-- fail:
+- Fail:
+
 ```JavaScript
 {
     "name": "led_1",
@@ -940,6 +1005,7 @@ Command name: **mbtcp.poll.read**
 Command name: **mbtcp.poll.delete**
 
 #### 2.4.1 Services to PSMB
+
 ```JavaScript
 {
     "from": "web",
@@ -961,6 +1027,7 @@ Command name: **mbtcp.poll.delete**
 Command name: **mbtcp.poll.toggle**
 
 #### 2.5.1 Services to PSMB
+
 ```JavaScript
 {
     "from": "web",
@@ -971,6 +1038,7 @@ Command name: **mbtcp.poll.toggle**
 ```
 
 #### 2.5.2 PSMB to Services
+
 ```JavaScript
 {
     "tid": 123456,
@@ -991,7 +1059,9 @@ Command name: **mbtcp.polls.read**
 ```
 
 #### 2.6.2 PSMB to Services
+
 - success:
+
     ```JavaScript
     {
         "tid": 123456,
@@ -1025,6 +1095,7 @@ Command name: **mbtcp.polls.read**
     ```
 
 - fail:
+
     ```JavaScript
     {
         "tid": 123456,
@@ -1201,7 +1272,7 @@ Command name: **mbtcp.filter.create**
 
 #### 3.1.2 PSMB to Services
 
-- success:
+- Success:
 
 ```JavaScript
 {
@@ -1210,7 +1281,7 @@ Command name: **mbtcp.filter.create**
 }
 ```
 
-- fail:
+- Fail:
 
 ```JavaScript
 {
@@ -1267,7 +1338,7 @@ Command name: **mbtcp.filter.update**
 
 #### 3.2.2 PSMB to Services
 
-- success:
+- Success:
 
 ```JavaScript
 {
@@ -1276,7 +1347,7 @@ Command name: **mbtcp.filter.update**
 }
 ```
 
-- fail:
+- Fail:
 
 ```JavaScript
 {
