@@ -94,6 +94,32 @@ const (
 	Float32
 )
 
+// FilterType filter type
+type FilterType int
+
+const (
+	// change change or not
+	change FilterType = iota
+	// ge greater than or equal
+	ge
+	// gt greater than
+	gt
+	// eq equal
+	eq
+	// lt less than
+	lt
+	// le less than or equal
+	le
+	// inside range
+	inside
+	// inside range (include)
+	insideIn
+	// outside range
+	outside
+	// outside range (include)
+	outsideIn
+)
+
 //
 // ======================= psmb to modbusd structures - downstream =======================
 //

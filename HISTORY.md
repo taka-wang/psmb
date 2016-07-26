@@ -43,19 +43,10 @@
 - [x] implement GetTID and GetName for mbtcpReadTaskType
 - [x] implement poll handlers
 
-# TODO
-
-- [ ] define request type
-
 # Backlog:
 
 - if scheduler is stop, trigger requests directly.
-
-- handle data length
-    - read: default = 1
-    - write: check length with data, or set it automatically
-- check timeout interval range
-- check polling interval range
+- sqlite3 for history
 
 # Module
 
