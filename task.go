@@ -142,6 +142,7 @@ func (s *mbtcpReadTaskType) GetAll() []MbtcpPollStatus {
 			ret = append(ret, item)
 		}
 	}
+	fmt.Println("end looping")
 	s.RUnlock()
 	return ret
 }
