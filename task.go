@@ -128,7 +128,7 @@ func (s *mbtcpReadTaskType) GetByName(name string) (mbtcpReadTask, bool) {
 func (s *mbtcpReadTaskType) GetAll() []MbtcpPollStatus {
 	ret := make([]MbtcpPollStatus, 1000) // TODO: enhance fix capacity
 	s.RLock()
-	for k, v := range s.nameMap {
+	for _, v := range s.nameMap {
 		ret = append(ret, v.Req.(MbtcpPollStatus))
 	}
 	s.RUnlock()
