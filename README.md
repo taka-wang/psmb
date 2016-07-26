@@ -91,6 +91,11 @@ I do continuous integration and build docker images after git push by self-hoste
     - [x] `LinearScalingRegisters` test - (0,0,0,0)
     - [x] `LinearScalingRegisters` test - reverse
 
+### Task
+
+- [x] MbtcpSimpleTask map tests
+    - [x] `add` task to map
+
 ### Types 
 
 #### Upstream structure test

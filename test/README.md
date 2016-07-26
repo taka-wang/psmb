@@ -7,4 +7,5 @@
 ## // Unit tests
 
 - binary
+- task
 - types
