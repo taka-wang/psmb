@@ -1467,7 +1467,7 @@ Command name: **mbtcp.filter.read**
 
 #### 3.3.2 PSMB to Services
 
-- success - type 0:
+- Success - type 0:
 
 ```JavaScript
 {
@@ -1580,7 +1580,7 @@ Command name: **mbtcp.filters.read**
 
 #### 3.6.2 PSMB to Services
 
-- success:
+- Success:
 
     ```JavaScript
     {
@@ -1607,7 +1607,7 @@ Command name: **mbtcp.filters.read**
             }]
     }
     ```
-- fail:
+- Fail:
 
     ```JavaScript
     {
