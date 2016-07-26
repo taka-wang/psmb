@@ -725,7 +725,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					Data:   data,
 				}
 				// remove from read/poll table
-				b.readTaskMap.Delete(res.Tid)
+				b.readTaskMap.DeleteTID(res.Tid)
 			case mbtcpCreatePoll, mbtcpImportPolls: // poll data
 				respCmd = mbtcpData // set as "mbtcp.data"
 				if res.Status != "ok" {
@@ -767,7 +767,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Status: res.Status,
 					}
 					// remove from read table
-					b.readTaskMap.Delete(res.Tid)
+					b.readTaskMap.DeleteTID(res.Tid)
 					return b.simpleResponser(respCmd, response)
 				}
 
@@ -781,7 +781,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Status: err.Error(),
 					}
 					// remove from read table
-					b.readTaskMap.Delete(res.Tid)
+					b.readTaskMap.DeleteTID(res.Tid)
 					return b.simpleResponser(respCmd, response)
 				}
 
@@ -873,7 +873,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				}
 
 				// remove from read table
-				b.readTaskMap.Delete(res.Tid)
+				b.readTaskMap.DeleteTID(res.Tid)
 				return b.simpleResponser(respCmd, response)
 			// poll data
 			case mbtcpCreatePoll, mbtcpImportPolls:
