@@ -9,9 +9,9 @@ import "sync"
 // MbtcpReadTask mbtcp read task interface
 type MbtcpReadTask interface {
 	// GetTID get command from read/poll task map
-	GetTID(tid string) (*mbtcpReadTask, bool)
+	GetTID(tid string) (mbtcpReadTask, bool)
 	// GetName get command from read/poll task map
-	GetName(name string) (*mbtcpReadTask, bool)
+	GetName(name string) (mbtcpReadTask, bool)
 	// DeleteTID remove request from read/poll task map
 	DeleteTID(tid string)
 	// DeleteName remove request from read/poll task map
@@ -104,19 +104,19 @@ func (s *mbtcpReadTaskType) Add(name, tid, cmd string, req interface{}) {
 }
 
 // GetTID get command from read/poll task map
-func (s *mbtcpReadTaskType) GetTID(tid string) (*mbtcpReadTask, bool) {
+func (s *mbtcpReadTaskType) GetTID(tid string) (mbtcpReadTask, bool) {
 	s.RLock()
 	task, ok := s.idMap[tid]
 	s.RUnlock()
-	return task, ok
+	return *task, ok
 }
 
 // GetName get command from read/poll task map
-func (s *mbtcpReadTaskType) GetName(name string) (*mbtcpReadTask, bool) {
+func (s *mbtcpReadTaskType) GetName(name string) (mbtcpReadTask, bool) {
 	s.RLock()
 	task, ok := s.nameMap[name]
 	s.RUnlock()
-	return task, ok
+	return *task, ok
 }
 
 // DeleteTID remove request from read/poll task map
