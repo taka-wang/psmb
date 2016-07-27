@@ -127,9 +127,7 @@ func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
 // Example:
 // 	initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
-
 	log.Debug("Init ZMQ Publishers")
-
 	// upstream publisher
 	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
 	b.pub.upstream.Bind(toServiceEndpoint)
@@ -143,9 +141,7 @@ func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
 // Example:
 // 	initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
 func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
-
 	log.Debug("Init ZMQ Subscribers")
-
 	// upstream subscriber
 	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
 	b.sub.upstream.Bind(fromServiceEndpoint)
@@ -160,40 +156,18 @@ func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint strin
 // initZMQPoller init ZMQ poller.
 // polling from upstream services and downstream modbusd
 func (b *mbtcpService) initZMQPoller() {
-
 	log.Debug("Init ZMQ Poller")
-
 	// initialize poll set
 	b.poller = zmq.NewPoller()
 	b.poller.Add(b.sub.upstream, zmq.POLLIN)
 	b.poller.Add(b.sub.downstream, zmq.POLLIN)
 }
 
-// simpleTaskResponser simeple response to upstream
-func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
+// naiveResponder naive responder to send message back to upstream.
+func (b *mbtcpService) naiveResponder(cmd string, resp interface{}) error {
 	respStr, err := Marshal(resp)
 	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Error("Fail to marshal for simple task responser!")
-		return err
-	}
-
-	// check simple task map
-	if cmd, ok := b.simpleTaskMap.Get(tid); ok {
-		log.WithFields(log.Fields{"JSON": respStr}).Debug("Send response to service:")
-		b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
-		b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
-		// remove from map
-		b.simpleTaskMap.Delete(tid)
-		return nil
-	}
-	return ErrRequestNotFound
-}
-
-// simpleResponser simple reponser to upstream without checking simple task map
-func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
-	respStr, err := Marshal(resp)
-	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Error("Fail to marshal for simple responser!")
+		log.WithFields(log.Fields{"error": err}).Error("Fail to marshal for naive responder!")
 		return err
 	}
 
@@ -211,7 +185,7 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 		return nil, ErrInvalidMessageLength
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing upstream request:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parse upstream request:")
 
 	switch msg[0] {
 	case mbtcpGetTimeout, mbtcpSetTimeout:
@@ -414,7 +388,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			log.WithFields(log.Fields{"FC": req.FC}).Error(err.Error())
 			// send back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
-			return b.simpleResponser(cmd, resp)
+			return b.naiveResponder(cmd, resp)
 		}
 
 		// protect null port
@@ -452,7 +426,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			log.WithFields(log.Fields{"FC": req.FC}).Error(err.Error())
 			// send error back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
-			return b.simpleResponser(cmd, resp)
+			return b.naiveResponder(cmd, resp)
 		}
 
 		// protect null poll name
@@ -461,7 +435,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
 			// send back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
-			return b.simpleResponser(cmd, resp)
+			return b.naiveResponder(cmd, resp)
 		}
 
 		// protect null port
@@ -499,7 +473,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
-		return b.simpleResponser(cmd, resp)
+		return b.naiveResponder(cmd, resp)
 	case mbtcpUpdatePoll: // done
 		req := r.(MbtcpPollOpReq)
 		status := "ok"
@@ -525,7 +499,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
-		return b.simpleResponser(cmd, resp)
+		return b.naiveResponder(cmd, resp)
 	case mbtcpGetPoll: // done
 		req := r.(MbtcpPollOpReq)
 		task, ok := b.readTaskMap.GetByName(req.Name)
@@ -534,7 +508,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
 			// send error back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
-			return b.simpleResponser(cmd, resp)
+			return b.naiveResponder(cmd, resp)
 		}
 
 		// send back
@@ -555,7 +529,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Range:    request.Range,
 			Status:   "ok",
 		}
-		return b.simpleResponser(cmd, resp)
+		return b.naiveResponder(cmd, resp)
 	case mbtcpDeletePoll: // done
 		req := r.(MbtcpPollOpReq)
 		status := "ok"
@@ -569,7 +543,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		b.readTaskMap.DeleteByName(req.Name)
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
-		return b.simpleResponser(cmd, resp)
+		return b.naiveResponder(cmd, resp)
 	case mbtcpTogglePoll: // done
 		req := r.(MbtcpPollOpReq)
 		status := "ok"
@@ -596,7 +570,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
-		return b.simpleResponser(cmd, resp)
+		return b.naiveResponder(cmd, resp)
 	case mbtcpGetPolls, mbtcpExportPolls: // done
 		req := r.(MbtcpPollOpReq)
 		reqs := b.readTaskMap.GetAll()
@@ -607,14 +581,14 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Polls:  reqs,
 		}
 		// send back
-		return b.simpleResponser(cmd, resp)
+		return b.naiveResponder(cmd, resp)
 	case mbtcpDeletePolls: // done
 		req := r.(MbtcpPollOpReq)
 		b.scheduler.Clear()       // remove all tasks from scheduler
 		b.readTaskMap.DeleteAll() // remove all tasks from read/poll task map
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
-		return b.simpleResponser(cmd, resp)
+		return b.naiveResponder(cmd, resp)
 	case mbtcpTogglePolls: // done
 		req := r.(MbtcpPollOpReq)
 		// update scheduler
@@ -627,7 +601,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		b.readTaskMap.UpdateAllToggles(req.Enabled)
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
-		return b.simpleResponser(cmd, resp)
+		return b.naiveResponder(cmd, resp)
 	case mbtcpImportPolls: // done
 		request := r.(MbtcpPollsStatus)
 		for _, req := range request.Polls {
@@ -680,7 +654,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: request.Tid, Status: "ok"}
-		return b.simpleResponser(cmd, resp)
+		return b.naiveResponder(cmd, resp)
 	case mbtcpGetPollHistory:
 		//req := r.(MbtcpPollOpReq)
 		return ErrTodo
@@ -724,7 +698,7 @@ func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) {
 		return nil, ErrInvalidMessageLength
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parsing downstream response:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parse downstream response:")
 
 	switch MbtcpCmdType(msg[0]) {
 	case setTCPTimeout, getTCPTimeout:
@@ -770,7 +744,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				Status: res.Status,
 				Data:   data, // getTCPTimeout only
 			}
-
 		case fc5, fc6, fc15, fc16: // one-off write requests
 			res := r.(DMbtcpRes)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
@@ -780,8 +753,26 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				Status: res.Status,
 			}
 		}
-		// send back one-off task reponse
-		return b.simpleTaskResponser(TidStr, resp)
+
+		// send back one-off task reponse and remove from simple task map
+		respStr, err := Marshal(resp)
+		if err != nil {
+			log.WithFields(log.Fields{"error": err}).Error(err.Error())
+			return err
+		}
+
+		// check simple task map
+		if cmd, ok := b.simpleTaskMap.Get(TidStr); ok {
+			log.WithFields(log.Fields{"JSON": respStr}).Debug("Send response to service:")
+			b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
+			b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
+			// remove from simple task map
+			b.simpleTaskMap.Delete(TidStr)
+			return nil
+		}
+		// not in simple task map!?
+		return ErrRequestNotFound
+
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
@@ -835,7 +826,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					Status: "Command not support",
 				}
 			}
-			return b.simpleResponser(respCmd, response)
+			return b.naiveResponder(respCmd, response)
 		case fc3, fc4: // read registers
 			// shared variables
 			var status string
@@ -854,7 +845,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					}
 					// remove from read table
 					b.readTaskMap.DeleteByTID(res.Tid)
-					return b.simpleResponser(respCmd, response)
+					return b.naiveResponder(respCmd, response)
 				}
 
 				// convert register to byte array
@@ -868,7 +859,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					}
 					// remove from read table
 					b.readTaskMap.DeleteByTID(res.Tid)
-					return b.simpleResponser(respCmd, response)
+					return b.naiveResponder(respCmd, response)
 				}
 
 				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
@@ -960,7 +951,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 
 				// remove from read table
 				b.readTaskMap.DeleteByTID(res.Tid)
-				return b.simpleResponser(respCmd, response)
+				return b.naiveResponder(respCmd, response)
 
 			case mbtcpCreatePoll, mbtcpImportPolls: // poll data
 				readReq := task.Req.(MbtcpPollStatus) // type casting
@@ -975,7 +966,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						// No Bytes and Data
 						Status: res.Status,
 					}
-					return b.simpleResponser(respCmd, response)
+					return b.naiveResponder(respCmd, response)
 				}
 
 				// convert register to byte array
@@ -988,7 +979,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						// No Bytes and Data
 						Status: err.Error(),
 					}
-					return b.simpleResponser(respCmd, response)
+					return b.naiveResponder(respCmd, response)
 				}
 
 				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
@@ -1088,7 +1079,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					Status:    status,
 				}
 
-				return b.simpleResponser(respCmd, response)
+				return b.naiveResponder(respCmd, response)
 
 			default: // should not reach here
 				log.WithFields(log.Fields{"cmd": task.Cmd}).Debug("handleResponse: should not reach here")
@@ -1096,7 +1087,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					Tid:    tid,
 					Status: "Command not support",
 				}
-				return b.simpleResponser(respCmd, response)
+				return b.naiveResponder(respCmd, response)
 			}
 		}
 	default: // should not reach here!!
@@ -1143,7 +1134,7 @@ func (b *mbtcpService) Start() {
 						"err": err,
 					}).Error("Fail to parse request")
 					// send error back
-					b.simpleResponser(msg[0], MbtcpSimpleRes{Status: err.Error()})
+					b.naiveResponder(msg[0], MbtcpSimpleRes{Status: err.Error()})
 				}
 			case b.sub.downstream:
 				// receive from modbusd
