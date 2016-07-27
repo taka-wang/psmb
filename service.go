@@ -6,6 +6,7 @@ package psmb
 import (
 	"encoding/json"
 	"strconv"
+	"time"
 
 	"github.com/taka-wang/gocron"
 	log "github.com/takawang/logrus"
@@ -779,325 +780,327 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		}
 		// send back one-off task reponse
 		return b.simpleTaskResponser(TidStr, resp)
-		/*
-			case fc1, fc2, fc3, fc4: // one-off and polling requests
-				res := r.(DMbtcpRes)
-				tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 
-				var response interface{}
-				var task mbtcpReadTask
-				var ok bool
+	case fc1, fc2, fc3, fc4: // one-off and polling requests
+		res := r.(DMbtcpRes)
+		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 
-				// check read task table
-				if task, ok = b.readTaskMap.GetByTID(res.Tid); !ok {
-					return ErrRequestNotFound
+		var response interface{}
+		var task mbtcpReadTask
+		var ok bool
+
+		// check read task table
+		if task, ok = b.readTaskMap.GetByTID(res.Tid); !ok {
+			return ErrRequestNotFound
+		}
+		// default response command string
+		respCmd := task.Cmd
+
+		switch MbtcpCmdType(cmd) {
+		case fc1, fc2: // done: read bits
+			var data interface{} // shared variable
+			switch task.Cmd {
+			case mbtcpOnceRead: // one-off requests
+				if res.Status != "ok" {
+					data = nil
+				} else {
+					data = res.Data
 				}
-				// default response command string
-				respCmd := task.Cmd
-
-				switch MbtcpCmdType(cmd) {
-				case fc1, fc2: // done: read bits
-					var data interface{} // shared variable
-					switch task.Cmd {
-					case mbtcpOnceRead: // one-off requests
-						if res.Status != "ok" {
-							data = nil
-						} else {
-							data = res.Data
-						}
-						response = MbtcpReadRes{
-							Tid:    tid,
-							Status: res.Status,
-							Data:   data,
-						}
-						// remove from read/poll table
-						b.readTaskMap.DeleteByTID(res.Tid)
-					case mbtcpCreatePoll, mbtcpImportPolls: // poll data
-						respCmd = mbtcpData // set as "mbtcp.data"
-						if res.Status != "ok" {
-							data = nil
-						} else {
-							data = res.Data
-						}
-						response = MbtcpPollData{
-							TimeStamp: time.Now().UTC().UnixNano(),
-							Name:      task.Name,
-							Status:    res.Status,
-							Data:      data,
-						}
-						// TODOL if res.Status == "ok" then "add to history"
-					default: // should not reach here
-						log.WithFields(log.Fields{"cmd": cmd}).Debug("handleResponse: should not reach here")
-						response = MbtcpSimpleRes{
-							Tid:    tid,
-							Status: "Command not support",
-						}
-					}
-					return b.simpleResponser(respCmd, response)
-				case fc3, fc4: // read registers
-					// shared variables
-					var status string
-					var data interface{}
-
-					switch task.Cmd {
-					case mbtcpOnceRead: // one-off requests
-						readReq := task.Req.(MbtcpReadReq) // type casting
-
-						// check modbus response status
-						if res.Status != "ok" {
-							response = MbtcpReadRes{
-								Tid:    tid,
-								Type:   readReq.Type,
-								Status: res.Status,
-							}
-							// remove from read table
-							b.readTaskMap.DeleteByTID(res.Tid)
-							return b.simpleResponser(respCmd, response)
-						}
-
-						// convert register to byte array
-						bytes, err := RegistersToBytes(res.Data)
-						if err != nil {
-							log.WithFields(log.Fields{"err": err}).Debug("handleResponse: RegistersToBytes failed")
-							response = MbtcpReadRes{
-								Tid:    tid,
-								Type:   readReq.Type,
-								Status: err.Error(),
-							}
-							// remove from read table
-							b.readTaskMap.DeleteByTID(res.Tid)
-							return b.simpleResponser(respCmd, response)
-						}
-
-						log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
-
-						switch readReq.Type {
-						case HexString:
-							data = BytesToHexString(bytes) // convert byte to hex
-							status = res.Status
-						case UInt16:
-							ret, err := BytesToUInt16s(bytes, readReq.Order) // order
-							if err != nil {
-								data = nil
-								status = err.Error()
-							} else {
-								data = ret
-								status = res.Status
-							}
-						case Int16:
-							ret, err := BytesToInt16s(bytes, readReq.Order) // order
-							if err != nil {
-								data = nil
-								status = err.Error()
-							} else {
-								data = ret
-								status = res.Status
-							}
-						case Scale, UInt32, Int32, Float32: // 32-bits
-							if readReq.Len%2 != 0 {
-								data = nil
-								status = "Invalid length to convert"
-							} else {
-								switch readReq.Type {
-								case Scale:
-									ret, err := LinearScalingRegisters(
-										res.Data,
-										readReq.Range.DomainLow,
-										readReq.Range.DomainHigh,
-										readReq.Range.RangeLow,
-										readReq.Range.RangeHigh)
-									if err != nil {
-										data = nil
-										status = err.Error()
-									} else {
-										data = ret
-										status = res.Status
-									}
-								case UInt32:
-									ret, err := BytesToUInt32s(bytes, readReq.Order)
-									if err != nil {
-										data = nil
-										status = err.Error()
-									} else {
-										data = ret
-										status = res.Status
-									}
-								case Int32:
-									ret, err := BytesToInt32s(bytes, readReq.Order)
-									if err != nil {
-										data = nil
-										status = err.Error()
-									} else {
-										data = ret
-										status = res.Status
-									}
-								case Float32:
-									ret, err := BytesToFloat32s(bytes, readReq.Order)
-									if err != nil {
-										data = nil
-										status = err.Error()
-									} else {
-										data = ret
-										status = res.Status
-									}
-								}
-							}
-						default: // case 0, 1(RegisterArray)
-							data = res.Data
-							status = res.Status
-						}
-
-						// shared response
-						response = MbtcpReadRes{
-							Tid:    tid,
-							Type:   readReq.Type,
-							Bytes:  bytes,
-							Data:   data,
-							Status: status,
-						}
-
-						// remove from read table
-						b.readTaskMap.DeleteByTID(res.Tid)
-						return b.simpleResponser(respCmd, response)
-
-					case mbtcpCreatePoll, mbtcpImportPolls: // poll data
-						readReq := task.Req.(MbtcpPollStatus) // type casting
-						respCmd = mbtcpData                   // set as "mbtcp.data"
-
-						// check modbus response status
-						if res.Status != "ok" {
-							response = MbtcpPollData{
-								TimeStamp: time.Now().UTC().UnixNano(),
-								Name:      task.Name,
-								Type:      readReq.Type,
-								// No Bytes and Data
-								Status: res.Status,
-							}
-							return b.simpleResponser(respCmd, response)
-						}
-
-						// convert register to byte array
-						bytes, err := RegistersToBytes(res.Data)
-						if err != nil {
-							response = MbtcpPollData{
-								TimeStamp: time.Now().UTC().UnixNano(),
-								Name:      task.Name,
-								Type:      readReq.Type,
-								// No Bytes and Data
-								Status: err.Error(),
-							}
-							return b.simpleResponser(respCmd, response)
-						}
-
-						log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
-
-						switch readReq.Type {
-						case HexString:
-							data = BytesToHexString(bytes) // convert byte to hex
-							status = res.Status
-							// TODO: add to history
-						case UInt16:
-							ret, err := BytesToUInt16s(bytes, readReq.Order) // order
-							if err != nil {
-								data = nil
-								status = err.Error()
-							} else {
-								data = ret
-								status = res.Status
-								// TODO: add to history
-							}
-						case Int16:
-							ret, err := BytesToInt16s(bytes, readReq.Order) // order
-							if err != nil {
-								data = nil
-								status = err.Error()
-							} else {
-								data = ret
-								status = res.Status
-								// TODO: add to history
-							}
-						case Scale, UInt32, Int32, Float32: // 32-Bits
-							if readReq.Len%2 != 0 {
-								data = nil
-								status = "Invalid length to convert"
-							} else {
-								switch readReq.Type {
-								case Scale:
-									ret, err := LinearScalingRegisters(
-										res.Data,
-										readReq.Range.DomainLow,
-										readReq.Range.DomainHigh,
-										readReq.Range.RangeLow,
-										readReq.Range.RangeHigh)
-									if err != nil {
-										data = nil
-										status = err.Error()
-									} else {
-										data = ret
-										status = res.Status
-										// TODO: add to history
-									}
-								case UInt32:
-									ret, err := BytesToUInt32s(bytes, readReq.Order)
-									if err != nil {
-										data = nil
-										status = err.Error()
-									} else {
-										data = ret
-										status = res.Status
-										// TODO: add to history
-									}
-								case Int32:
-									ret, err := BytesToInt32s(bytes, readReq.Order)
-									if err != nil {
-										data = nil
-										status = err.Error()
-									} else {
-										data = ret
-										status = res.Status
-										// TODO: add to history
-									}
-								case Float32:
-									ret, err := BytesToFloat32s(bytes, readReq.Order)
-									if err != nil {
-										data = nil
-										status = err.Error()
-									} else {
-										data = ret
-										status = res.Status
-										// TODO: add to history
-									}
-								}
-							}
-						default: // case 0, 1(RegisterArray)
-							data = res.Data
-							status = res.Status
-							// TODO: add to history
-
-						}
-
-						// shared response
-						response = MbtcpPollData{
-							TimeStamp: time.Now().UTC().UnixNano(),
-							Name:      task.Name,
-							Type:      readReq.Type,
-							Bytes:     bytes,
-							Data:      data,
-							Status:    status,
-						}
-
-						return b.simpleResponser(respCmd, response)
-
-					default: // should not reach here
-						log.WithFields(log.Fields{"cmd": task.Cmd}).Debug("handleResponse: should not reach here")
-						response = MbtcpSimpleRes{
-							Tid:    tid,
-							Status: "Command not support",
-						}
-						return b.simpleResponser(respCmd, response)
-					}
+				response = MbtcpReadRes{
+					Tid:    tid,
+					Status: res.Status,
+					Data:   data,
 				}
-		*/
+				// remove from read/poll table
+				b.readTaskMap.DeleteByTID(res.Tid)
+			case mbtcpCreatePoll, mbtcpImportPolls: // poll data
+				respCmd = mbtcpData // set as "mbtcp.data"
+				if res.Status != "ok" {
+					data = nil
+				} else {
+					data = res.Data
+				}
+				response = MbtcpPollData{
+					TimeStamp: time.Now().UTC().UnixNano(),
+					Name:      task.Name,
+					Status:    res.Status,
+					Data:      data,
+				}
+				// TODOL if res.Status == "ok" then "add to history"
+			default: // should not reach here
+				log.WithFields(log.Fields{"cmd": cmd}).Debug("handleResponse: should not reach here")
+				response = MbtcpSimpleRes{
+					Tid:    tid,
+					Status: "Command not support",
+				}
+			}
+			return b.simpleResponser(respCmd, response)
+			/*
+				        case fc3, fc4: // read registers
+							// shared variables
+							var status string
+							var data interface{}
+
+							switch task.Cmd {
+							case mbtcpOnceRead: // one-off requests
+								readReq := task.Req.(MbtcpReadReq) // type casting
+
+								// check modbus response status
+								if res.Status != "ok" {
+									response = MbtcpReadRes{
+										Tid:    tid,
+										Type:   readReq.Type,
+										Status: res.Status,
+									}
+									// remove from read table
+									b.readTaskMap.DeleteByTID(res.Tid)
+									return b.simpleResponser(respCmd, response)
+								}
+
+								// convert register to byte array
+								bytes, err := RegistersToBytes(res.Data)
+								if err != nil {
+									log.WithFields(log.Fields{"err": err}).Debug("handleResponse: RegistersToBytes failed")
+									response = MbtcpReadRes{
+										Tid:    tid,
+										Type:   readReq.Type,
+										Status: err.Error(),
+									}
+									// remove from read table
+									b.readTaskMap.DeleteByTID(res.Tid)
+									return b.simpleResponser(respCmd, response)
+								}
+
+								log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
+
+								switch readReq.Type {
+								case HexString:
+									data = BytesToHexString(bytes) // convert byte to hex
+									status = res.Status
+								case UInt16:
+									ret, err := BytesToUInt16s(bytes, readReq.Order) // order
+									if err != nil {
+										data = nil
+										status = err.Error()
+									} else {
+										data = ret
+										status = res.Status
+									}
+								case Int16:
+									ret, err := BytesToInt16s(bytes, readReq.Order) // order
+									if err != nil {
+										data = nil
+										status = err.Error()
+									} else {
+										data = ret
+										status = res.Status
+									}
+								case Scale, UInt32, Int32, Float32: // 32-bits
+									if readReq.Len%2 != 0 {
+										data = nil
+										status = "Invalid length to convert"
+									} else {
+										switch readReq.Type {
+										case Scale:
+											ret, err := LinearScalingRegisters(
+												res.Data,
+												readReq.Range.DomainLow,
+												readReq.Range.DomainHigh,
+												readReq.Range.RangeLow,
+												readReq.Range.RangeHigh)
+											if err != nil {
+												data = nil
+												status = err.Error()
+											} else {
+												data = ret
+												status = res.Status
+											}
+										case UInt32:
+											ret, err := BytesToUInt32s(bytes, readReq.Order)
+											if err != nil {
+												data = nil
+												status = err.Error()
+											} else {
+												data = ret
+												status = res.Status
+											}
+										case Int32:
+											ret, err := BytesToInt32s(bytes, readReq.Order)
+											if err != nil {
+												data = nil
+												status = err.Error()
+											} else {
+												data = ret
+												status = res.Status
+											}
+										case Float32:
+											ret, err := BytesToFloat32s(bytes, readReq.Order)
+											if err != nil {
+												data = nil
+												status = err.Error()
+											} else {
+												data = ret
+												status = res.Status
+											}
+										}
+									}
+								default: // case 0, 1(RegisterArray)
+									data = res.Data
+									status = res.Status
+								}
+
+								// shared response
+								response = MbtcpReadRes{
+									Tid:    tid,
+									Type:   readReq.Type,
+									Bytes:  bytes,
+									Data:   data,
+									Status: status,
+								}
+
+								// remove from read table
+								b.readTaskMap.DeleteByTID(res.Tid)
+								return b.simpleResponser(respCmd, response)
+
+							case mbtcpCreatePoll, mbtcpImportPolls: // poll data
+								readReq := task.Req.(MbtcpPollStatus) // type casting
+								respCmd = mbtcpData                   // set as "mbtcp.data"
+
+								// check modbus response status
+								if res.Status != "ok" {
+									response = MbtcpPollData{
+										TimeStamp: time.Now().UTC().UnixNano(),
+										Name:      task.Name,
+										Type:      readReq.Type,
+										// No Bytes and Data
+										Status: res.Status,
+									}
+									return b.simpleResponser(respCmd, response)
+								}
+
+								// convert register to byte array
+								bytes, err := RegistersToBytes(res.Data)
+								if err != nil {
+									response = MbtcpPollData{
+										TimeStamp: time.Now().UTC().UnixNano(),
+										Name:      task.Name,
+										Type:      readReq.Type,
+										// No Bytes and Data
+										Status: err.Error(),
+									}
+									return b.simpleResponser(respCmd, response)
+								}
+
+								log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
+
+								switch readReq.Type {
+								case HexString:
+									data = BytesToHexString(bytes) // convert byte to hex
+									status = res.Status
+									// TODO: add to history
+								case UInt16:
+									ret, err := BytesToUInt16s(bytes, readReq.Order) // order
+									if err != nil {
+										data = nil
+										status = err.Error()
+									} else {
+										data = ret
+										status = res.Status
+										// TODO: add to history
+									}
+								case Int16:
+									ret, err := BytesToInt16s(bytes, readReq.Order) // order
+									if err != nil {
+										data = nil
+										status = err.Error()
+									} else {
+										data = ret
+										status = res.Status
+										// TODO: add to history
+									}
+								case Scale, UInt32, Int32, Float32: // 32-Bits
+									if readReq.Len%2 != 0 {
+										data = nil
+										status = "Invalid length to convert"
+									} else {
+										switch readReq.Type {
+										case Scale:
+											ret, err := LinearScalingRegisters(
+												res.Data,
+												readReq.Range.DomainLow,
+												readReq.Range.DomainHigh,
+												readReq.Range.RangeLow,
+												readReq.Range.RangeHigh)
+											if err != nil {
+												data = nil
+												status = err.Error()
+											} else {
+												data = ret
+												status = res.Status
+												// TODO: add to history
+											}
+										case UInt32:
+											ret, err := BytesToUInt32s(bytes, readReq.Order)
+											if err != nil {
+												data = nil
+												status = err.Error()
+											} else {
+												data = ret
+												status = res.Status
+												// TODO: add to history
+											}
+										case Int32:
+											ret, err := BytesToInt32s(bytes, readReq.Order)
+											if err != nil {
+												data = nil
+												status = err.Error()
+											} else {
+												data = ret
+												status = res.Status
+												// TODO: add to history
+											}
+										case Float32:
+											ret, err := BytesToFloat32s(bytes, readReq.Order)
+											if err != nil {
+												data = nil
+												status = err.Error()
+											} else {
+												data = ret
+												status = res.Status
+												// TODO: add to history
+											}
+										}
+									}
+								default: // case 0, 1(RegisterArray)
+									data = res.Data
+									status = res.Status
+									// TODO: add to history
+
+								}
+
+								// shared response
+								response = MbtcpPollData{
+									TimeStamp: time.Now().UTC().UnixNano(),
+									Name:      task.Name,
+									Type:      readReq.Type,
+									Bytes:     bytes,
+									Data:      data,
+									Status:    status,
+								}
+
+								return b.simpleResponser(respCmd, response)
+
+							default: // should not reach here
+								log.WithFields(log.Fields{"cmd": task.Cmd}).Debug("handleResponse: should not reach here")
+								response = MbtcpSimpleRes{
+									Tid:    tid,
+									Status: "Command not support",
+								}
+								return b.simpleResponser(respCmd, response)
+							}
+			*/
+		}
+
 	default: // should not reach here!!
 		return ErrResponseNotSupport
 	}
