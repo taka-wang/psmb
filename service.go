@@ -29,13 +29,13 @@ type ProactiveService interface {
 	Start()
 	// Stop disable proactive service
 	Stop()
-	// parseRequest parse upstream requests
+	// parseRequest parse requests from services
 	parseRequest(msg []string) (interface{}, error)
-	// handleRequest handle upstream requests
+	// handleRequest handle requests from services
 	handleRequest(cmd string, r interface{}) error
-	// parseResponse parse downstream responses
+	// parseResponse parse responses from modbusd
 	parseResponse(msg []string) (interface{}, error)
-	// handleResponse handle downstream responses
+	// handleResponse handle responses from modbusd
 	handleResponse(cmd string, r interface{}) error
 }
 
@@ -718,7 +718,7 @@ func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) {
 	}
 }
 
-// handleResponse handle response from modbusd,
+// handleResponse handle responses from modbusd,
 // Todo: filter, handle
 func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response from modbusd")
