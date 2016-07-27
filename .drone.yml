@@ -1,6 +1,9 @@
 # drone.io:0.5
 
 pipeline:
+#
+# Save Bandwidth
+#
 #    publish:
 #        image: takawang/dind:push
 #        volumes:

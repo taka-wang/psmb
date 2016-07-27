@@ -2,7 +2,7 @@ package psmb
 
 // Upstream & Downstream command tables
 
-// modbusd command table
+// command table for modbusd
 const (
 	fc1  MbtcpCmdType = "1"
 	fc2  MbtcpCmdType = "2"
@@ -18,7 +18,7 @@ const (
 	getTCPTimeout MbtcpCmdType = "51"
 )
 
-// upstream command table
+// command table for upstream services
 const (
 	mbtcpOnceRead       = "mbtcp.once.read"
 	mbtcpOnceWrite      = "mbtcp.once.write"
@@ -45,5 +45,6 @@ const (
 	mbtcpToggleFilters  = "mbtcp.filters.toggle"
 	mbtcpImportFilters  = "mbtcp.filters.import"
 	mbtcpExportFilters  = "mbtcp.filters.export"
-	mbtcpData           = "mbtcp.data"
+	// Poll data
+	mbtcpData = "mbtcp.data"
 )
