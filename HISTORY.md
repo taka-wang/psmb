@@ -41,7 +41,8 @@
 - [x] Re-org test cases and integrate with drone.io
 - [x] Handle default port if not set
 - [x] implement GetByTID and GetByName for mbtcpReadTaskType
-- [x] implement poll handlers
+- [x] implement all poll request handlers (except mbtcp.poll.history)
+- [x] implement all polls request handlers
 
 # Backlog:
 

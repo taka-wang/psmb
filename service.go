@@ -618,7 +618,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.simpleResponser(cmd, resp)
 	case mbtcpImportPolls: // done
 		request := r.(MbtcpPollsStatus)
-		for req := range request.Polls {
+		for _, req := range request.Polls {
 			// function code checker
 			if req.FC < 1 || req.FC > 4 {
 				err := ErrInvalidFunctionCode // invalid read function code
