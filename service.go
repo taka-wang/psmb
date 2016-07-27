@@ -1140,7 +1140,7 @@ func (b *mbtcpService) Start() {
 						"err": err,
 					}).Error("Parse/Handle request failed:")
 					// send back
-					b.simpleResponser(msg[0], MbtcpSimpleRes{Status: err.Error()})
+					b.simpleResponser(msg[0], MbtcpSimpleRes{Status: err.Error()}) // TODO: double send back check
 				}
 			case b.sub.downstream:
 				// receive from modbusd
@@ -1152,13 +1152,17 @@ func (b *mbtcpService) Start() {
 
 				// parse response
 				res, err := b.parseResponse(msg)
+				if res != nil {
+					// handle response
+					err = b.handleResponse(msg[0], res)
+				}
+
 				if err != nil {
 					log.WithFields(log.Fields{
 						"cmd": msg[0],
 						"err": err,
 					}).Error("Parse/Handle response failed:")
-				} else {
-					err = b.handleResponse(msg[0], res)
+					// no need to send error back again
 				}
 			}
 		}
