@@ -586,7 +586,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.simpleResponser(cmd, resp)
-	case mbtcpGetPolls: // done
+	case mbtcpGetPolls, mbtcpExportPolls: // done
 		req := r.(MbtcpPollOpReq)
 		reqs := b.readTaskMap.GetAll()
 		//log.WithFields(log.Fields{"reqs": reqs}).Debug("taka: after GetAll")
@@ -616,11 +616,59 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.simpleResponser(cmd, resp)
-	case mbtcpImportPolls:
-		return ErrTodo
-	case mbtcpExportPolls:
-		//req := r.(MbtcpPollOpReq)
-		return ErrTodo
+	case mbtcpImportPolls: // done
+		request := r.(MbtcpPollsStatus)
+		for req := range request.Polls {
+			// function code checker
+			if req.FC < 1 || req.FC > 4 {
+				err := ErrInvalidFunctionCode // invalid read function code
+				log.WithFields(log.Fields{"FC": req.FC}).Error(err.Error())
+				continue // bypass
+			}
+
+			// protect null poll name
+			if req.Name == "" {
+				err := ErrInvalidPollName
+				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+				continue // bypass
+			}
+
+			// protect null port
+			if req.Port == "" {
+				req.Port = defaultMbtcpPort
+			}
+
+			// length checker
+			if req.Len < 1 {
+				req.Len = 1 // set minimal length of read
+			}
+
+			// check interval value
+			if req.Interval < minMbtcpPollInterval {
+				req.Interval = minMbtcpPollInterval
+			}
+
+			TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
+			command := DMbtcpReadReq{
+				Tid:   TidStr,
+				Cmd:   req.FC,
+				IP:    req.IP,
+				Port:  req.Port,
+				Slave: req.Slave,
+				Addr:  req.Addr,
+				Len:   req.Len,
+			}
+
+			b.readTaskMap.Add(req.Name, TidStr, cmd, req)                                                     // Add task to read/poll task map
+			b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.pub.downstream, command) // add command to scheduler as regular request
+
+			if !req.Enabled { // if not enabled, pause the task
+				b.scheduler.PauseWithName(req.Name)
+			}
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: request.Tid, Status: "ok"}
+		return b.simpleResponser(cmd, resp)
 	case mbtcpGetPollHistory:
 		//req := r.(MbtcpPollOpReq)
 		return ErrTodo
