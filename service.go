@@ -171,7 +171,7 @@ func (b *mbtcpService) naiveResponder(cmd string, resp interface{}) error {
 		return err
 	}
 
-	log.WithFields(log.Fields{"JSON": respStr}).Debug("Send response to service:")
+	log.WithFields(log.Fields{"JSON": respStr}).Debug("Send message to services")
 	b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
 	b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 	return nil
@@ -185,7 +185,7 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 		return nil, ErrInvalidMessageLength
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parse upstream request:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parse request from upstream services")
 
 	switch msg[0] {
 	case mbtcpGetTimeout, mbtcpSetTimeout:
@@ -308,7 +308,7 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 // handleRequest handle requests from services
 // do error checking
 func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
-	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle upstream request:")
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle request from upstream services")
 
 	switch cmd {
 	case mbtcpGetTimeout: // done
@@ -698,7 +698,7 @@ func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) {
 		return nil, ErrInvalidMessageLength
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parse downstream response:")
+	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parse response from modbusd")
 
 	switch MbtcpCmdType(msg[0]) {
 	case setTCPTimeout, getTCPTimeout:
@@ -721,7 +721,7 @@ func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) {
 // handleResponse handle response from modbusd,
 // Todo: filter, handle
 func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
-	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle downstream response:")
+	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response from modbusd")
 
 	switch MbtcpCmdType(cmd) {
 	case fc5, fc6, fc15, fc16, setTCPTimeout, getTCPTimeout: // done: one-off requests
@@ -763,16 +763,15 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 
 		// check simple task map
 		if cmd, ok := b.simpleTaskMap.Get(TidStr); ok {
-			log.WithFields(log.Fields{"JSON": respStr}).Debug("Send response to service:")
+			log.WithFields(log.Fields{"JSON": respStr}).Debug("Send message to services")
 			b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
 			b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
-			// remove from simple task map
+			// remove from simple task map!
 			b.simpleTaskMap.Delete(TidStr)
 			return nil
 		}
-		// not in simple task map!?
+		// not in simple task map!? should not reach here
 		return ErrRequestNotFound
-
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
@@ -820,10 +819,11 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				}
 				// TODOL if res.Status == "ok" then "add to history"
 			default: // should not reach here
-				log.WithFields(log.Fields{"cmd": cmd}).Debug("handleResponse: should not reach here")
+				err := ErrResponseNotSupport
+				log.WithFields(log.Fields{"cmd": cmd}).Error(err.Error())
 				response = MbtcpSimpleRes{
 					Tid:    tid,
-					Status: "Command not support",
+					Status: err.Error(),
 				}
 			}
 			return b.naiveResponder(respCmd, response)
@@ -1080,12 +1080,12 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				}
 
 				return b.naiveResponder(respCmd, response)
-
 			default: // should not reach here
-				log.WithFields(log.Fields{"cmd": task.Cmd}).Debug("handleResponse: should not reach here")
+				err := ErrResponseNotSupport
+				log.WithFields(log.Fields{"cmd": task.Cmd}).Error(err.Error())
 				response = MbtcpSimpleRes{
 					Tid:    tid,
-					Status: "Command not support",
+					Status: err.Error(),
 				}
 				return b.naiveResponder(respCmd, response)
 			}
@@ -1099,7 +1099,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 // Start enable proactive service
 func (b *mbtcpService) Start() {
 	b.initLogger()
-
 	log.Debug("Start proactive service")
 	b.scheduler.Start()
 	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
@@ -1117,7 +1116,7 @@ func (b *mbtcpService) Start() {
 				log.WithFields(log.Fields{
 					"cmd": msg[0],
 					"req": msg[1],
-				}).Debug("Receive from service")
+				}).Debug("Receive request from upstream services")
 
 				// parse request
 				if req, err := b.parseRequest(msg); req != nil {
@@ -1142,7 +1141,7 @@ func (b *mbtcpService) Start() {
 				log.WithFields(log.Fields{
 					"cmd":  msg[0],
 					"resp": msg[1],
-				}).Debug("Receive from modbus daemon")
+				}).Debug("Receive response from modbusd")
 
 				// parse response
 				if res, err := b.parseResponse(msg); res != nil {
