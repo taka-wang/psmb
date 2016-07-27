@@ -1097,11 +1097,10 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				return b.simpleResponser(respCmd, response)
 			}
 		}
-		return nil
 	default: // should not reach here!!
 		return ErrResponseNotSupport
 	}
-	//return nil
+	return nil
 }
 
 // Start enable proactive service
