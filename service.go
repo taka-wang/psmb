@@ -173,6 +173,7 @@ func (b *mbtcpService) initZMQPoller() {
 func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 	respStr, err := Marshal(resp)
 	if err != nil {
+		log.WithFields(log.Fields{"error": err}).Error("Fail to marshal for simple task responser!")
 		return err
 	}
 
@@ -192,6 +193,7 @@ func (b *mbtcpService) simpleTaskResponser(tid string, resp interface{}) error {
 func (b *mbtcpService) simpleResponser(cmd string, resp interface{}) error {
 	respStr, err := Marshal(resp)
 	if err != nil {
+		log.WithFields(log.Fields{"error": err}).Error("Fail to marshal for simple responser!")
 		return err
 	}
 
@@ -1124,57 +1126,48 @@ func (b *mbtcpService) Start() {
 				log.WithFields(log.Fields{
 					"cmd": msg[0],
 					"req": msg[1],
-				}).Debug("Receive from service:")
+				}).Debug("Receive from service")
 
+				// parse request
 				if req, err := b.parseRequest(msg); req != nil {
+					// handle request
 					err = b.handleRequest(msg[0], req)
+					log.WithFields(log.Fields{
+						"cmd": msg[0],
+						"err": err,
+					}).Error("Fail to handle request")
+					// no need to send back again!
 				} else {
 					log.WithFields(log.Fields{
 						"cmd": msg[0],
 						"err": err,
-					}).Error("Parse/Handle request failed:")
-					// send back
+					}).Error("Fail to parse request")
+					// send error back
 					b.simpleResponser(msg[0], MbtcpSimpleRes{Status: err.Error()})
 				}
-				/*
-					// parse request
-					req, err := b.parseRequest(msg)
-					if req != nil {
-						// handle request
-						err = b.handleRequest(msg[0], req)
-					}
-
-					// send error back
-					if err != nil {
-						log.WithFields(log.Fields{
-							"cmd": msg[0],
-							"err": err,
-						}).Error("Parse/Handle request failed:")
-						// send back
-						b.simpleResponser(msg[0], MbtcpSimpleRes{Status: err.Error()}) // TODO: double send back check
-					}
-				*/
 			case b.sub.downstream:
 				// receive from modbusd
 				msg, _ := b.sub.downstream.RecvMessage(0)
 				log.WithFields(log.Fields{
 					"cmd":  msg[0],
 					"resp": msg[1],
-				}).Debug("Receive from modbusd:")
+				}).Debug("Receive from modbus daemon")
 
 				// parse response
-				res, err := b.parseResponse(msg)
-				if res != nil {
+				if res, err := b.parseResponse(msg); res != nil {
 					// handle response
 					err = b.handleResponse(msg[0], res)
-				}
-
-				if err != nil {
 					log.WithFields(log.Fields{
 						"cmd": msg[0],
 						"err": err,
-					}).Error("Parse/Handle response failed:")
-					// no need to send error back again
+					}).Error("Fail to handle response")
+					// no need to send back again!
+				} else {
+					log.WithFields(log.Fields{
+						"cmd": msg[0],
+						"err": err,
+					}).Error("Fail to parse response")
+					// no need to send back, we don't know the sender
 				}
 			}
 		}
