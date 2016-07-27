@@ -780,7 +780,6 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		}
 		// send back one-off task reponse
 		return b.simpleTaskResponser(TidStr, resp)
-
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
@@ -797,46 +796,44 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		respCmd := task.Cmd
 
 		switch MbtcpCmdType(cmd) {
-		/*
-			case fc1, fc2: // done: read bits
-				var data interface{} // shared variable
-				switch task.Cmd {
-				case mbtcpOnceRead: // one-off requests
-					if res.Status != "ok" {
-						data = nil
-					} else {
-						data = res.Data
-					}
-					response = MbtcpReadRes{
-						Tid:    tid,
-						Status: res.Status,
-						Data:   data,
-					}
-					// remove from read/poll table
-					b.readTaskMap.DeleteByTID(res.Tid)
-				case mbtcpCreatePoll, mbtcpImportPolls: // poll data
-					respCmd = mbtcpData // set as "mbtcp.data"
-					if res.Status != "ok" {
-						data = nil
-					} else {
-						data = res.Data
-					}
-					response = MbtcpPollData{
-						TimeStamp: time.Now().UTC().UnixNano(),
-						Name:      task.Name,
-						Status:    res.Status,
-						Data:      data,
-					}
-					// TODOL if res.Status == "ok" then "add to history"
-				default: // should not reach here
-					log.WithFields(log.Fields{"cmd": cmd}).Debug("handleResponse: should not reach here")
-					response = MbtcpSimpleRes{
-						Tid:    tid,
-						Status: "Command not support",
-					}
+		case fc1, fc2: // done: read bits
+			var data interface{} // shared variable
+			switch task.Cmd {
+			case mbtcpOnceRead: // one-off requests
+				if res.Status != "ok" {
+					data = nil
+				} else {
+					data = res.Data
 				}
-				return b.simpleResponser(respCmd, response)
-		*/
+				response = MbtcpReadRes{
+					Tid:    tid,
+					Status: res.Status,
+					Data:   data,
+				}
+				// remove from read/poll table
+				b.readTaskMap.DeleteByTID(res.Tid)
+			case mbtcpCreatePoll, mbtcpImportPolls: // poll data
+				respCmd = mbtcpData // set as "mbtcp.data"
+				if res.Status != "ok" {
+					data = nil
+				} else {
+					data = res.Data
+				}
+				response = MbtcpPollData{
+					TimeStamp: time.Now().UTC().UnixNano(),
+					Name:      task.Name,
+					Status:    res.Status,
+					Data:      data,
+				}
+				// TODOL if res.Status == "ok" then "add to history"
+			default: // should not reach here
+				log.WithFields(log.Fields{"cmd": cmd}).Debug("handleResponse: should not reach here")
+				response = MbtcpSimpleRes{
+					Tid:    tid,
+					Status: "Command not support",
+				}
+			}
+			return b.simpleResponser(respCmd, response)
 		case fc3, fc4: // read registers
 			// shared variables
 			var status string
@@ -1099,9 +1096,8 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				}
 				return b.simpleResponser(respCmd, response)
 			}
-
 		}
-
+		return nil
 	default: // should not reach here!!
 		return ErrResponseNotSupport
 	}
