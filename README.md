@@ -14,7 +14,7 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 - MbtcpSimpleTask: simple task map
 
 
-## Docker 
+## Docker
 
 ### Docker Compose
 
@@ -53,7 +53,7 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ## Test cases
 
-### Binary 
+### Binary
 
 - [x] Bytes to 16-bit integer array tests
     - [x] `BytesToUInt16s` in big endian order - (1/4)
@@ -96,7 +96,7 @@ I do continuous integration and build docker images after git push by self-hoste
 - [x] MbtcpSimpleTask map tests
     - [x] `add` task to map
 
-### Types 
+### Types
 
 #### Upstream structure test
 

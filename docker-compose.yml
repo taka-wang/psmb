@@ -10,7 +10,7 @@ psmb:
     build: .
     volumes_from:
         - modbusd
-dummy-srv:
+dummysrv:
     image: takawang/dummy-srv
     volumes_from:
         - modbusd
