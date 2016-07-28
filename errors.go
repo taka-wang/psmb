@@ -34,6 +34,9 @@ var (
 
 	// ErrBytesToUInt16s is the error of BytesToUInt16s conversion.
 	ErrBytesToUInt16s = errors.New("Fail to convert byte array to UInt16 array in two endian orders")
+
+	// ErrInvalidLengthToConvert is the error of invalid length to convert
+	ErrInvalidLengthToConvert = errors.New("Invalid length to convert")
 )
 
 // Service

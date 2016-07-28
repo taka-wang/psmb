@@ -1395,9 +1395,9 @@ Command name: **mbtcp.poll.history**
 >| 4   | less than (lt)               | <       |
 >| 5   | less than or equal (le)      | <=      |
 >| 6   | inside range                 |         |
->| 7   | inside range (include)       |         |
+>| 7   | inside range (inclusive)     |         |
 >| 8   | outside range                |         |
->| 9   | outside range (include)      |         |
+>| 9   | outside range (inclusive)    |         |
 
 
 ### 3.1 Add filter request (**mbtcp.filter.create**)

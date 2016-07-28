@@ -888,8 +888,9 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					}
 				case Scale, UInt32, Int32, Float32: // 32-bits
 					if readReq.Len%2 != 0 {
+						err := ErrInvalidLengthToConvert
 						data = nil
-						status = "Invalid length to convert"
+						status = err.Error()
 					} else {
 						switch readReq.Type {
 						case Scale:
@@ -1011,8 +1012,9 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					}
 				case Scale, UInt32, Int32, Float32: // 32-Bits
 					if readReq.Len%2 != 0 {
+						err := ErrInvalidLengthToConvert
 						data = nil
-						status = "Invalid length to convert"
+						status = err.Error()
 					} else {
 						switch readReq.Type {
 						case Scale:
