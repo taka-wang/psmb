@@ -1122,11 +1122,13 @@ func (b *mbtcpService) Start() {
 				if req, err := b.parseRequest(msg); req != nil {
 					// handle request
 					err = b.handleRequest(msg[0], req)
-					log.WithFields(log.Fields{
-						"cmd": msg[0],
-						"err": err,
-					}).Error("Fail to handle request")
-					// no need to send back again!
+					if err != nil {
+						log.WithFields(log.Fields{
+							"cmd": msg[0],
+							"err": err,
+						}).Error("Fail to handle request")
+						// no need to send back again!
+					}
 				} else {
 					log.WithFields(log.Fields{
 						"cmd": msg[0],
@@ -1147,11 +1149,13 @@ func (b *mbtcpService) Start() {
 				if res, err := b.parseResponse(msg); res != nil {
 					// handle response
 					err = b.handleResponse(msg[0], res)
-					log.WithFields(log.Fields{
-						"cmd": msg[0],
-						"err": err,
-					}).Error("Fail to handle response")
-					// no need to send back again!
+					if err != nil {
+						log.WithFields(log.Fields{
+							"cmd": msg[0],
+							"err": err,
+						}).Error("Fail to handle response")
+						// no need to send back again!
+					}
 				} else {
 					log.WithFields(log.Fields{
 						"cmd": msg[0],
