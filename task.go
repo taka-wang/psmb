@@ -6,15 +6,15 @@ import "sync"
 // Task Interfaces
 //
 
-// MbtcpSimpleTask mbtcp simple task interface
-type MbtcpSimpleTask interface {
-	// Add add request to simple task map
+// MbtcpWriteTask mbtcp write task interface
+type MbtcpWriteTask interface {
+	// Add add request to write task map
 	Add(tid, cmd string)
 
-	// Get get request from simple task map
+	// Get get request from write task map
 	Get(tid string) (string, bool)
 
-	// Delete remove request from simple task map
+	// Delete remove request from write task map
 	Delete(tid string)
 }
 
@@ -55,8 +55,8 @@ type MbtcpReadTask interface {
 // Task types
 //
 
-// mbtcpSimpleTaskType simple task map type
-type mbtcpSimpleTaskType struct {
+// mbtcpWriteTaskType write task map type
+type mbtcpWriteTaskType struct {
 	sync.RWMutex
 	// m key-value map: (tid, command)
 	m map[string]string
@@ -90,33 +90,33 @@ type mbtcpReadTaskType struct {
 //
 
 //
-// Simple Task
+// Write Task
 //
 
-// NewMbtcpSimpleTask instantiate mbtcp simple task map
-func NewMbtcpSimpleTask() MbtcpSimpleTask {
-	return &mbtcpSimpleTaskType{
+// NewMbtcpWriteTask instantiate mbtcp write task map
+func NewMbtcpWriteTask() MbtcpWriteTask {
+	return &mbtcpWriteTaskType{
 		m: make(map[string]string),
 	}
 }
 
-// Add add request to simple task map
-func (s *mbtcpSimpleTaskType) Add(tid, cmd string) {
+// Add add request to write task map
+func (s *mbtcpWriteTaskType) Add(tid, cmd string) {
 	s.Lock()
 	s.m[tid] = cmd
 	s.Unlock()
 }
 
-// Get get request from simple task map
-func (s *mbtcpSimpleTaskType) Get(tid string) (string, bool) {
+// Get get request from write task map
+func (s *mbtcpWriteTaskType) Get(tid string) (string, bool) {
 	s.RLock()
 	cmd, ok := s.m[tid]
 	s.RUnlock()
 	return cmd, ok
 }
 
-// Delete remove request from simple task map
-func (s *mbtcpSimpleTaskType) Delete(tid string) {
+// Delete remove request from write task map
+func (s *mbtcpWriteTaskType) Delete(tid string) {
 	s.Lock()
 	delete(s.m, tid)
 	s.Unlock()

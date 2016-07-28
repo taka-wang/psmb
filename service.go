@@ -41,10 +41,10 @@ type ProactiveService interface {
 
 // mbtcpService modbusd tcp proactive service type
 type mbtcpService struct {
-	// readTaskMap read/poll task map
-	readTaskMap MbtcpReadTask
-	// simpleTaskMap simple task map
-	simpleTaskMap MbtcpSimpleTask
+	// readerMap read/poll task map
+	readerMap MbtcpReadTask
+	// writerMap write task map
+	writerMap MbtcpWriteTask
 	// scheduler gocron scheduler
 	scheduler gocron.Scheduler
 	// sub ZMQ subscriber endpoints
@@ -70,10 +70,10 @@ type mbtcpService struct {
 // NewPSMBTCP modbus tcp proactive serivce constructor
 func NewPSMBTCP() ProactiveService {
 	return &mbtcpService{
-		enable:        true,
-		readTaskMap:   NewMbtcpReadTask(),
-		simpleTaskMap: NewMbtcpSimpleTask(),
-		scheduler:     gocron.NewScheduler(),
+		enable:    true,
+		readerMap: NewMbtcpReadTask(),
+		writerMap: NewMbtcpWriteTask(),
+		scheduler: gocron.NewScheduler(),
 	}
 }
 
@@ -319,8 +319,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Tid: TidStr,
 			Cmd: cmdInt,
 		}
-		// add request to simple task map
-		b.simpleTaskMap.Add(TidStr, cmd)
+		// add request to write task map
+		b.writerMap.Add(TidStr, cmd)
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
@@ -339,8 +339,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		} else {
 			command.Timeout = req.Data
 		}
-		// add request to simple task map
-		b.simpleTaskMap.Add(TidStr, cmd)
+		// add request to write task map
+		b.writerMap.Add(TidStr, cmd)
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
@@ -373,8 +373,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			Len:   req.Len,
 			Data:  req.Data,
 		}
-		// add request to simple task map
-		b.simpleTaskMap.Add(TidStr, cmd)
+		// add request to write task map
+		b.writerMap.Add(TidStr, cmd)
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
@@ -412,7 +412,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 
 		// add request to read/poll task map, read task instead of poll task, thus pass null name
-		b.readTaskMap.Add("", TidStr, cmd, req)
+		b.readerMap.Add("", TidStr, cmd, req)
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
@@ -464,7 +464,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 
 		// add task to read/poll task map
-		b.readTaskMap.Add(req.Name, TidStr, cmd, req)
+		b.readerMap.Add(req.Name, TidStr, cmd, req)
 		// add command to scheduler as regular request
 		b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.pub.downstream, command)
 
@@ -492,7 +492,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 
 		// update read/poll task map
 		if status == "ok" {
-			if err := b.readTaskMap.UpdateInterval(req.Name, req.Interval); err != nil {
+			if err := b.readerMap.UpdateInterval(req.Name, req.Interval); err != nil {
 				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
 				status = err.Error() // set error status
 			}
@@ -502,9 +502,9 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbtcpGetPoll: // done
 		req := r.(MbtcpPollOpReq)
-		task, ok := b.readTaskMap.GetByName(req.Name)
+		task, ok := b.readerMap.GetByName(req.Name)
 		if !ok {
-			err := ErrInvalidPollName // not in task map
+			err := ErrInvalidPollName // not in read/poll task map
 			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
 			// send error back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
@@ -540,7 +540,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			status = err.Error() // set error status
 		}
 		// remove task from read/poll map
-		b.readTaskMap.DeleteByName(req.Name)
+		b.readerMap.DeleteByName(req.Name)
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.naiveResponder(cmd, resp)
@@ -563,7 +563,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		}
 		// update read/poll task map
 		if status == "ok" {
-			if err := b.readTaskMap.UpdateToggle(req.Name, req.Enabled); err != nil {
+			if err := b.readerMap.UpdateToggle(req.Name, req.Enabled); err != nil {
 				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
 				status = err.Error() // set error status
 			}
@@ -573,7 +573,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbtcpGetPolls, mbtcpExportPolls: // done
 		req := r.(MbtcpPollOpReq)
-		reqs := b.readTaskMap.GetAll()
+		reqs := b.readerMap.GetAll()
 		//log.WithFields(log.Fields{"reqs": reqs}).Debug("taka: after GetAll")
 		resp := MbtcpPollsStatus{
 			Tid:    req.Tid,
@@ -584,8 +584,8 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbtcpDeletePolls: // done
 		req := r.(MbtcpPollOpReq)
-		b.scheduler.Clear()       // remove all tasks from scheduler
-		b.readTaskMap.DeleteAll() // remove all tasks from read/poll task map
+		b.scheduler.Clear()     // remove all tasks from scheduler
+		b.readerMap.DeleteAll() // remove all tasks from read/poll task map
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.naiveResponder(cmd, resp)
@@ -598,7 +598,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 			b.scheduler.PauseAll()
 		}
 		// update read/poll task map
-		b.readTaskMap.UpdateAllToggles(req.Enabled)
+		b.readerMap.UpdateAllToggles(req.Enabled)
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.naiveResponder(cmd, resp)
@@ -645,7 +645,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 				Len:   req.Len,
 			}
 
-			b.readTaskMap.Add(req.Name, TidStr, cmd, req)                                                     // Add task to read/poll task map
+			b.readerMap.Add(req.Name, TidStr, cmd, req)                                                       // Add task to read/poll task map
 			b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.pub.downstream, command) // add command to scheduler as regular request
 
 			if !req.Enabled { // if not enabled, pause the task
@@ -754,23 +754,23 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 			}
 		}
 
-		// send back one-off task reponse and remove from simple task map
+		// send back one-off task reponse and remove from write task map
 		respStr, err := Marshal(resp)
 		if err != nil {
 			log.WithFields(log.Fields{"error": err}).Error(err.Error())
 			return err
 		}
 
-		// check simple task map
-		if cmd, ok := b.simpleTaskMap.Get(TidStr); ok {
+		// check write task map
+		if cmd, ok := b.writerMap.Get(TidStr); ok {
 			log.WithFields(log.Fields{"JSON": respStr}).Debug("Send message to services")
 			b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
 			b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
-			// remove from simple task map!
-			b.simpleTaskMap.Delete(TidStr)
+			// remove from write task map!
+			b.writerMap.Delete(TidStr)
 			return nil
 		}
-		// not in simple task map!? should not reach here
+		// not in write task map!? should not reach here
 		return ErrRequestNotFound
 	case fc1, fc2, fc3, fc4: // one-off and polling requests
 		res := r.(DMbtcpRes)
@@ -781,7 +781,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 		var ok bool
 
 		// check read task table
-		if task, ok = b.readTaskMap.GetByTID(res.Tid); !ok {
+		if task, ok = b.readerMap.GetByTID(res.Tid); !ok {
 			return ErrRequestNotFound
 		}
 		// default response command string
@@ -803,7 +803,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 					Data:   data,
 				}
 				// remove from read/poll table
-				b.readTaskMap.DeleteByTID(res.Tid)
+				b.readerMap.DeleteByTID(res.Tid)
 			case mbtcpCreatePoll, mbtcpImportPolls: // poll data
 				respCmd = mbtcpData // set as "mbtcp.data"
 				if res.Status != "ok" {
@@ -844,7 +844,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Status: res.Status,
 					}
 					// remove from read table
-					b.readTaskMap.DeleteByTID(res.Tid)
+					b.readerMap.DeleteByTID(res.Tid)
 					return b.naiveResponder(respCmd, response)
 				}
 
@@ -858,7 +858,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 						Status: err.Error(),
 					}
 					// remove from read table
-					b.readTaskMap.DeleteByTID(res.Tid)
+					b.readerMap.DeleteByTID(res.Tid)
 					return b.naiveResponder(respCmd, response)
 				}
 
@@ -950,7 +950,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 				}
 
 				// remove from read table
-				b.readTaskMap.DeleteByTID(res.Tid)
+				b.readerMap.DeleteByTID(res.Tid)
 				return b.naiveResponder(respCmd, response)
 
 			case mbtcpCreatePoll, mbtcpImportPolls: // poll data

@@ -30,12 +30,12 @@
 - [x] handle default port and fc15/fc16 length
 - [x] define polling commands
 - [x] define MbtcpCmdType for modbusd
-- [x] implement mutex lock for OneOffTask map
+- [x] implement mutex lock for write map
 - [x] implement integration test for mbtcp.timeout.read
 - [x] implement integration test for mbtcp.timeout.update
 - [x] implement NaiveResponser
-- [x] Refactor simple/read task map mechanism
-- [x] Refactor simple/read task to OO
+- [x] Refactor read task map mechanism
+- [x] Refactor write task to OO
 - [x] implement factory pattern
 - [x] Generalize proactive service implementation
 - [x] Re-org test cases and integrate with drone.io
@@ -49,6 +49,7 @@
 - if scheduler is stop, trigger requests directly.
 - sqlite3 for history
 - task test cases
+- table size limit
 - fix handleResponse last return issue
 
 # Module

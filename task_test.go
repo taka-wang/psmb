@@ -6,17 +6,17 @@ import (
 	"github.com/takawang/sugar"
 )
 
-func TestMbtcpSimpleTask(t *testing.T) {
+func TestMbtcpWriteTask(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`add` task to map", func(log sugar.Log) bool {
-		simpleTaskMap := NewMbtcpSimpleTask()
-		simpleTaskMap.Add("123456", "12")
+		writerMap := NewMbtcpWriteTask()
+		writerMap.Add("123456", "12")
 		log("add `123456` to table")
-		simpleTaskMap.Add("234561", "34")
+		writerMap.Add("234561", "34")
 		log("add `234561` to table")
 
-		r1, b1 := simpleTaskMap.Get("123456")
+		r1, b1 := writerMap.Get("123456")
 		log("get `123456` from table")
 		if !b1 {
 			return false
@@ -25,19 +25,19 @@ func TestMbtcpSimpleTask(t *testing.T) {
 			return false
 		}
 
-		_, b2 := simpleTaskMap.Get("1234567")
+		_, b2 := writerMap.Get("1234567")
 		log("get `1234567` from table")
 
 		if b2 {
 			return false
 		}
 
-		simpleTaskMap.Delete("123456")
+		writerMap.Delete("123456")
 		log("delete `123456` from table")
-		simpleTaskMap.Delete("1234567")
+		writerMap.Delete("1234567")
 		log("delete `1234567` from table")
 
-		_, b3 := simpleTaskMap.Get("123456")
+		_, b3 := writerMap.Get("123456")
 		log("get `123456` from table")
 		if b3 {
 			return false

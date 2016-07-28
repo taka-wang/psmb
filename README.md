@@ -10,8 +10,8 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 ## Contracts (Interfaces)
 
 - ProactiveService: proactive service
-- MbtcpReadTask: read/poll task map
-- MbtcpSimpleTask: simple task map
+- MbtcpReadTask:  read/poll task map
+- MbtcpWriteTask: write task map
 
 
 ## Docker
@@ -93,7 +93,7 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ### Task
 
-- [x] MbtcpSimpleTask map tests
+    - [x] MbtcpWriteTask map tests
     - [x] `add` task to map
 
 ### Types

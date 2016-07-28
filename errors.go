@@ -42,7 +42,7 @@ var (
 	// ErrTodo is the error of todo
 	ErrTodo = errors.New("TODO")
 
-	// ErrRequestNotFound is the error when the request is not in the simple task map.
+	// ErrRequestNotFound is the error when the request is not in the write task map.
 	ErrRequestNotFound = errors.New("Request not found!")
 
 	// ErrRequestNotSupport is the error when the request is not supported.
