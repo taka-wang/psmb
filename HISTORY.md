@@ -51,6 +51,7 @@
 - task test cases
 - table size limit
 - fix handleResponse last return issue
+- add to log and filter
 
 # Module
 

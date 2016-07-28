@@ -247,11 +247,13 @@ type MbtcpTimeoutRes struct {
 	Data   int64  `json:"timeout,omitempty"`
 }
 
+/*
 // MbtcpSimpleReq generic modbus tcp response
 type MbtcpSimpleReq struct {
 	Tid  int64  `json:"tid"`
 	From string `json:"from,omitempty"`
 }
+*/
 
 // MbtcpSimpleRes generic modbus tcp response
 type MbtcpSimpleRes struct {
