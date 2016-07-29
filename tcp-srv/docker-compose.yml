@@ -1,5 +1,5 @@
 slave:
-    image: takawang/c-modbus-slave
+    image: takawang/c-modbus-slave:x86
 
 modbusd:
     image: edgepro/modbusd:x86

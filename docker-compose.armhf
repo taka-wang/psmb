@@ -1,17 +1,20 @@
 slave:
     image: takawang/c-modbus-slave:armhf
+
 modbusd:
     image: edgepro/modbusd:armhf
     volumes:
         - /tmp:/tmp
     links:
         - slave
-psmbtcp:
-    build: tcp/.
+
+psmbtcpsrv:
+    build: tcp-srv/.
     volumes_from:
         - modbusd
+
 dummysrv:
-    image: takawang/dummy-srv:armhf
+    build: test/dummy-srv/.
     volumes_from:
         - modbusd
     links:

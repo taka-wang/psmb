@@ -1,15 +1,12 @@
 # Dummy upstream service
 
-[![Build Status](http://dev.cmwang.net/api/badges/taka-wang/dummy-srv/status.svg)](http://dev.cmwang.net/taka-wang/dummy-srv)
-[![Build Status](https://travis-ci.org/taka-wang/dummy-srv.svg?branch=master)](https://travis-ci.org/taka-wang/dummy-srv)
-
 Dummy proactive service tester in golang.
 
 ## Motivation
 
 I implement this service to test the communication among upstream services (ex. web server, websocket service and so on) and proactive service.
 
-## From source code
+## Build from source code
 
 ```bash
 sudo apt-get install pkg-config
@@ -19,13 +16,6 @@ sudo mv go /usr/local
 nano ~/.profile
 export PATH=$PATH:/usr/local/go/bin
 go get github.com/takawang/zmq3
-```
-
-## From docker images
-
-```bash
-docker-compose build --pull
-docker-compose up --abort-on-container-exit
 ```
 
 ## Continuous Integration

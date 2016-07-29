@@ -1,17 +1,20 @@
 slave:
-    image: takawang/c-modbus-slave
+    image: takawang/c-modbus-slave:x86
+
 modbusd:
     image: edgepro/modbusd:x86
     volumes:
         - /tmp:/tmp
     links:
         - slave
-psmbtcp:
-    build: tcp/.
+
+psmbtcpsrv:
+    build: tcp-srv/.
     volumes_from:
         - modbusd
+
 dummysrv:
-    image: takawang/dummy-srv
+    build: test/dummy-srv/.
     volumes_from:
         - modbusd
     links:
