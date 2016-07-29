@@ -1,13 +1,3 @@
-# build and unit test
-psmb:
-    build: .
-
-psmbtcp:
-    build: tcp/.
-
-
-# CI
-
 slave:
     image: takawang/c-modbus-slave:x86
 
