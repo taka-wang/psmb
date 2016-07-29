@@ -24,8 +24,8 @@ const (
 	minMbtcpPollInterval = 1
 )
 
-// mbtcpService modbusd tcp proactive service type
-type mbtcpService struct {
+// MbtcpService modbusd tcp proactive service type
+type MbtcpService struct {
 	// readerMap read/poll task map
 	readerMap MbtcpReadTask
 	// writerMap write task map
@@ -53,17 +53,17 @@ type mbtcpService struct {
 }
 
 // NewPSMBTCP modbus tcp proactive serivce constructor
-func NewPSMBTCP() ProactiveService {
-	return &mbtcpService{
+func NewPSMBTCP(r MbtcpReadTask, w writerMap, s gocron.Scheduler) ProactiveService {
+	return &MbtcpService{
 		enable:    true,
-		readerMap: NewMbtcpReaderMap(),
-		writerMap: NewMbtcpWriterMap(),
-		scheduler: gocron.NewScheduler(),
+		readerMap: r,
+		writerMap: w,
+		scheduler: s,
 	}
 }
 
 // initLogger init logger
-func (b *mbtcpService) initLogger() {
+func (b *MbtcpService) initLogger() {
 	// Log as JSON instead of the default ASCII formatter.
 	//log.SetFormatter(&log.JSONFormatter{})
 
@@ -97,7 +97,7 @@ func Marshal(r interface{}) (string, error) {
 }
 
 // Task for gocron scheduler
-func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
+func (b *MbtcpService) Task(socket *zmq.Socket, req interface{}) {
 	str, err := Marshal(req)
 	if err != nil {
 		// TODO: remove table
@@ -111,7 +111,7 @@ func (b *mbtcpService) Task(socket *zmq.Socket, req interface{}) {
 // initZMQPub init ZMQ publishers.
 // Example:
 // 	initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
-func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
+func (b *MbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
 	log.Debug("Init ZMQ Publishers")
 	// upstream publisher
 	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
@@ -125,7 +125,7 @@ func (b *mbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
 // initZMQSub init ZMQ subscribers.
 // Example:
 // 	initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
-func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
+func (b *MbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
 	log.Debug("Init ZMQ Subscribers")
 	// upstream subscriber
 	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
@@ -140,7 +140,7 @@ func (b *mbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint strin
 
 // initZMQPoller init ZMQ poller.
 // polling from upstream services and downstream modbusd
-func (b *mbtcpService) initZMQPoller() {
+func (b *MbtcpService) initZMQPoller() {
 	log.Debug("Init ZMQ Poller")
 	// initialize poll set
 	b.poller = zmq.NewPoller()
@@ -149,7 +149,7 @@ func (b *mbtcpService) initZMQPoller() {
 }
 
 // naiveResponder naive responder to send message back to upstream.
-func (b *mbtcpService) naiveResponder(cmd string, resp interface{}) error {
+func (b *MbtcpService) naiveResponder(cmd string, resp interface{}) error {
 	respStr, err := Marshal(resp)
 	if err != nil {
 		log.WithFields(log.Fields{"error": err}).Error("Fail to marshal for naive responder!")
@@ -164,7 +164,7 @@ func (b *mbtcpService) naiveResponder(cmd string, resp interface{}) error {
 
 // parseRequest parse requests from services,
 // only unmarshal request string to corresponding struct
-func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
+func (b *MbtcpService) parseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
@@ -292,7 +292,7 @@ func (b *mbtcpService) parseRequest(msg []string) (interface{}, error) {
 
 // handleRequest handle requests from services
 // do error checking
-func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
+func (b *MbtcpService) handleRequest(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle request from upstream services")
 
 	switch cmd {
@@ -677,7 +677,7 @@ func (b *mbtcpService) handleRequest(cmd string, r interface{}) error {
 
 // parseResponse parse responses from modbusd
 // only unmarshal response string to corresponding struct
-func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) {
+func (b *MbtcpService) parseResponse(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
@@ -705,7 +705,7 @@ func (b *mbtcpService) parseResponse(msg []string) (interface{}, error) {
 
 // handleResponse handle responses from modbusd,
 // Todo: filter, handle
-func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
+func (b *MbtcpService) handleResponse(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response from modbusd")
 
 	switch MbtcpCmdType(cmd) {
@@ -1084,7 +1084,7 @@ func (b *mbtcpService) handleResponse(cmd string, r interface{}) error {
 }
 
 // Start enable proactive service
-func (b *mbtcpService) Start() {
+func (b *MbtcpService) Start() {
 	b.initLogger()
 	log.Debug("Start proactive service")
 	b.scheduler.Start()
@@ -1156,7 +1156,7 @@ func (b *mbtcpService) Start() {
 }
 
 // Stop disable proactive service
-func (b *mbtcpService) Stop() {
+func (b *MbtcpService) Stop() {
 	log.Debug("Stop proactive service")
 	b.scheduler.Stop()
 	b.enable = false
