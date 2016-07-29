@@ -1,38 +1,28 @@
 # drone.io:0.5
 
 pipeline:
-#
-# Save Bandwidth
-#
-#    publish:
-#        image: takawang/dind:push
-#        volumes:
-#            - /var/run/docker.sock:/var/run/docker.sock # docker in docker trick
-#        commands:
-#            - docker build --no-cache=true -t takawang/psmb:x86 .
-#            - docker push takawang/psmb:x86
 
-    psmb-test:
-        image: takawang/dind # docker in docker wiht compose
+    test-psmb:
+        image: takawang/dind
         volumes:
-            - /var/run/docker.sock:/var/run/docker.sock # docker in docker trick
+            - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build .
 
-    psmbtcp-test:
-        image: takawang/dind # docker in docker wiht compose
+    test-psmbtcp:
+        image: takawang/dind
         volumes:
-            - /var/run/docker.sock:/var/run/docker.sock # docker in docker trick
+            - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build tcp/.
 
     ci:
-        image: takawang/dind # docker in docker wiht compose
+        image: takawang/dind
         volumes:
-            - /var/run/docker.sock:/var/run/docker.sock # docker in docker trick
+            - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker-compose rm -f -a
-            - docker-compose pull # pull
+            - docker-compose pull
             - docker-compose build
             - docker-compose up --abort-on-container-exit
             - docker-compose stop
