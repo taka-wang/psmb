@@ -116,7 +116,7 @@ func (s *mbtcpReadTaskType) GetByName(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from read/poll task map
-func (s *mbtcpReadTaskType) GetAll() []psmb.MbtcpPollStatus {
+func (s *mbtcpReadTaskType) GetAll() interface{} {
 	arr := []psmb.MbtcpPollStatus{}
 	s.RLock()
 	for _, v := range s.nameMap {
