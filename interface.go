@@ -11,14 +11,14 @@ type ProactiveService interface {
 	Start()
 	// Stop disable proactive service
 	Stop()
-	// parseRequest parse requests from services
-	parseRequest(msg []string) (interface{}, error)
-	// handleRequest handle requests from services
-	handleRequest(cmd string, r interface{}) error
-	// parseResponse parse responses from modbusd
-	parseResponse(msg []string) (interface{}, error)
-	// handleResponse handle responses from modbusd
-	handleResponse(cmd string, r interface{}) error
+	// ParseRequest parse requests from services
+	ParseRequest(msg []string) (interface{}, error)
+	// HandleRequest handle requests from services
+	HandleRequest(cmd string, r interface{}) error
+	// ParseResponse parse responses from modbusd
+	ParseResponse(msg []string) (interface{}, error)
+	// HandleResponse handle responses from modbusd
+	HandleResponse(cmd string, r interface{}) error
 }
 
 // MbtcpWriteTask mbtcp write task interface

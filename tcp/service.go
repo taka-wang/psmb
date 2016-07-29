@@ -163,9 +163,9 @@ func (b *MbtcpService) naiveResponder(cmd string, resp interface{}) error {
 	return nil
 }
 
-// parseRequest parse requests from services,
+// ParseRequest parse requests from services,
 // only unmarshal request string to corresponding struct
-func (b *MbtcpService) parseRequest(msg []string) (interface{}, error) {
+func (b *MbtcpService) ParseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
@@ -291,9 +291,9 @@ func (b *MbtcpService) parseRequest(msg []string) (interface{}, error) {
 	}
 }
 
-// handleRequest handle requests from services
+// HandleRequest handle requests from services
 // do error checking
-func (b *MbtcpService) handleRequest(cmd string, r interface{}) error {
+func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle request from upstream services")
 
 	switch cmd {
@@ -677,9 +677,9 @@ func (b *MbtcpService) handleRequest(cmd string, r interface{}) error {
 	}
 }
 
-// parseResponse parse responses from modbusd
+// ParseResponse parse responses from modbusd
 // only unmarshal response string to corresponding struct
-func (b *MbtcpService) parseResponse(msg []string) (interface{}, error) {
+func (b *MbtcpService) ParseResponse(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
@@ -705,9 +705,9 @@ func (b *MbtcpService) parseResponse(msg []string) (interface{}, error) {
 	}
 }
 
-// handleResponse handle responses from modbusd,
+// HandleResponse handle responses from modbusd,
 // Todo: filter, handle
-func (b *MbtcpService) handleResponse(cmd string, r interface{}) error {
+func (b *MbtcpService) HandleResponse(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response from modbusd")
 
 	switch MbtcpCmdType(cmd) {
@@ -1111,9 +1111,9 @@ func (b *MbtcpService) Start() {
 				}).Debug("Receive request from upstream services")
 
 				// parse request
-				if req, err := b.parseRequest(msg); req != nil {
+				if req, err := b.ParseRequest(msg); req != nil {
 					// handle request
-					err = b.handleRequest(msg[0], req)
+					err = b.HandleRequest(msg[0], req)
 					if err != nil {
 						log.WithFields(log.Fields{
 							"cmd": msg[0],
@@ -1138,9 +1138,9 @@ func (b *MbtcpService) Start() {
 				}).Debug("Receive response from modbusd")
 
 				// parse response
-				if res, err := b.parseResponse(msg); res != nil {
+				if res, err := b.ParseResponse(msg); res != nil {
 					// handle response
-					err = b.handleResponse(msg[0], res)
+					err = b.HandleResponse(msg[0], res)
 					if err != nil {
 						log.WithFields(log.Fields{
 							"cmd": msg[0],
