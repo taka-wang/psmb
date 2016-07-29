@@ -10,8 +10,8 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 ## Contracts (Interfaces)
 
 - ProactiveService: proactive service
-- MbtcpReadTask:  read/poll task map
-- MbtcpWriteTask: write task map
+- ReaderTaskMap:  read/poll task map
+- WriterTaskMap: write task map
 
 
 ## Docker
@@ -28,15 +28,17 @@ docker-compose up --abort-on-container-exit
 ```bash
 
 # run modbus slave
-docker run -itd --name=slave takawang/c-modbus-slave
+docker run -itd --name=slave takawang/c-modbus-slave:x86
 
 # run modbusd
-docker run -v /tmp:/tmp --link slave -it --name=modbusd takawang/modbusd
+docker run -v /tmp:/tmp --link slave -it --name=modbusd takawang/modbusd:x86
 
-# run psmb
-docker run -v /tmp:/tmp -itd takawang/psmb
+# run psmbtcp-srv
+docker build -t takawang/psmbtcp-srv tcp-srv/.
+docker run -v /tmp:/tmp -itd takawang/psmbtcp-srv
 
 # run dummy-srv
+docker build -t takawang/dummy-srv test/dummy-srv/.
 docker run -v /tmp:/tmp --link slave -it takawang/dummy-srv
 ```
 
