@@ -560,7 +560,7 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbtcpGetPolls, mbtcpExportPolls: // done
 		req := r.(MbtcpPollOpReq)
-		reqs := b.readerMap.GetAll()
+		reqs := b.readerMap.GetAll().([]MbtcpPollStatus) // type casting
 		//log.WithFields(log.Fields{"reqs": reqs}).Debug("taka: after GetAll")
 		resp := MbtcpPollsStatus{
 			Tid:    req.Tid,

@@ -52,7 +52,8 @@ type ReaderTaskMap interface {
 	GetByName(name string) (interface{}, bool)
 
 	// GetAll get all requests from read/poll task map
-	GetAll() []MbtcpPollStatus
+	//GetAll() []MbtcpPollStatus
+	GetAll() interface{}
 
 	// DeleteAll remove all requests from read/poll task map
 	DeleteAll()
