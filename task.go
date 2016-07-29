@@ -6,7 +6,7 @@ import "sync"
 // Implementations
 //
 
-// @Implement MbtcpReadTask contract implicitly
+// @Implement MbtcpWriteTask contract implicitly
 
 // mbtcpWriteTaskType write task map type
 type mbtcpWriteTaskType struct {
