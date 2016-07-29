@@ -1,6 +1,9 @@
-package psmb
+package psmbtcp
 
 // Upstream & Downstream command tables
+
+// MbtcpCmdType defines modbus tcp command type
+type MbtcpCmdType string
 
 // command table for modbusd
 const (

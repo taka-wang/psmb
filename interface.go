@@ -44,10 +44,12 @@ type MbtcpReadTask interface {
 	Add(name, tid, cmd string, req interface{})
 
 	// GetByTID get request via TID from read/poll task map
-	GetByTID(tid string) (mbtcpReadTask, bool)
+	//GetByTID(tid string) (mbtcpReadTask, bool)
+	GetByTID(tid string) (interface{}, bool)
 
 	// GetByName get request via poll name from read/poll task map
-	GetByName(name string) (mbtcpReadTask, bool)
+	//GetByName(name string) (mbtcpReadTask, bool)
+	GetByName(name string) (interface{}, bool)
 
 	// GetAll get all requests from read/poll task map
 	GetAll() []MbtcpPollStatus

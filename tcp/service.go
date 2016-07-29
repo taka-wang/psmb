@@ -1,7 +1,7 @@
 /*
-Package psmb provides a proactive service library for modbus daemon.
+Package psmbtcp provides a proactive service library for modbus daemon.
 */
-package psmb
+package psmbtcp
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/taka-wang/gocron"
+	. "github.com/taka-wang/psmb"
 	log "github.com/takawang/logrus"
 	zmq "github.com/takawang/zmq3"
 )
@@ -487,7 +488,8 @@ func (b *MbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbtcpGetPoll: // done
 		req := r.(MbtcpPollOpReq)
-		task, ok := b.readerMap.GetByName(req.Name)
+		t, ok := b.readerMap.GetByName(req.Name)
+		task := t.(mbtcpReadTask) // type casting
 		if !ok {
 			err := ErrInvalidPollName // not in read/poll task map
 			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
@@ -766,9 +768,11 @@ func (b *MbtcpService) handleResponse(cmd string, r interface{}) error {
 		var ok bool
 
 		// check read task table
-		if task, ok = b.readerMap.GetByTID(res.Tid); !ok {
+		if t, ok = b.readerMap.GetByTID(res.Tid); !ok {
 			return ErrRequestNotFound
 		}
+		task = t.(mbtcpReadTask) // type casting
+
 		// default response command string
 		respCmd := task.Cmd
 

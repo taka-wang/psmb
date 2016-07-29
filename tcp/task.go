@@ -1,4 +1,4 @@
-package psmb
+package psmbtcp
 
 import "sync"
 
@@ -46,6 +46,16 @@ func (s *mbtcpWriteTaskType) Delete(tid string) {
 
 // @Implement MbtcpReadTask contract implicitly
 
+// mbtcpReadTask read/poll task request
+type mbtcpReadTask struct {
+	// Name task name
+	Name string
+	// Cmd zmq frame 1
+	Cmd string
+	// Req request structure
+	Req interface{}
+}
+
 // mbtcpReadTaskType read/poll task map type
 type mbtcpReadTaskType struct {
 	sync.RWMutex
@@ -84,7 +94,8 @@ func (s *mbtcpReadTaskType) Add(name, tid, cmd string, req interface{}) {
 }
 
 // GetByTID get request via TID from read/poll task map
-func (s *mbtcpReadTaskType) GetByTID(tid string) (mbtcpReadTask, bool) {
+//func (s *mbtcpReadTaskType) GetByTID(tid string) (mbtcpReadTask, bool) {
+func (s *mbtcpReadTaskType) GetByTID(tid string) (interface{}, bool) {
 	s.RLock()
 	task, ok := s.idMap[tid]
 	s.RUnlock()
@@ -92,7 +103,8 @@ func (s *mbtcpReadTaskType) GetByTID(tid string) (mbtcpReadTask, bool) {
 }
 
 // GetByName get request via poll name from read/poll task map
-func (s *mbtcpReadTaskType) GetByName(name string) (mbtcpReadTask, bool) {
+//func (s *mbtcpReadTaskType) GetByName(name string) (mbtcpReadTask, bool) {
+func (s *mbtcpReadTaskType) GetByName(name string) (interface{}, bool) {
 	s.RLock()
 	task, ok := s.nameMap[name]
 	s.RUnlock()
