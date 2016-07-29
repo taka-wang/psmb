@@ -14,7 +14,7 @@ import (
 
 // WriteTaskType write task map type
 type WriteTaskType struct {
-	sync.RWMutex
+	*sync.RWMutex
 	// m key-value map: (tid, command)
 	m map[string]string
 }
@@ -62,7 +62,7 @@ type mbtcpReadTask struct {
 
 // ReadTaskType read/poll task map type
 type ReadTaskType struct {
-	sync.RWMutex
+	*sync.RWMutex
 	// idName (tid, name)
 	idName map[string]string
 	// nameID (name, tid)
