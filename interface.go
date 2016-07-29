@@ -11,13 +11,13 @@ type ProactiveService interface {
 	Start()
 	// Stop disable proactive service
 	Stop()
-	// ParseRequest parse requests from services
+	// ParseRequest parse requests from IT
 	ParseRequest(msg []string) (interface{}, error)
-	// HandleRequest handle requests from services
+	// HandleRequest handle requests from IT
 	HandleRequest(cmd string, r interface{}) error
-	// ParseResponse parse responses from modbusd
+	// ParseResponse parse responses from OT
 	ParseResponse(msg []string) (interface{}, error)
-	// HandleResponse handle responses from modbusd
+	// HandleResponse handle responses from OT
 	HandleResponse(cmd string, r interface{}) error
 }
 
@@ -44,15 +44,13 @@ type ReaderTaskMap interface {
 	Add(name, tid, cmd string, req interface{})
 
 	// GetByTID get request via TID from read/poll task map
-	//GetByTID(tid string) (mbtcpReadTask, bool)
 	GetByTID(tid string) (interface{}, bool)
 
 	// GetByName get request via poll name from read/poll task map
-	//GetByName(name string) (mbtcpReadTask, bool)
 	GetByName(name string) (interface{}, bool)
 
 	// GetAll get all requests from read/poll task map
-	//GetAll() []MbtcpPollStatus
+	//	ex: mbtcp: []MbtcpPollStatus
 	GetAll() interface{}
 
 	// DeleteAll remove all requests from read/poll task map
