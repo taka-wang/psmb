@@ -1,3 +1,0 @@
-[submodule "test/dummy-srv"]
-	path = test/dummy-srv
-	url = https://github.com/taka-wang/dummy-srv.git
