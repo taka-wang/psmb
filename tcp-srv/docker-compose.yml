@@ -14,7 +14,7 @@ psmbtcpsrv:
         - modbusd
 
 dummy-srv:
-    build: ../test/.
+    build: ../test/dummy-srv/.
     volumes_from:
         - modbusd
     links:
