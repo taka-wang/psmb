@@ -47,14 +47,13 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ## Deployment Diagram
 
-![deployment](image/deployment.png)
+![deployment](image/ndeployment.png)
 
 ---
 
 ## Unit tests
 
 - binary
-- task
 - types
 
 ## Test cases
@@ -97,10 +96,6 @@ I do continuous integration and build docker images after git push by self-hoste
     - [x] `LinearScalingRegisters` test - (0,0,0,0)
     - [x] `LinearScalingRegisters` test - reverse
 
-### Task
-
-    - [x] MbtcpWriteTask map tests
-    - [x] `add` task to map
 
 ### Types
 
