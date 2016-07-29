@@ -8,8 +8,8 @@ RUN cd /go/src/github.com/taka-wang/psmb/tcp \
 	&& cd / \
     && git clone https://github.com/taka-wang/psmb-srv.git \
     && cd psmb-srv \
-    && go build -o psmb \
-    && cp psmb /usr/bin/ 
+    && go build -o psmbtcp \
+    && cp psmbtcp /usr/bin/ 
 
-CMD /usr/bin/psmb
+CMD /usr/bin/psmbtcp
 
