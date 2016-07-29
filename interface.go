@@ -21,9 +21,9 @@ type ProactiveService interface {
 	HandleResponse(cmd string, r interface{}) error
 }
 
-// MbtcpWriteTask mbtcp write task interface
+// WriteTaskMap mbtcp write task interface
 //	(Tid, Command) map
-type MbtcpWriteTask interface {
+type WriteTaskMap interface {
 	// Add add request to write task map,
 	// params: TID, CMD strings.
 	Add(tid, cmd string)
@@ -38,8 +38,8 @@ type MbtcpWriteTask interface {
 	Delete(tid string)
 }
 
-// MbtcpReadTask mbtcp read task interface
-type MbtcpReadTask interface {
+// ReadTaskMap mbtcp read task interface
+type ReadTaskMap interface {
 	// Add add request to read/poll task map
 	Add(name, tid, cmd string, req interface{})
 
