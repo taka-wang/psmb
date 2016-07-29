@@ -28,9 +28,9 @@ const (
 // MbtcpService modbusd tcp proactive service type
 type MbtcpService struct {
 	// readerMap read/poll task map
-	readerMap ReadTaskMap
+	readerMap ReaderTaskMap
 	// writerMap write task map
-	writerMap WriteTaskMap
+	writerMap WriterTaskMap
 	// scheduler gocron scheduler
 	scheduler gocron.Scheduler
 	// sub ZMQ subscriber endpoints
@@ -54,7 +54,7 @@ type MbtcpService struct {
 }
 
 // NewPSMBTCP modbus tcp proactive serivce constructor
-func NewPSMBTCP(r ReadTaskMap, w WriteTaskMap, s gocron.Scheduler) ProactiveService {
+func NewPSMBTCP(r ReaderTaskMap, w WriterTaskMap, s gocron.Scheduler) ProactiveService {
 	return &MbtcpService{
 		enable:    true,
 		readerMap: r,

@@ -10,7 +10,7 @@ import (
 // Implementations
 //
 
-// @Implement WriteTaskMap contract implicitly
+// @Implement WriterTaskMap contract implicitly
 
 // mbtcpWriteTaskType write task map type
 type mbtcpWriteTaskType struct {
@@ -20,7 +20,7 @@ type mbtcpWriteTaskType struct {
 }
 
 // NewMbtcpWriterMap instantiate mbtcp write task map
-func NewMbtcpWriterMap() psmb.WriteTaskMap {
+func NewMbtcpWriterMap() psmb.WriterTaskMap {
 	return &mbtcpWriteTaskType{
 		m: make(map[string]string),
 	}
@@ -48,7 +48,7 @@ func (s *mbtcpWriteTaskType) Delete(tid string) {
 	s.Unlock()
 }
 
-// @Implement ReadTaskMap contract implicitly
+// @Implement ReaderTaskMap contract implicitly
 
 // mbtcpReadTask read/poll task request
 type mbtcpReadTask struct {
@@ -74,7 +74,7 @@ type mbtcpReadTaskType struct {
 }
 
 // NewMbtcpReaderMap instantiate mbtcp read task map
-func NewMbtcpReaderMap() psmb.ReadTaskMap {
+func NewMbtcpReaderMap() psmb.ReaderTaskMap {
 	return &mbtcpReadTaskType{
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
