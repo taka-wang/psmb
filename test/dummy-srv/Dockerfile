@@ -1,4 +1,4 @@
-FROM takawang/psmb:x86
+FROM takawang/psmbtcp:x86
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 WORKDIR /go

@@ -1,4 +1,4 @@
-FROM takawang/psmb:armhf
+FROM takawang/psmbtcp:armhf
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 WORKDIR /go
