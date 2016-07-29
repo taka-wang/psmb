@@ -1,7 +1,7 @@
 /*
-Package mbtcp provides a proactive service library for modbus daemon.
+Package tcp provides a proactive service library for modbus daemon.
 */
-package mbtcp
+package tcp
 
 import (
 	"encoding/json"

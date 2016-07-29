@@ -1,4 +1,4 @@
-package mbtcp
+package tcp
 
 import "errors"
 

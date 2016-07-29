@@ -1,4 +1,4 @@
-package mbtcp
+package tcp
 
 // Upstream & Downstream command tables
 
