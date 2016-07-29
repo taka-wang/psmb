@@ -12,29 +12,29 @@ import (
 
 // @Implement WriterTaskMap contract implicitly
 
-// MbtcpWriteTaskType write task map type
-type MbtcpWriteTaskType struct {
+// WriteTaskType write task map type
+type WriteTaskType struct {
 	*sync.RWMutex
 	// m key-value map: (tid, command)
 	m map[string]string
 }
 
 // NewMbtcpWriterMap instantiate mbtcp write task map
-func NewMbtcpWriterMap() MbtcpWriteTaskType {
-	return &MbtcpWriteTaskType{
+func NewMbtcpWriterMap() *WriteTaskType {
+	return &WriteTaskType{
 		m: make(map[string]string),
 	}
 }
 
 // Add add request to write task map
-func (s *MbtcpWriteTaskType) Add(tid, cmd string) {
+func (s *WriteTaskType) Add(tid, cmd string) {
 	s.Lock()
 	s.m[tid] = cmd
 	s.Unlock()
 }
 
 // Get get request from write task map
-func (s *MbtcpWriteTaskType) Get(tid string) (string, bool) {
+func (s *WriteTaskType) Get(tid string) (string, bool) {
 	s.RLock()
 	cmd, ok := s.m[tid]
 	s.RUnlock()
@@ -42,7 +42,7 @@ func (s *MbtcpWriteTaskType) Get(tid string) (string, bool) {
 }
 
 // Delete remove request from write task map
-func (s *MbtcpWriteTaskType) Delete(tid string) {
+func (s *WriteTaskType) Delete(tid string) {
 	s.Lock()
 	delete(s.m, tid)
 	s.Unlock()
@@ -60,8 +60,8 @@ type mbtcpReadTask struct {
 	Req interface{}
 }
 
-// MbtcpReadTaskType read/poll task map type
-type MbtcpReadTaskType struct {
+// ReadTaskType read/poll task map type
+type ReadTaskType struct {
 	*sync.RWMutex
 	// idName (tid, name)
 	idName map[string]string
@@ -74,8 +74,8 @@ type MbtcpReadTaskType struct {
 }
 
 // NewMbtcpReaderMap instantiate mbtcp read task map
-func NewMbtcpReaderMap() MbtcpReadTaskType {
-	return &MbtcpReadTaskType{
+func NewMbtcpReaderMap() *ReadTaskType {
+	return &ReadTaskType{
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
 		idMap:   make(map[string]mbtcpReadTask),
@@ -84,7 +84,7 @@ func NewMbtcpReaderMap() MbtcpReadTaskType {
 }
 
 // Add add request to read/poll task map
-func (s *MbtcpReadTaskType) Add(name, tid, cmd string, req interface{}) {
+func (s *ReadTaskType) Add(name, tid, cmd string, req interface{}) {
 	if name == "" { // read task instead of poll task
 		name = tid
 	}
@@ -98,8 +98,8 @@ func (s *MbtcpReadTaskType) Add(name, tid, cmd string, req interface{}) {
 }
 
 // GetByTID get request via TID from read/poll task map
-//func (s *MbtcpReadTaskType) GetByTID(tid string) (mbtcpReadTask, bool) {
-func (s *MbtcpReadTaskType) GetByTID(tid string) (interface{}, bool) {
+//func (s *ReadTaskType) GetByTID(tid string) (mbtcpReadTask, bool) {
+func (s *ReadTaskType) GetByTID(tid string) (interface{}, bool) {
 	s.RLock()
 	task, ok := s.idMap[tid]
 	s.RUnlock()
@@ -107,8 +107,8 @@ func (s *MbtcpReadTaskType) GetByTID(tid string) (interface{}, bool) {
 }
 
 // GetByName get request via poll name from read/poll task map
-//func (s *MbtcpReadTaskType) GetByName(name string) (mbtcpReadTask, bool) {
-func (s *MbtcpReadTaskType) GetByName(name string) (interface{}, bool) {
+//func (s *ReadTaskType) GetByName(name string) (mbtcpReadTask, bool) {
+func (s *ReadTaskType) GetByName(name string) (interface{}, bool) {
 	s.RLock()
 	task, ok := s.nameMap[name]
 	s.RUnlock()
@@ -116,7 +116,7 @@ func (s *MbtcpReadTaskType) GetByName(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from read/poll task map
-func (s *MbtcpReadTaskType) GetAll() interface{} {
+func (s *ReadTaskType) GetAll() interface{} {
 	arr := []psmb.MbtcpPollStatus{}
 	s.RLock()
 	for _, v := range s.nameMap {
@@ -129,7 +129,7 @@ func (s *MbtcpReadTaskType) GetAll() interface{} {
 }
 
 // DeleteAll remove all requests from read/poll task map
-func (s *MbtcpReadTaskType) DeleteAll() {
+func (s *ReadTaskType) DeleteAll() {
 	s.Lock()
 	s.idName = make(map[string]string)
 	s.nameID = make(map[string]string)
@@ -139,7 +139,7 @@ func (s *MbtcpReadTaskType) DeleteAll() {
 }
 
 // DeleteByTID remove request from via TID from read/poll task map
-func (s *MbtcpReadTaskType) DeleteByTID(tid string) {
+func (s *ReadTaskType) DeleteByTID(tid string) {
 	s.RLock()
 	name, ok := s.idName[tid]
 	s.RUnlock()
@@ -155,7 +155,7 @@ func (s *MbtcpReadTaskType) DeleteByTID(tid string) {
 }
 
 // DeleteByName remove request via poll name from read/poll task map
-func (s *MbtcpReadTaskType) DeleteByName(name string) {
+func (s *ReadTaskType) DeleteByName(name string) {
 	s.RLock()
 	tid, ok := s.nameID[name]
 	s.RUnlock()
@@ -171,7 +171,7 @@ func (s *MbtcpReadTaskType) DeleteByName(name string) {
 }
 
 // UpdateInterval update poll request interval
-func (s *MbtcpReadTaskType) UpdateInterval(name string, interval uint64) error {
+func (s *ReadTaskType) UpdateInterval(name string, interval uint64) error {
 	s.RLock()
 	tid, _ := s.nameID[name]
 	task, ok := s.nameMap[name]
@@ -195,7 +195,7 @@ func (s *MbtcpReadTaskType) UpdateInterval(name string, interval uint64) error {
 }
 
 // UpdateToggle update poll request enabled flag
-func (s *MbtcpReadTaskType) UpdateToggle(name string, toggle bool) error {
+func (s *ReadTaskType) UpdateToggle(name string, toggle bool) error {
 	s.RLock()
 	tid, _ := s.nameID[name]
 	task, ok := s.nameMap[name]
@@ -219,7 +219,7 @@ func (s *MbtcpReadTaskType) UpdateToggle(name string, toggle bool) error {
 }
 
 // UpdateAllToggles update all poll request enabled flag
-func (s *MbtcpReadTaskType) UpdateAllToggles(toggle bool) {
+func (s *ReadTaskType) UpdateAllToggles(toggle bool) {
 	s.Lock()
 	for name, task := range s.nameMap {
 		if req, ok := task.Req.(psmb.MbtcpPollStatus); ok { // type casting check!
