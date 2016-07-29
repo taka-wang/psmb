@@ -20,8 +20,8 @@ type WriteTaskType struct {
 }
 
 // NewMbtcpWriterMap instantiate mbtcp write task map
-func NewMbtcpWriterMap() WriteTaskType {
-	return WriteTaskType{
+func NewMbtcpWriterMap() psmb.WriterTaskMap {
+	return &WriteTaskType{
 		mutex: new(sync.RWMutex),
 		m:     make(map[string]string),
 	}
@@ -75,8 +75,8 @@ type ReadTaskType struct {
 }
 
 // NewMbtcpReaderMap instantiate mbtcp read task map
-func NewMbtcpReaderMap() ReadTaskType {
-	return ReadTaskType{
+func NewMbtcpReaderMap() psmb.ReaderTaskMap {
+	return &ReadTaskType{
 		mutex:   new(sync.RWMutex),
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
