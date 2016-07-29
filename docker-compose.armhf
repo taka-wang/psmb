@@ -6,8 +6,8 @@ modbusd:
         - /tmp:/tmp
     links:
         - slave
-psmb:
-    build: .
+psmbtcp:
+    build: tcp/.
     volumes_from:
         - modbusd
 dummysrv:
