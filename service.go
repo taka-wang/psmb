@@ -13,6 +13,8 @@ import (
 	zmq "github.com/takawang/zmq3"
 )
 
+// @Implement ProactiveService contract implicitly
+
 const (
 	// defaultMbtcpPort default modbus slave port number
 	defaultMbtcpPort = "502"
@@ -21,23 +23,6 @@ const (
 	// minMbtcpPollInterval minimal modbus tcp poll interval
 	minMbtcpPollInterval = 1
 )
-
-// ProactiveService proactive service contracts,
-// all services should implement the following methods.
-type ProactiveService interface {
-	// Start enable proactive service
-	Start()
-	// Stop disable proactive service
-	Stop()
-	// parseRequest parse requests from services
-	parseRequest(msg []string) (interface{}, error)
-	// handleRequest handle requests from services
-	handleRequest(cmd string, r interface{}) error
-	// parseResponse parse responses from modbusd
-	parseResponse(msg []string) (interface{}, error)
-	// handleResponse handle responses from modbusd
-	handleResponse(cmd string, r interface{}) error
-}
 
 // mbtcpService modbusd tcp proactive service type
 type mbtcpService struct {
@@ -71,8 +56,8 @@ type mbtcpService struct {
 func NewPSMBTCP() ProactiveService {
 	return &mbtcpService{
 		enable:    true,
-		readerMap: NewMbtcpReadTask(),
-		writerMap: NewMbtcpWriteTask(),
+		readerMap: NewMbtcpReaderMap(),
+		writerMap: NewMbtcpWriterMap(),
 		scheduler: gocron.NewScheduler(),
 	}
 }

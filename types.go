@@ -5,6 +5,16 @@ import (
 	"strings"
 )
 
+// mbtcpReadTask read/poll task request
+type mbtcpReadTask struct {
+	// Name task name
+	Name string
+	// Cmd zmq frame 1
+	Cmd string
+	// Req request structure
+	Req interface{}
+}
+
 // ScaleRange defines scale range
 type ScaleRange struct {
 	DomainLow  float64 `json:"a"`

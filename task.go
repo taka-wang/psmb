@@ -3,57 +3,10 @@ package psmb
 import "sync"
 
 //
-// Task Interfaces
+// Implementations
 //
 
-// MbtcpWriteTask mbtcp write task interface
-type MbtcpWriteTask interface {
-	// Add add request to write task map
-	Add(tid, cmd string)
-
-	// Get get request from write task map
-	Get(tid string) (string, bool)
-
-	// Delete remove request from write task map
-	Delete(tid string)
-}
-
-// MbtcpReadTask mbtcp read task interface
-type MbtcpReadTask interface {
-	// Add add request to read/poll task map
-	Add(name, tid, cmd string, req interface{})
-
-	// GetByTID get request via TID from read/poll task map
-	GetByTID(tid string) (mbtcpReadTask, bool)
-
-	// GetByName get request via poll name from read/poll task map
-	GetByName(name string) (mbtcpReadTask, bool)
-
-	// GetAll get all requests from read/poll task map
-	GetAll() []MbtcpPollStatus
-
-	// DeleteAll remove all requests from read/poll task map
-	DeleteAll()
-
-	// DeleteByTID remove request from via TID from read/poll task map
-	DeleteByTID(tid string)
-
-	// DeleteByName remove request via poll name from read/poll task map
-	DeleteByName(name string)
-
-	// UpdateInterval update poll request interval
-	UpdateInterval(name string, interval uint64) error
-
-	// UpdateToggle update poll request enabled flag
-	UpdateToggle(name string, toggle bool) error
-
-	// UpdateAllToggles update all poll request enabled flag
-	UpdateAllToggles(toggle bool)
-}
-
-//
-// Task types
-//
+// @Implement MbtcpReadTask contract implicitly
 
 // mbtcpWriteTaskType write task map type
 type mbtcpWriteTaskType struct {
@@ -62,39 +15,8 @@ type mbtcpWriteTaskType struct {
 	m map[string]string
 }
 
-// mbtcpReadTask read/poll task request
-type mbtcpReadTask struct {
-	// Name task name
-	Name string
-	// Cmd zmq frame 1
-	Cmd string
-	// Req request structure
-	Req interface{}
-}
-
-// mbtcpReadTaskType read/poll task map type
-type mbtcpReadTaskType struct {
-	sync.RWMutex
-	// idName (tid, name)
-	idName map[string]string
-	// nameID (name, tid)
-	nameID map[string]string
-	// idMap (tid, mbtcpReadTask)
-	idMap map[string]mbtcpReadTask
-	// nameMap (name, mbtcpReadTask)
-	nameMap map[string]mbtcpReadTask
-}
-
-//
-// Implementations
-//
-
-//
-// Write Task
-//
-
-// NewMbtcpWriteTask instantiate mbtcp write task map
-func NewMbtcpWriteTask() MbtcpWriteTask {
+// NewMbtcpWriterMap instantiate mbtcp write task map
+func NewMbtcpWriterMap() MbtcpWriteTask {
 	return &mbtcpWriteTaskType{
 		m: make(map[string]string),
 	}
@@ -122,12 +44,23 @@ func (s *mbtcpWriteTaskType) Delete(tid string) {
 	s.Unlock()
 }
 
-//
-// Read/Poll Task
-//
+// @Implement MbtcpReadTask contract implicitly
 
-// NewMbtcpReadTask instantiate mbtcp read task map
-func NewMbtcpReadTask() MbtcpReadTask {
+// mbtcpReadTaskType read/poll task map type
+type mbtcpReadTaskType struct {
+	sync.RWMutex
+	// idName (tid, name)
+	idName map[string]string
+	// nameID (name, tid)
+	nameID map[string]string
+	// idMap (tid, mbtcpReadTask)
+	idMap map[string]mbtcpReadTask
+	// nameMap (name, mbtcpReadTask)
+	nameMap map[string]mbtcpReadTask
+}
+
+// NewMbtcpReaderMap instantiate mbtcp read task map
+func NewMbtcpReaderMap() MbtcpReadTask {
 	return &mbtcpReadTaskType{
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
