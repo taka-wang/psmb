@@ -20,7 +20,7 @@ type mbtcpWriteTaskType struct {
 }
 
 // NewMbtcpWriterMap instantiate mbtcp write task map
-func NewMbtcpWriterMap() psmb.WriterTaskMap {
+func NewMbtcpWriterMap() MbtcpWriteTask {
 	return &mbtcpWriteTaskType{
 		m: make(map[string]string),
 	}
@@ -74,7 +74,7 @@ type mbtcpReadTaskType struct {
 }
 
 // NewMbtcpReaderMap instantiate mbtcp read task map
-func NewMbtcpReaderMap() psmb.ReaderTaskMap {
+func NewMbtcpReaderMap() MbtcpReadTask {
 	return &mbtcpReadTaskType{
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
@@ -116,7 +116,7 @@ func (s *mbtcpReadTaskType) GetByName(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from read/poll task map
-func (s *mbtcpReadTaskType) GetAll() interface{} {
+func (s *mbtcpReadTaskType) GetAll() []psmb.MbtcpPollStatus {
 	arr := []psmb.MbtcpPollStatus{}
 	s.RLock()
 	for _, v := range s.nameMap {
