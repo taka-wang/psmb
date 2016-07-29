@@ -51,6 +51,12 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ---
 
+## Unit tests
+
+- binary
+- task
+- types
+
 ## Test cases
 
 ### Binary

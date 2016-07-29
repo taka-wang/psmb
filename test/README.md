@@ -2,10 +2,5 @@
 
 ## // Integration test
 
-- [dummy-srv](https://github.com/taka-wang/dummy-srv)
+- **dummy-srv** Dummy proactive service tester in golang.
 
-## // Unit tests
-
-- binary
-- task
-- types
