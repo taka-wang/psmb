@@ -2,14 +2,7 @@ FROM takawang/psmb:x86
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 ADD . /go/src/github.com/taka-wang/psmb/tcp
-RUN cd /go/src/github.com/taka-wang/psmb/tcp \
-    && go test -v \
-    && go build \
-	&& cd / \
-    && git clone https://github.com/taka-wang/psmb-srv.git \
-    && cd psmb-srv \
-    && go build -o psmbtcp \
-    && cp psmbtcp /usr/bin/ 
+RUN cd /go/src/github.com/taka-wang/psmb/tcp
 
-CMD /usr/bin/psmbtcp
+CMD go test -v
 
