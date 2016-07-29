@@ -8,13 +8,13 @@ modbusd:
     links:
         - slave
 
-psmb:
-    image: takawang/psmb:x86
+psmbtcpsrv:
+    build: .
     volumes_from:
         - modbusd
 
 dummy-srv:
-    image: takawang/dummy-srv
+    build: ../test/.
     volumes_from:
         - modbusd
     links:
