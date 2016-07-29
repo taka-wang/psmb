@@ -1,4 +1,4 @@
-package psmb
+package psmbtcp
 
 import "github.com/taka-wang/gocron"
 

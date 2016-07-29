@@ -11,19 +11,19 @@ type ProactiveService interface {
 	Start()
 	// Stop disable proactive service
 	Stop()
-	// parseRequest parse requests from services
-	parseRequest(msg []string) (interface{}, error)
-	// handleRequest handle requests from services
-	handleRequest(cmd string, r interface{}) error
-	// parseResponse parse responses from modbusd
-	parseResponse(msg []string) (interface{}, error)
-	// handleResponse handle responses from modbusd
-	handleResponse(cmd string, r interface{}) error
+	// ParseRequest parse requests from services
+	ParseRequest(msg []string) (interface{}, error)
+	// HandleRequest handle requests from services
+	HandleRequest(cmd string, r interface{}) error
+	// ParseResponse parse responses from modbusd
+	ParseResponse(msg []string) (interface{}, error)
+	// HandleResponse handle responses from modbusd
+	HandleResponse(cmd string, r interface{}) error
 }
 
-// MbtcpWriteTask mbtcp write task interface
+// WriterTaskMap write task interface
 //	(Tid, Command) map
-type MbtcpWriteTask interface {
+type WriterTaskMap interface {
 	// Add add request to write task map,
 	// params: TID, CMD strings.
 	Add(tid, cmd string)
@@ -38,19 +38,22 @@ type MbtcpWriteTask interface {
 	Delete(tid string)
 }
 
-// MbtcpReadTask mbtcp read task interface
-type MbtcpReadTask interface {
+// ReaderTaskMap read task interface
+type ReaderTaskMap interface {
 	// Add add request to read/poll task map
 	Add(name, tid, cmd string, req interface{})
 
 	// GetByTID get request via TID from read/poll task map
-	GetByTID(tid string) (mbtcpReadTask, bool)
+	//GetByTID(tid string) (mbtcpReadTask, bool)
+	GetByTID(tid string) (interface{}, bool)
 
 	// GetByName get request via poll name from read/poll task map
-	GetByName(name string) (mbtcpReadTask, bool)
+	//GetByName(name string) (mbtcpReadTask, bool)
+	GetByName(name string) (interface{}, bool)
 
 	// GetAll get all requests from read/poll task map
-	GetAll() []MbtcpPollStatus
+	//GetAll() []MbtcpPollStatus
+	GetAll() interface{}
 
 	// DeleteAll remove all requests from read/poll task map
 	DeleteAll()

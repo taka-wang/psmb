@@ -1,7 +1,7 @@
 /*
-Package psmb provides a proactive service library for modbus daemon.
+Package psmbtcp provides a proactive service library for modbus daemon.
 */
-package psmb
+package psmbtcp
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/taka-wang/gocron"
+	. "github.com/taka-wang/psmb"
 	log "github.com/takawang/logrus"
 	zmq "github.com/takawang/zmq3"
 )
@@ -27,9 +28,9 @@ const (
 // MbtcpService modbusd tcp proactive service type
 type MbtcpService struct {
 	// readerMap read/poll task map
-	readerMap MbtcpReadTask
+	readerMap ReaderTaskMap
 	// writerMap write task map
-	writerMap MbtcpWriteTask
+	writerMap WriterTaskMap
 	// scheduler gocron scheduler
 	scheduler gocron.Scheduler
 	// sub ZMQ subscriber endpoints
@@ -53,7 +54,7 @@ type MbtcpService struct {
 }
 
 // NewPSMBTCP modbus tcp proactive serivce constructor
-func NewPSMBTCP(r MbtcpReadTask, w MbtcpWriteTask, s gocron.Scheduler) ProactiveService {
+func NewPSMBTCP(r ReaderTaskMap, w WriterTaskMap, s gocron.Scheduler) ProactiveService {
 	return &MbtcpService{
 		enable:    true,
 		readerMap: r,
@@ -162,9 +163,9 @@ func (b *MbtcpService) naiveResponder(cmd string, resp interface{}) error {
 	return nil
 }
 
-// parseRequest parse requests from services,
+// ParseRequest parse requests from services,
 // only unmarshal request string to corresponding struct
-func (b *MbtcpService) parseRequest(msg []string) (interface{}, error) {
+func (b *MbtcpService) ParseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
@@ -290,9 +291,9 @@ func (b *MbtcpService) parseRequest(msg []string) (interface{}, error) {
 	}
 }
 
-// handleRequest handle requests from services
+// HandleRequest handle requests from services
 // do error checking
-func (b *MbtcpService) handleRequest(cmd string, r interface{}) error {
+func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle request from upstream services")
 
 	switch cmd {
@@ -487,7 +488,8 @@ func (b *MbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbtcpGetPoll: // done
 		req := r.(MbtcpPollOpReq)
-		task, ok := b.readerMap.GetByName(req.Name)
+		t, ok := b.readerMap.GetByName(req.Name)
+		task := t.(mbtcpReadTask) // type casting
 		if !ok {
 			err := ErrInvalidPollName // not in read/poll task map
 			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
@@ -558,7 +560,7 @@ func (b *MbtcpService) handleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbtcpGetPolls, mbtcpExportPolls: // done
 		req := r.(MbtcpPollOpReq)
-		reqs := b.readerMap.GetAll()
+		reqs := b.readerMap.GetAll().([]MbtcpPollStatus) // type casting
 		//log.WithFields(log.Fields{"reqs": reqs}).Debug("taka: after GetAll")
 		resp := MbtcpPollsStatus{
 			Tid:    req.Tid,
@@ -675,9 +677,9 @@ func (b *MbtcpService) handleRequest(cmd string, r interface{}) error {
 	}
 }
 
-// parseResponse parse responses from modbusd
+// ParseResponse parse responses from modbusd
 // only unmarshal response string to corresponding struct
-func (b *MbtcpService) parseResponse(msg []string) (interface{}, error) {
+func (b *MbtcpService) ParseResponse(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
@@ -703,9 +705,9 @@ func (b *MbtcpService) parseResponse(msg []string) (interface{}, error) {
 	}
 }
 
-// handleResponse handle responses from modbusd,
+// HandleResponse handle responses from modbusd,
 // Todo: filter, handle
-func (b *MbtcpService) handleResponse(cmd string, r interface{}) error {
+func (b *MbtcpService) HandleResponse(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response from modbusd")
 
 	switch MbtcpCmdType(cmd) {
@@ -764,11 +766,14 @@ func (b *MbtcpService) handleResponse(cmd string, r interface{}) error {
 		var response interface{}
 		var task mbtcpReadTask
 		var ok bool
+		var t interface{}
 
 		// check read task table
-		if task, ok = b.readerMap.GetByTID(res.Tid); !ok {
+		if t, ok = b.readerMap.GetByTID(res.Tid); !ok {
 			return ErrRequestNotFound
 		}
+		task = t.(mbtcpReadTask) // type casting
+
 		// default response command string
 		respCmd := task.Cmd
 
@@ -1106,9 +1111,9 @@ func (b *MbtcpService) Start() {
 				}).Debug("Receive request from upstream services")
 
 				// parse request
-				if req, err := b.parseRequest(msg); req != nil {
+				if req, err := b.ParseRequest(msg); req != nil {
 					// handle request
-					err = b.handleRequest(msg[0], req)
+					err = b.HandleRequest(msg[0], req)
 					if err != nil {
 						log.WithFields(log.Fields{
 							"cmd": msg[0],
@@ -1133,9 +1138,9 @@ func (b *MbtcpService) Start() {
 				}).Debug("Receive response from modbusd")
 
 				// parse response
-				if res, err := b.parseResponse(msg); res != nil {
+				if res, err := b.ParseResponse(msg); res != nil {
 					// handle response
-					err = b.handleResponse(msg[0], res)
+					err = b.HandleResponse(msg[0], res)
 					if err != nil {
 						log.WithFields(log.Fields{
 							"cmd": msg[0],

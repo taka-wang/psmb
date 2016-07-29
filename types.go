@@ -5,16 +5,6 @@ import (
 	"strings"
 )
 
-// mbtcpReadTask read/poll task request
-type mbtcpReadTask struct {
-	// Name task name
-	Name string
-	// Cmd zmq frame 1
-	Cmd string
-	// Req request structure
-	Req interface{}
-}
-
 // ScaleRange defines scale range
 type ScaleRange struct {
 	DomainLow  float64 `json:"a"`
@@ -22,9 +12,6 @@ type ScaleRange struct {
 	RangeLow   float64 `json:"c"`
 	RangeHigh  float64 `json:"d"`
 }
-
-// MbtcpCmdType defines modbus tcp command type
-type MbtcpCmdType string
 
 // JSONableByteSlice jsonable uint8 array
 type JSONableByteSlice []byte
