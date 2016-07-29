@@ -1,8 +1,9 @@
-package psmbtcp
+package mbtcp_test
 
 import (
 	"testing"
 
+	. "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 

@@ -1,4 +1,4 @@
-package psmbtcp
+package mbtcp
 
 import (
 	"sync"

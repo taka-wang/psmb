@@ -1,4 +1,4 @@
-package psmbtcp
+package mbtcp
 
 // Upstream & Downstream command tables
 
