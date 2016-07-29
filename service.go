@@ -53,7 +53,7 @@ type MbtcpService struct {
 }
 
 // NewPSMBTCP modbus tcp proactive serivce constructor
-func NewPSMBTCP(r MbtcpReadTask, w writerMap, s gocron.Scheduler) ProactiveService {
+func NewPSMBTCP(r MbtcpReadTask, w MbtcpWriteTask, s gocron.Scheduler) ProactiveService {
 	return &MbtcpService{
 		enable:    true,
 		readerMap: r,
