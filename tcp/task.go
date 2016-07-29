@@ -22,8 +22,8 @@ type WriteTaskType struct {
 // NewMbtcpWriterMap instantiate mbtcp write task map
 func NewMbtcpWriterMap() WriteTaskType {
 	return WriteTaskType{
-		mutex : new(sync.RWMutex)
-		m: make(map[string]string),
+		mutex: new(sync.RWMutex),
+		m:     make(map[string]string),
 	}
 }
 
