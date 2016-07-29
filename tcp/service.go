@@ -765,10 +765,9 @@ func (b *MbtcpService) handleResponse(cmd string, r interface{}) error {
 
 		var response interface{}
 		var task mbtcpReadTask
-		var ok bool
 
 		// check read task table
-		if t, ok = b.readerMap.GetByTID(res.Tid); !ok {
+		if t, ok := b.readerMap.GetByTID(res.Tid); !ok {
 			return ErrRequestNotFound
 		}
 		task = t.(mbtcpReadTask) // type casting

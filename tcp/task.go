@@ -1,6 +1,10 @@
 package psmbtcp
 
-import "sync"
+import (
+	"sync"
+
+	psmb "github.com/taka-wang/psmb"
+)
 
 //
 // Implementations
@@ -112,11 +116,11 @@ func (s *mbtcpReadTaskType) GetByName(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from read/poll task map
-func (s *mbtcpReadTaskType) GetAll() []MbtcpPollStatus {
-	arr := []MbtcpPollStatus{}
+func (s *mbtcpReadTaskType) GetAll() []psmb.MbtcpPollStatus {
+	arr := []psmb.MbtcpPollStatus{}
 	s.RLock()
 	for _, v := range s.nameMap {
-		if item, ok := v.Req.(MbtcpPollStatus); ok { // type casting check!
+		if item, ok := v.Req.(psmb.MbtcpPollStatus); ok { // type casting check!
 			arr = append(arr, item)
 		}
 	}
@@ -177,7 +181,7 @@ func (s *mbtcpReadTaskType) UpdateInterval(name string, interval uint64) error {
 		return ErrInvalidPollName
 	}
 
-	req, ok2 := task.Req.(MbtcpPollStatus)
+	req, ok2 := task.Req.(psmb.MbtcpPollStatus)
 	if !ok2 {
 		return ErrInvalidPollName
 	}
@@ -201,7 +205,7 @@ func (s *mbtcpReadTaskType) UpdateToggle(name string, toggle bool) error {
 		return ErrInvalidPollName
 	}
 
-	req, ok2 := task.Req.(MbtcpPollStatus) // type casting check!
+	req, ok2 := task.Req.(psmb.MbtcpPollStatus) // type casting check!
 	if !ok2 {
 		return ErrInvalidPollName
 	}
@@ -218,7 +222,7 @@ func (s *mbtcpReadTaskType) UpdateToggle(name string, toggle bool) error {
 func (s *mbtcpReadTaskType) UpdateAllToggles(toggle bool) {
 	s.Lock()
 	for name, task := range s.nameMap {
-		if req, ok := task.Req.(MbtcpPollStatus); ok { // type casting check!
+		if req, ok := task.Req.(psmb.MbtcpPollStatus); ok { // type casting check!
 			req.Enabled = toggle                                 // update flag
 			s.nameMap[name] = mbtcpReadTask{name, task.Cmd, req} // update nameMap table
 			tid, _ := s.nameID[name]                             // get Tid
