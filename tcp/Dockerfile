@@ -1,8 +1,10 @@
-FROM takawang/psmb:x86
+FROM takawang/gozmq:pull
 MAINTAINER Taka Wang <taka@cmwang.net>
 
-ADD . /go/
-RUN cd /go/ && go test -v
+WORKDIR /go
+RUN go get -u github.com/taka-wang/psmb
 
-#CMD go test -v
-
+## Load app files
+ADD . /go/src/github.com/taka-wang/psmb/tcp
+WORKDIR /go/src/github.com/taka-wang/psmb/tcp
+RUN go get -t ./... && go test -v

@@ -1,8 +1,12 @@
-FROM takawang/psmb:x86
+FROM takawang/gozmq:pull
 MAINTAINER Taka Wang <taka@cmwang.net>
 
-ADD . /go/
-RUN cd /go/ \
+WORKDIR /go
+RUN go get -u github.com/taka-wang/psmb/tcp
+
+ADD . /go/src/github.com/taka-wang/psmb/tcp-srv
+WORKDIR /go/src/github.com/taka-wang/psmb/tcp-srv
+RUN go get -t ./... \
     && go build -o psmbtcp-srv \
     && cp psmbtcp-srv /usr/bin/ 
 
