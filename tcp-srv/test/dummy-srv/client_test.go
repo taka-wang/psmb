@@ -1,4 +1,4 @@
-package main
+package dummysrv_test
 
 import (
 	"encoding/json"
