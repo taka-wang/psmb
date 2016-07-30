@@ -6,10 +6,10 @@ import (
 )
 
 func main() {
-	srv := mbtcp.NewPSMBTCP(
-		mbtcp.NewMbtcpReaderMap(), // readerMap
-		mbtcp.NewMbtcpWriterMap(), // writerMap
-		gocron.NewScheduler(),     // scheduler
+	srv := mbtcp.NewService(
+		mbtcp.NewReaderMap(),  // readerMap
+		mbtcp.NewWriterMap(),  // writerMap
+		gocron.NewScheduler(), // scheduler
 	)
 	srv.Start()
 }

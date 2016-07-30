@@ -4,9 +4,9 @@ package psmb
 // Interfaces
 //
 
-// ProactiveService proactive service contracts,
+// IProactiveService proactive service contracts,
 // all services should implement the following methods.
-type ProactiveService interface {
+type IProactiveService interface {
 	// Start enable proactive service
 	Start()
 	// Stop disable proactive service
@@ -21,9 +21,9 @@ type ProactiveService interface {
 	HandleResponse(cmd string, r interface{}) error
 }
 
-// WriterTaskMap write task interface
+// IWriterTaskMap write task interface
 //	(Tid, Command) map
-type WriterTaskMap interface {
+type IWriterTaskMap interface {
 	// Add add request to write task map,
 	// params: TID, CMD strings.
 	Add(tid, cmd string)
@@ -38,8 +38,8 @@ type WriterTaskMap interface {
 	Delete(tid string)
 }
 
-// ReaderTaskMap read task interface
-type ReaderTaskMap interface {
+// IReaderTaskMap read task interface
+type IReaderTaskMap interface {
 	// Add add request to read/poll task map
 	Add(name, tid, cmd string, req interface{})
 

@@ -11,7 +11,7 @@ func TestMbtcpWriteTask(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`add` task to map", func(log sugar.Log) bool {
-		writerMap := NewMbtcpWriterMap()
+		writerMap := NewWriterMap()
 		writerMap.Add("123456", "12")
 		log("add `123456` to table")
 		writerMap.Add("234561", "34")

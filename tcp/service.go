@@ -14,7 +14,7 @@ import (
 	zmq "github.com/takawang/zmq3"
 )
 
-// @Implement ProactiveService contract implicitly
+// @Implement IProactiveService contract implicitly
 
 const (
 	// defaultMbtcpPort default modbus slave port number
@@ -28,9 +28,9 @@ const (
 // MbtcpService modbusd tcp proactive service type
 type MbtcpService struct {
 	// readerMap read/poll task map
-	readerMap ReaderTaskMap
+	readerMap IReaderTaskMap
 	// writerMap write task map
-	writerMap WriterTaskMap
+	writerMap IWriterTaskMap
 	// scheduler gocron scheduler
 	scheduler gocron.Scheduler
 	// sub ZMQ subscriber endpoints
@@ -53,8 +53,8 @@ type MbtcpService struct {
 	enable bool
 }
 
-// NewPSMBTCP modbus tcp proactive serivce constructor
-func NewPSMBTCP(r ReaderTaskMap, w WriterTaskMap, s gocron.Scheduler) ProactiveService {
+// NewService modbus tcp proactive serivce constructor
+func NewService(r IReaderTaskMap, w IWriterTaskMap, s gocron.Scheduler) IProactiveService {
 	return &MbtcpService{
 		enable:    true,
 		readerMap: r,
@@ -489,7 +489,7 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 	case mbtcpGetPoll: // done
 		req := r.(MbtcpPollOpReq)
 		t, ok := b.readerMap.GetByName(req.Name)
-		task := t.(mbtcpReadTask) // type casting
+		task := t.(ReaderTask) // type casting
 		if !ok {
 			err := ErrInvalidPollName // not in read/poll task map
 			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
@@ -764,7 +764,7 @@ func (b *MbtcpService) HandleResponse(cmd string, r interface{}) error {
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 
 		var response interface{}
-		var task mbtcpReadTask
+		var task ReaderTask
 		var ok bool
 		var t interface{}
 
@@ -772,7 +772,7 @@ func (b *MbtcpService) HandleResponse(cmd string, r interface{}) error {
 		if t, ok = b.readerMap.GetByTID(res.Tid); !ok {
 			return ErrRequestNotFound
 		}
-		task = t.(mbtcpReadTask) // type casting
+		task = t.(ReaderTask) // type casting
 
 		// default response command string
 		respCmd := task.Cmd
