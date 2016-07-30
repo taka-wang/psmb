@@ -9,7 +9,7 @@ pipeline:
         commands:
             - docker build --no-cache=true .
 
-    test-psmbtcp:
+    test-psmb-tcp:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
