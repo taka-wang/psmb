@@ -2,52 +2,52 @@ package tcp
 
 // Upstream & Downstream command tables
 
-// MbtcpCmdType defines modbus tcp command type
-type MbtcpCmdType string
+// MbCmdType defines modbus tcp command type
+type MbCmdType string
 
 // command table for modbusd
 const (
-	fc1  MbtcpCmdType = "1"
-	fc2  MbtcpCmdType = "2"
-	fc3  MbtcpCmdType = "3"
-	fc4  MbtcpCmdType = "4"
-	fc5  MbtcpCmdType = "5"
-	fc6  MbtcpCmdType = "6"
-	fc15 MbtcpCmdType = "15"
-	fc16 MbtcpCmdType = "16"
+	fc1  MbCmdType = "1"
+	fc2  MbCmdType = "2"
+	fc3  MbCmdType = "3"
+	fc4  MbCmdType = "4"
+	fc5  MbCmdType = "5"
+	fc6  MbCmdType = "6"
+	fc15 MbCmdType = "15"
+	fc16 MbCmdType = "16"
 	// setTCPTimeout set TCP connection timeout
-	setTCPTimeout MbtcpCmdType = "50"
+	setTCPTimeout MbCmdType = "50"
 	// getTCPTimeout get TCP connection timeout
-	getTCPTimeout MbtcpCmdType = "51"
+	getTCPTimeout MbCmdType = "51"
 )
 
 // command table for upstream services
 const (
-	mbtcpOnceRead       = "mbtcp.once.read"
-	mbtcpOnceWrite      = "mbtcp.once.write"
-	mbtcpGetTimeout     = "mbtcp.timeout.read"
-	mbtcpSetTimeout     = "mbtcp.timeout.update"
-	mbtcpCreatePoll     = "mbtcp.poll.create"
-	mbtcpUpdatePoll     = "mbtcp.poll.update"
-	mbtcpGetPoll        = "mbtcp.poll.read"
-	mbtcpDeletePoll     = "mbtcp.poll.delete"
-	mbtcpTogglePoll     = "mbtcp.poll.toggle"
-	mbtcpGetPolls       = "mbtcp.polls.read"
-	mbtcpDeletePolls    = "mbtcp.polls.delete"
-	mbtcpTogglePolls    = "mbtcp.polls.toggle"
-	mbtcpImportPolls    = "mbtcp.polls.import"
-	mbtcpExportPolls    = "mbtcp.polls.export"
-	mbtcpGetPollHistory = "mbtcp.poll.history"
-	mbtcpCreateFilter   = "mbtcp.filter.create"
-	mbtcpUpdateFilter   = "mbtcp.filter.update"
-	mbtcpGetFilter      = "mbtcp.filter.read"
-	mbtcpDeleteFilter   = "mbtcp.filter.delete"
-	mbtcpToggleFilter   = "mbtcp.filter.toggle"
-	mbtcpGetFilters     = "mbtcp.filters.read"
-	mbtcpDeleteFilters  = "mbtcp.filters.delete"
-	mbtcpToggleFilters  = "mbtcp.filters.toggle"
-	mbtcpImportFilters  = "mbtcp.filters.import"
-	mbtcpExportFilters  = "mbtcp.filters.export"
+	mbOnceRead       = "mbtcp.once.read"
+	mbOnceWrite      = "mbtcp.once.write"
+	mbGetTimeout     = "mbtcp.timeout.read"
+	mbSetTimeout     = "mbtcp.timeout.update"
+	mbCreatePoll     = "mbtcp.poll.create"
+	mbUpdatePoll     = "mbtcp.poll.update"
+	mbGetPoll        = "mbtcp.poll.read"
+	mbDeletePoll     = "mbtcp.poll.delete"
+	mbTogglePoll     = "mbtcp.poll.toggle"
+	mbGetPolls       = "mbtcp.polls.read"
+	mbDeletePolls    = "mbtcp.polls.delete"
+	mbTogglePolls    = "mbtcp.polls.toggle"
+	mbImportPolls    = "mbtcp.polls.import"
+	mbExportPolls    = "mbtcp.polls.export"
+	mbGetPollHistory = "mbtcp.poll.history"
+	mbCreateFilter   = "mbtcp.filter.create"
+	mbUpdateFilter   = "mbtcp.filter.update"
+	mbGetFilter      = "mbtcp.filter.read"
+	mbDeleteFilter   = "mbtcp.filter.delete"
+	mbToggleFilter   = "mbtcp.filter.toggle"
+	mbGetFilters     = "mbtcp.filters.read"
+	mbDeleteFilters  = "mbtcp.filters.delete"
+	mbToggleFilters  = "mbtcp.filters.toggle"
+	mbImportFilters  = "mbtcp.filters.import"
+	mbExportFilters  = "mbtcp.filters.export"
 	// Poll data
-	mbtcpData = "mbtcp.data"
+	mbData = "mbtcp.data"
 )

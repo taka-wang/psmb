@@ -120,7 +120,8 @@ func (s *ReaderTaskType) GetAll() interface{} {
 	arr := []psmb.MbtcpPollStatus{}
 	s.RLock()
 	for _, v := range s.nameMap {
-		if item, ok := v.Req.(psmb.MbtcpPollStatus); ok { // type casting check!
+		// type casting check!
+		if item, ok := v.Req.(psmb.MbtcpPollStatus); ok {
 			arr = append(arr, item)
 		}
 	}
@@ -204,8 +205,8 @@ func (s *ReaderTaskType) UpdateToggle(name string, toggle bool) error {
 	if !ok {
 		return ErrInvalidPollName
 	}
-
-	req, ok2 := task.Req.(psmb.MbtcpPollStatus) // type casting check!
+	// type casting check!
+	req, ok2 := task.Req.(psmb.MbtcpPollStatus)
 	if !ok2 {
 		return ErrInvalidPollName
 	}
@@ -222,7 +223,8 @@ func (s *ReaderTaskType) UpdateToggle(name string, toggle bool) error {
 func (s *ReaderTaskType) UpdateAllToggles(toggle bool) {
 	s.Lock()
 	for name, task := range s.nameMap {
-		if req, ok := task.Req.(psmb.MbtcpPollStatus); ok { // type casting check!
+		// type casting check!
+		if req, ok := task.Req.(psmb.MbtcpPollStatus); ok {
 			req.Enabled = toggle                              // update flag
 			s.nameMap[name] = ReaderTask{name, task.Cmd, req} // update nameMap table
 			tid, _ := s.nameID[name]                          // get Tid

@@ -29,7 +29,7 @@
 - [x] implement integration test for mbtcp.once.write
 - [x] handle default port and fc15/fc16 length
 - [x] define polling commands
-- [x] define MbtcpCmdType for modbusd
+- [x] define MbCmdType for modbusd
 - [x] implement mutex lock for write map
 - [x] implement integration test for mbtcp.timeout.read
 - [x] implement integration test for mbtcp.timeout.update
