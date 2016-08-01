@@ -1,4 +1,4 @@
-package mrds
+package mwds
 
 import (
 	"sync"
