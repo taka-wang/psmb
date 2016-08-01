@@ -52,11 +52,6 @@ func Create(conf map[string]string, key string) (interface{}, error) {
 // CreateWriterTaskDataStore create writer task data store
 func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 
-	ret, err := Create(conf, "WriterDataStore")
-	if ret != nil {
-		ds, err2 := ret
-	}
-
 	defaultDS := "memory"
 	if got, ok := conf["WriterDataStore"]; ok {
 		defaultDS = got
