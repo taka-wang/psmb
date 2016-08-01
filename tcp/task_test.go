@@ -7,7 +7,7 @@ import (
 	"github.com/takawang/sugar"
 )
 
-func TestMbtcpWriteTask(t *testing.T) {
+func TestWriterMap(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`add` task to map", func(log sugar.Log) bool {

@@ -23,5 +23,5 @@ go get -u github.com/taka-wang/psmb/tcp
 
 ### Task
 
-- [x] MbtcpWriteTask map tests
+- [x] TestWriterMap tests
 - [x] `add` task to map

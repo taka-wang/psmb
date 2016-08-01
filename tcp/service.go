@@ -17,16 +17,16 @@ import (
 // @Implement IProactiveService contract implicitly
 
 const (
-	// defaultMbtcpPort default modbus slave port number
-	defaultMbtcpPort = "502"
-	// minMbtcpTimeout minimal modbus tcp connection timeout
-	minMbtcpTimeout = 200000
-	// minMbtcpPollInterval minimal modbus tcp poll interval
-	minMbtcpPollInterval = 1
+	// defaultMbPort default modbus slave port number
+	defaultMbPort = "502"
+	// minConnTimeout minimal modbus tcp connection timeout
+	minConnTimeout = 200000
+	// minPollInterval minimal modbus tcp poll interval
+	minPollInterval = 1
 )
 
-// MbtcpService modbusd tcp proactive service type
-type MbtcpService struct {
+// Service modbusd tcp proactive service type
+type Service struct {
 	// readerMap read/poll task map
 	readerMap IReaderTaskMap
 	// writerMap write task map
@@ -55,7 +55,7 @@ type MbtcpService struct {
 
 // NewService modbus tcp proactive serivce constructor
 func NewService(r IReaderTaskMap, w IWriterTaskMap, s gocron.Scheduler) IProactiveService {
-	return &MbtcpService{
+	return &Service{
 		enable:    true,
 		readerMap: r,
 		writerMap: w,
@@ -64,7 +64,7 @@ func NewService(r IReaderTaskMap, w IWriterTaskMap, s gocron.Scheduler) IProacti
 }
 
 // initLogger init logger
-func (b *MbtcpService) initLogger() {
+func (b *Service) initLogger() {
 	// Log as JSON instead of the default ASCII formatter.
 	//log.SetFormatter(&log.JSONFormatter{})
 
@@ -98,7 +98,7 @@ func Marshal(r interface{}) (string, error) {
 }
 
 // Task for gocron scheduler
-func (b *MbtcpService) Task(socket *zmq.Socket, req interface{}) {
+func (b *Service) Task(socket *zmq.Socket, req interface{}) {
 	str, err := Marshal(req)
 	if err != nil {
 		// TODO: remove table
@@ -112,7 +112,7 @@ func (b *MbtcpService) Task(socket *zmq.Socket, req interface{}) {
 // initZMQPub init ZMQ publishers.
 // Example:
 // 	initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
-func (b *MbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
+func (b *Service) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
 	log.Debug("Init ZMQ Publishers")
 	// upstream publisher
 	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
@@ -126,7 +126,7 @@ func (b *MbtcpService) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
 // initZMQSub init ZMQ subscribers.
 // Example:
 // 	initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
-func (b *MbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
+func (b *Service) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
 	log.Debug("Init ZMQ Subscribers")
 	// upstream subscriber
 	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
@@ -141,7 +141,7 @@ func (b *MbtcpService) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint strin
 
 // initZMQPoller init ZMQ poller.
 // polling from upstream services and downstream modbusd
-func (b *MbtcpService) initZMQPoller() {
+func (b *Service) initZMQPoller() {
 	log.Debug("Init ZMQ Poller")
 	// initialize poll set
 	b.poller = zmq.NewPoller()
@@ -150,7 +150,7 @@ func (b *MbtcpService) initZMQPoller() {
 }
 
 // naiveResponder naive responder to send message back to upstream.
-func (b *MbtcpService) naiveResponder(cmd string, resp interface{}) error {
+func (b *Service) naiveResponder(cmd string, resp interface{}) error {
 	respStr, err := Marshal(resp)
 	if err != nil {
 		log.WithFields(log.Fields{"error": err}).Error("Fail to marshal for naive responder!")
@@ -165,7 +165,7 @@ func (b *MbtcpService) naiveResponder(cmd string, resp interface{}) error {
 
 // ParseRequest parse requests from services,
 // only unmarshal request string to corresponding struct
-func (b *MbtcpService) ParseRequest(msg []string) (interface{}, error) {
+func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
@@ -293,14 +293,14 @@ func (b *MbtcpService) ParseRequest(msg []string) (interface{}, error) {
 
 // HandleRequest handle requests from services
 // do error checking
-func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
+func (b *Service) HandleRequest(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle request from upstream services")
 
 	switch cmd {
 	case mbGetTimeout: // done
 		req := r.(MbtcpTimeoutReq)
-		TidStr := strconv.FormatInt(req.Tid, 10)         // convert tid to string
-		cmdInt, _ := strconv.Atoi(string(getTCPTimeout)) // convert to modbusd command
+		TidStr := strconv.FormatInt(req.Tid, 10)        // convert tid to string
+		cmdInt, _ := strconv.Atoi(string(getMbTimeout)) // convert to modbusd command
 		command := DMbtcpTimeout{
 			Tid: TidStr,
 			Cmd: cmdInt,
@@ -313,15 +313,15 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 	case mbSetTimeout: // done
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
-		cmdInt, _ := strconv.Atoi(string(setTCPTimeout))
+		cmdInt, _ := strconv.Atoi(string(setMbTimeout))
 		command := DMbtcpTimeout{
 			Tid: TidStr,
 			Cmd: cmdInt,
 		}
 
 		// protect invalid timeout value
-		if req.Data < minMbtcpTimeout {
-			command.Timeout = minMbtcpTimeout
+		if req.Data < minConnTimeout {
+			command.Timeout = minConnTimeout
 		} else {
 			command.Timeout = req.Data
 		}
@@ -336,7 +336,7 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 
 		// protect null port
 		if req.Port == "" {
-			req.Port = defaultMbtcpPort
+			req.Port = defaultMbPort
 		}
 
 		// length checker
@@ -379,7 +379,7 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 
 		// protect null port
 		if req.Port == "" {
-			req.Port = defaultMbtcpPort
+			req.Port = defaultMbPort
 		}
 
 		// length checker
@@ -426,7 +426,7 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 
 		// protect null port
 		if req.Port == "" {
-			req.Port = defaultMbtcpPort
+			req.Port = defaultMbPort
 		}
 
 		// length checker
@@ -435,8 +435,8 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 		}
 
 		// check interval value
-		if req.Interval < minMbtcpPollInterval {
-			req.Interval = minMbtcpPollInterval
+		if req.Interval < minPollInterval {
+			req.Interval = minPollInterval
 		}
 
 		command := DMbtcpReadReq{
@@ -465,8 +465,8 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 		status := "ok"
 
 		// check interval value
-		if req.Interval < minMbtcpPollInterval {
-			req.Interval = minMbtcpPollInterval
+		if req.Interval < minPollInterval {
+			req.Interval = minPollInterval
 		}
 
 		// update task interval
@@ -608,7 +608,7 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 
 			// protect null port
 			if req.Port == "" {
-				req.Port = defaultMbtcpPort
+				req.Port = defaultMbPort
 			}
 
 			// length checker
@@ -617,8 +617,8 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 			}
 
 			// check interval value
-			if req.Interval < minMbtcpPollInterval {
-				req.Interval = minMbtcpPollInterval
+			if req.Interval < minPollInterval {
+				req.Interval = minPollInterval
 			}
 
 			TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
@@ -679,7 +679,7 @@ func (b *MbtcpService) HandleRequest(cmd string, r interface{}) error {
 
 // ParseResponse parse responses from modbusd
 // only unmarshal response string to corresponding struct
-func (b *MbtcpService) ParseResponse(msg []string) (interface{}, error) {
+func (b *Service) ParseResponse(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
@@ -688,7 +688,7 @@ func (b *MbtcpService) ParseResponse(msg []string) (interface{}, error) {
 	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parse response from modbusd")
 
 	switch MbCmdType(msg[0]) {
-	case setTCPTimeout, getTCPTimeout:
+	case setMbTimeout, getMbTimeout:
 		var res DMbtcpTimeout
 		if err := json.Unmarshal([]byte(msg[1]), &res); err != nil {
 			return nil, ErrUnmarshal
@@ -707,29 +707,29 @@ func (b *MbtcpService) ParseResponse(msg []string) (interface{}, error) {
 
 // HandleResponse handle responses from modbusd,
 // Todo: filter, handle
-func (b *MbtcpService) HandleResponse(cmd string, r interface{}) error {
+func (b *Service) HandleResponse(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response from modbusd")
 
 	switch MbCmdType(cmd) {
-	case fc5, fc6, fc15, fc16, setTCPTimeout, getTCPTimeout: // done: one-off requests
+	case fc5, fc6, fc15, fc16, setMbTimeout, getMbTimeout: // done: one-off requests
 		var TidStr string
 		var resp interface{}
 
 		switch MbCmdType(cmd) {
-		case setTCPTimeout, getTCPTimeout: // one-off timeout requests
+		case setMbTimeout, getMbTimeout: // one-off timeout requests
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
 
 			var data int64
-			if MbCmdType(cmd) == getTCPTimeout {
+			if MbCmdType(cmd) == getMbTimeout {
 				data = res.Timeout
 			}
 
 			resp = MbtcpTimeoutRes{
 				Tid:    tid,
 				Status: res.Status,
-				Data:   data, // getTCPTimeout only
+				Data:   data, // getMbTimeout only
 			}
 		case fc5, fc6, fc15, fc16: // one-off write requests
 			res := r.(DMbtcpRes)
@@ -1089,7 +1089,7 @@ func (b *MbtcpService) HandleResponse(cmd string, r interface{}) error {
 }
 
 // Start enable proactive service
-func (b *MbtcpService) Start() {
+func (b *Service) Start() {
 	b.initLogger()
 	log.Debug("Start proactive service")
 	b.scheduler.Start()
@@ -1161,7 +1161,7 @@ func (b *MbtcpService) Start() {
 }
 
 // Stop disable proactive service
-func (b *MbtcpService) Stop() {
+func (b *Service) Stop() {
 	log.Debug("Stop proactive service")
 	b.scheduler.Stop()
 	b.enable = false

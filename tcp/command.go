@@ -15,10 +15,10 @@ const (
 	fc6  MbCmdType = "6"
 	fc15 MbCmdType = "15"
 	fc16 MbCmdType = "16"
-	// setTCPTimeout set TCP connection timeout
-	setTCPTimeout MbCmdType = "50"
-	// getTCPTimeout get TCP connection timeout
-	getTCPTimeout MbCmdType = "51"
+	// setMbTimeout set TCP connection timeout
+	setMbTimeout MbCmdType = "50"
+	// getMbTimeout get TCP connection timeout
+	getMbTimeout MbCmdType = "51"
 )
 
 // command table for upstream services
