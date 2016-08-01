@@ -44,7 +44,7 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 
 	if ef != nil {
 		fmt.Println(reflect.TypeOf(ef))
-		if f, ok := ef.(func(map[string]string) (psmb.IWriterTaskDataStore, error)); ok {
+		if f, ok := ef.(func(map[string]string) (interface{}, error)); ok {
 			got, ok2 := f(conf)
 			return got.(psmb.IWriterTaskDataStore), ok2
 		}
@@ -55,13 +55,15 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	return nil, ErrInvalidDataStoreName
 }
 
+// func(map[string]string) (interface {}, error)
+
 // createReaderDS real factory method
 func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 	ef, _ := createDS(conf, readerDS)
 
 	if ef != nil {
 		fmt.Println(reflect.TypeOf(ef))
-		if f, ok := ef.(func(map[string]string) (psmb.IReaderTaskDataStore, error)); ok {
+		if f, ok := ef.(func(map[string]string) (interface{}, error)); ok {
 			got, ok2 := f(conf)
 			return got.(psmb.IReaderTaskDataStore), ok2
 		}
