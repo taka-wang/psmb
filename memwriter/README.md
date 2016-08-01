@@ -5,7 +5,7 @@ Memory writer map
 ## Install
 
 ```
-    go get -u github.com/taka-wang/psmb/memoryWriter
+    go get -u github.com/taka-wang/psmb/memwriter
 ```
 
 ## Test cases

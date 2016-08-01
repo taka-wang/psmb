@@ -1,4 +1,4 @@
-package memoryWriter
+package memwriter
 
 import (
 	"sync"
