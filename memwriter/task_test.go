@@ -21,7 +21,9 @@ func TestWriterMap(t *testing.T) {
 		})
 
 		log(err)
-		if err != nil return false
+		if err != nil {
+			return false
+		}
 
 		writerMap.Add("123456", "12")
 		log("add `123456` to table")
