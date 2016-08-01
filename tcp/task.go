@@ -70,7 +70,7 @@ type WriterTaskDataStore struct {
 }
 
 // NewWriterTaskDataStore instantiate mbtcp write task map
-func NewWriterTaskDataStore() (psmb.IWriterTaskDataStore, error) {
+func NewWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	return &WriterTaskDataStore{
 		m: make(map[string]string),
 	}, nil
