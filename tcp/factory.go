@@ -19,7 +19,7 @@ type Factory func(conf map[string]string) (interface{}, error)
 type WriterTaskDataStoreFactory func(conf map[string]string) (psmb.IWriterTaskDataStore, error)
 
 // ReaderTaskDataStoreFactory reader factory
-type ReaderTaskDataStoreFactory func(conf map[string]string) (psmb.IWriterTaskDataStore, error)
+type ReaderTaskDataStoreFactory func(conf map[string]string) (psmb.IReaderTaskDataStore, error)
 
 // Register register
 func Register(name string, factory interface{}) {
