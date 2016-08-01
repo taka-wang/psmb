@@ -15,6 +15,34 @@ import (
 	zmq "github.com/takawang/zmq3"
 )
 
+func init() {
+	initLogger()
+}
+
+// initLogger init logger
+func initLogger() {
+	// Log as JSON instead of the default ASCII formatter.
+	//log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stderr instead of stdout, could also be a file.
+	//log.SetOutput(os.Stderr)
+
+	// Only log the warning severity or above.
+	//log.SetLevel(log.WarnLevel)
+
+	/*
+	   if Environment == "production" {
+	       log.SetFormatter(&log.JSONFormatter{})
+	   } else {
+	       // The TextFormatter is default, you don't actually have to do this.
+	       log.SetFormatter(&log.TextFormatter{})
+	   }
+	*/
+	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	log.SetLevel(log.DebugLevel)
+	//log.SetLevel(log.ErrorLevel)
+}
+
 // @Implement IProactiveService contract implicitly
 
 const (
@@ -75,30 +103,6 @@ func NewService(reader, writer string) (IProactiveService, error) {
 		writerMap: writerDataStore,
 		scheduler: gocron.NewScheduler(),
 	}, nil
-}
-
-// initLogger init logger
-func (b *Service) initLogger() {
-	// Log as JSON instead of the default ASCII formatter.
-	//log.SetFormatter(&log.JSONFormatter{})
-
-	// Output to stderr instead of stdout, could also be a file.
-	//log.SetOutput(os.Stderr)
-
-	// Only log the warning severity or above.
-	//log.SetLevel(log.WarnLevel)
-
-	/*
-	   if Environment == "production" {
-	       log.SetFormatter(&log.JSONFormatter{})
-	   } else {
-	       // The TextFormatter is default, you don't actually have to do this.
-	       log.SetFormatter(&log.TextFormatter{})
-	   }
-	*/
-	log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	log.SetLevel(log.DebugLevel)
-	//log.SetLevel(log.ErrorLevel)
 }
 
 // Marshal helper function to marshal structure
@@ -1104,9 +1108,9 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 
 // Start enable proactive service
 func (b *Service) Start() {
-	b.initLogger()
 	log.Debug("Start proactive service")
 	b.scheduler.Start()
+	b.enable = true
 	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
 	b.initZMQPoller()
