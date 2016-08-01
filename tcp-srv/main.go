@@ -2,12 +2,13 @@ package main
 
 import (
 	"github.com/taka-wang/gocron"
+	mwriter "github.com/taka-wang/psmb/memwriter"
 	mbtcp "github.com/taka-wang/psmb/tcp"
 )
 
 func main() {
 
-	writerDataStore, _ := mbtcp.CreateWriterTaskDataStore(map[string]string{
+	writerDataStore, _ := mwriter.CreateWriterTaskDataStore(map[string]string{
 		"DATASTORE": "memory",
 	})
 
