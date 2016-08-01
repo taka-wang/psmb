@@ -8,6 +8,9 @@ var (
 	// ErrTodo is the error of todo
 	ErrTodo = errors.New("TODO")
 
+	// ErrInvalidWriterDataStoreName is the error when the writer store name is not allowed.
+	ErrInvalidWriterDataStoreName = errors.New("Invalid Writer task data store name")
+
 	// ErrWriterDataStoreNotExist is the error when the writer store factory does not exist.
 	ErrWriterDataStoreNotExist = errors.New("Writer task store does not exist!")
 

@@ -1,9 +1,6 @@
 package tcp
 
 import (
-	"errors"
-	"fmt"
-	"strings"
 	"sync"
 
 	psmb "github.com/taka-wang/psmb"
@@ -51,7 +48,7 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 		for k := range WriterTaskDataStoreFactories {
 			availableDatastores = append(availableDatastores, k)
 		}
-		return nil, errors.New(fmt.Errorf("Invalid Datastore name. Must be one of: %s", strings.Join(availableDatastores, ", ")))
+		return nil, ErrInvalidWriterDataStoreName
 	}
 
 	// Run the factory with the configuration.
