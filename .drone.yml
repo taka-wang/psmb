@@ -7,14 +7,14 @@ pipeline:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true memreader/.
+            - docker build --no-cache=true mrds/.
 
     test-mwriter:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true memwriter/.
+            - docker build --no-cache=true mrds/.
 
     test-psmb:
         image: takawang/dind

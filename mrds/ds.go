@@ -1,11 +1,14 @@
-package memreader
+package mrds
 
 import (
+	"errors"
 	"sync"
 
 	psmb "github.com/taka-wang/psmb"
-	mbtcp "github.com/taka-wang/psmb/tcp"
 )
+
+// ErrInvalidPollName is the error when the poll name is empty.
+var ErrInvalidPollName = errors.New("Invalid poll name!")
 
 // @Implement IReaderTaskDataStore contract implicitly
 
@@ -128,12 +131,12 @@ func (s *ReaderTaskDataStore) UpdateIntervalByName(name string, interval uint64)
 	s.RUnlock()
 
 	if !ok {
-		return mbtcp.ErrInvalidPollName
+		return ErrInvalidPollName
 	}
 
 	req, ok2 := task.Req.(psmb.MbtcpPollStatus)
 	if !ok2 {
-		return mbtcp.ErrInvalidPollName
+		return ErrInvalidPollName
 	}
 
 	req.Interval = interval // update interval
@@ -152,12 +155,12 @@ func (s *ReaderTaskDataStore) UpdateToggleByName(name string, toggle bool) error
 	s.RUnlock()
 
 	if !ok {
-		return mbtcp.ErrInvalidPollName
+		return ErrInvalidPollName
 	}
 	// type casting check!
 	req, ok2 := task.Req.(psmb.MbtcpPollStatus)
 	if !ok2 {
-		return mbtcp.ErrInvalidPollName
+		return ErrInvalidPollName
 	}
 
 	req.Enabled = toggle // update flag

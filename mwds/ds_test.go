@@ -1,15 +1,15 @@
-package memwriter_test
+package mwds_test
 
 import (
 	"testing"
 
-	memwriter "github.com/taka-wang/psmb/memwriter"
+	mrds "github.com/taka-wang/psmb/mrds"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
 func init() {
-	psmbtcp.Register("Writer", memwriter.NewDataStore)
+	psmbtcp.Register("Writer", mrds.NewDataStore)
 }
 
 func TestWriterMap(t *testing.T) {

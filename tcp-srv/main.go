@@ -2,14 +2,14 @@ package main
 
 import (
 	"github.com/taka-wang/gocron"
-	mr "github.com/taka-wang/psmb/memreader"
-	mw "github.com/taka-wang/psmb/memwriter"
+	"github.com/taka-wang/psmb/mrds"
+	"github.com/taka-wang/psmb/mwds"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 )
 
 func init() {
-	psmbtcp.Register("Reader", mr.NewDataStore)
-	psmbtcp.Register("Writer", mw.NewDataStore)
+	psmbtcp.Register("Reader", mrds.NewDataStore)
+	psmbtcp.Register("Writer", mwds.NewDataStore)
 }
 
 func main() {

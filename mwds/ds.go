@@ -1,4 +1,4 @@
-package memwriter
+package mrds
 
 import (
 	"sync"

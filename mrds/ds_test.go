@@ -1,9 +1,9 @@
-package memreader_test
+package mrds_test
 
 import (
 	"testing"
 
-	mr "github.com/taka-wang/psmb/memreader"
+	mr "github.com/taka-wang/psmb/mrds"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
