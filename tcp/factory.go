@@ -19,10 +19,10 @@ var Factories = make(map[string]interface{})
 type Factory func(conf map[string]string) (interface{}, error)
 
 // WriterTaskDataStoreFactory writer factory
-type WriterTaskDataStoreFactory func(conf map[string]string) (psmb.IWriterTaskDataStore, error)
+type WriterTaskDataStoreFactory func(map[string]string) (psmb.IWriterTaskDataStore, error)
 
 // ReaderTaskDataStoreFactory reader factory
-type ReaderTaskDataStoreFactory func(conf map[string]string) (psmb.IReaderTaskDataStore, error)
+type ReaderTaskDataStoreFactory func(map[string]string) (psmb.IReaderTaskDataStore, error)
 
 // Register register
 func Register(name string, factory interface{}) {
