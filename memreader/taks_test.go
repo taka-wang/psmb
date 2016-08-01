@@ -17,7 +17,7 @@ func TestMbtcpReadTask(t *testing.T) {
 
 	s.Assert("``add` task to map", func(log sugar.Log) bool {
 		psmbtcp.CreateWriterTaskDataStore(map[string]string{
-			"WriterDataStore": "Reader",
+			"ReaderDataStore": "Reader",
 		})
 		return true
 	})
