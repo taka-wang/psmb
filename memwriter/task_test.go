@@ -3,7 +3,7 @@ package memoryWriterTest
 import (
 	"testing"
 
-    . "github.com/taka-wang/psmb/memwriter"
+    . "github.com/taka-wang/psmb/memoryWriter"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
