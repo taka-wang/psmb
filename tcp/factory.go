@@ -71,7 +71,7 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 
 	if f, err := engineFactory.(psmb.IWriterTaskDataStore); f != nil {
 		fmt.Println("type: ", reflect.TypeOf(f))
-		return f(conf)
+		//return f(conf)
 	}
 
 	return nil, ErrInvalidDataStoreName
@@ -96,7 +96,7 @@ func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStor
 
 	if f, err := engineFactory.(psmb.IReaderTaskDataStore); f != nil {
 		fmt.Println("type: ", reflect.TypeOf(f))
-		return f(conf)
+		//return f(conf)
 	}
 
 	return nil, ErrInvalidDataStoreName
