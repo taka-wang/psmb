@@ -1,24 +1,22 @@
 package main
 
 import (
-	"github.com/taka-wang/gocron"
-	"github.com/taka-wang/psmb/mrds"
-	"github.com/taka-wang/psmb/mwds"
-	psmbtcp "github.com/taka-wang/psmb/tcp"
+	mr "github.com/taka-wang/psmb/mrds"
+	mw "github.com/taka-wang/psmb/mwds"
+	mbtcp "github.com/taka-wang/psmb/tcp"
 )
 
 func init() {
 	// register data stores from packages
-	psmbtcp.Register("Reader", mrds.NewDataStore)
-	psmbtcp.Register("Writer", mwds.NewDataStore)
+	mbtcp.Register("MemReader", mr.NewDataStore)
+	mbtcp.Register("MemWriter", mw.NewDataStore)
 }
 
 func main() {
-	// DI & Factory
-	if srv, _ := psmbtcp.NewService(
-		"Reader",
-		"Writer",
-		gocron.NewScheduler(), // scheduler
+	// dependency injection & factory pattern
+	if srv, _ := mbtcp.NewService(
+		"MemReader", // Reader Data Store
+		"MemWriter", // Writer Data Store
 	); srv != nil {
 		srv.Start()
 	}

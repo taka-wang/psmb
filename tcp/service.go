@@ -55,7 +55,7 @@ type Service struct {
 }
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(reader, writer string, s gocron.Scheduler) (IProactiveService, error) {
+func NewService(reader, writer string) (IProactiveService, error) {
 	// Factory methods
 	readerDataStore, err1 := ReaderDataStoreCreator(reader)
 	if err1 != nil {
@@ -73,7 +73,7 @@ func NewService(reader, writer string, s gocron.Scheduler) (IProactiveService, e
 		enable:    true,
 		readerMap: readerDataStore,
 		writerMap: writerDataStore,
-		scheduler: s,
+		scheduler: gocron.NewScheduler(),
 	}, nil
 }
 
