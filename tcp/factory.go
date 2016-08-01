@@ -41,7 +41,7 @@ func create(conf map[string]string, key string) (interface{}, error) {
 		}
 		return nil, ErrInvalidDataStoreName
 	}
-	return engineFactory, ok
+	return engineFactory, nil
 }
 
 // CreateWriterTaskDataStore create writer task data store
