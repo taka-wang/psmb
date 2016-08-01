@@ -13,9 +13,11 @@ func init() {
 }
 
 func main() {
-	readerDataStore, _ := psmbtcp.CreateReaderDataStore("Reader")
-	writerDataStore, _ := psmbtcp.CreateWriterDataStore("Writer")
+	// Factory
+	readerDataStore, _ := psmbtcp.ReaderDataStoreCreator("Reader")
+	writerDataStore, _ := psmbtcp.WriterDataStoreCreator("Writer")
 
+	// DI
 	srv := psmbtcp.NewService(
 		readerDataStore,       // readerMap
 		writerDataStore,       // writerMap

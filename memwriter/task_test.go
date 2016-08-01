@@ -16,7 +16,7 @@ func TestWriterMap(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`add` task to map", func(log sugar.Log) bool {
-		writerMap, err := psmbtcp.CreateWriterDataStore("Writer")
+		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
 
 		log(err)
 		if err != nil {

@@ -14,33 +14,20 @@ const (
 // Factory Pattern
 //
 
-// Factories factory container
-var Factories = make(map[string]interface{})
+// factories factory container
+var factories = make(map[string]interface{})
 
-// Register register
-func Register(name string, factory interface{}) {
-	if factory == nil {
-		err := ErrDataStoreNotExist
-		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
-	}
-	_, registered := Factories[name]
-	if registered {
-		err := ErrDataStoreExist
-		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
-	}
-	Factories[name] = factory
-}
-
+// createDS real factory method
 func createDS(conf map[string]string, key string) (interface{}, error) {
 	defaultKey := ""
 	if got, ok := conf[key]; ok {
 		defaultKey = got
 	}
 
-	engineFactory, ok := Factories[defaultKey]
+	engineFactory, ok := factories[defaultKey]
 	if !ok {
-		availableDatastores := make([]string, len(Factories))
-		for k := range Factories {
+		availableDatastores := make([]string, len(factories))
+		for k := range factories {
 			availableDatastores = append(availableDatastores, k)
 		}
 		return nil, ErrInvalidDataStoreName
@@ -48,6 +35,7 @@ func createDS(conf map[string]string, key string) (interface{}, error) {
 	return engineFactory, nil
 }
 
+// createWriterDS real factory method
 func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	ef, _ := createDS(conf, writerDS)
 	if ef != nil {
@@ -59,6 +47,7 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	return nil, ErrInvalidDataStoreName
 }
 
+// createReaderDS real factory method
 func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 	ef, _ := createDS(conf, readerDS)
 	if ef != nil {
@@ -70,12 +59,26 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 	return nil, ErrInvalidDataStoreName
 }
 
-// CreateWriterDataStore create writer task data store
-func CreateWriterDataStore(driver string) (psmb.IWriterTaskDataStore, error) {
+// Register register factory methods
+func Register(name string, factory interface{}) {
+	if factory == nil {
+		err := ErrDataStoreNotExist
+		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
+	}
+	_, registered := factories[name]
+	if registered {
+		err := ErrDataStoreExist
+		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
+	}
+	factories[name] = factory
+}
+
+// WriterDataStoreCreator factory method to create writer task data store
+func WriterDataStoreCreator(driver string) (psmb.IWriterTaskDataStore, error) {
 	return createWriterDS(map[string]string{writerDS: driver})
 }
 
-// CreateReaderDataStore create reader task data store
-func CreateReaderDataStore(driver string) (psmb.IReaderTaskDataStore, error) {
+// ReaderDataStoreCreator factory method to create reader task data store
+func ReaderDataStoreCreator(driver string) (psmb.IReaderTaskDataStore, error) {
 	return createReaderDS(map[string]string{readerDS: driver})
 }
