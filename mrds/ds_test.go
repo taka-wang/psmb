@@ -16,7 +16,11 @@ func TestMbtcpReadTask(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("``add` task to map", func(log sugar.Log) bool {
-		psmbtcp.ReaderDataStoreCreator("Reader")
+		_, err := psmbtcp.ReaderDataStoreCreator("Reader")
+		log(err)
+		if err != nil {
+			return false
+		}
 		return true
 	})
 }
