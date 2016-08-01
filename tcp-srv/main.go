@@ -13,7 +13,7 @@ func init() {
 func main() {
 
 	writerDataStore, _ := mbtcp.CreateWriterTaskDataStore(map[string]string{
-		"DATASTORE": "memory",
+		"WriterDataStore": "memory",
 	})
 
 	srv := mbtcp.NewService(

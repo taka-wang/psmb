@@ -33,7 +33,7 @@ func RegisterWriterTask(name string, factory WriterTaskDataStoreFactory) {
 func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 
 	defaultDS := "memory"
-	if got, ok := conf["DATASTORE"]; ok {
+	if got, ok := conf["WriterDataStore"]; ok {
 		defaultDS = got
 	}
 
