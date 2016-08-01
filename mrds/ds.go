@@ -36,99 +36,99 @@ func NewDataStore(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 }
 
 // Add add request to read/poll task map
-func (s *ReaderTaskDataStore) Add(name, tid, cmd string, req interface{}) {
+func (ds *ReaderTaskDataStore) Add(name, tid, cmd string, req interface{}) {
 	if name == "" { // read task instead of poll task
 		name = tid
 	}
 
-	s.Lock()
-	s.idName[tid] = name
-	s.nameID[name] = tid
-	s.nameMap[name] = psmb.ReaderTask{name, cmd, req}
-	s.idMap[tid] = s.nameMap[name]
-	s.Unlock()
+	ds.Lock()
+	ds.idName[tid] = name
+	ds.nameID[name] = tid
+	ds.nameMap[name] = psmb.ReaderTask{name, cmd, req}
+	ds.idMap[tid] = ds.nameMap[name]
+	ds.Unlock()
 }
 
 // GetTaskByID get request via TID from read/poll task map
 // interface{}: ReaderTask
-func (s *ReaderTaskDataStore) GetTaskByID(tid string) (interface{}, bool) {
-	s.RLock()
-	task, ok := s.idMap[tid]
-	s.RUnlock()
+func (ds *ReaderTaskDataStore) GetTaskByID(tid string) (interface{}, bool) {
+	ds.RLock()
+	task, ok := ds.idMap[tid]
+	ds.RUnlock()
 	return task, ok
 }
 
 // GetTaskByName get request via poll name from read/poll task map
 // 	interface{}: ReaderTask
-func (s *ReaderTaskDataStore) GetTaskByName(name string) (interface{}, bool) {
-	s.RLock()
-	task, ok := s.nameMap[name]
-	s.RUnlock()
+func (ds *ReaderTaskDataStore) GetTaskByName(name string) (interface{}, bool) {
+	ds.RLock()
+	task, ok := ds.nameMap[name]
+	ds.RUnlock()
 	return task, ok
 }
 
 // GetAll get all requests from read/poll task map
-func (s *ReaderTaskDataStore) GetAll() interface{} {
+func (ds *ReaderTaskDataStore) GetAll() interface{} {
 	arr := []psmb.MbtcpPollStatus{}
-	s.RLock()
-	for _, v := range s.nameMap {
+	ds.RLock()
+	for _, v := range ds.nameMap {
 		// type casting check!
 		if item, ok := v.Req.(psmb.MbtcpPollStatus); ok {
 			arr = append(arr, item)
 		}
 	}
-	s.RUnlock()
+	ds.RUnlock()
 	return arr
 }
 
 // DeleteAll remove all requests from read/poll task map
-func (s *ReaderTaskDataStore) DeleteAll() {
-	s.Lock()
-	s.idName = make(map[string]string)
-	s.nameID = make(map[string]string)
-	s.idMap = make(map[string]psmb.ReaderTask)
-	s.nameMap = make(map[string]psmb.ReaderTask)
-	s.Unlock()
+func (ds *ReaderTaskDataStore) DeleteAll() {
+	ds.Lock()
+	ds.idName = make(map[string]string)
+	ds.nameID = make(map[string]string)
+	ds.idMap = make(map[string]psmb.ReaderTask)
+	ds.nameMap = make(map[string]psmb.ReaderTask)
+	ds.Unlock()
 }
 
 // DeleteTaskByID remove request from via TID from read/poll task map
-func (s *ReaderTaskDataStore) DeleteTaskByID(tid string) {
-	s.RLock()
-	name, ok := s.idName[tid]
-	s.RUnlock()
+func (ds *ReaderTaskDataStore) DeleteTaskByID(tid string) {
+	ds.RLock()
+	name, ok := ds.idName[tid]
+	ds.RUnlock()
 
-	s.Lock()
-	delete(s.idName, tid)
-	delete(s.idMap, tid)
+	ds.Lock()
+	delete(ds.idName, tid)
+	delete(ds.idMap, tid)
 	if ok {
-		delete(s.nameID, name)
-		delete(s.nameMap, name)
+		delete(ds.nameID, name)
+		delete(ds.nameMap, name)
 	}
-	s.Unlock()
+	ds.Unlock()
 }
 
 // DeleteTaskByName remove request via poll name from read/poll task map
-func (s *ReaderTaskDataStore) DeleteTaskByName(name string) {
-	s.RLock()
-	tid, ok := s.nameID[name]
-	s.RUnlock()
+func (ds *ReaderTaskDataStore) DeleteTaskByName(name string) {
+	ds.RLock()
+	tid, ok := ds.nameID[name]
+	ds.RUnlock()
 
-	s.Lock()
+	ds.Lock()
 	if ok {
-		delete(s.idName, tid)
-		delete(s.idMap, tid)
+		delete(ds.idName, tid)
+		delete(ds.idMap, tid)
 	}
-	delete(s.nameID, name)
-	delete(s.nameMap, name)
-	s.Unlock()
+	delete(ds.nameID, name)
+	delete(ds.nameMap, name)
+	ds.Unlock()
 }
 
 // UpdateIntervalByName update poll request interval
-func (s *ReaderTaskDataStore) UpdateIntervalByName(name string, interval uint64) error {
-	s.RLock()
-	tid, _ := s.nameID[name]
-	task, ok := s.nameMap[name]
-	s.RUnlock()
+func (ds *ReaderTaskDataStore) UpdateIntervalByName(name string, interval uint64) error {
+	ds.RLock()
+	tid, _ := ds.nameID[name]
+	task, ok := ds.nameMap[name]
+	ds.RUnlock()
 
 	if !ok {
 		return ErrInvalidPollName
@@ -140,19 +140,19 @@ func (s *ReaderTaskDataStore) UpdateIntervalByName(name string, interval uint64)
 	}
 
 	req.Interval = interval // update interval
-	s.Lock()
-	s.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
-	s.idMap[tid] = s.nameMap[name]                         // update idMap table
-	s.Unlock()
+	ds.Lock()
+	ds.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
+	ds.idMap[tid] = ds.nameMap[name]                        // update idMap table
+	ds.Unlock()
 	return nil
 }
 
 // UpdateToggleByName update poll request enabled flag
-func (s *ReaderTaskDataStore) UpdateToggleByName(name string, toggle bool) error {
-	s.RLock()
-	tid, _ := s.nameID[name]
-	task, ok := s.nameMap[name]
-	s.RUnlock()
+func (ds *ReaderTaskDataStore) UpdateToggleByName(name string, toggle bool) error {
+	ds.RLock()
+	tid, _ := ds.nameID[name]
+	task, ok := ds.nameMap[name]
+	ds.RUnlock()
 
 	if !ok {
 		return ErrInvalidPollName
@@ -164,24 +164,24 @@ func (s *ReaderTaskDataStore) UpdateToggleByName(name string, toggle bool) error
 	}
 
 	req.Enabled = toggle // update flag
-	s.Lock()
-	s.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
-	s.idMap[tid] = s.nameMap[name]                         // update idMap table
-	s.Unlock()
+	ds.Lock()
+	ds.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
+	ds.idMap[tid] = ds.nameMap[name]                        // update idMap table
+	ds.Unlock()
 	return nil
 }
 
 // UpdateAllTogglesByName update all poll request enabled flag
 func (s *ReaderTaskDataStore) UpdateAllTogglesByName(toggle bool) {
-	s.Lock()
-	for name, task := range s.nameMap {
+	ds.Lock()
+	for name, task := range ds.nameMap {
 		// type casting check!
 		if req, ok := task.Req.(psmb.MbtcpPollStatus); ok {
-			req.Enabled = toggle                                   // update flag
-			s.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
-			tid, _ := s.nameID[name]                               // get Tid
-			s.idMap[tid] = s.nameMap[name]                         // update idMap table
+			req.Enabled = toggle                                    // update flag
+			ds.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
+			tid, _ := ds.nameID[name]                               // get Tid
+			ds.idMap[tid] = ds.nameMap[name]                        // update idMap table
 		}
 	}
-	s.Unlock()
+	ds.Unlock()
 }

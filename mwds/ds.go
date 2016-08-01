@@ -23,23 +23,23 @@ func NewDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 }
 
 // Add add request to write task map
-func (s *WriterTaskDataStore) Add(tid, cmd string) {
-	s.Lock()
-	s.m[tid] = cmd
-	s.Unlock()
+func (ds *WriterTaskDataStore) Add(tid, cmd string) {
+	ds.Lock()
+	ds.m[tid] = cmd
+	ds.Unlock()
 }
 
 // Get get request from write task map
-func (s *WriterTaskDataStore) Get(tid string) (string, bool) {
-	s.RLock()
-	cmd, ok := s.m[tid]
-	s.RUnlock()
+func (ds *WriterTaskDataStore) Get(tid string) (string, bool) {
+	ds.RLock()
+	cmd, ok := ds.m[tid]
+	ds.RUnlock()
 	return cmd, ok
 }
 
 // Delete remove request from write task map
-func (s *WriterTaskDataStore) Delete(tid string) {
-	s.Lock()
-	delete(s.m, tid)
-	s.Unlock()
+func (ds *WriterTaskDataStore) Delete(tid string) {
+	ds.Lock()
+	delete(ds.m, tid)
+	ds.Unlock()
 }
