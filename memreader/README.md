@@ -5,9 +5,9 @@ Memory reader map
 ## Install
 
 ```
-    go get -u github.com/taka-wang/psmb/memwriter
+    go get -u github.com/taka-wang/psmb/memreader
 ```
 
 ## Test cases
 
-- [x] TestWriterMap tests
+- [x] TestMbtcpReadTask tests

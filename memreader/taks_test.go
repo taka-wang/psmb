@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	psmbtcp.Register("memory", mr.NewDataStore)
+	psmbtcp.RegisterReaderTask("memory", mr.NewDataStore)
 }
 
 func TestMbtcpReadTask(t *testing.T) {
