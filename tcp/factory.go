@@ -70,6 +70,7 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 	}
 
 	fmt.Println("BEGIN")
+	fmt.Println("type1: ", reflect.TypeOf(engineFactory))
 	if f, _ := engineFactory.(psmb.IWriterTaskDataStore); f != nil {
 		fmt.Println("type: ", reflect.TypeOf(f))
 		//return f(conf)
