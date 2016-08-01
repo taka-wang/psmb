@@ -3,10 +3,14 @@ package memwriter_test
 import (
 	"testing"
 
-	_ "github.com/taka-wang/psmb/memwriter"
+	memwriter "github.com/taka-wang/psmb/memwriter"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
+
+func init() {
+	psmbtcp.RegisterWriterTask("memory", memwriter.NewWriterTaskDataStore)
+}
 
 func TestWriterMap(t *testing.T) {
 	s := sugar.New(t)

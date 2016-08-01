@@ -2,9 +2,13 @@ package main
 
 import (
 	"github.com/taka-wang/gocron"
-	_ "github.com/taka-wang/psmb/memwriter"
+	memwriter "github.com/taka-wang/psmb/memwriter"
 	mbtcp "github.com/taka-wang/psmb/tcp"
 )
+
+func init() {
+	mbtcp.RegisterWriterTask("memory", memwriter.NewWriterTaskDataStore)
+}
 
 func main() {
 

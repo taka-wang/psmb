@@ -4,13 +4,7 @@ import (
 	"sync"
 
 	psmb "github.com/taka-wang/psmb"
-	psmbtcp "github.com/taka-wang/psmb/tcp"
 )
-
-// init register writer task
-func init() {
-	psmbtcp.RegisterWriterTask("memory", NewWriterTaskDataStore)
-}
 
 // @Implement IWriterTaskDataStore contract implicitly
 
