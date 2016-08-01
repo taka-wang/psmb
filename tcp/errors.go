@@ -8,6 +8,9 @@ var (
 	// ErrTodo is the error of todo
 	ErrTodo = errors.New("TODO")
 
+	// ErrCasting is the error when type assert fail
+	ErrCasting = errors.New("Fail to casting")
+
 	// ErrInvalidDataStoreName is the error when the writer store name is not allowed.
 	ErrInvalidDataStoreName = errors.New("Invalid task data store name")
 

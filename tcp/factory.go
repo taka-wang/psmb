@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"fmt"
 	"reflect"
 
 	psmb "github.com/taka-wang/psmb"
@@ -42,13 +43,14 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	ef, _ := createDS(conf, writerDS)
 
 	if ef != nil {
-		log.WithFields(log.Fields{"Type": reflect.TypeOf(ef)}).Debug("createWriterDS: reflect")
+		fmt.Println(reflect.TypeOf(ef))
 		if f, ok := ef.(func(map[string]string) (psmb.IWriterTaskDataStore, error)); ok {
 			got, ok2 := f(conf)
 			return got.(psmb.IWriterTaskDataStore), ok2
 		}
-		//
-		log.Error("createWriterDS: fail to casting")
+		err := ErrCasting
+		log.WithFields(log.Fields{"err": err}).Error("Create writer data store")
+		return nil, err
 	}
 	return nil, ErrInvalidDataStoreName
 }
@@ -58,13 +60,14 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 	ef, _ := createDS(conf, readerDS)
 
 	if ef != nil {
-		log.WithFields(log.Fields{"Type": reflect.TypeOf(ef)}).Debug("createReaderDS: reflect")
+		fmt.Println(reflect.TypeOf(ef))
 		if f, ok := ef.(func(map[string]string) (psmb.IReaderTaskDataStore, error)); ok {
 			got, ok2 := f(conf)
 			return got.(psmb.IReaderTaskDataStore), ok2
 		}
-		//
-		log.Error("createReaderDS: fail to casting")
+		err := ErrCasting
+		log.WithFields(log.Fields{"err": err}).Error("Create reader data store")
+		return nil, err
 	}
 	return nil, ErrInvalidDataStoreName
 }
