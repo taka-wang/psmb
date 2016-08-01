@@ -16,8 +16,8 @@ var ErrInvalidPollName = errors.New("Invalid poll name!")
 
 // @Implement IReaderTaskDataStore contract implicitly
 
-// ReaderTaskDataStore read/poll task map type
-type ReaderTaskDataStore struct {
+// readerTaskDataStore read/poll task map type
+type readerTaskDataStore struct {
 	sync.RWMutex
 	// idName (tid, name)
 	idName map[string]string
@@ -31,7 +31,7 @@ type ReaderTaskDataStore struct {
 
 // NewDataStore instantiate mbtcp read task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
-	return &ReaderTaskDataStore{
+	return &readerTaskDataStore{
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
 		idMap:   make(map[string]psmb.ReaderTask),
@@ -40,7 +40,7 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 }
 
 // Add add request to read/poll task map
-func (ds *ReaderTaskDataStore) Add(name, tid, cmd string, req interface{}) {
+func (ds *readerTaskDataStore) Add(name, tid, cmd string, req interface{}) {
 	if name == "" { // read task instead of poll task
 		name = tid
 	}
@@ -55,7 +55,7 @@ func (ds *ReaderTaskDataStore) Add(name, tid, cmd string, req interface{}) {
 
 // GetTaskByID get request via TID from read/poll task map
 // interface{}: ReaderTask
-func (ds *ReaderTaskDataStore) GetTaskByID(tid string) (interface{}, bool) {
+func (ds *readerTaskDataStore) GetTaskByID(tid string) (interface{}, bool) {
 	ds.RLock()
 	task, ok := ds.idMap[tid]
 	ds.RUnlock()
@@ -64,7 +64,7 @@ func (ds *ReaderTaskDataStore) GetTaskByID(tid string) (interface{}, bool) {
 
 // GetTaskByName get request via poll name from read/poll task map
 // 	interface{}: ReaderTask
-func (ds *ReaderTaskDataStore) GetTaskByName(name string) (interface{}, bool) {
+func (ds *readerTaskDataStore) GetTaskByName(name string) (interface{}, bool) {
 	ds.RLock()
 	task, ok := ds.nameMap[name]
 	ds.RUnlock()
@@ -72,7 +72,7 @@ func (ds *ReaderTaskDataStore) GetTaskByName(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from read/poll task map
-func (ds *ReaderTaskDataStore) GetAll() interface{} {
+func (ds *readerTaskDataStore) GetAll() interface{} {
 	arr := []psmb.MbtcpPollStatus{}
 	ds.RLock()
 	for _, v := range ds.nameMap {
@@ -86,7 +86,7 @@ func (ds *ReaderTaskDataStore) GetAll() interface{} {
 }
 
 // DeleteAll remove all requests from read/poll task map
-func (ds *ReaderTaskDataStore) DeleteAll() {
+func (ds *readerTaskDataStore) DeleteAll() {
 	ds.Lock()
 	ds.idName = make(map[string]string)
 	ds.nameID = make(map[string]string)
@@ -96,7 +96,7 @@ func (ds *ReaderTaskDataStore) DeleteAll() {
 }
 
 // DeleteTaskByID remove request from via TID from read/poll task map
-func (ds *ReaderTaskDataStore) DeleteTaskByID(tid string) {
+func (ds *readerTaskDataStore) DeleteTaskByID(tid string) {
 	ds.RLock()
 	name, ok := ds.idName[tid]
 	ds.RUnlock()
@@ -112,7 +112,7 @@ func (ds *ReaderTaskDataStore) DeleteTaskByID(tid string) {
 }
 
 // DeleteTaskByName remove request via poll name from read/poll task map
-func (ds *ReaderTaskDataStore) DeleteTaskByName(name string) {
+func (ds *readerTaskDataStore) DeleteTaskByName(name string) {
 	ds.RLock()
 	tid, ok := ds.nameID[name]
 	ds.RUnlock()
@@ -128,7 +128,7 @@ func (ds *ReaderTaskDataStore) DeleteTaskByName(name string) {
 }
 
 // UpdateIntervalByName update poll request interval
-func (ds *ReaderTaskDataStore) UpdateIntervalByName(name string, interval uint64) error {
+func (ds *readerTaskDataStore) UpdateIntervalByName(name string, interval uint64) error {
 	ds.RLock()
 	tid, _ := ds.nameID[name]
 	task, ok := ds.nameMap[name]
@@ -152,7 +152,7 @@ func (ds *ReaderTaskDataStore) UpdateIntervalByName(name string, interval uint64
 }
 
 // UpdateToggleByName update poll request enabled flag
-func (ds *ReaderTaskDataStore) UpdateToggleByName(name string, toggle bool) error {
+func (ds *readerTaskDataStore) UpdateToggleByName(name string, toggle bool) error {
 	ds.RLock()
 	tid, _ := ds.nameID[name]
 	task, ok := ds.nameMap[name]
@@ -176,7 +176,7 @@ func (ds *ReaderTaskDataStore) UpdateToggleByName(name string, toggle bool) erro
 }
 
 // UpdateAllTogglesByName update all poll request enabled flag
-func (ds *ReaderTaskDataStore) UpdateAllTogglesByName(toggle bool) {
+func (ds *readerTaskDataStore) UpdateAllTogglesByName(toggle bool) {
 	ds.Lock()
 	for name, task := range ds.nameMap {
 		// type casting check!
