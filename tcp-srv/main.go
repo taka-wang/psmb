@@ -14,12 +14,8 @@ func init() {
 }
 
 func main() {
-	readerDataStore, _ := mbtcp.CreateReaderTaskDataStore(map[string]string{
-		"ReaderDataStore": "Reader2",
-	})
-	writerDataStore, _ := mbtcp.CreateWriterTaskDataStore(map[string]string{
-		"WriterDataStore": "Writer",
-	})
+	readerDataStore, _ := mbtcp.CreateReaderTaskDataStore("Reader2")
+	writerDataStore, _ := mbtcp.CreateWriterTaskDataStore("Writer")
 
 	srv := mbtcp.NewService(
 		readerDataStore,       // readerMap

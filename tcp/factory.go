@@ -5,6 +5,11 @@ import (
 	log "github.com/takawang/logrus"
 )
 
+const (
+	readerDS = "ReaderDataStore"
+	writerDS = "WriterDataStore"
+)
+
 //
 // Factory Pattern
 //
@@ -26,8 +31,7 @@ func Register(name string, factory interface{}) {
 	Factories[name] = factory
 }
 
-// Create create method
-func create(conf map[string]string, key string) (interface{}, error) {
+func createDS(conf map[string]string, key string) (interface{}, error) {
 	defaultKey := ""
 	if got, ok := conf[key]; ok {
 		defaultKey = got
@@ -44,9 +48,8 @@ func create(conf map[string]string, key string) (interface{}, error) {
 	return engineFactory, nil
 }
 
-// CreateWriterTaskDataStore create writer task data store
-func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
-	ef, _ := create(conf, "WriterDataStore")
+func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
+	ef, _ := createDS(conf, writerDS)
 	if ef != nil {
 		if f, _ := ef.(func(map[string]string) (psmb.IWriterTaskDataStore, error)); f != nil {
 			got, ok := f(conf)
@@ -56,9 +59,8 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 	return nil, ErrInvalidDataStoreName
 }
 
-// CreateReaderTaskDataStore create reader task data store
-func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
-	ef, _ := create(conf, "ReaderDataStore")
+func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
+	ef, _ := createDS(conf, readerDS)
 	if ef != nil {
 		if f, _ := ef.(func(map[string]string) (psmb.IReaderTaskDataStore, error)); f != nil {
 			got, ok := f(conf)
@@ -67,3 +69,14 @@ func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStor
 	}
 	return nil, ErrInvalidDataStoreName
 }
+
+// CreateWriterDataStore create writer task data store
+func CreateWriterDataStore(driver string) (psmb.IWriterTaskDataStore, error) {
+	return createWriterDS(map[string]string{writerDS: driver)
+}
+
+// CreateReaderDataStore create reader task data store
+func CreateReaderDataStore(driver string) (psmb.IReaderTaskDataStore, error) {
+	return createReaderDS(map[string]string{readerDS: driver)
+}
+
