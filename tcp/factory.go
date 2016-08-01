@@ -1,6 +1,8 @@
 package tcp
 
 import (
+	"fmt"
+
 	psmb "github.com/taka-wang/psmb"
 	log "github.com/takawang/logrus"
 )
@@ -38,6 +40,11 @@ func createDS(conf map[string]string, key string) (interface{}, error) {
 // createWriterDS real factory method
 func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	ef, _ := createDS(conf, writerDS)
+	// debug
+	fmt.Println("createWriterDS")
+	for k, v := range factories {
+		fmt.Println(k, v)
+	}
 	if ef != nil {
 		if f, _ := ef.(func(map[string]string) (psmb.IWriterTaskDataStore, error)); f != nil {
 			got, ok := f(conf)
@@ -50,6 +57,11 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 // createReaderDS real factory method
 func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 	ef, _ := createDS(conf, readerDS)
+	// debug
+	fmt.Println("createReaderDS")
+	for k, v := range factories {
+		fmt.Println(k, v)
+	}
 	if ef != nil {
 		if f, _ := ef.(func(map[string]string) (psmb.IReaderTaskDataStore, error)); f != nil {
 			got, ok := f(conf)
