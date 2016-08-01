@@ -38,9 +38,12 @@ func Register(name string, factory interface{}) {
 // CreateWriterTaskDataStore create writer task data store
 func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 
-	defaultDS := "memory"
+	defaultDS := "Writer"
 	if got, ok := conf["WriterDataStore"]; ok {
+		log.Debug("WriterDataStore exist.")
 		defaultDS = got
+	} else {
+		log.Debug("WriterDataStore not exist.")
 	}
 
 	engineFactory, ok := Factories[defaultDS]
@@ -62,7 +65,7 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 // CreateReaderTaskDataStore create reader task data store
 func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 
-	defaultDS := "memory"
+	defaultDS := "Reader1"
 	if got, ok := conf["ReaderDataStore"]; ok {
 		defaultDS = got
 	}
