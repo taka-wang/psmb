@@ -3,7 +3,7 @@ package memwriter_test
 import (
 	"testing"
 
-	. "github.com/taka-wang/psmb/memwriter"
+	_ "github.com/taka-wang/psmb/memwriter"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
