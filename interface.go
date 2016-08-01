@@ -38,6 +38,16 @@ type IWriterTaskDataStore interface {
 	Delete(tid string)
 }
 
+// ReaderTask read/poll task request
+type ReaderTask struct {
+	// Name task name
+	Name string
+	// Cmd zmq frame 1
+	Cmd string
+	// Req request structure
+	Req interface{}
+}
+
 // IReaderTaskDataStore read task interface
 type IReaderTaskDataStore interface {
 	// Add add request to read/poll task map

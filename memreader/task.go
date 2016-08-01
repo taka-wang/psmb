@@ -9,16 +9,6 @@ import (
 
 // @Implement IReaderTaskDataStore contract implicitly
 
-// ReaderTask read/poll task request
-type ReaderTask struct {
-	// Name task name
-	Name string
-	// Cmd zmq frame 1
-	Cmd string
-	// Req request structure
-	Req interface{}
-}
-
 // ReaderTaskDataStore read/poll task map type
 type ReaderTaskDataStore struct {
 	sync.RWMutex
@@ -27,9 +17,9 @@ type ReaderTaskDataStore struct {
 	// nameID (name, tid)
 	nameID map[string]string
 	// idMap (tid, ReaderTask)
-	idMap map[string]ReaderTask
+	idMap map[string]psmb.ReaderTask
 	// nameMap (name, ReaderTask)
-	nameMap map[string]ReaderTask
+	nameMap map[string]psmb.ReaderTask
 }
 
 // NewDataStore instantiate mbtcp read task map
@@ -37,8 +27,8 @@ func NewDataStore(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 	return &ReaderTaskDataStore{
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
-		idMap:   make(map[string]ReaderTask),
-		nameMap: make(map[string]ReaderTask),
+		idMap:   make(map[string]psmb.ReaderTask),
+		nameMap: make(map[string]psmb.ReaderTask),
 	}, nil
 }
 
@@ -51,7 +41,7 @@ func (s *ReaderTaskDataStore) Add(name, tid, cmd string, req interface{}) {
 	s.Lock()
 	s.idName[tid] = name
 	s.nameID[name] = tid
-	s.nameMap[name] = ReaderTask{name, cmd, req}
+	s.nameMap[name] = psmb.ReaderTask{name, cmd, req}
 	s.idMap[tid] = s.nameMap[name]
 	s.Unlock()
 }
@@ -93,8 +83,8 @@ func (s *ReaderTaskDataStore) DeleteAll() {
 	s.Lock()
 	s.idName = make(map[string]string)
 	s.nameID = make(map[string]string)
-	s.idMap = make(map[string]ReaderTask)
-	s.nameMap = make(map[string]ReaderTask)
+	s.idMap = make(map[string]psmb.ReaderTask)
+	s.nameMap = make(map[string]psmb.ReaderTask)
 	s.Unlock()
 }
 
@@ -148,8 +138,8 @@ func (s *ReaderTaskDataStore) UpdateIntervalByName(name string, interval uint64)
 
 	req.Interval = interval // update interval
 	s.Lock()
-	s.nameMap[name] = ReaderTask{name, task.Cmd, req} // update nameMap table
-	s.idMap[tid] = s.nameMap[name]                    // update idMap table
+	s.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
+	s.idMap[tid] = s.nameMap[name]                         // update idMap table
 	s.Unlock()
 	return nil
 }
@@ -172,8 +162,8 @@ func (s *ReaderTaskDataStore) UpdateToggleByName(name string, toggle bool) error
 
 	req.Enabled = toggle // update flag
 	s.Lock()
-	s.nameMap[name] = ReaderTask{name, task.Cmd, req} // update nameMap table
-	s.idMap[tid] = s.nameMap[name]                    // update idMap table
+	s.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
+	s.idMap[tid] = s.nameMap[name]                         // update idMap table
 	s.Unlock()
 	return nil
 }
@@ -184,10 +174,10 @@ func (s *ReaderTaskDataStore) UpdateAllTogglesByName(toggle bool) {
 	for name, task := range s.nameMap {
 		// type casting check!
 		if req, ok := task.Req.(psmb.MbtcpPollStatus); ok {
-			req.Enabled = toggle                              // update flag
-			s.nameMap[name] = ReaderTask{name, task.Cmd, req} // update nameMap table
-			tid, _ := s.nameID[name]                          // get Tid
-			s.idMap[tid] = s.nameMap[name]                    // update idMap table
+			req.Enabled = toggle                                   // update flag
+			s.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
+			tid, _ := s.nameID[name]                               // get Tid
+			s.idMap[tid] = s.nameMap[name]                         // update idMap table
 		}
 	}
 	s.Unlock()
