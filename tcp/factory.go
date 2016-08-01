@@ -57,7 +57,7 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 //
 
 // ReaderTaskDataStoreFactory factory method for writer task data store
-type ReaderTaskDataStoreFactory func(conf map[string]string) (psmb.IWriterTaskDataStore, error)
+type ReaderTaskDataStoreFactory func(conf map[string]string) (psmb.IReaderTaskDataStore, error)
 
 // ReaderTaskDataStoreFactories factories container
 var ReaderTaskDataStoreFactories = make(map[string]ReaderTaskDataStoreFactory)
@@ -77,7 +77,7 @@ func RegisterReaderTask(name string, factory ReaderTaskDataStoreFactory) {
 }
 
 // CreateReaderTaskDataStore create reader task data store
-func CreateReaderTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
+func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 
 	defaultDS := "memory"
 	if got, ok := conf["ReaderDataStore"]; ok {
