@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/taka-wang/gocron"
 	"github.com/taka-wang/psmb/mrds"
 	"github.com/taka-wang/psmb/mwds"
@@ -10,28 +8,18 @@ import (
 )
 
 func init() {
+	// register data stores from packages
 	psmbtcp.Register("Reader", mrds.NewDataStore)
 	psmbtcp.Register("Writer", mwds.NewDataStore)
 }
 
 func main() {
-	// Factory
-	readerDataStore, err1 := psmbtcp.ReaderDataStoreCreator("Reader")
-	if err1 != nil {
-		fmt.Println("Fail to create reader ds", err1)
-		return
-	}
-	writerDataStore, err2 := psmbtcp.WriterDataStoreCreator("Writer")
-	if err2 != nil {
-		fmt.Println("Fail to create writer ds", err2)
-		return
-	}
-
-	// DI
-	srv := psmbtcp.NewService(
-		readerDataStore,       // readerMap
-		writerDataStore,       // writerMap
+	// DI & Factory
+	if srv, err := psmbtcp.NewService(
+		"Reader",
+		"Writer",
 		gocron.NewScheduler(), // scheduler
-	)
-	srv.Start()
+	); srv != nil {
+		srv.Start()
+	}
 }

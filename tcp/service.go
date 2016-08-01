@@ -55,13 +55,26 @@ type Service struct {
 }
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(r IReaderTaskDataStore, w IWriterTaskDataStore, s gocron.Scheduler) IProactiveService {
+func NewService(reader, writer string, s gocron.Scheduler) (IProactiveService, error) {
+	// Factory methods
+	readerDataStore, err1 := psmbtcp.ReaderDataStoreCreator(reader)
+	if err1 != nil {
+		log.WithFields(log.Fields{"err": err1}).Error("Fail to create reader data store")
+		return nil, err1
+	}
+
+	writerDataStore, err2 := psmbtcp.WriterDataStoreCreator(writer)
+	if err2 != nil {
+		log.WithFields(log.Fields{"err": err2}).Error("Fail to create writer data store")
+		return nil, err2
+	}
+
 	return &Service{
 		enable:    true,
-		readerMap: r,
-		writerMap: w,
+		readerMap: readerDataStore,
+		writerMap: writerDataStore,
 		scheduler: s,
-	}
+	}, nil
 }
 
 // initLogger init logger
