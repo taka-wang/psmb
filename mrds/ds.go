@@ -26,7 +26,7 @@ type ReaderTaskDataStore struct {
 }
 
 // NewDataStore instantiate mbtcp read task map
-func NewDataStore(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
+func NewDataStore(conf map[string]string) (interface{}, error) {
 	return &ReaderTaskDataStore{
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
@@ -44,7 +44,7 @@ func (ds *ReaderTaskDataStore) Add(name, tid, cmd string, req interface{}) {
 	ds.Lock()
 	ds.idName[tid] = name
 	ds.nameID[name] = tid
-	ds.nameMap[name] = psmb.ReaderTask{name, cmd, req}
+	ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: cmd, Req: req}
 	ds.idMap[tid] = ds.nameMap[name]
 	ds.Unlock()
 }
@@ -141,8 +141,8 @@ func (ds *ReaderTaskDataStore) UpdateIntervalByName(name string, interval uint64
 
 	req.Interval = interval // update interval
 	ds.Lock()
-	ds.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
-	ds.idMap[tid] = ds.nameMap[name]                        // update idMap table
+	ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: task.Cmd, Req: req} // update nameMap table
+	ds.idMap[tid] = ds.nameMap[name]                                        // update idMap table
 	ds.Unlock()
 	return nil
 }
@@ -165,22 +165,22 @@ func (ds *ReaderTaskDataStore) UpdateToggleByName(name string, toggle bool) erro
 
 	req.Enabled = toggle // update flag
 	ds.Lock()
-	ds.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
-	ds.idMap[tid] = ds.nameMap[name]                        // update idMap table
+	ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: task.Cmd, Req: req} // update nameMap table
+	ds.idMap[tid] = ds.nameMap[name]                                        // update idMap table
 	ds.Unlock()
 	return nil
 }
 
 // UpdateAllTogglesByName update all poll request enabled flag
-func (s *ReaderTaskDataStore) UpdateAllTogglesByName(toggle bool) {
+func (ds *ReaderTaskDataStore) UpdateAllTogglesByName(toggle bool) {
 	ds.Lock()
 	for name, task := range ds.nameMap {
 		// type casting check!
 		if req, ok := task.Req.(psmb.MbtcpPollStatus); ok {
-			req.Enabled = toggle                                    // update flag
-			ds.nameMap[name] = psmb.ReaderTask{name, task.Cmd, req} // update nameMap table
-			tid, _ := ds.nameID[name]                               // get Tid
-			ds.idMap[tid] = ds.nameMap[name]                        // update idMap table
+			req.Enabled = toggle                                                    // update flag
+			ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: task.Cmd, Req: req} // update nameMap table
+			tid, _ := ds.nameID[name]                                               // get Tid
+			ds.idMap[tid] = ds.nameMap[name]                                        // update idMap table
 		}
 	}
 	ds.Unlock()

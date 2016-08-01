@@ -1,10 +1,6 @@
 package mwds
 
-import (
-	"sync"
-
-	psmb "github.com/taka-wang/psmb"
-)
+import "sync"
 
 // @Implement IWriterTaskDataStore contract implicitly
 
@@ -16,7 +12,7 @@ type WriterTaskDataStore struct {
 }
 
 // NewDataStore instantiate mbtcp write task map
-func NewDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
+func NewDataStore(conf map[string]string) (interface{}, error) {
 	return &WriterTaskDataStore{
 		m: make(map[string]string),
 	}, nil
