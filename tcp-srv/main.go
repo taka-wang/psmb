@@ -15,7 +15,7 @@ func init() {
 
 func main() {
 	// DI & Factory
-	if srv, err := psmbtcp.NewService(
+	if srv, _ := psmbtcp.NewService(
 		"Reader",
 		"Writer",
 		gocron.NewScheduler(), // scheduler
