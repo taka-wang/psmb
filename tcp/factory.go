@@ -51,8 +51,8 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 		return nil, ErrInvalidDataStoreName
 	}
 
-	if f, _ := engineFactory.(func(map[string]string)); f != nil {
-		got, ok := f[conf]
+	if f, _ := engineFactory.(func(map[string]string) (psmb.IWriterTaskDataStore, error)); f != nil {
+		got, ok := f(conf)
 		return got.(psmb.IWriterTaskDataStore), ok
 	}
 	return nil, ErrInvalidDataStoreName
