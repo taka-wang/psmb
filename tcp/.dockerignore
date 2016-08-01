@@ -1,6 +1,6 @@
 .vscode
-docs
-image
+_docs
+_image
 .git
 .gitignore
 *.md

@@ -1,4 +1,6 @@
-# Done
+# psmb
+
+## Done
 
 - [x] evaluate scheduler
 - [x] evaluate scheduler with zmq
@@ -44,7 +46,7 @@
 - [x] implement all poll request handlers (except mbtcp.poll.history)
 - [x] implement all polls request handlers
 
-# Backlog:
+## Backlog:
 
 - if scheduler is stop, trigger requests directly.
 - sqlite3 for history
@@ -52,10 +54,3 @@
 - table size limit
 - fix handleResponse last return issue
 - add to log and filter
-
-# Module
-
-- post processing (event mapper)
-    - filter
-    - on changed
-- database?

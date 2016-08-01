@@ -49,7 +49,7 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ## Deployment Diagram
 
-![deployment](image/ndeployment.png)
+![deployment](_image/ndeployment.png)
 
 ---
 
