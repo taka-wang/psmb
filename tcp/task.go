@@ -4,11 +4,12 @@ import (
 	"sync"
 
 	psmb "github.com/taka-wang/psmb"
+	log "github.com/takawang/logrus"
 )
 
 // init register writer task
 func init() {
-	mbtcp.RegisterWriterTask("memory", NewWriterTaskDataStore)
+	RegisterWriterTask("memory", NewWriterTaskDataStore)
 }
 
 //
