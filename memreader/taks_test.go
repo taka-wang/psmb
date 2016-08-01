@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	psmbtcp.Register("memory", mr.NewDataStore)
+	psmbtcp.Register("Reader", mr.NewDataStore)
 }
 
 func TestMbtcpReadTask(t *testing.T) {
@@ -17,7 +17,7 @@ func TestMbtcpReadTask(t *testing.T) {
 
 	s.Assert("``add` task to map", func(log sugar.Log) bool {
 		psmbtcp.CreateWriterTaskDataStore(map[string]string{
-			"WriterDataStore": "memory",
+			"WriterDataStore": "Reader",
 		})
 		return true
 	})

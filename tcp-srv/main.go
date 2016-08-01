@@ -8,17 +8,17 @@ import (
 )
 
 func init() {
-	mbtcp.Register("memory", mw.NewDataStore)
-	mbtcp.Register("memory", mr.NewDataStore)
-	mbtcp.Register("memory2", mr.NewDataStore)
+	mbtcp.Register("Writer", mw.NewDataStore)
+	mbtcp.Register("Reader1", mr.NewDataStore)
+	mbtcp.Register("Reader2", mr.NewDataStore)
 }
 
 func main() {
 	readerDataStore, _ := mbtcp.CreateReaderTaskDataStore(map[string]string{
-		"ReaderDataStore": "memory2",
+		"ReaderDataStore": "Reader2",
 	})
 	writerDataStore, _ := mbtcp.CreateWriterTaskDataStore(map[string]string{
-		"WriterDataStore": "memory",
+		"WriterDataStore": "Writer",
 	})
 
 	srv := mbtcp.NewService(

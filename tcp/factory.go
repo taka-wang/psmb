@@ -35,26 +35,6 @@ func Register(name string, factory interface{}) {
 	Factories[name] = factory
 }
 
-/*
-// Create create factory
-func Create(conf map[string]string, key string) (interface{}, error) {
-	defaultDS := "memory"
-	if got, ok := conf["WriterDataStore"]; ok {
-		defaultDS = got
-	}
-
-	engineFactory, ok := Factories[defaultDS]
-	if !ok {
-		availableDatastores := make([]string, len(Factories))
-		for k := range Factories {
-			availableDatastores = append(availableDatastores, k)
-		}
-		return nil, ErrInvalidDataStoreName
-	}
-	return engineFactory, nil
-}
-*/
-
 // CreateWriterTaskDataStore create writer task data store
 func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 
