@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/taka-wang/gocron"
-	. "github.com/taka-wang/psmb/memwriter"
+	_ "github.com/taka-wang/psmb/memwriter"
 	mbtcp "github.com/taka-wang/psmb/tcp"
 )
 
