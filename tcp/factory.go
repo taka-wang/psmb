@@ -1,8 +1,6 @@
 package tcp
 
 import (
-	"fmt"
-
 	psmb "github.com/taka-wang/psmb"
 	log "github.com/takawang/logrus"
 )
@@ -41,10 +39,7 @@ func Register(name string, factory interface{}) {
 func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	defaultDS := "Writer"
 	if got, ok := conf["WriterDataStore"]; ok {
-		log.Debug("WriterDataStore exist.")
 		defaultDS = got
-	} else {
-		log.Debug("WriterDataStore not exist.")
 	}
 
 	engineFactory, ok := Factories[defaultDS]
@@ -57,17 +52,16 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 	}
 
 	if f, _ := engineFactory.(func(map[string]string)); f != nil {
-		got, ok := f(conf)
+		got, ok := f(conf)()
 		return got.(psmb.IWriterTaskDataStore), ok
 	}
-	fmt.Println("Invaliad store name2")
 	return nil, ErrInvalidDataStoreName
 }
 
 // CreateReaderTaskDataStore create reader task data store
 func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 
-	defaultDS := "Reader1"
+	defaultDS := "Reader"
 	if got, ok := conf["ReaderDataStore"]; ok {
 		defaultDS = got
 	}
