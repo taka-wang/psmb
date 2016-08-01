@@ -8,14 +8,14 @@ var (
 	// ErrTodo is the error of todo
 	ErrTodo = errors.New("TODO")
 
-	// ErrInvalidWriterDataStoreName is the error when the writer store name is not allowed.
-	ErrInvalidWriterDataStoreName = errors.New("Invalid Writer task data store name")
+	// ErrInvalidDataStoreName is the error when the writer store name is not allowed.
+	ErrInvalidDataStoreName = errors.New("Invalid task data store name")
 
-	// ErrWriterDataStoreNotExist is the error when the writer store factory does not exist.
-	ErrWriterDataStoreNotExist = errors.New("Writer task store does not exist!")
+	// ErrDataStoreNotExist is the error when the writer store factory does not exist.
+	ErrDataStoreNotExist = errors.New("Writer task store does not exist!")
 
-	// ErrWriterDataStoreExist is the error when the writer store factory is alreay registered.
-	ErrWriterDataStoreExist = errors.New("Writer task store does already regitered. Ignoring.")
+	// ErrDataStoreExist is the error when the writer store factory is alreay registered.
+	ErrDataStoreExist = errors.New("Writer task store does already regitered. Ignoring.")
 
 	// ErrRequestNotFound is the error when the request is not in the write task map.
 	ErrRequestNotFound = errors.New("Request not found!")

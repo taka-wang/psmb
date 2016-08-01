@@ -1,16 +1,13 @@
-package tcp
+package memreader
 
 import (
 	"sync"
 
 	psmb "github.com/taka-wang/psmb"
+	mbtcp "github.com/taka-wang/psmb/tcp"
 )
 
-//
-// Implementations
-//
-
-// @Implement IReaderTaskMap contract implicitly
+// @Implement IReaderTaskDataStore contract implicitly
 
 // ReaderTask read/poll task request
 type ReaderTask struct {
@@ -22,8 +19,8 @@ type ReaderTask struct {
 	Req interface{}
 }
 
-// ReaderTaskType read/poll task map type
-type ReaderTaskType struct {
+// ReaderTaskDataStore read/poll task map type
+type ReaderTaskDataStore struct {
 	sync.RWMutex
 	// idName (tid, name)
 	idName map[string]string
@@ -35,18 +32,18 @@ type ReaderTaskType struct {
 	nameMap map[string]ReaderTask
 }
 
-// NewReaderMap instantiate mbtcp read task map
-func NewReaderMap() psmb.IReaderTaskMap {
-	return &ReaderTaskType{
+// NewDataStore instantiate mbtcp read task map
+func NewDataStore(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
+	return &ReaderTaskDataStore{
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
 		idMap:   make(map[string]ReaderTask),
 		nameMap: make(map[string]ReaderTask),
-	}
+	}, nil
 }
 
 // Add add request to read/poll task map
-func (s *ReaderTaskType) Add(name, tid, cmd string, req interface{}) {
+func (s *ReaderTaskDataStore) Add(name, tid, cmd string, req interface{}) {
 	if name == "" { // read task instead of poll task
 		name = tid
 	}
@@ -61,7 +58,7 @@ func (s *ReaderTaskType) Add(name, tid, cmd string, req interface{}) {
 
 // GetTaskByID get request via TID from read/poll task map
 // interface{}: ReaderTask
-func (s *ReaderTaskType) GetTaskByID(tid string) (interface{}, bool) {
+func (s *ReaderTaskDataStore) GetTaskByID(tid string) (interface{}, bool) {
 	s.RLock()
 	task, ok := s.idMap[tid]
 	s.RUnlock()
@@ -70,7 +67,7 @@ func (s *ReaderTaskType) GetTaskByID(tid string) (interface{}, bool) {
 
 // GetTaskByName get request via poll name from read/poll task map
 // 	interface{}: ReaderTask
-func (s *ReaderTaskType) GetTaskByName(name string) (interface{}, bool) {
+func (s *ReaderTaskDataStore) GetTaskByName(name string) (interface{}, bool) {
 	s.RLock()
 	task, ok := s.nameMap[name]
 	s.RUnlock()
@@ -78,7 +75,7 @@ func (s *ReaderTaskType) GetTaskByName(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from read/poll task map
-func (s *ReaderTaskType) GetAll() interface{} {
+func (s *ReaderTaskDataStore) GetAll() interface{} {
 	arr := []psmb.MbtcpPollStatus{}
 	s.RLock()
 	for _, v := range s.nameMap {
@@ -92,7 +89,7 @@ func (s *ReaderTaskType) GetAll() interface{} {
 }
 
 // DeleteAll remove all requests from read/poll task map
-func (s *ReaderTaskType) DeleteAll() {
+func (s *ReaderTaskDataStore) DeleteAll() {
 	s.Lock()
 	s.idName = make(map[string]string)
 	s.nameID = make(map[string]string)
@@ -102,7 +99,7 @@ func (s *ReaderTaskType) DeleteAll() {
 }
 
 // DeleteTaskByID remove request from via TID from read/poll task map
-func (s *ReaderTaskType) DeleteTaskByID(tid string) {
+func (s *ReaderTaskDataStore) DeleteTaskByID(tid string) {
 	s.RLock()
 	name, ok := s.idName[tid]
 	s.RUnlock()
@@ -118,7 +115,7 @@ func (s *ReaderTaskType) DeleteTaskByID(tid string) {
 }
 
 // DeleteTaskByName remove request via poll name from read/poll task map
-func (s *ReaderTaskType) DeleteTaskByName(name string) {
+func (s *ReaderTaskDataStore) DeleteTaskByName(name string) {
 	s.RLock()
 	tid, ok := s.nameID[name]
 	s.RUnlock()
@@ -134,19 +131,19 @@ func (s *ReaderTaskType) DeleteTaskByName(name string) {
 }
 
 // UpdateIntervalByName update poll request interval
-func (s *ReaderTaskType) UpdateIntervalByName(name string, interval uint64) error {
+func (s *ReaderTaskDataStore) UpdateIntervalByName(name string, interval uint64) error {
 	s.RLock()
 	tid, _ := s.nameID[name]
 	task, ok := s.nameMap[name]
 	s.RUnlock()
 
 	if !ok {
-		return ErrInvalidPollName
+		return mbtcp.ErrInvalidPollName
 	}
 
 	req, ok2 := task.Req.(psmb.MbtcpPollStatus)
 	if !ok2 {
-		return ErrInvalidPollName
+		return mbtcp.ErrInvalidPollName
 	}
 
 	req.Interval = interval // update interval
@@ -158,19 +155,19 @@ func (s *ReaderTaskType) UpdateIntervalByName(name string, interval uint64) erro
 }
 
 // UpdateToggleByName update poll request enabled flag
-func (s *ReaderTaskType) UpdateToggleByName(name string, toggle bool) error {
+func (s *ReaderTaskDataStore) UpdateToggleByName(name string, toggle bool) error {
 	s.RLock()
 	tid, _ := s.nameID[name]
 	task, ok := s.nameMap[name]
 	s.RUnlock()
 
 	if !ok {
-		return ErrInvalidPollName
+		return mbtcp.ErrInvalidPollName
 	}
 	// type casting check!
 	req, ok2 := task.Req.(psmb.MbtcpPollStatus)
 	if !ok2 {
-		return ErrInvalidPollName
+		return mbtcp.ErrInvalidPollName
 	}
 
 	req.Enabled = toggle // update flag
@@ -182,7 +179,7 @@ func (s *ReaderTaskType) UpdateToggleByName(name string, toggle bool) error {
 }
 
 // UpdateAllTogglesByName update all poll request enabled flag
-func (s *ReaderTaskType) UpdateAllTogglesByName(toggle bool) {
+func (s *ReaderTaskDataStore) UpdateAllTogglesByName(toggle bool) {
 	s.Lock()
 	for name, task := range s.nameMap {
 		// type casting check!

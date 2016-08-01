@@ -10,7 +10,7 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 ## Contracts (Interfaces)
 
 - IProactiveService: proactive service
-- IReaderTaskMap:  read/poll task map
+- IReaderTaskDataStore:  read/poll task map
 - IWriterTaskDataStore: write task map
 
 

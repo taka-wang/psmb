@@ -28,7 +28,7 @@ const (
 // Service modbusd tcp proactive service type
 type Service struct {
 	// readerMap read/poll task map
-	readerMap IReaderTaskMap
+	readerMap IReaderTaskDataStore
 	// writerMap write task map
 	writerMap IWriterTaskDataStore
 	// scheduler gocron scheduler
@@ -54,7 +54,7 @@ type Service struct {
 }
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(r IReaderTaskMap, w IWriterTaskDataStore, s gocron.Scheduler) IProactiveService {
+func NewService(r IReaderTaskDataStore, w IWriterTaskDataStore, s gocron.Scheduler) IProactiveService {
 	return &Service{
 		enable:    true,
 		readerMap: r,

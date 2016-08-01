@@ -15,8 +15,8 @@ type WriterTaskDataStore struct {
 	m map[string]string
 }
 
-// NewWriterTaskDataStore instantiate mbtcp write task map
-func NewWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
+// NewDataStore instantiate mbtcp write task map
+func NewDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	return &WriterTaskDataStore{
 		m: make(map[string]string),
 	}, nil

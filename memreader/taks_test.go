@@ -1,11 +1,16 @@
-package tcp_test
+package memreader_test
 
 import (
 	"testing"
 
-	//. "github.com/taka-wang/psmb/tcp"
+	mr "github.com/taka-wang/psmb/memwriter"
+	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
+
+func init() {
+	psmbtcp.Register("memory", mr.NewDataStore)
+}
 
 func TestMbtcpReadTask(t *testing.T) {
 	s := sugar.New(t)

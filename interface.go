@@ -38,8 +38,8 @@ type IWriterTaskDataStore interface {
 	Delete(tid string)
 }
 
-// IReaderTaskMap read task interface
-type IReaderTaskMap interface {
+// IReaderTaskDataStore read task interface
+type IReaderTaskDataStore interface {
 	// Add add request to read/poll task map
 	Add(name, tid, cmd string, req interface{})
 
