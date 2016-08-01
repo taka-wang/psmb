@@ -7,7 +7,7 @@ import (
 
 func main() {
 
-	writerDataStore, _ := mbtcp.CreateWriterTaskDataStore(&map[string]string{
+	writerDataStore, _ := mbtcp.CreateWriterTaskDataStore(map[string]string{
 		"DATASTORE": "memory",
 	})
 
