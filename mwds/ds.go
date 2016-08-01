@@ -1,4 +1,4 @@
-// Package mwds : In-memory data store for writer.
+// Package mwds an in-memory data store for writer.
 //
 // By taka@cmwang.net
 //

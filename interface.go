@@ -1,4 +1,4 @@
-// Package psmb : Proactive service for modbusd package.
+// Package psmb a proactive service library for modbus daemon.
 //
 // Define high-level Contracts(interface) and data types.
 //

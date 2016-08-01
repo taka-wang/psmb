@@ -1,4 +1,4 @@
-// Package tcp : Provide proactive service library for modbus `TCP` .
+// Package tcp provide proactive service library for modbus `TCP` .
 //
 // By taka@cmwang.net
 //
