@@ -39,20 +39,22 @@ func Register(name string, factory interface{}) {
 
 // CreateWriterTaskDataStore create writer task data store
 func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
+	/*
+		for k, v := range conf {
+			fmt.Println(k, v)
+		}
 
-	for k, v := range conf {
-		fmt.Println(k, v)
-	}
-
-	for k, v := range Factories {
-		fmt.Println(k, v)
-	}
-
+		for k, v := range Factories {
+			fmt.Println(k, v)
+		}
+	*/
 	defaultDS := "Writer"
 	if got, ok := conf["WriterDataStore"]; ok {
+		fmt.Println("WriterDataStore exist.")
 		log.Debug("WriterDataStore exist.")
 		defaultDS = got
 	} else {
+		fmt.Println("WriterDataStore not exist.")
 		log.Debug("WriterDataStore not exist.")
 	}
 
@@ -62,13 +64,14 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 		for k := range Factories {
 			availableDatastores = append(availableDatastores, k)
 		}
+		fmt.Println("Invaliad store name1")
 		return nil, ErrInvalidDataStoreName
 	}
 
 	if f, _ := engineFactory.(WriterTaskDataStoreFactory); f != nil {
 		return f(conf)
 	}
-
+	fmt.Println("Invaliad store name2")
 	return nil, ErrInvalidDataStoreName
 }
 
