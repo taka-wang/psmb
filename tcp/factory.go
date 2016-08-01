@@ -1,9 +1,6 @@
 package tcp
 
 import (
-	"fmt"
-	"reflect"
-
 	psmb "github.com/taka-wang/psmb"
 	log "github.com/takawang/logrus"
 )
@@ -17,6 +14,12 @@ var Factories = make(map[string]interface{})
 
 // Factory factory method
 type Factory func(conf map[string]string) (interface{}, error)
+
+// WriterTaskDataStoreFactory writer factory
+type WriterTaskDataStoreFactory func(conf map[string]string) (psmb.IWriterTaskDataStore, error)
+
+// ReaderTaskDataStoreFactory reader factory
+type ReaderTaskDataStoreFactory func(conf map[string]string) (psmb.IWriterTaskDataStore, error)
 
 // Register register
 func Register(name string, factory interface{}) {
@@ -69,18 +72,9 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 		return nil, ErrInvalidDataStoreName
 	}
 
-	a := reflect.ValueOf(engineFactory).Call(conf)
-	fmt.Println(a)
-
-	fmt.Println("BEGIN")
-	fmt.Println("type1: ", reflect.TypeOf(engineFactory))
-	// type1:  func(map[string]string) (psmb.IReaderTaskDataStore, error)
-
-	if f, _ := engineFactory.(psmb.IWriterTaskDataStore); f != nil {
-		fmt.Println("type: ", reflect.TypeOf(f))
-		//return f(conf)
+	if f, err := engineFactory.(WriterTaskDataStoreFactory); f != nil {
+		return f(conf)
 	}
-	fmt.Println("END")
 
 	return nil, ErrInvalidDataStoreName
 }
@@ -102,9 +96,8 @@ func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStor
 		return nil, ErrInvalidDataStoreName
 	}
 
-	if f, _ := engineFactory.(psmb.IReaderTaskDataStore); f != nil {
-		fmt.Println("type: ", reflect.TypeOf(f))
-		//return f(conf)
+	if f, err := engineFactory.(ReaderTaskDataStoreFactory); f != nil {
+		return f(conf)
 	}
 
 	return nil, ErrInvalidDataStoreName
