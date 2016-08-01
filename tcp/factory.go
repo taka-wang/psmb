@@ -46,7 +46,7 @@ func create(conf map[string]string, key string) (interface{}, error) {
 
 // CreateWriterTaskDataStore create writer task data store
 func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
-	ef, ok := create(conf, "WriterDataStore")
+	ef, _ := create(conf, "WriterDataStore")
 	if ef != nil {
 		if f, _ := ef.(func(map[string]string) (psmb.IWriterTaskDataStore, error)); f != nil {
 			got, ok := f(conf)
@@ -58,7 +58,7 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 
 // CreateReaderTaskDataStore create reader task data store
 func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
-	ef, ok := create(conf, "ReaderDataStore")
+	ef, _ := create(conf, "ReaderDataStore")
 	if ef != nil {
 		if f, _ := ef.(func(map[string]string) (psmb.IReaderTaskDataStore, error)); f != nil {
 			got, ok := f(conf)
