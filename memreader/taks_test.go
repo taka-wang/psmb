@@ -3,7 +3,7 @@ package memreader_test
 import (
 	"testing"
 
-	mr "github.com/taka-wang/psmb/memwriter"
+	mr "github.com/taka-wang/psmb/memreader"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
