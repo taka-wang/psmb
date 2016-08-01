@@ -71,10 +71,8 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 
 	fmt.Println(reflect.TypeOf(engineFactory))
 	fmt.Println(reflect.TypeOf(engineFactory).NumMethod())
-	if f, errr := engineFactory.(WriterTaskDataStoreFactory); f != nil {
-		return f(conf)
-	} else {
-		fmt.Println(errr)
+	if f, errr := engineFactory.(func(map[string]string)); f != nil {
+		return f(conf).(psmb.IWriterTaskDataStore)
 	}
 	fmt.Println("Invaliad store name2")
 	return nil, ErrInvalidDataStoreName
