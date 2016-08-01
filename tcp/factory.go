@@ -6,27 +6,27 @@ import (
 )
 
 //
-// Factory Pattern for writer task data store
+// Factory Pattern
 //
 
-// WriterTaskDataStoreFactory factory method for writer task data store
-type WriterTaskDataStoreFactory func(conf map[string]string) (psmb.IWriterTaskDataStore, error)
+// Factories factory container
+var Factories = make(map[string]interface{})
 
-// WriterTaskDataStoreFactories factories container
-var WriterTaskDataStoreFactories = make(map[string]WriterTaskDataStoreFactory)
+// Factory factory method
+type Factory func(conf map[string]string) (interface{}, error)
 
-// RegisterWriterTask register writer task data store
-func RegisterWriterTask(name string, factory WriterTaskDataStoreFactory) {
+// Register register
+func Register(name string, factory interface{}) {
 	if factory == nil {
 		err := ErrDataStoreNotExist
 		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
 	}
-	_, registered := WriterTaskDataStoreFactories[name]
+	_, registered := Factories[name]
 	if registered {
 		err := ErrDataStoreExist
 		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
 	}
-	WriterTaskDataStoreFactories[name] = factory
+	Factories[name] = factory
 }
 
 // CreateWriterTaskDataStore create writer task data store
@@ -37,43 +37,17 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 		defaultDS = got
 	}
 
-	engineFactory, ok := WriterTaskDataStoreFactories[defaultDS]
+	engineFactory, ok := Factories[defaultDS]
 	if !ok {
-		// Factory has not been registered.
-		// Make a list of all available datastore factories for logging.
-		availableDatastores := make([]string, len(WriterTaskDataStoreFactories))
-		for k := range WriterTaskDataStoreFactories {
+		availableDatastores := make([]string, len(Factories))
+		for k := range Factories {
 			availableDatastores = append(availableDatastores, k)
 		}
 		return nil, ErrInvalidDataStoreName
 	}
 
-	// Run the factory with the configuration.
-	return engineFactory(conf)
-}
-
-//
-// Factory Pattern for reader task data store
-//
-
-// ReaderTaskDataStoreFactory factory method for writer task data store
-type ReaderTaskDataStoreFactory func(conf map[string]string) (psmb.IReaderTaskDataStore, error)
-
-// ReaderTaskDataStoreFactories factories container
-var ReaderTaskDataStoreFactories = make(map[string]ReaderTaskDataStoreFactory)
-
-// RegisterReaderTask register reader task data store
-func RegisterReaderTask(name string, factory ReaderTaskDataStoreFactory) {
-	if factory == nil {
-		err := ErrDataStoreNotExist
-		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
-	}
-	_, registered := ReaderTaskDataStoreFactories[name]
-	if registered {
-		err := ErrDataStoreExist
-		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
-	}
-	ReaderTaskDataStoreFactories[name] = factory
+	ds, err := engineFactory(conf).(psmb.IWriterTaskDataStore)
+	return ds, err
 }
 
 // CreateReaderTaskDataStore create reader task data store
@@ -84,17 +58,15 @@ func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStor
 		defaultDS = got
 	}
 
-	engineFactory, ok := ReaderTaskDataStoreFactories[defaultDS]
+	engineFactory, ok := Factories[defaultDS]
 	if !ok {
-		// Factory has not been registered.
-		// Make a list of all available datastore factories for logging.
-		availableDatastores := make([]string, len(ReaderTaskDataStoreFactories))
-		for k := range ReaderTaskDataStoreFactories {
+		availableDatastores := make([]string, len(Factories))
+		for k := range Factories {
 			availableDatastores = append(availableDatastores, k)
 		}
 		return nil, ErrInvalidDataStoreName
 	}
 
-	// Run the factory with the configuration.
-	return engineFactory(conf)
+	ds, err := engineFactory(conf).(psmb.IReaderTaskDataStore)
+	return ds, err
 }

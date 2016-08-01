@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	psmbtcp.RegisterWriterTask("memory", memwriter.NewDataStore)
+	psmbtcp.Register("memory", memwriter.NewDataStore)
 }
 
 func TestWriterMap(t *testing.T) {
