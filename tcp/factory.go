@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	psmb "github.com/taka-wang/psmb"
+	"github.com/taka-wang/psmb"
 	log "github.com/takawang/logrus"
 )
 
@@ -43,11 +43,11 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	ef, _ := createDS(conf, writerDS)
 
 	if ef != nil {
-		fmt.Println(reflect.TypeOf(ef))
-		if f, ok := ef.(func(map[string]string) (interface{}, error)); ok {
-			got, ok2 := f(conf)
-			// todo: check casting
-			return got.(psmb.IWriterTaskDataStore), ok2
+		fmt.Println(reflect.TypeOf(ef)) // debug
+		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
+			if ds, _ := fn(conf); ds != nil { // casting
+				return ds.(psmb.IWriterTaskDataStore), nil
+			}
 		}
 		err := ErrCasting
 		log.WithFields(log.Fields{"err": err}).Error("Create writer data store")
@@ -61,11 +61,11 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 	ef, _ := createDS(conf, readerDS)
 
 	if ef != nil {
-		fmt.Println(reflect.TypeOf(ef))
-		if f, ok := ef.(func(map[string]string) (interface{}, error)); ok {
-			got, ok2 := f(conf)
-			// todo: check casting
-			return got.(psmb.IReaderTaskDataStore), ok2
+		fmt.Println(reflect.TypeOf(ef)) // debug
+		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
+			if ds, _ := fn(conf); ds != nil { // casting
+				return ds.(psmb.IReaderTaskDataStore), nil
+			}
 		}
 		err := ErrCasting
 		log.WithFields(log.Fields{"err": err}).Error("Create reader data store")
