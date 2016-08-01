@@ -4,20 +4,19 @@ import (
 	"github.com/taka-wang/gocron"
 	mr "github.com/taka-wang/psmb/memreader"
 	mw "github.com/taka-wang/psmb/memwriter"
-	mbtcp "github.com/taka-wang/psmb/tcp"
+	psmbtcp "github.com/taka-wang/psmb/tcp"
 )
 
 func init() {
-	mbtcp.Register("Writer", mw.NewDataStore)
-	mbtcp.Register("Reader1", mr.NewDataStore)
-	mbtcp.Register("Reader2", mr.NewDataStore)
+	psmbtcp.Register("Reader", mr.NewDataStore)
+	psmbtcp.Register("Writer", mw.NewDataStore)
 }
 
 func main() {
-	readerDataStore, _ := mbtcp.CreateReaderTaskDataStore("Reader2")
-	writerDataStore, _ := mbtcp.CreateWriterTaskDataStore("Writer")
+	readerDataStore, _ := psmbtcp.CreateReaderDataStore("Reader")
+	writerDataStore, _ := psmbtcp.CreateWriterDataStore("Writer")
 
-	srv := mbtcp.NewService(
+	srv := psmbtcp.NewService(
 		readerDataStore,       // readerMap
 		writerDataStore,       // writerMap
 		gocron.NewScheduler(), // scheduler
