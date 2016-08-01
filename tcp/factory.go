@@ -1,6 +1,9 @@
 package tcp
 
 import (
+	"fmt"
+	"reflect"
+
 	psmb "github.com/taka-wang/psmb"
 	log "github.com/takawang/logrus"
 )
@@ -67,6 +70,7 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 	}
 
 	if f, err := engineFactory.(psmb.IWriterTaskDataStore); f != nil {
+		fmt.Println("type: ", reflect.TypeOf(f))
 		return f(conf)
 	}
 
@@ -91,6 +95,7 @@ func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStor
 	}
 
 	if f, err := engineFactory.(psmb.IReaderTaskDataStore); f != nil {
+		fmt.Println("type: ", reflect.TypeOf(f))
 		return f(conf)
 	}
 
