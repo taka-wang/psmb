@@ -1,6 +1,7 @@
-/*
-Package tcp provides a proactive service library for modbus daemon.
-*/
+// Package tcp : Provide proactive service library for modbus `TCP` .
+//
+// By taka@cmwang.net
+//
 package tcp
 
 import (

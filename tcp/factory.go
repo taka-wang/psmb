@@ -46,6 +46,7 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 		fmt.Println(reflect.TypeOf(ef))
 		if f, ok := ef.(func(map[string]string) (interface{}, error)); ok {
 			got, ok2 := f(conf)
+			// todo: check casting
 			return got.(psmb.IWriterTaskDataStore), ok2
 		}
 		err := ErrCasting
@@ -55,8 +56,6 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	return nil, ErrInvalidDataStoreName
 }
 
-// func(map[string]string) (interface {}, error)
-
 // createReaderDS real factory method
 func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 	ef, _ := createDS(conf, readerDS)
@@ -65,6 +64,7 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 		fmt.Println(reflect.TypeOf(ef))
 		if f, ok := ef.(func(map[string]string) (interface{}, error)); ok {
 			got, ok2 := f(conf)
+			// todo: check casting
 			return got.(psmb.IReaderTaskDataStore), ok2
 		}
 		err := ErrCasting

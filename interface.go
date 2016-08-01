@@ -1,3 +1,10 @@
+// Package psmb : Proactive service for modbusd package.
+//
+// Define high-level Contracts(interface) and data types.
+//
+// By taka@cmwang.net
+//
+
 package psmb
 
 //

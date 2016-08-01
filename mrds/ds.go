@@ -1,3 +1,7 @@
+// Package mwds : In-memory data store for reader.
+//
+// By taka@cmwang.net
+//
 package mrds
 
 import (
