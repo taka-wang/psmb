@@ -38,10 +38,13 @@ func RegisterWriterTask(name string, factory WriterTaskDataStoreFactory) {
 
 // CreateWriterTaskDataStore create writer task data store
 func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
-	// Query configuration for datastore defaulting to "memory".
-	engineName := conf.Get("DATASTORE", "memory")
 
-	engineFactory, ok := WriterTaskDataStoreFactories[engineName]
+	defaultDS =: "memory"
+	if got, ok := conf["DATASTORE"]; ok {
+		defaultDS = got
+	}
+
+	engineFactory, ok := WriterTaskDataStoreFactories[defaultDS]
 	if !ok {
 		// Factory has not been registered.
 		// Make a list of all available datastore factories for logging.
