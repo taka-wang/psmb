@@ -72,11 +72,10 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 
 // CreateWriterDataStore create writer task data store
 func CreateWriterDataStore(driver string) (psmb.IWriterTaskDataStore, error) {
-	return createWriterDS(map[string]string{writerDS: driver)
+	return createWriterDS(map[string]string{writerDS: driver})
 }
 
 // CreateReaderDataStore create reader task data store
 func CreateReaderDataStore(driver string) (psmb.IReaderTaskDataStore, error) {
-	return createReaderDS(map[string]string{readerDS: driver)
+	return createReaderDS(map[string]string{readerDS: driver})
 }
-
