@@ -8,6 +8,12 @@ var (
 	// ErrTodo is the error of todo
 	ErrTodo = errors.New("TODO")
 
+	// ErrWriterDataStoreNotExist is the error when the writer store factory does not exist.
+	ErrWriterDataStoreNotExist = errors.New("Writer task store does not exist!")
+
+	// ErrWriterDataStoreExist is the error when the writer store factory is alreay registered.
+	ErrWriterDataStoreExist = errors.New("Writer task store does already regitered. Ignoring.")
+
 	// ErrRequestNotFound is the error when the request is not in the write task map.
 	ErrRequestNotFound = errors.New("Request not found!")
 

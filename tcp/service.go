@@ -30,7 +30,7 @@ type Service struct {
 	// readerMap read/poll task map
 	readerMap IReaderTaskMap
 	// writerMap write task map
-	writerMap IWriterTaskMap
+	writerMap IWriterTaskDataStore
 	// scheduler gocron scheduler
 	scheduler gocron.Scheduler
 	// sub ZMQ subscriber endpoints
@@ -54,7 +54,7 @@ type Service struct {
 }
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(r IReaderTaskMap, w IWriterTaskMap, s gocron.Scheduler) IProactiveService {
+func NewService(r IReaderTaskMap, w IWriterTaskDataStore, s gocron.Scheduler) IProactiveService {
 	return &Service{
 		enable:    true,
 		readerMap: r,
@@ -478,7 +478,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 
 		// update read/poll task map
 		if status == "ok" {
-			if err := b.readerMap.UpdateInterval(req.Name, req.Interval); err != nil {
+			if err := b.readerMap.UpdateIntervalByName(req.Name, req.Interval); err != nil {
 				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
 				status = err.Error() // set error status
 			}
@@ -488,7 +488,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbGetPoll: // done
 		req := r.(MbtcpPollOpReq)
-		t, ok := b.readerMap.GetByName(req.Name)
+		t, ok := b.readerMap.GetTaskByName(req.Name)
 		task := t.(ReaderTask) // type casting
 		if !ok {
 			err := ErrInvalidPollName // not in read/poll task map
@@ -527,7 +527,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			status = err.Error() // set error status
 		}
 		// remove task from read/poll map
-		b.readerMap.DeleteByName(req.Name)
+		b.readerMap.DeleteTaskByName(req.Name)
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.naiveResponder(cmd, resp)
@@ -550,7 +550,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		}
 		// update read/poll task map
 		if status == "ok" {
-			if err := b.readerMap.UpdateToggle(req.Name, req.Enabled); err != nil {
+			if err := b.readerMap.UpdateToggleByName(req.Name, req.Enabled); err != nil {
 				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
 				status = err.Error() // set error status
 			}
@@ -585,7 +585,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			b.scheduler.PauseAll()
 		}
 		// update read/poll task map
-		b.readerMap.UpdateAllToggles(req.Enabled)
+		b.readerMap.UpdateAllTogglesByName(req.Enabled)
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.naiveResponder(cmd, resp)
@@ -769,7 +769,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 		var t interface{}
 
 		// check read task table
-		if t, ok = b.readerMap.GetByTID(res.Tid); !ok {
+		if t, ok = b.readerMap.GetTaskByID(res.Tid); !ok {
 			return ErrRequestNotFound
 		}
 		task = t.(ReaderTask) // type casting
@@ -793,7 +793,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					Data:   data,
 				}
 				// remove from read/poll table
-				b.readerMap.DeleteByTID(res.Tid)
+				b.readerMap.DeleteTaskByID(res.Tid)
 			case mbCreatePoll, mbImportPolls: // poll data
 				respCmd = mbData // set as "mbtcp.data"
 				if res.Status != "ok" {
@@ -834,7 +834,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 						Status: res.Status,
 					}
 					// remove from read table
-					b.readerMap.DeleteByTID(res.Tid)
+					b.readerMap.DeleteTaskByID(res.Tid)
 					return b.naiveResponder(respCmd, response)
 				}
 
@@ -848,7 +848,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 						Status: err.Error(),
 					}
 					// remove from read table
-					b.readerMap.DeleteByTID(res.Tid)
+					b.readerMap.DeleteTaskByID(res.Tid)
 					return b.naiveResponder(respCmd, response)
 				}
 
@@ -941,7 +941,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				}
 
 				// remove from read table
-				b.readerMap.DeleteByTID(res.Tid)
+				b.readerMap.DeleteTaskByID(res.Tid)
 				return b.naiveResponder(respCmd, response)
 
 			case mbCreatePoll, mbImportPolls: // poll data

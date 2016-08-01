@@ -11,7 +11,7 @@ func TestWriterMap(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`add` task to map", func(log sugar.Log) bool {
-		writerMap := NewWriterMap()
+		writerMap, _ := NewWriterTaskDataStore()
 		writerMap.Add("123456", "12")
 		log("add `123456` to table")
 		writerMap.Add("234561", "34")

@@ -6,9 +6,14 @@ import (
 )
 
 func main() {
+
+	writerDataStore, _ := psmb.CreateWriterTaskDataStore(&map[string]string{
+		"DATASTORE": "memory",
+	})
+
 	srv := mbtcp.NewService(
 		mbtcp.NewReaderMap(),  // readerMap
-		mbtcp.NewWriterMap(),  // writerMap
+		writerDataStore,       // writerMap
 		gocron.NewScheduler(), // scheduler
 	)
 	srv.Start()

@@ -11,7 +11,7 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 - IProactiveService: proactive service
 - IReaderTaskMap:  read/poll task map
-- IWriterTaskMap: write task map
+- IWriterTaskDataStore: write task map
 
 
 ## Docker

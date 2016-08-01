@@ -1,40 +1,92 @@
 package tcp
 
 import (
+	"errors"
+	"fmt"
+	"strings"
 	"sync"
 
 	psmb "github.com/taka-wang/psmb"
 )
 
+// init register writer task
+func init() {
+	mbtcp.RegisterWriterTask("memory", NewWriterTaskDataStore)
+}
+
+//
+// Factory Pattern for writer task data store
+//
+
+// WriterTaskDataStoreFactory factory method for writer task data store
+type WriterTaskDataStoreFactory func(conf map[string]string) (psmb.IWriterTaskDataStore, error)
+
+// WriterTaskDataStoreFactories factories container
+var WriterTaskDataStoreFactories = make(map[string]WriterTaskDataStoreFactory)
+
+// RegisterWriterTask register writer task data store
+func RegisterWriterTask(name string, factory WriterTaskDataStoreFactory) {
+	if factory == nil {
+		err := ErrWriterDataStoreNotExist
+		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
+	}
+	_, registered := WriterTaskDataStoreFactories[name]
+	if registered {
+		err := ErrWriterDataStoreExist
+		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
+	}
+	WriterTaskDataStoreFactories[name] = factory
+}
+
+// CreateWriterTaskDataStore create writer task data store
+func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
+	// Query configuration for datastore defaulting to "memory".
+	engineName := conf.Get("DATASTORE", "memory")
+
+	engineFactory, ok := WriterTaskDataStoreFactories[engineName]
+	if !ok {
+		// Factory has not been registered.
+		// Make a list of all available datastore factories for logging.
+		availableDatastores := make([]string, len(WriterTaskDataStoreFactories))
+		for k := range WriterTaskDataStoreFactories {
+			availableDatastores = append(availableDatastores, k)
+		}
+		return nil, errors.New(fmt.Errorf("Invalid Datastore name. Must be one of: %s", strings.Join(availableDatastores, ", ")))
+	}
+
+	// Run the factory with the configuration.
+	return engineFactory(conf)
+}
+
 //
 // Implementations
 //
 
-// @Implement IWriterTaskMap contract implicitly
+// @Implement IWriterTaskDataStore contract implicitly
 
-// WriterTaskType write task map type
-type WriterTaskType struct {
+// WriterTaskDataStore write task map type
+type WriterTaskDataStore struct {
 	sync.RWMutex
 	// m key-value map: (tid, command)
 	m map[string]string
 }
 
-// NewWriterMap instantiate mbtcp write task map
-func NewWriterMap() psmb.IWriterTaskMap {
-	return &WriterTaskType{
+// NewWriterTaskDataStore instantiate mbtcp write task map
+func NewWriterTaskDataStore() (psmb.IWriterTaskDataStore, error) {
+	return &WriterTaskDataStore{
 		m: make(map[string]string),
-	}
+	}, nil
 }
 
 // Add add request to write task map
-func (s *WriterTaskType) Add(tid, cmd string) {
+func (s *WriterTaskDataStore) Add(tid, cmd string) {
 	s.Lock()
 	s.m[tid] = cmd
 	s.Unlock()
 }
 
 // Get get request from write task map
-func (s *WriterTaskType) Get(tid string) (string, bool) {
+func (s *WriterTaskDataStore) Get(tid string) (string, bool) {
 	s.RLock()
 	cmd, ok := s.m[tid]
 	s.RUnlock()
@@ -42,7 +94,7 @@ func (s *WriterTaskType) Get(tid string) (string, bool) {
 }
 
 // Delete remove request from write task map
-func (s *WriterTaskType) Delete(tid string) {
+func (s *WriterTaskDataStore) Delete(tid string) {
 	s.Lock()
 	delete(s.m, tid)
 	s.Unlock()
@@ -97,18 +149,18 @@ func (s *ReaderTaskType) Add(name, tid, cmd string, req interface{}) {
 	s.Unlock()
 }
 
-// GetByTID get request via TID from read/poll task map
+// GetTaskByID get request via TID from read/poll task map
 // interface{}: ReaderTask
-func (s *ReaderTaskType) GetByTID(tid string) (interface{}, bool) {
+func (s *ReaderTaskType) GetTaskByID(tid string) (interface{}, bool) {
 	s.RLock()
 	task, ok := s.idMap[tid]
 	s.RUnlock()
 	return task, ok
 }
 
-// GetByName get request via poll name from read/poll task map
+// GetTaskByName get request via poll name from read/poll task map
 // 	interface{}: ReaderTask
-func (s *ReaderTaskType) GetByName(name string) (interface{}, bool) {
+func (s *ReaderTaskType) GetTaskByName(name string) (interface{}, bool) {
 	s.RLock()
 	task, ok := s.nameMap[name]
 	s.RUnlock()
@@ -139,8 +191,8 @@ func (s *ReaderTaskType) DeleteAll() {
 	s.Unlock()
 }
 
-// DeleteByTID remove request from via TID from read/poll task map
-func (s *ReaderTaskType) DeleteByTID(tid string) {
+// DeleteTaskByID remove request from via TID from read/poll task map
+func (s *ReaderTaskType) DeleteTaskByID(tid string) {
 	s.RLock()
 	name, ok := s.idName[tid]
 	s.RUnlock()
@@ -155,8 +207,8 @@ func (s *ReaderTaskType) DeleteByTID(tid string) {
 	s.Unlock()
 }
 
-// DeleteByName remove request via poll name from read/poll task map
-func (s *ReaderTaskType) DeleteByName(name string) {
+// DeleteTaskByName remove request via poll name from read/poll task map
+func (s *ReaderTaskType) DeleteTaskByName(name string) {
 	s.RLock()
 	tid, ok := s.nameID[name]
 	s.RUnlock()
@@ -171,8 +223,8 @@ func (s *ReaderTaskType) DeleteByName(name string) {
 	s.Unlock()
 }
 
-// UpdateInterval update poll request interval
-func (s *ReaderTaskType) UpdateInterval(name string, interval uint64) error {
+// UpdateIntervalByName update poll request interval
+func (s *ReaderTaskType) UpdateIntervalByName(name string, interval uint64) error {
 	s.RLock()
 	tid, _ := s.nameID[name]
 	task, ok := s.nameMap[name]
@@ -195,8 +247,8 @@ func (s *ReaderTaskType) UpdateInterval(name string, interval uint64) error {
 	return nil
 }
 
-// UpdateToggle update poll request enabled flag
-func (s *ReaderTaskType) UpdateToggle(name string, toggle bool) error {
+// UpdateToggleByName update poll request enabled flag
+func (s *ReaderTaskType) UpdateToggleByName(name string, toggle bool) error {
 	s.RLock()
 	tid, _ := s.nameID[name]
 	task, ok := s.nameMap[name]
@@ -219,8 +271,8 @@ func (s *ReaderTaskType) UpdateToggle(name string, toggle bool) error {
 	return nil
 }
 
-// UpdateAllToggles update all poll request enabled flag
-func (s *ReaderTaskType) UpdateAllToggles(toggle bool) {
+// UpdateAllTogglesByName update all poll request enabled flag
+func (s *ReaderTaskType) UpdateAllTogglesByName(toggle bool) {
 	s.Lock()
 	for name, task := range s.nameMap {
 		// type casting check!

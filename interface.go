@@ -21,9 +21,9 @@ type IProactiveService interface {
 	HandleResponse(cmd string, r interface{}) error
 }
 
-// IWriterTaskMap write task interface
+// IWriterTaskDataStore write task interface
 //	(Tid, Command) map
-type IWriterTaskMap interface {
+type IWriterTaskDataStore interface {
 	// Add add request to write task map,
 	// params: TID, CMD strings.
 	Add(tid, cmd string)
@@ -43,11 +43,11 @@ type IReaderTaskMap interface {
 	// Add add request to read/poll task map
 	Add(name, tid, cmd string, req interface{})
 
-	// GetByTID get request via TID from read/poll task map
-	GetByTID(tid string) (interface{}, bool)
+	// GetTaskByID get request via TID from read/poll task map
+	GetTaskByID(tid string) (interface{}, bool)
 
-	// GetByName get request via poll name from read/poll task map
-	GetByName(name string) (interface{}, bool)
+	// GetTaskByName get request via poll name from read/poll task map
+	GetTaskByName(name string) (interface{}, bool)
 
 	// GetAll get all requests from read/poll task map
 	//	ex: mbtcp: []MbtcpPollStatus
@@ -56,18 +56,18 @@ type IReaderTaskMap interface {
 	// DeleteAll remove all requests from read/poll task map
 	DeleteAll()
 
-	// DeleteByTID remove request from via TID from read/poll task map
-	DeleteByTID(tid string)
+	// DeleteTaskByID remove request from via TID from read/poll task map
+	DeleteTaskByID(tid string)
 
-	// DeleteByName remove request via poll name from read/poll task map
-	DeleteByName(name string)
+	// DeleteTaskByName remove request via poll name from read/poll task map
+	DeleteTaskByName(name string)
 
-	// UpdateInterval update poll request interval
-	UpdateInterval(name string, interval uint64) error
+	// UpdateIntervalByName update poll request interval
+	UpdateIntervalByName(name string, interval uint64) error
 
-	// UpdateToggle update poll request enabled flag
-	UpdateToggle(name string, toggle bool) error
+	// UpdateToggleByName update poll request enabled flag
+	UpdateToggleByName(name string, toggle bool) error
 
-	// UpdateAllToggles update all poll request enabled flag
-	UpdateAllToggles(toggle bool)
+	// UpdateAllTogglesByName update all poll request enabled flag
+	UpdateAllTogglesByName(toggle bool)
 }
