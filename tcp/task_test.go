@@ -3,7 +3,7 @@ package tcp_test
 import (
 	"testing"
 
-	. "github.com/taka-wang/psmb/tcp"
+	//. "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
