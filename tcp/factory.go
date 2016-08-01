@@ -1,6 +1,8 @@
 package tcp
 
 import (
+	"fmt"
+
 	psmb "github.com/taka-wang/psmb"
 	log "github.com/takawang/logrus"
 )
@@ -37,6 +39,14 @@ func Register(name string, factory interface{}) {
 
 // CreateWriterTaskDataStore create writer task data store
 func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
+
+	for k, v := range conf {
+		fmt.Println(k, v)
+	}
+
+	for k, v := range Factories {
+		fmt.Println(k, v)
+	}
 
 	defaultDS := "Writer"
 	if got, ok := conf["WriterDataStore"]; ok {
