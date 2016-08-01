@@ -12,15 +12,6 @@ import (
 // Factories factory container
 var Factories = make(map[string]interface{})
 
-// Factory factory method
-type Factory func(conf map[string]string) (interface{}, error)
-
-// WriterTaskDataStoreFactory writer factory
-type WriterTaskDataStoreFactory func(map[string]string) (psmb.IWriterTaskDataStore, error)
-
-// ReaderTaskDataStoreFactory reader factory
-type ReaderTaskDataStoreFactory func(map[string]string) (psmb.IReaderTaskDataStore, error)
-
 // Register register
 func Register(name string, factory interface{}) {
 	if factory == nil {
@@ -35,14 +26,14 @@ func Register(name string, factory interface{}) {
 	Factories[name] = factory
 }
 
-// CreateWriterTaskDataStore create writer task data store
-func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
-	defaultDS := "Writer"
-	if got, ok := conf["WriterDataStore"]; ok {
-		defaultDS = got
+// Create create method
+func create(conf map[string]string, key string) (interface{}, error) {
+	defaultKey := ""
+	if got, ok := conf[key]; ok {
+		defaultKey = got
 	}
 
-	engineFactory, ok := Factories[defaultDS]
+	engineFactory, ok := Factories[defaultKey]
 	if !ok {
 		availableDatastores := make([]string, len(Factories))
 		for k := range Factories {
@@ -50,34 +41,29 @@ func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStor
 		}
 		return nil, ErrInvalidDataStoreName
 	}
+	return engineFactory, ok
+}
 
-	if f, _ := engineFactory.(func(map[string]string) (psmb.IWriterTaskDataStore, error)); f != nil {
-		got, ok := f(conf)
-		return got.(psmb.IWriterTaskDataStore), ok
+// CreateWriterTaskDataStore create writer task data store
+func CreateWriterTaskDataStore(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
+	ef, ok := create(conf, "WriterDataStore")
+	if ef != nil {
+		if f, _ := ef.(func(map[string]string) (psmb.IWriterTaskDataStore, error)); f != nil {
+			got, ok := f(conf)
+			return got.(psmb.IWriterTaskDataStore), ok
+		}
 	}
 	return nil, ErrInvalidDataStoreName
 }
 
 // CreateReaderTaskDataStore create reader task data store
 func CreateReaderTaskDataStore(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
-
-	defaultDS := "Reader"
-	if got, ok := conf["ReaderDataStore"]; ok {
-		defaultDS = got
-	}
-
-	engineFactory, ok := Factories[defaultDS]
-	if !ok {
-		availableDatastores := make([]string, len(Factories))
-		for k := range Factories {
-			availableDatastores = append(availableDatastores, k)
+	ef, ok := create(conf, "ReaderDataStore")
+	if ef != nil {
+		if f, _ := ef.(func(map[string]string) (psmb.IReaderTaskDataStore, error)); f != nil {
+			got, ok := f(conf)
+			return got.(psmb.IReaderTaskDataStore), ok
 		}
-		return nil, ErrInvalidDataStoreName
 	}
-
-	if f, _ := engineFactory.(ReaderTaskDataStoreFactory); f != nil {
-		return f(conf)
-	}
-
 	return nil, ErrInvalidDataStoreName
 }
