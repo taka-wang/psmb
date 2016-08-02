@@ -2,6 +2,18 @@
 
 pipeline:
 
+    test-dbhistory:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker-compose -f dbhistory/docker-compose.yml rm -f -a
+            - docker-compose -f dbhistory/docker-compose.yml pull
+            - docker-compose -f dbhistory/docker-compose.yml build
+            - docker-compose -f dbhistory/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f dbhistory/docker-compose.yml stop
+            - docker-compose -f dbhistory/docker-compose.yml rm -f -a
+
     test-dbwds:
         image: takawang/dind
         volumes:

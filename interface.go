@@ -88,3 +88,15 @@ type IReaderTaskDataStore interface {
 	// UpdateAllTogglesByName update all poll request enabled flag
 	UpdateAllTogglesByName(toggle bool)
 }
+
+// IHistoryDataStore history interface
+type IHistoryDataStore interface {
+	// Add add history
+	Add(name, data string) error
+	// Get get history within range
+	Get(name string, start, stop int) (map[string]string, error)
+	// GetAll get all history
+	GetAll(name string) (map[string]string, error)
+	// GetLast get latest history
+	GetLast(name string) (string, error)
+}

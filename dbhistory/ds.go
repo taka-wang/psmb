@@ -1,8 +1,8 @@
-// Package dbwds an redis-based data store for writer.
+// Package dbhistory an redis-based data store for history.
 //
 // By taka@cmwang.net
 //
-package dbwds
+package dbhistory
 
 import (
 	"net"
@@ -14,16 +14,18 @@ import (
 
 var (
 	// RedisPool redis connection pool
-	RedisPool *redis.Pool
-	hostName  string
-	port      string
-	hashName  string
+	RedisPool  *redis.Pool
+	hostName   string
+	port       string
+	hashName   string
+	zsetPrefix string
 )
 
 func init() {
 	// TODO: load config
 	port = "6379"
-	hashName = "mbtcp:writer"
+	hashName = "mbtcp:last"
+	zsetPrefix = "mbtcp:data:"
 	host, err := net.LookupHost("redis")
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
@@ -47,10 +49,10 @@ func init() {
 	}
 }
 
-// @Implement IWriterTaskDataStore contract implicitly
+// @Implement IHistoryDataStore contract implicitly
 
-// writerTaskDataStore write task map type
-type writerTaskDataStore struct {
+// dataStore data store
+type dataStore struct {
 	redis redis.Conn
 }
 
@@ -62,12 +64,12 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 		return nil, ErrConnection
 	}
 
-	return &writerTaskDataStore{
+	return &dataStore{
 		redis: conn,
 	}, nil
 }
 
-func (ds *writerTaskDataStore) connectRedis() error {
+func (ds *dataStore) connectRedis() error {
 	// get connection
 	conn := RedisPool.Get()
 	if nil == conn {
@@ -80,7 +82,7 @@ func (ds *writerTaskDataStore) connectRedis() error {
 	return nil
 }
 
-func (ds *writerTaskDataStore) closeRedis() {
+func (ds *dataStore) closeRedis() {
 	if ds != nil && ds.redis != nil {
 		err := ds.redis.Close()
 		if err != nil {
@@ -93,40 +95,53 @@ func (ds *writerTaskDataStore) closeRedis() {
 	}
 }
 
-// Add add request to write task map
-func (ds *writerTaskDataStore) Add(tid, cmd string) {
+func (ds *dataStore) Add(name, data string) error {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Add")
+		log.WithFields(log.Fields{"err": err}).Debug("Add")
 	}
 
-	if _, err := ds.redis.Do("HSET", hashName, tid, cmd); err != nil {
+	// MULTI
+	ds.redis.Send("MULTI")
+	ds.redis.Send("HSET", hashName, name, data)                               // latest
+	ds.redis.Send("ZADD", zsetPrefix+name, time.Now().UTC().UnixNano(), data) // add to zset
+	if _, err := ds.redis.Do("EXEC"); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Add")
+		return err
 	}
+	return nil
 }
 
-// Get get request from write task map
-func (ds *writerTaskDataStore) Get(tid string) (string, bool) {
+func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error) {
+	if name == "" {
+		return nil, ErrInvalidName
+	}
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Get")
+		log.WithFields(log.Fields{"err": err}).Debug("Get")
 	}
-
-	ret, err := redis.String(ds.redis.Do("HGET", hashName, tid))
+	ret, err := redis.StringMap(ds.redis.Do("ZRANGE", zsetPrefix+name, start, stop, "WITHSCORES"))
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
-		return "", false
+		return nil, err
 	}
-	return ret, true
+	return ret, nil
 }
 
-// Delete remove request from write task map
-func (ds *writerTaskDataStore) Delete(tid string) {
+func (ds *dataStore) GetAll(name string) (map[string]string, error) {
+	return ds.Get(name, 0, -1)
+}
+
+func (ds *dataStore) GetLast(name string) (string, error) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Delete")
+		log.WithFields(log.Fields{"err": err}).Error("GetLast")
 	}
-	if _, err := ds.redis.Do("HDEL", hashName, tid); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Delete")
+
+	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("GetLast")
+		return "", err
 	}
+	return ret, nil
 }
