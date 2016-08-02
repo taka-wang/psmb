@@ -35,9 +35,10 @@ func init() {
 func main() {
 	// dependency injection & factory pattern
 	if srv, _ := mbtcp.NewService(
-		"Cron",                          // Scheduler
-		"MemReader",                     // Reader Data Store
-		"RedisWriter", hostName+":6379", // Writer Data Store
+		"MemReader",      // Reader Data Store
+		"RedisWriter",    // Writer Data Store
+		"Cron",           // Scheduler
+		hostName+":6379", // Connection string
 	); srv != nil {
 		srv.Start()
 	}
@@ -47,9 +48,9 @@ func main() {
 func main() {
 	// dependency injection & factory pattern
 	if srv, _ := mbtcp.NewService(
-		"Cron",      // Scheduler
 		"MemReader", // Reader Data Store
 		"MemWriter", // Writer Data Store
+		"Cron",      // Scheduler
 	); srv != nil {
 		srv.Start()
 	}

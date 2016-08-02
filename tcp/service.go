@@ -83,7 +83,7 @@ type Service struct {
 }
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(sch string, reader string, writer ...string) (IProactiveService, error) {
+func NewService(reader, writer, sch, conn string) (IProactiveService, error) {
 	// Factory methods
 	readerPlugin, err1 := ReaderDataStoreCreator(reader)
 	if err1 != nil {
@@ -91,7 +91,7 @@ func NewService(sch string, reader string, writer ...string) (IProactiveService,
 		return nil, err1
 	}
 
-	writerPlugin, err2 := WriterDataStoreCreator(writer)
+	writerPlugin, err2 := WriterDataStoreCreator(writer, conn)
 	if err2 != nil {
 		log.WithFields(log.Fields{"err": err2}).Error("Fail to create writer data store")
 		return nil, err2
