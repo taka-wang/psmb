@@ -160,6 +160,7 @@ func (s *scheduler) RunPending() {
 	s.runPending(time.Now())
 }
 
+/*
 // Depricated: RunAll rungs all jobs regardless if they are scheduled to run or not
 func (s *scheduler) RunAll() {
 	RunAllWithDelay(0)
@@ -183,6 +184,7 @@ func (s *scheduler) RunAllWithDelay(d time.Duration) {
 	}
 
 }
+*/
 
 // Location sets the default location for every job created
 // with `Scheduler.Every(...)`. By default the location is `time.Local`
