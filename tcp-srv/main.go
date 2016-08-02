@@ -11,8 +11,10 @@ import (
 	mbtcp "github.com/taka-wang/psmb/tcp"
 )
 
+var hostName string
+
 func init() {
-	var hostName string
+
 	// get hostname
 	host, err := net.LookupHost("redis")
 	if err != nil {
@@ -33,9 +35,9 @@ func init() {
 func main() {
 	// dependency injection & factory pattern
 	if srv, _ := mbtcp.NewService(
-		"MemReader",   // Reader Data Store
-		"RedisWriter", // Writer Data Store
-		"Cron",        // Scheduler
+		"Cron",                          // Scheduler
+		"MemReader",                     // Reader Data Store
+		"RedisWriter", hostName+":6379", // Writer Data Store
 	); srv != nil {
 		srv.Start()
 	}
@@ -45,9 +47,9 @@ func main() {
 func main() {
 	// dependency injection & factory pattern
 	if srv, _ := mbtcp.NewService(
+		"Cron",      // Scheduler
 		"MemReader", // Reader Data Store
 		"MemWriter", // Writer Data Store
-		"Cron",      // Scheduler
 	); srv != nil {
 		srv.Start()
 	}
