@@ -2,18 +2,17 @@
 
 Proactive service for modbus tcp library.
 
-## Continuous Integration
-
-I do continuous integration and build docker images after git push by self-hosted drone.io server and [dockerhub]((https://hub.docker.com/r/takawang/c-modbus-slave/)) service.
-
----
-
 ## Install
 
 ```
 go get -u github.com/taka-wang/psmb/tcp
 ```
 
+
+## Environment variables
+
+- CONF_PSMBTCP: config file location
+- EP_BACKEND: remote service discovery endpoint (optional)
 
 ## Unit tests
 
@@ -22,3 +21,9 @@ go get -u github.com/taka-wang/psmb/tcp
 ## Test cases
 
 - [x] `add` task to map
+
+---
+
+## UML 
+
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZ13S0W2030LTe1AlzkWzIeAQ0HYEitlUUTNOdZAR7uQExJRe25EzNkBN9OMJJKYtgY8U3uuhLHAymG1a7pie0OpK2oqqp_Vm00)

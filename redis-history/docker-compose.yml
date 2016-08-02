@@ -1,0 +1,11 @@
+redis:
+    image: redis
+    ports:
+        - "6379"
+redis-history:
+    build: .
+    links:
+        - redis
+    volumes: # mount for test
+        - /var/tmp:/var/tmp
+

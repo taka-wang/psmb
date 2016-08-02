@@ -1,11 +1,16 @@
 # psmb
 
-[![Build Status](http://dev.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://dev.cmwang.net/taka-wang/psmb)
+[![Build Status](http://drone.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://drone.cmwang.net/taka-wang/psmb)
 [![GoDoc](https://godoc.org/github.com/taka-wang/psmb?status.svg)](http://godoc.org/github.com/taka-wang/psmb)
 
 Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ---
+
+## Environment variables
+
+- CONF_PSMBTCP: config file location
+- EP_BACKEND: remote service discovery endpoint (optional)
 
 ## Contracts (Interfaces)
 
@@ -13,44 +18,23 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 - IReaderTaskDataStore:  read/poll task map
 - IWriterTaskDataStore: write task map
 - IHistoryDataStore: history map
+- IFilterDataStore: filter map
+- IConfig: config
 
-
-## Docker
-
-### Docker Compose
-
-```bash
-docker-compose build  --pull
-docker-compose up --abort-on-container-exit
-```
-
-### From docker images
+## Docker Compose
 
 ```bash
-
-# run modbus slave
-docker run -itd --name=slave takawang/c-modbus-slave:x86
-
-# run modbusd
-docker run -v /tmp:/tmp --link slave -it --name=modbusd takawang/modbusd:x86
-
-# run psmbtcp-srv
-docker build -t takawang/psmbtcp-srv tcp-srv/.
-docker run -v /tmp:/tmp -itd takawang/psmbtcp-srv
-
-# run dummy-srv
-docker build -t takawang/dummy-srv test/dummy-srv/.
-docker run -v /tmp:/tmp --link slave -it takawang/dummy-srv
+docker-compose build --pull
+docker-compose up
 ```
 
 ## Continuous Integration
 
 I do continuous integration and build docker images after git push by self-hosted drone.io server and [dockerhub]((https://hub.docker.com/r/takawang/c-modbus-slave/)) service.
 
-
 ## Deployment Diagram
 
-![deployment](_image/ndeployment.png)
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QVJfnraAD42aGA0DSNlrVRUcuh9wqfwNADB62T1ncf0agjL1tTKYLCIuoY1uupQn16ZA6HY7K0TFBTU7lmHji3M_NVln0W00)
 
 ---
 
@@ -99,7 +83,6 @@ I do continuous integration and build docker images after git push by self-hoste
     - [x] `LinearScalingRegisters` test - (0,0,0,0)
     - [x] `LinearScalingRegisters` test - reverse
 
-
 ### Types
 
 #### Upstream structure test
@@ -125,3 +108,9 @@ I do continuous integration and build docker images after git push by self-hoste
     - [x] `multiple write` request test
     - [x] `set timeout` request test
     - [x] `get timeout` response test
+
+---
+
+## UML
+
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZ13S0W2030LTe1Alz-EWjQewQ0HY2kttZFEviayZVxfAEQ3Rq19gvGcbMFhdccBfR5GkeCXXzU2wN0S2PWLCiJ4g4g3EKOTZ-u_G00)

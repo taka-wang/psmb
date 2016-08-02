@@ -73,7 +73,6 @@ func longSubscriber() {
 // init functions
 func init() {
 	time.Sleep(2000 * time.Millisecond)
-
 	// generalize host reslove for docker/local env
 	host, err := net.LookupHost("slave")
 	if err != nil {
@@ -4049,46 +4048,8 @@ func TestOneOffReadFC4(t *testing.T) {
 func TestPollRequestSingle(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`mbtcp.poll.create FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
-		// send request
-		readReq := psmb.MbtcpPollStatus{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			//Name:     "LED_11",
-			Interval: 1,
-			Enabled:  true,
-			IP:       hostName,
-			Port:     portNum1,
-			FC:       1,
-			Slave:    1,
-			Addr:     3,
-			Len:      7,
-		}
+	s.Assert("`mbtcp.poll.create/mbtcp.poll.history/mbtcp.poll.delete FC1` read bits test: port 503 - interval 1", func(log sugar.Log) bool {
 
-		readReqStr, _ := json.Marshal(readReq)
-		cmd := "mbtcp.poll.create"
-		go publisher(cmd, string(readReqStr))
-
-		// receive response
-		s1, s2 := subscriber()
-
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
-
-		// parse resonse
-		var r2 psmb.MbtcpSimpleRes
-		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
-		}
-		// check response
-		if r2.Status != "ok" {
-			return true
-		}
-		return false
-
-	})
-
-	s.Assert("`mbtcp.poll.create/mbtcp.poll.delete FC1` read bits test: port 503 - interval 1", func(log sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From:     "web",
@@ -4128,6 +4089,18 @@ func TestPollRequestSingle(t *testing.T) {
 
 		time.Sleep(10 * time.Second)
 
+		historyReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+
+		historyReqStr, _ := json.Marshal(historyReq)
+		cmd = "mbtcp.poll.history"
+		go publisher(cmd, string(historyReqStr))
+
+		time.Sleep(5 * time.Second)
+
 		// delete poller
 		delReq := psmb.MbtcpPollOpReq{
 			From: "web",
@@ -4145,6 +4118,45 @@ func TestPollRequestSingle(t *testing.T) {
 		time.Sleep(1 * time.Second)
 
 		return true
+	})
+
+	s.Assert("`mbtcp.poll.create FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
+		// send request
+		readReq := psmb.MbtcpPollStatus{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			//Name:     "LED_11",
+			Interval: 1,
+			Enabled:  true,
+			IP:       hostName,
+			Port:     portNum1,
+			FC:       1,
+			Slave:    1,
+			Addr:     3,
+			Len:      7,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.poll.create"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return true
+		}
+		return false
+
 	})
 
 	s.Assert("`mbtcp.poll.update/mbtcp.poll.delete FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {

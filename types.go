@@ -5,16 +5,29 @@ import (
 	"strings"
 )
 
-// ScaleRange defines scale range
-type ScaleRange struct {
-	DomainLow  float64 `json:"a"`
-	DomainHigh float64 `json:"b"`
-	RangeLow   float64 `json:"c"`
-	RangeHigh  float64 `json:"d"`
-}
+type (
 
-// JSONableByteSlice jsonable uint8 array
-type JSONableByteSlice []byte
+	// ScaleRange defines scale range
+	ScaleRange struct {
+		DomainLow  float64 `json:"a"`
+		DomainHigh float64 `json:"b"`
+		RangeLow   float64 `json:"c"`
+		RangeHigh  float64 `json:"d"`
+	}
+
+	// JSONableByteSlice jsonable uint8 array
+	JSONableByteSlice []byte
+
+	// Endian defines byte endianness
+	Endian int
+
+	// RegValueType return value type defines how to inteprete registers, i.e.,
+	//  for modbus read function codes only
+	RegValueType int
+
+	// FilterType filter type
+	FilterType int
+)
 
 // MarshalJSON implements the Marshaler interface on JSONableByteSlice (i.e., uint8/byte array).
 // Ref: http://stackoverflow.com/questions/14177862/how-to-jsonize-a-uint8-slice-in-go
@@ -27,9 +40,6 @@ func (u JSONableByteSlice) MarshalJSON() ([]byte, error) {
 	}
 	return []byte(result), nil
 }
-
-// Endian defines byte endianness
-type Endian int
 
 // 16-bits Endian
 const (
@@ -66,10 +76,6 @@ const (
 	MidLittleEndian
 )
 
-// RegValueType return value type defines how to inteprete registers, i.e.,
-//  for modbus read function codes only
-type RegValueType int
-
 // Register value type for read function
 const (
 	_ RegValueType = iota // ignore first value by assigning to blank identifier
@@ -91,9 +97,7 @@ const (
 	Float32
 )
 
-// FilterType filter type
-type FilterType int
-
+// Filter value type
 const (
 	// Change change or not
 	Change FilterType = iota

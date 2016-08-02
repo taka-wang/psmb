@@ -1,0 +1,10 @@
+mongodb:
+    image: mongo
+    ports:
+        - "27017"
+mgo-history:
+    build: .
+    links:
+        - mongodb
+    volumes: # mount for test
+        - /var/tmp:/var/tmp

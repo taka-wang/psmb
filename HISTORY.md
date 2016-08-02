@@ -54,3 +54,18 @@
 - table size limit
 - fix handleResponse last return issue
 - add to log and filter
+
+
+## TODO
+
+- routine Worker Thread-Pool
+- routine pool flow chart
+- scheduler concurrency
+- map max capacity
+- refine config for max capacity
+- refactor log singleton
+- refine log messages
+- https://github.com/apex/log
+- unit tests for filters
+- integration tests for filters
+- refactor test cases

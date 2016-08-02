@@ -66,3 +66,9 @@ func main() {
 
 }
 ```
+
+---
+
+## UML
+
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZR3O0W3030LNG0wR_RrDeWiHJIHrZVU9-tDoN9czDaUoAcdm26gzGMJrxfR3GqMAFGw13uuh5GAypi0Xqzs804tO5iQFdx0m00)

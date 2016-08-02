@@ -6,114 +6,136 @@ package tcp
 
 import (
 	"encoding/json"
+	"reflect"
 	"strconv"
 	"time"
 
 	. "github.com/taka-wang/psmb"
 	cron "github.com/taka-wang/psmb/cron"
+	//conf "github.com/taka-wang/psmb/mini-conf"
+	conf "github.com/taka-wang/psmb/viper-conf"
 	log "github.com/takawang/logrus"
 	zmq "github.com/takawang/zmq3"
 )
 
-func init() {
-	initLogger()
+var (
+	// defaultMbPort default modbus slave port number
+	defaultMbPort string
+	// minConnTimeout minimal modbus tcp connection timeout
+	minConnTimeout int64
+	// minPollInterval minimal modbus tcp poll interval
+	minPollInterval uint64
+)
+
+func setDefaults() {
+	// set default psmbtcp values
+	conf.SetDefault(keyTCPDefaultPort, defaultTCPDefaultPort)
+	conf.SetDefault(keyMinConnectionTimout, defaultMinConnectionTimout)
+	conf.SetDefault(keyPollInterval, defaultPollInterval)
+	// set default zmq values
+	conf.SetDefault(keyZmqPubUpstream, defaultZmqPubUpstream)
+	conf.SetDefault(keyZmqPubDownstream, defaultZmqPubDownstream)
+	conf.SetDefault(keyZmqSubUpstream, defaultZmqSubUpstream)
+	conf.SetDefault(keyZmqSubDownstream, defaultZmqSubDownstream)
 }
 
-// initLogger init logger
-func initLogger() {
-	// Log as JSON instead of the default ASCII formatter.
-	//log.SetFormatter(&log.JSONFormatter{})
+func init() {
+	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
+	log.SetLevel(log.DebugLevel)                            // ...
+	setDefaults()                                           // set defaults
 
-	// Output to stderr instead of stdout, could also be a file.
-	//log.SetOutput(os.Stderr)
-
-	// Only log the warning severity or above.
-	//log.SetLevel(log.WarnLevel)
-
-	/*
-	   if Environment == "production" {
-	       log.SetFormatter(&log.JSONFormatter{})
-	   } else {
-	       // The TextFormatter is default, you don't actually have to do this.
-	       log.SetFormatter(&log.TextFormatter{})
-	   }
-	*/
-	log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	log.SetLevel(log.DebugLevel)
-	//log.SetLevel(log.ErrorLevel)
+	defaultMbPort = conf.GetString(keyTCPDefaultPort)
+	minConnTimeout = conf.GetInt64(keyMinConnectionTimout)
+	minPollInterval = uint64(conf.GetInt(keyPollInterval))
 }
 
 // @Implement IProactiveService contract implicitly
 
-const (
-	// defaultMbPort default modbus slave port number
-	defaultMbPort = "502"
-	// minConnTimeout minimal modbus tcp connection timeout
-	minConnTimeout = 200000
-	// minPollInterval minimal modbus tcp poll interval
-	minPollInterval = 1
-)
+type (
 
-// Service modbusd tcp proactive service type
-type Service struct {
-	// readerMap read/poll task map
-	readerMap IReaderTaskDataStore
-	// writerMap write task map
-	writerMap IWriterTaskDataStore
-	// historyMap history map
-	historyMap IHistoryDataStore
-	// scheduler cron scheduler
-	scheduler cron.Scheduler
-	// sub ZMQ subscriber endpoints
-	sub struct {
+	// zSockets zmq sockets
+	zSockets struct {
 		// upstream subscriber from services
 		upstream *zmq.Socket
 		// downstream subscriber from modbusd
 		downstream *zmq.Socket
 	}
-	// pub ZMQ publisher endpoints
-	pub struct {
-		// upstream publisher to services
-		upstream *zmq.Socket
-		// downstream publisher to modbusd
-		downstream *zmq.Socket
+
+	// Service modbusd tcp proactive service type
+	Service struct {
+		// readerMap read/poll task map
+		readerMap IReaderTaskDataStore
+		// writerMap write task map
+		writerMap IWriterTaskDataStore
+		// historyMap history map
+		historyMap IHistoryDataStore
+		// filterMap filter map
+		filterMap IFilterDataStore
+		// scheduler cron scheduler
+		scheduler cron.Scheduler
+		// sub ZMQ subscriber endpoints
+		sub zSockets
+		// pub ZMQ publisher endpoints
+		pub zSockets
+		// poller ZMQ poller
+		poller *zmq.Poller
+		// enable poller flag
+		enable bool
 	}
-	// poller ZMQ poller
-	poller *zmq.Poller
-	// enable poller flag
-	enable bool
-}
+)
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(reader, writer, history, sch string) (IProactiveService, error) {
+func NewService(reader, writer, history, filter, sch string) (IProactiveService, error) {
 	var readerPlugin IReaderTaskDataStore
 	var writerPlugin IWriterTaskDataStore
 	var historyPlugin IHistoryDataStore
+	var filterPlugin IFilterDataStore
 	var schedulerPlugin cron.Scheduler
 	var err error
-
-	// Factory methods
-	readerPlugin, err = ReaderDataStoreCreator(reader)
-	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create reader data store")
+	// factory methods
+	if readerPlugin, err = ReaderDataStoreCreator(reader); err != nil { // reader factory
+		log.WithError(err).Panic("Fail to create reader data store")
 		return nil, err
 	}
 
-	writerPlugin, err = WriterDataStoreCreator(writer)
-	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create writer data store")
+	if writerPlugin, err = WriterDataStoreCreator(writer); err != nil { // writer factory
+		log.WithError(err).Panic("Fail to create writer data store")
 		return nil, err
 	}
 
-	historyPlugin, err = HistoryDataStoreCreator(history)
-	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create history data store")
+	if historyPlugin, err = HistoryDataStoreCreator(history); err != nil { // historian factory
+		log.WithError(err).Panic("Fail to create history data store")
 		return nil, err
 	}
 
-	schedulerPlugin, err = SchedulerCreator(sch)
+	if filterPlugin, err = FilterDataStoreCreator(filter); err != nil { // filter factory
+		log.WithError(err).Panic("Fail to create filter data store")
+		return nil, err
+	}
+
+	if schedulerPlugin, err = SchedulerCreator(sch); err != nil { // scheduler factory
+		log.WithError(err).Panic("Fail to create scheduler")
+		return nil, err
+	}
+
+	pubUpstream, err := zmq.NewSocket(zmq.PUB)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create scheduler")
+		log.WithError(err).Panic("Fail to create upstream publisher")
+		return nil, err
+	}
+	pubDownstream, err := zmq.NewSocket(zmq.PUB)
+	if err != nil {
+		log.WithError(err).Panic("Fail to create downstream publisher")
+		return nil, err
+	}
+	subUpstream, err := zmq.NewSocket(zmq.SUB)
+	if err != nil {
+		log.WithError(err).Panic("Fail to create upstream subscriber")
+		return nil, err
+	}
+	subDownstream, err := zmq.NewSocket(zmq.SUB)
+	if err != nil {
+		log.WithError(err).Panic("Fail to create downstream subscriber")
 		return nil, err
 	}
 
@@ -122,95 +144,266 @@ func NewService(reader, writer, history, sch string) (IProactiveService, error) 
 		readerMap:  readerPlugin,
 		writerMap:  writerPlugin,
 		historyMap: historyPlugin,
+		filterMap:  filterPlugin,
 		scheduler:  schedulerPlugin,
+		pub: zSockets{
+			upstream:   pubUpstream,
+			downstream: pubDownstream,
+		},
+		sub: zSockets{
+			upstream:   subUpstream,
+			downstream: subDownstream,
+		},
 	}, nil
 }
 
-// Marshal helper function to marshal structure
-func Marshal(r interface{}) (string, error) {
+// marshal helper function to marshal structure
+func marshal(r interface{}) (string, error) {
 	bytes, err := json.Marshal(r) // marshal to json string
 	if err != nil {
-		// TODO: remove table
 		return "", ErrMarshal
 	}
 	return string(bytes), nil
 }
 
-// Task for cron scheduler
+// addToHistory helper function to add data to history map
+func (b *Service) addToHistory(name string, data interface{}) bool {
+	// apply filter before logging
+	retBool := b.applyFilter(name, data)
+	if err := b.historyMap.Add(name, data); err != nil {
+		log.WithFields(log.Fields{
+			"err":  err,
+			"name": name,
+			"data": data,
+		}).Error("Fail to add data to history data store")
+	}
+	return retBool
+
+	/* debug
+	log.WithFields(log.Fields{
+		"name": name,
+		"data": data,
+	}).Debug("Add data to history data store")
+	*/
+}
+
+// applyFilter apply filter, if no need to filter, return true.
+func (b *Service) applyFilter(name string, data interface{}) bool {
+	f, ok := b.filterMap.Get(name) // get filter request from map
+	if !ok {
+		//log.Debug(ErrFilterNotFound.Error())
+		return true // no filter
+	}
+	filter := f.(MbtcpFilterStatus) // casting
+
+	if len(filter.Arg) == 0 {
+		log.WithError(ErrInvalidArgs).Debug("Apply filter")
+		return true // no args
+	}
+
+	var latestStr string // latest history marshalled string
+	var err error
+	if filter.Type == Change {
+		if latestStr, err = b.historyMap.GetLatest(name); err != nil {
+			log.WithError(ErrNoLatestData).Debug("Apply filter")
+			return true // no latest
+		}
+	}
+
+	// reflect data interface type
+	rVals := reflect.ValueOf(data)
+	switch rVals.Kind() {
+	case reflect.Array:
+		if rVals.Len() == 0 {
+			log.WithError(ErrNoData).Debug("Apply filter")
+			return true // no data to filter
+		}
+		var val float32 // first element container in data interface
+		switch rVals.Index(0).Kind() {
+		case reflect.Uint16, reflect.Uint32: //uint16, uint32:
+			val = float32(rVals.Index(0).Uint())
+		default: // reflect.Float32
+			val = float32(rVals.Index(0).Float())
+		}
+
+		switch filter.Type {
+		case GreaterEqual: // val >= desired value
+			if val >= filter.Arg[0] {
+				return true
+			}
+			return false
+		case Greater: // val > desired value
+			if val > filter.Arg[0] {
+				return true
+			}
+			return false
+		case Equal: // val == desired value
+			if val == filter.Arg[0] {
+				return true
+			}
+			return false
+		case Less: //  val < desired value
+			if val < filter.Arg[0] {
+				return true
+			}
+			return false
+		case LessEqual: // val <= desired value
+			if val <= filter.Arg[0] {
+				return true
+			}
+			return false
+		case InsideRange: // desired 1 < val < desired 2; desired values are sorted.
+			if len(filter.Arg) < 2 {
+				log.WithError(ErrInvalidArgs).Debug("Apply filter")
+				return true
+			}
+			if val > filter.Arg[0] && val < filter.Arg[1] {
+				return true
+			}
+			return false
+		case InsideIncRange: // desired 1 <= val <= desired 2; desired values are sorted.
+			if len(filter.Arg) < 2 {
+				log.WithError(ErrInvalidArgs).Debug("Apply filter")
+				return true
+			}
+			if val >= filter.Arg[0] && val <= filter.Arg[1] {
+				return true
+			}
+			return false
+		case OutsideRange: // val < desired 1 || val > desired 2; desired values are sorted.
+			if len(filter.Arg) < 2 {
+				log.WithError(ErrInvalidArgs).Debug("Apply filter")
+				return true
+			}
+			if val < filter.Arg[0] || val > filter.Arg[1] {
+				return true
+			}
+			return false
+		case OutsideIncRange:
+			if len(filter.Arg) < 2 { // val <= desired 1 || val >= desired 2; desired values are sorted.
+				log.WithError(ErrInvalidArgs).Debug("Apply filter")
+				return true
+			}
+			if val <= filter.Arg[0] || val >= filter.Arg[1] {
+				return true
+			}
+			return false
+		default: // change; compare with the latest history
+			// unmarshal latest data
+			var float32ArrData []float32
+			if err := json.Unmarshal([]byte(latestStr), &float32ArrData); err != nil {
+				log.WithError(ErrUnmarshal).Debug("Apply filter")
+				return true // fail to unmarshal latest
+			}
+
+			if len(float32ArrData) == 0 {
+				log.WithError(ErrNoLatestData).Debug("Apply filter")
+				return true // empty history
+			}
+			if val == float32ArrData[0] { // compare
+				return true
+			}
+			return false
+		}
+	case reflect.String:
+		/* we do not intend to support filter on hex string
+		str := rVals.String()
+		if str == "" {
+			return true // no data to filter
+		}
+		*/
+		return true
+	default: // should not reach here
+		return true
+	}
+}
+
+// Task task for scheduler
 func (b *Service) Task(socket *zmq.Socket, req interface{}) {
-	str, err := Marshal(req)
+	str, err := marshal(req)
 	if err != nil {
-		// TODO: remove table
+		log.WithError(err).Error("Task")
 		return
 	}
-	log.WithFields(log.Fields{"JSON": str}).Debug("Send request to modbusd:")
+	log.WithField("JSON", str).Debug("Send request to modbusd:")
 	socket.Send("tcp", zmq.SNDMORE) // frame 1
 	socket.Send(str, 0)             // convert to string; frame 2
 }
 
-// initZMQPub init ZMQ publishers.
-// Example:
-// 	initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
-func (b *Service) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
-	log.Debug("Init ZMQ Publishers")
-	// upstream publisher
-	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
-	b.pub.upstream.Bind(toServiceEndpoint)
+func (b *Service) startZMQ() {
+	log.Debug("Start ZMQ")
 
-	// downstream publisher
-	b.pub.downstream, _ = zmq.NewSocket(zmq.PUB)
-	b.pub.downstream.Connect(toModbusdEndpoint)
-}
+	// publishers
+	if err := b.pub.upstream.Bind(conf.GetString(keyZmqPubUpstream)); err != nil {
+		log.WithError(err).Fatal("Fail to bind upstream publisher")
+	}
+	if err := b.pub.downstream.Connect(conf.GetString(keyZmqPubDownstream)); err != nil {
+		log.WithError(err).Fatal("Fail to connect to downstream publisher")
+	}
 
-// initZMQSub init ZMQ subscribers.
-// Example:
-// 	initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
-func (b *Service) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
-	log.Debug("Init ZMQ Subscribers")
-	// upstream subscriber
-	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
-	b.sub.upstream.Bind(fromServiceEndpoint)
-	b.sub.upstream.SetSubscribe("")
+	// subscribers
+	if err := b.sub.upstream.Bind(conf.GetString(keyZmqSubUpstream)); err != nil {
+		log.WithError(err).Fatal("Fail to bind upstream subscriber")
+	}
+	if err := b.sub.upstream.SetSubscribe(""); err != nil {
+		log.WithError(err).Fatal("Fail to set upstream subscriber's filter")
+	}
+	if err := b.sub.downstream.Connect(conf.GetString(keyZmqSubDownstream)); err != nil {
+		log.WithError(err).Fatal("Fail to connect to downstream subscriber")
+	}
+	if err := b.sub.downstream.SetSubscribe(""); err != nil {
+		log.WithError(err).Fatal("Fail to set downstream subscriber's filter")
+	}
 
-	// downstream subscriber
-	b.sub.downstream, _ = zmq.NewSocket(zmq.SUB)
-	b.sub.downstream.Connect(fromModbusdEndpoint)
-	b.sub.downstream.SetSubscribe("")
-}
-
-// initZMQPoller init ZMQ poller.
-// polling from upstream services and downstream modbusd
-func (b *Service) initZMQPoller() {
-	log.Debug("Init ZMQ Poller")
-	// initialize poll set
-	b.poller = zmq.NewPoller()
+	// poller
+	b.poller = zmq.NewPoller() // new poller
 	b.poller.Add(b.sub.upstream, zmq.POLLIN)
 	b.poller.Add(b.sub.downstream, zmq.POLLIN)
 }
 
+func (b *Service) stopZMQ() {
+	log.Debug("Stop ZMQ")
+
+	// publishers
+	if err := b.pub.upstream.Unbind(conf.GetString(keyZmqPubUpstream)); err != nil {
+		log.WithError(err).Debug("Fail to unbind upstream publisher")
+	}
+	if err := b.pub.downstream.Disconnect(conf.GetString(keyZmqPubDownstream)); err != nil {
+		log.WithError(err).Debug("Fail to disconnect from downstream publisher")
+	}
+
+	// subscribers
+	if err := b.sub.upstream.Unbind(conf.GetString(keyZmqSubUpstream)); err != nil {
+		log.WithError(err).Debug("Fail to unbind upstream subscriber")
+	}
+	if err := b.sub.downstream.Disconnect(conf.GetString(keyZmqSubDownstream)); err != nil {
+		log.WithError(err).Debug("Fail to disconnect from downstream subscriber")
+	}
+}
+
 // naiveResponder naive responder to send message back to upstream.
 func (b *Service) naiveResponder(cmd string, resp interface{}) error {
-	respStr, err := Marshal(resp)
+	respStr, err := marshal(resp)
 	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Error("Fail to marshal for naive responder!")
+		log.WithError(err).Error("Fail to marshal for naive responder!")
 		return err
 	}
 
-	log.WithFields(log.Fields{"JSON": respStr}).Debug("Send message to services")
+	log.WithField("response", respStr).Debug("Send message to services")
 	b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
 	b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 	return nil
 }
 
 // ParseRequest parse requests from services,
-// only unmarshal request string to corresponding struct
+// 	only unmarshal request string to corresponding struct
 func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parse request from upstream services")
+	log.WithField("cmd", msg[0]).Debug("Parse request from upstream services")
 
 	switch msg[0] {
 	case mbGetTimeout, mbSetTimeout:
@@ -227,55 +420,57 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 			return nil, ErrUnmarshal
 		}
 
-		// unmarshal data field
+		var uint16Data uint16
+		var stringData string
+		var uint16ArrData []uint16
+
+		// unmarshal remaining data field
 		switch MbCmdType(strconv.Itoa(req.FC)) {
 		case fc5: // write single bit; uint16
-			var d uint16
-			if err := json.Unmarshal(data, &d); err != nil {
+			if err := json.Unmarshal(data, &uint16Data); err != nil {
 				return nil, ErrUnmarshal
 			}
-			req.Data = d // unmarshal to uint16
+			req.Data = uint16Data // unmarshal to uint16
 			return req, nil
 		case fc15: // write multiple bits; []uint16
-			var d []uint16
-			if err := json.Unmarshal(data, &d); err != nil {
+			if err := json.Unmarshal(data, &uint16ArrData); err != nil {
 				return nil, ErrUnmarshal
 			}
-			req.Data = d // unmarshal to uint16 array
+			req.Data = uint16ArrData // unmarshal to uint16 array
 			return req, nil
 		case fc6: // write single register in dec|hex
-			var d string
-			if err := json.Unmarshal(data, &d); err != nil { // unmarshal to string
+			err := json.Unmarshal(data, &stringData)
+			if err != nil {
 				return nil, ErrUnmarshal
 			}
-			var dd []uint16
-			var err error
-			if req.Hex { // check dec or hex
-				dd, err = HexStringToRegisters(d)
+
+			// check dec or hex
+			if req.Hex {
+				uint16ArrData, err = HexStringToRegisters(stringData)
 			} else {
-				dd, err = DecimalStringToRegisters(d)
+				uint16ArrData, err = DecimalStringToRegisters(stringData)
 			}
 			if err != nil {
 				return nil, err
 			}
-			req.Data = dd[0] // retrieve only one register
+			req.Data = uint16ArrData[0] // retrieve only one register
 			return req, nil
 		case fc16: // write multiple register in dec/hex
-			var d string
-			if err := json.Unmarshal(data, &d); err != nil { // unmarshal to string
+			err := json.Unmarshal(data, &stringData)
+			if err != nil {
 				return nil, ErrUnmarshal
 			}
-			var dd []uint16
-			var err error
-			if req.Hex { // check dec or hex
-				dd, err = HexStringToRegisters(d)
+
+			// check dec or hex
+			if req.Hex {
+				uint16ArrData, err = HexStringToRegisters(stringData)
 			} else {
-				dd, err = DecimalStringToRegisters(d)
+				uint16ArrData, err = DecimalStringToRegisters(stringData)
 			}
 			if err != nil {
 				return nil, err
 			}
-			req.Data = dd
+			req.Data = uint16ArrData
 			return req, nil
 		default: // should not reach here
 			return nil, ErrInvalidFunctionCode
@@ -331,12 +526,12 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 }
 
 // HandleRequest handle requests from services
-// do error checking
+// 	do error checking
 func (b *Service) HandleRequest(cmd string, r interface{}) error {
-	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle request from upstream services")
+	log.WithField("cmd", cmd).Debug("Handle request from upstream services")
 
 	switch cmd {
-	case mbGetTimeout: // done
+	case mbGetTimeout:
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10)        // convert tid to string
 		cmdInt, _ := strconv.Atoi(string(getMbTimeout)) // convert to modbusd command
@@ -349,7 +544,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
-	case mbSetTimeout: // done
+	case mbSetTimeout:
 		req := r.(MbtcpTimeoutReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 		cmdInt, _ := strconv.Atoi(string(setMbTimeout))
@@ -369,7 +564,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
-	case mbOnceWrite: // done
+	case mbOnceWrite:
 		req := r.(MbtcpWriteReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
@@ -386,6 +581,8 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 				req.Len = l
 			}
 			// we don't check max length, let modbusd do it.
+		default:
+			// do nothing
 		}
 
 		command := DMbtcpWriteReq{
@@ -403,14 +600,14 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
-	case mbOnceRead: // done
+	case mbOnceRead:
 		req := r.(MbtcpReadReq)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
 		// function code checker
 		if req.FC < 1 || req.FC > 4 {
 			err := ErrInvalidFunctionCode // invalid read function code
-			log.WithFields(log.Fields{"FC": req.FC}).Error(err.Error())
+			log.WithField("FC", req.FC).Warn(err.Error())
 			// send back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -441,14 +638,14 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
-	case mbCreatePoll: // done
+	case mbCreatePoll:
 		req := r.(MbtcpPollStatus)
 		TidStr := strconv.FormatInt(req.Tid, 10) // convert tid to string
 
 		// function code checker
 		if req.FC < 1 || req.FC > 4 {
 			err := ErrInvalidFunctionCode // invalid read function code
-			log.WithFields(log.Fields{"FC": req.FC}).Error(err.Error())
+			log.WithField("FC", req.FC).Warn(err.Error())
 			// send error back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -457,7 +654,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// protect null poll name
 		if req.Name == "" {
 			err := ErrInvalidPollName
-			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+			log.WithField("Name", req.Name).Warn(err.Error())
 			// send back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -499,7 +696,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.naiveResponder(cmd, resp)
-	case mbUpdatePoll: // done
+	case mbUpdatePoll:
 		req := r.(MbtcpPollOpReq)
 		status := "ok"
 
@@ -511,27 +708,27 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// update task interval
 		if ok := b.scheduler.UpdateIntervalWithName(req.Name, req.Interval); !ok {
 			err := ErrInvalidPollName // not in scheduler
-			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+			log.WithField("Name", req.Name).Warn(err.Error())
 			status = err.Error() // set error status
 		}
 
 		// update read/poll task map
 		if status == "ok" {
 			if err := b.readerMap.UpdateIntervalByName(req.Name, req.Interval); err != nil {
-				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+				log.WithField("Name", req.Name).Warn(err.Error())
 				status = err.Error() // set error status
 			}
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.naiveResponder(cmd, resp)
-	case mbGetPoll: // done
+	case mbGetPoll:
 		req := r.(MbtcpPollOpReq)
 		t, ok := b.readerMap.GetTaskByName(req.Name)
 		task := t.(ReaderTask) // type casting
 		if !ok {
 			err := ErrInvalidPollName // not in read/poll task map
-			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+			log.WithField("Name", req.Name).Warn(err.Error())
 			// send error back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -540,8 +737,8 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// send back
 		request := task.Req.(MbtcpPollStatus)
 		resp := MbtcpPollStatus{
-			Tid:      request.Tid,
-			Name:     request.Name,
+			Tid:      req.Tid,
+			Name:     req.Name,
 			Interval: request.Interval,
 			Enabled:  request.Enabled,
 			FC:       request.FC,
@@ -556,13 +753,13 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			Status:   "ok",
 		}
 		return b.naiveResponder(cmd, resp)
-	case mbDeletePoll: // done
+	case mbDeletePoll:
 		req := r.(MbtcpPollOpReq)
 		status := "ok"
 		// remove task from scheduler
 		if ok := b.scheduler.RemoveWithName(req.Name); !ok {
 			err := ErrInvalidPollName // not in scheduler
-			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+			log.WithField("Name", req.Name).Warn(err.Error())
 			status = err.Error() // set error status
 		}
 		// remove task from read/poll map
@@ -570,52 +767,52 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.naiveResponder(cmd, resp)
-	case mbTogglePoll: // done
+	case mbTogglePoll:
 		req := r.(MbtcpPollOpReq)
 		status := "ok"
-		// update scheduler
+
+		var ok bool
 		if req.Enabled {
-			if ok := b.scheduler.ResumeWithName(req.Name); !ok {
-				err := ErrInvalidPollName // not in scheduler
-				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
-				status = err.Error() // set error status
-			}
+			ok = b.scheduler.ResumeWithName(req.Name) // update scheduler
 		} else {
-			if ok := b.scheduler.PauseWithName(req.Name); !ok {
-				err := ErrInvalidPollName // not in scheduler
-				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
-				status = err.Error() // set error status
-			}
+			ok = b.scheduler.PauseWithName(req.Name) // update scheduler
 		}
-		// update read/poll task map
-		if status == "ok" {
+
+		if !ok {
+			// not in scheduler
+			err := ErrInvalidPollName
+			log.WithField("Name", req.Name).Warn(err.Error())
+			status = err.Error() // set error status
+		} else {
+			// update read/poll task map
 			if err := b.readerMap.UpdateToggleByName(req.Name, req.Enabled); err != nil {
-				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+				log.WithField("Name", req.Name).Warn(err.Error())
 				status = err.Error() // set error status
 			}
 		}
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
 		return b.naiveResponder(cmd, resp)
-	case mbGetPolls, mbExportPolls: // done
+	case mbGetPolls, mbExportPolls:
 		req := r.(MbtcpPollOpReq)
 		reqs := b.readerMap.GetAll().([]MbtcpPollStatus) // type casting
-		//log.WithFields(log.Fields{"reqs": reqs}).Debug("taka: after GetAll")
+		//log.WithField("reqs", reqs).Debug("after GetAll")
+
+		// send back
 		resp := MbtcpPollsStatus{
 			Tid:    req.Tid,
 			Status: "ok",
 			Polls:  reqs,
 		}
-		// send back
 		return b.naiveResponder(cmd, resp)
-	case mbDeletePolls: // done
+	case mbDeletePolls:
 		req := r.(MbtcpPollOpReq)
 		b.scheduler.Clear()     // remove all tasks from scheduler
 		b.readerMap.DeleteAll() // remove all tasks from read/poll task map
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.naiveResponder(cmd, resp)
-	case mbTogglePolls: // done
+	case mbTogglePolls:
 		req := r.(MbtcpPollOpReq)
 		// update scheduler
 		if req.Enabled {
@@ -624,24 +821,24 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			b.scheduler.PauseAll()
 		}
 		// update read/poll task map
-		b.readerMap.UpdateAllTogglesByName(req.Enabled)
+		b.readerMap.UpdateAllToggles(req.Enabled)
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.naiveResponder(cmd, resp)
-	case mbImportPolls: // done
+	case mbImportPolls:
 		request := r.(MbtcpPollsStatus)
 		for _, req := range request.Polls {
 			// function code checker
 			if req.FC < 1 || req.FC > 4 {
 				err := ErrInvalidFunctionCode // invalid read function code
-				log.WithFields(log.Fields{"FC": req.FC}).Error(err.Error())
+				log.WithField("FC", req.FC).Warn(err.Error())
 				continue // bypass
 			}
 
 			// protect null poll name
 			if req.Name == "" {
 				err := ErrInvalidPollName
-				log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+				log.WithField("Name", req.Name).Warn(err.Error())
 				continue // bypass
 			}
 
@@ -682,49 +879,169 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		resp := MbtcpSimpleRes{Tid: request.Tid, Status: "ok"}
 		return b.naiveResponder(cmd, resp)
 	case mbGetPollHistory:
-		//req := r.(MbtcpPollOpReq)
-		return ErrTodo
+		req := r.(MbtcpPollOpReq)
+		resp := MbtcpHistoryData{Tid: req.Tid, Name: req.Name, Status: "ok"}
+		ret, err := b.historyMap.GetAll(req.Name)
+		if err != nil {
+			log.WithField("Name", req.Name).Warn(err.Error())
+			resp.Status = err.Error()
+			return b.naiveResponder(cmd, resp)
+		}
+		resp.Data = ret
+		return b.naiveResponder(cmd, resp)
 	case mbCreateFilter, mbUpdateFilter:
-		//req := r.(MbtcpFilterStatus)
-		return ErrTodo
+		req := r.(MbtcpFilterStatus)
+		var status string
+		if req.Name == "" {
+			err := ErrInvalidPollName
+			log.WithError(err).Warn(mbCreateFilter)
+			status = err.Error() // set error status
+		} else {
+			// swap filter args
+			if len(req.Arg) > 1 && req.Arg[0] > req.Arg[1] {
+				tmp := req.Arg[1]
+				req.Arg[1] = req.Arg[0]
+				req.Arg[0] = tmp
+			}
+			b.filterMap.Add(req.Name, req) // add or update to filter map
+			status = "ok"
+		}
+
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+		return b.naiveResponder(cmd, resp)
 	case mbGetFilter:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
+		req := r.(MbtcpFilterOpReq)
+		status := "ok"
+		var filter interface{}
+		var ok bool
+
+		if req.Name == "" {
+			err := ErrInvalidPollName
+			log.WithError(err).Error(mbGetFilter)
+			status = err.Error() // set error status
+			ok = false
+		} else {
+			// get filter from map
+			if filter, ok = b.filterMap.Get(req.Name); !ok {
+				err := ErrInvalidPollName
+				log.WithError(err).Error(mbGetFilter)
+				status = err.Error() // set error status
+			}
+		}
+
+		if !ok { // send error back
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+			return b.naiveResponder(cmd, resp)
+		}
+
+		request := filter.(MbtcpFilterStatus) // type casting
+		// send back
+		resp := MbtcpFilterStatus{
+			Tid:     req.Tid,
+			Name:    req.Name,
+			Enabled: request.Enabled,
+			Type:    request.Type,
+			Arg:     request.Arg,
+			Status:  status, // "ok"
+		}
+		return b.naiveResponder(cmd, resp)
 	case mbDeleteFilter:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
+		req := r.(MbtcpFilterOpReq)
+		status := "ok"
+		if req.Name == "" {
+			err := ErrInvalidPollName
+			log.WithError(err).Error(mbDeleteFilter)
+			status = err.Error() // set error status
+		} else {
+			b.filterMap.Delete(req.Name)
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+		return b.naiveResponder(cmd, resp)
 	case mbToggleFilter:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
-	case mbGetFilters:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
+		req := r.(MbtcpFilterOpReq)
+		status := "ok"
+		if req.Name == "" {
+			err := ErrInvalidPollName
+			log.WithError(err).Error(mbToggleFilter)
+			status = err.Error() // set error status
+		} else {
+			if err := b.filterMap.UpdateToggle(req.Name, req.Enabled); err != nil {
+				log.WithError(err).Error(mbToggleFilter)
+				status = err.Error() // set error status
+			}
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+		return b.naiveResponder(cmd, resp)
+	case mbGetFilters, mbExportFilters:
+		req := r.(MbtcpFilterOpReq)
+		if reqs, ok := b.filterMap.GetAll().([]MbtcpFilterStatus); ok {
+			resp := MbtcpFiltersStatus{
+				Tid:     req.Tid,
+				Status:  "ok",
+				Filters: reqs,
+			}
+			// send back
+			return b.naiveResponder(cmd, resp)
+		}
+		// send error back
+		err := ErrFiltersNotFound
+		log.WithError(err).Error(mbGetFilters)
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+		return b.naiveResponder(cmd, resp)
 	case mbDeleteFilters:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
+		req := r.(MbtcpFilterOpReq)
+		b.filterMap.DeleteAll()
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		return b.naiveResponder(cmd, resp)
 	case mbToggleFilters:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
+		req := r.(MbtcpFilterOpReq)
+		b.filterMap.UpdateAllToggles(req.Enabled)
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		return b.naiveResponder(cmd, resp)
 	case mbImportFilters:
-		//request := r.(MbtcpFiltersStatus)
-		return ErrTodo
-	case mbExportFilters:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
+		requests, ok := r.(MbtcpFiltersStatus)
+		status := "ok"
+		if !ok {
+			err := ErrCasting
+			log.WithError(err).Error(mbImportFilters)
+			status = err.Error() // set error status
+		} else {
+			for _, v := range requests.Filters {
+				if v.Name != "" {
+					// swap
+					if len(v.Arg) > 1 && v.Arg[0] > v.Arg[1] {
+						tmp := v.Arg[1]
+						v.Arg[1] = v.Arg[0]
+						v.Arg[0] = tmp
+					}
+					// add or update to filter map
+					b.filterMap.Add(v.Name, v)
+				}
+			}
+		}
+
+		// send back
+		resp := MbtcpSimpleRes{Tid: requests.Tid, Status: status}
+		return b.naiveResponder(cmd, resp)
 	default: // should not reach here!!
 		return ErrRequestNotSupport
 	}
 }
 
-// ParseResponse parse responses from modbusd
-// only unmarshal response string to corresponding struct
+// ParseResponse parse responses from modbusd,
+// 	only unmarshal response string to corresponding struct
 func (b *Service) ParseResponse(msg []string) (interface{}, error) {
 	// Check the length of multi-part message
 	if len(msg) != 2 {
 		return nil, ErrInvalidMessageLength
 	}
 
-	log.WithFields(log.Fields{"msg[0]": msg[0]}).Debug("Parse response from modbusd")
+	log.WithField("cmd", msg[0]).Debug("Parse response from modbusd")
 
 	switch MbCmdType(msg[0]) {
 	case setMbTimeout, getMbTimeout:
@@ -744,10 +1061,9 @@ func (b *Service) ParseResponse(msg []string) (interface{}, error) {
 	}
 }
 
-// HandleResponse handle responses from modbusd,
-// Todo: filter, handle
+// HandleResponse handle responses from modbusd
 func (b *Service) HandleResponse(cmd string, r interface{}) error {
-	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response from modbusd")
+	log.WithField("cmd", cmd).Debug("Handle response from modbusd")
 
 	switch MbCmdType(cmd) {
 	case fc5, fc6, fc15, fc16, setMbTimeout, getMbTimeout: // done: one-off requests
@@ -759,16 +1075,16 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
+			var int64Data int64
 
-			var data int64
 			if MbCmdType(cmd) == getMbTimeout {
-				data = res.Timeout
+				int64Data = res.Timeout
 			}
 
 			resp = MbtcpTimeoutRes{
 				Tid:    tid,
 				Status: res.Status,
-				Data:   data, // getMbTimeout only
+				Data:   int64Data, // getMbTimeout only
 			}
 		case fc5, fc6, fc15, fc16: // one-off write requests
 			res := r.(DMbtcpRes)
@@ -778,18 +1094,22 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				Tid:    tid,
 				Status: res.Status,
 			}
+		default: // should not reach here
+			return ErrResponseNotSupport
 		}
 
+		//
 		// send back one-off task reponse and remove from write task map
-		respStr, err := Marshal(resp)
+		//
+		respStr, err := marshal(resp)
 		if err != nil {
-			log.WithFields(log.Fields{"error": err}).Error(err.Error())
+			log.WithError(err).Error("marshal")
 			return err
 		}
 
 		// check write task map
 		if cmd, ok := b.writerMap.Get(TidStr); ok {
-			log.WithFields(log.Fields{"JSON": respStr}).Debug("Send message to services")
+			log.WithField("JSON", respStr).Debug("Send message to services")
 			b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
 			b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 			// remove from write task map!
@@ -802,23 +1122,23 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 
-		var response interface{}
-		var task ReaderTask
-		var ok bool
-		var t interface{}
-
 		// check read task table
-		if t, ok = b.readerMap.GetTaskByID(res.Tid); !ok {
+		t, ok := b.readerMap.GetTaskByID(res.Tid)
+		if !ok {
 			return ErrRequestNotFound
 		}
-		task = t.(ReaderTask) // type casting
 
-		// default response command string
-		respCmd := task.Cmd
+		task := t.(ReaderTask) // type casting
+		respCmd := task.Cmd    // default response command string
+
+		var response interface{}
+		var data interface{} // shared variable
+		status := "ok"       // shared variables
+		noFilter := true     // feedback data or not flag
 
 		switch MbCmdType(cmd) {
 		case fc1, fc2: // done: read bits
-			var data interface{} // shared variable
+
 			switch task.Cmd {
 			case mbOnceRead: // one-off requests
 				if res.Status != "ok" {
@@ -839,6 +1159,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					data = nil
 				} else {
 					data = res.Data
+					noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint16
 				}
 				response = MbtcpPollData{
 					TimeStamp: time.Now().UTC().UnixNano(),
@@ -846,21 +1167,19 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					Status:    res.Status,
 					Data:      data,
 				}
-				// TODOL if res.Status == "ok" then "add to history"
 			default: // should not reach here
 				err := ErrResponseNotSupport
-				log.WithFields(log.Fields{"cmd": cmd}).Error(err.Error())
+				log.WithField("cmd", cmd).Error(err.Error())
 				response = MbtcpSimpleRes{
 					Tid:    tid,
 					Status: err.Error(),
 				}
 			}
-			return b.naiveResponder(respCmd, response)
+			if noFilter {
+				return b.naiveResponder(respCmd, response)
+			}
+			return nil
 		case fc3, fc4: // read registers
-			// shared variables
-			var status string
-			var data interface{}
-
 			switch task.Cmd {
 			case mbOnceRead: // one-off requests
 				readReq := task.Req.(MbtcpReadReq) // type casting
@@ -880,7 +1199,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				// convert register to byte array
 				bytes, err := RegistersToBytes(res.Data)
 				if err != nil {
-					log.WithFields(log.Fields{"err": err}).Debug("handleResponse: RegistersToBytes failed")
+					log.WithError(err).Error("handleResponse: RegistersToBytes failed")
 					response = MbtcpReadRes{
 						Tid:    tid,
 						Type:   readReq.Type,
@@ -891,7 +1210,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					return b.naiveResponder(respCmd, response)
 				}
 
-				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
+				log.WithField("Type", readReq.Type).Debug("Request type:")
 
 				switch readReq.Type {
 				case HexString:
@@ -1012,32 +1331,30 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					return b.naiveResponder(respCmd, response)
 				}
 
-				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
+				log.WithField("Type", readReq.Type).Debug("Request type:")
 
 				switch readReq.Type {
 				case HexString:
-					data = BytesToHexString(bytes) // convert byte to hex
+					data = BytesToHexString(bytes) // convert byte to hex string
 					status = res.Status
-					// TODO: add to history
+					noFilter = b.addToHistory(task.Name, data) // add to history; type: string
 				case UInt16:
-					ret, err := BytesToUInt16s(bytes, readReq.Order) // order
-					if err != nil {
+					if ret, err := BytesToUInt16s(bytes, readReq.Order); err != nil {
 						data = nil
 						status = err.Error()
 					} else {
 						data = ret
 						status = res.Status
-						// TODO: add to history
+						noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint16
 					}
 				case Int16:
-					ret, err := BytesToInt16s(bytes, readReq.Order) // order
-					if err != nil {
+					if ret, err := BytesToInt16s(bytes, readReq.Order); err != nil {
 						data = nil
 						status = err.Error()
 					} else {
 						data = ret
 						status = res.Status
-						// TODO: add to history
+						noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint16
 					}
 				case Scale, UInt32, Int32, Float32: // 32-Bits
 					if readReq.Len%2 != 0 {
@@ -1047,57 +1364,55 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					} else {
 						switch readReq.Type {
 						case Scale:
-							ret, err := LinearScalingRegisters(
+							if ret, err := LinearScalingRegisters(
 								res.Data,
 								readReq.Range.DomainLow,
 								readReq.Range.DomainHigh,
 								readReq.Range.RangeLow,
-								readReq.Range.RangeHigh)
-							if err != nil {
+								readReq.Range.RangeHigh); err != nil {
+
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-								// TODO: add to history
+								noFilter = b.addToHistory(task.Name, data) // add to history; type: []float32
 							}
 						case UInt32:
-							ret, err := BytesToUInt32s(bytes, readReq.Order)
-							if err != nil {
+							if ret, err := BytesToUInt32s(bytes, readReq.Order); err != nil {
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-								// TODO: add to history
+								noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint32
 							}
 						case Int32:
-							ret, err := BytesToInt32s(bytes, readReq.Order)
-							if err != nil {
+							if ret, err := BytesToInt32s(bytes, readReq.Order); err != nil {
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-								// TODO: add to history
+								noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint32
 							}
 						case Float32:
-							ret, err := BytesToFloat32s(bytes, readReq.Order)
-							if err != nil {
+							if ret, err := BytesToFloat32s(bytes, readReq.Order); err != nil {
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-								// TODO: add to history
+								b.addToHistory(task.Name, data) // add to history; type: []float32
+								noFilter = b.applyFilter(task.Name, data)
 							}
 						}
 					}
 				default: // case 0, 1(RegisterArray)
 					data = res.Data
 					status = res.Status
-					// TODO: add to history
-
+					// b.addToHistory(task.Name, HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data})
+					noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint16
 				}
 
 				// shared response
@@ -1109,32 +1424,34 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					Data:      data,
 					Status:    status,
 				}
-
-				return b.naiveResponder(respCmd, response)
+				if noFilter {
+					return b.naiveResponder(respCmd, response)
+				}
+				return nil
 			default: // should not reach here
 				err := ErrResponseNotSupport
-				log.WithFields(log.Fields{"cmd": task.Cmd}).Error(err.Error())
+				log.WithField("cmd", task.Cmd).Error(err.Error())
 				response = MbtcpSimpleRes{
 					Tid:    tid,
 					Status: err.Error(),
 				}
 				return b.naiveResponder(respCmd, response)
 			}
+		default: // should not reach here
+			return ErrResponseNotSupport
 		}
 	default: // should not reach here!!
 		return ErrResponseNotSupport
 	}
-	return nil
 }
 
 // Start enable proactive service
 func (b *Service) Start() {
+
 	log.Debug("Start proactive service")
 	b.scheduler.Start()
 	b.enable = true
-	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
-	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
-	b.initZMQPoller()
+	b.startZMQ()
 
 	// process messages from both subscriber sockets
 	for b.enable {
@@ -1152,7 +1469,7 @@ func (b *Service) Start() {
 				// parse request
 				if req, err := b.ParseRequest(msg); req != nil {
 					// handle request
-					err = b.HandleRequest(msg[0], req)
+					err := b.HandleRequest(msg[0], req)
 					if err != nil {
 						log.WithFields(log.Fields{
 							"cmd": msg[0],
@@ -1179,7 +1496,7 @@ func (b *Service) Start() {
 				// parse response
 				if res, err := b.ParseResponse(msg); res != nil {
 					// handle response
-					err = b.HandleResponse(msg[0], res)
+					err := b.HandleResponse(msg[0], res)
 					if err != nil {
 						log.WithFields(log.Fields{
 							"cmd": msg[0],
@@ -1204,10 +1521,5 @@ func (b *Service) Stop() {
 	log.Debug("Stop proactive service")
 	b.scheduler.Stop()
 	b.enable = false
-	if b.sub.upstream != nil {
-		b.sub.upstream.Close()
-		b.pub.upstream.Close()
-		b.sub.downstream.Close()
-		b.pub.downstream.Close()
-	}
+	b.stopZMQ()
 }

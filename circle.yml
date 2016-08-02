@@ -1,0 +1,15 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    #- docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+    - sudo pip install --upgrade docker-compose==1.4.2
+
+test:
+  pre:
+    - docker-compose pull
+    - docker-compose build
+  override:
+    - docker-compose up

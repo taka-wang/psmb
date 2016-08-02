@@ -5,7 +5,7 @@ import "errors"
 // Service
 
 var (
-	// ErrTodo is the error of todo
+	// ErrTodo is the error of TODO
 	ErrTodo = errors.New("TODO")
 
 	// ErrCasting is the error when type assert fail
@@ -43,4 +43,19 @@ var (
 
 	// ErrInvalidPollName is the error when the poll name is empty.
 	ErrInvalidPollName = errors.New("Invalid poll name!")
+
+	// ErrFiltersNotFound is the error
+	ErrFiltersNotFound = errors.New("Filters not found")
+
+	// ErrFilterNotFound is the error
+	ErrFilterNotFound = errors.New("Filter not found")
+
+	// ErrNoLatestData is the error when this latest history is nil
+	ErrNoLatestData = errors.New("No latest history")
+
+	// ErrInvalidArgs is the error when the length of args is invalid
+	ErrInvalidArgs = errors.New("Invalid filter args")
+
+	// ErrNoData is the error when the data is nil
+	ErrNoData = errors.New("No data")
 )
