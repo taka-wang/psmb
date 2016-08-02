@@ -41,7 +41,7 @@ type writerTaskDataStore struct {
 // NewDataStore instantiate mbtcp write task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
 	// get hostname
-	hostName, ok := conf["redis_hostname"]
+	hostName, ok := conf["hostname"]
 	if !ok {
 		return nil, errors.New("Fail to get hostname")
 	}

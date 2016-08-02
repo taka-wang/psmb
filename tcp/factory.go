@@ -109,8 +109,14 @@ func Register(name string, factory interface{}) {
 }
 
 // WriterDataStoreCreator factory method to create writer task data store
-func WriterDataStoreCreator(driver string) (psmb.IWriterTaskDataStore, error) {
-	return CreateWriterDS(map[string]string{writerPlugin: driver})
+func WriterDataStoreCreator(driver ...string) (psmb.IWriterTaskDataStore, error) {
+	if len(driver) > 1 {
+		return CreateWriterDS(map[string]string{
+			writerPlugin: driver[0],
+			"hostname":   driver[1],
+		})
+	}
+	return CreateWriterDS(map[string]string{writerPlugin: driver[0]})
 }
 
 // ReaderDataStoreCreator factory method to create reader task data store
@@ -121,12 +127,4 @@ func ReaderDataStoreCreator(driver string) (psmb.IReaderTaskDataStore, error) {
 // SchedulerCreator factory method to create scheduler
 func SchedulerCreator(driver string) (cron.Scheduler, error) {
 	return createScheduler(map[string]string{schedulerPlugin: driver})
-}
-
-// RedisWriterDataStoreCreator factory method to create scheduler
-func RedisWriterDataStoreCreator(driver, hostname string) (psmb.IWriterTaskDataStore, error) {
-	return CreateWriterDS(map[string]string{
-		writerPlugin:     driver,
-		"redis_hostname": hostname,
-	})
 }

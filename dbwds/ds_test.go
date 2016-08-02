@@ -16,7 +16,7 @@ var (
 
 func init() {
 	// get hostname
-	host, err := net.LookupHost("redis1")
+	host, err := net.LookupHost("redis")
 	if err != nil {
 		fmt.Println("local run")
 		hostName = "127.0.0.2"
@@ -32,11 +32,7 @@ func TestWriterMap(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`add` task to map", func(log sugar.Log) bool {
-		writerMap, err := psmbtcp.CreateWriterDS(
-			map[string]string{
-				"WriterPlugin":   "Writer",
-				"redis_hostname": hostName,
-			})
+		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer", hostName)
 
 		log(err)
 		if err != nil {

@@ -1,8 +1,8 @@
-redis1:
+redis:
     image: redis
     ports:
         - "6379"
 dbwds:
     build: .
     links:
-        - redis1
+        - redis
