@@ -1,0 +1,9 @@
+redis:
+    image: redis
+    volumes:
+        - /home/vagrant/data:/data
+
+dbwds:
+    build: .
+    links:
+        - redis
