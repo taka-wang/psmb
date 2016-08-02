@@ -5,8 +5,8 @@ WORKDIR /go
 RUN go get -u github.com/taka-wang/psmb && go get -u github.com/taka-wang/psmb/tcp
 
 ## Load app files
-ADD . /go/src/github.com/taka-wang/psmb/rhistory
-WORKDIR /go/src/github.com/taka-wang/psmb/rhistory
+ADD . /go/src/github.com/taka-wang/psmb/redis-history
+WORKDIR /go/src/github.com/taka-wang/psmb/redis-history
 
 RUN go get -t ./...
 

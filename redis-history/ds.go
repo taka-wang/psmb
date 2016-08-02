@@ -1,8 +1,8 @@
-// Package rhistory an redis-based data store for history.
+// Package history an redis-based data store for history.
 //
 // By taka@cmwang.net
 //
-package rhistory
+package history
 
 import (
 	"net"

@@ -1,4 +1,4 @@
-package rhistory
+package history
 
 import "errors"
 

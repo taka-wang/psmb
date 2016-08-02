@@ -1,9 +1,9 @@
-package rhistory_test
+package history_test
 
 import (
 	"testing"
 
-	"github.com/taka-wang/psmb/rhistory"
+	r "github.com/taka-wang/psmb/redis-history"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
@@ -13,7 +13,7 @@ var (
 )
 
 func init() {
-	psmbtcp.Register("History", rhistory.NewDataStore)
+	psmbtcp.Register("History", r.NewDataStore)
 }
 
 func TestHistoryMap(t *testing.T) {

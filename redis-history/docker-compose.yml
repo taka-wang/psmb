@@ -2,7 +2,7 @@ redis:
     image: redis
     ports:
         - "6379"
-rhistory:
+redis-history:
     build: .
     links:
         - redis

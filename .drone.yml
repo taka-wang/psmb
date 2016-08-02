@@ -2,17 +2,17 @@
 
 pipeline:
 
-    test-rhistory: # redis-based history data store
+    test-redis-history: # redis-based history data store
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker-compose -f rhistory/docker-compose.yml rm -f -a
-            - docker-compose -f rhistory/docker-compose.yml pull
-            - docker-compose -f rhistory/docker-compose.yml build
-            - docker-compose -f rhistory/docker-compose.yml up --abort-on-container-exit
-            - docker-compose -f rhistory/docker-compose.yml stop
-            - docker-compose -f rhistory/docker-compose.yml rm -f -a
+            - docker-compose -f redis-history/docker-compose.yml rm -f -a
+            - docker-compose -f redis-history/docker-compose.yml pull
+            - docker-compose -f redis-history/docker-compose.yml build
+            - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f redis-history/docker-compose.yml stop
+            - docker-compose -f redis-history/docker-compose.yml rm -f -a
 
     test-dbwds: # redis-based writer data store
         image: takawang/dind

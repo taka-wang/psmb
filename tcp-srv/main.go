@@ -5,7 +5,7 @@ import (
 	dbwriter "github.com/taka-wang/psmb/dbwds"
 	reader "github.com/taka-wang/psmb/mrds"
 	writer "github.com/taka-wang/psmb/mwds"
-	history "github.com/taka-wang/psmb/rhistory"
+	history "github.com/taka-wang/psmb/redis-history"
 	mbtcp "github.com/taka-wang/psmb/tcp"
 )
 
