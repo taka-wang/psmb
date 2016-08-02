@@ -48,12 +48,8 @@ func (s *scheduler) Less(i, j int) bool {
 }
 
 // NextRun returns the job and time when the next job should run
-<<<<<<< HEAD
-// type: *Job
-func (s *scheduler) NextRun() (psmb.IJob, time.Time) {
-=======
 func (s *scheduler) NextRun() (*Job, time.Time) {
->>>>>>> parent of e6978b7... refactor
+
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -65,12 +61,8 @@ func (s *scheduler) NextRun() (*Job, time.Time) {
 }
 
 // Every schedules a new job
-<<<<<<< HEAD
 // type: *Job
-func (s *scheduler) Every(interval uint64) psmb.IJob {
-=======
 func (s *scheduler) Every(interval uint64) *Job {
->>>>>>> parent of e6978b7... refactor
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -92,12 +84,8 @@ func (s *scheduler) Every(interval uint64) *Job {
 }
 
 // Add job name and job object to jobMap
-<<<<<<< HEAD
 // type: *Job
-func (s *scheduler) EveryWithName(interval uint64, name string) psmb.IJob {
-=======
 func (s *scheduler) EveryWithName(interval uint64, name string) *Job {
->>>>>>> parent of e6978b7... refactor
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -133,12 +121,8 @@ func (s *scheduler) EveryWithName(interval uint64, name string) *Job {
 }
 
 // Emergency schedules a new emergency job
-<<<<<<< HEAD
 // type: *Job
-func (s *scheduler) Emergency() psmb.IJob {
-=======
 func (s *scheduler) Emergency() *Job {
->>>>>>> parent of e6978b7... refactor
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -189,12 +173,8 @@ func (s *scheduler) Location(location *time.Location) {
 }
 
 // Removes a job from the queue
-<<<<<<< HEAD
 // type: *Job
-func (s *scheduler) Remove(j psmb.IJob) bool {
-=======
 func (s *scheduler) Remove(j *Job) bool {
->>>>>>> parent of e6978b7... refactor
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
