@@ -122,3 +122,11 @@ func ReaderDataStoreCreator(driver string) (psmb.IReaderTaskDataStore, error) {
 func SchedulerCreator(driver string) (cron.Scheduler, error) {
 	return createScheduler(map[string]string{schedulerPlugin: driver})
 }
+
+// RedisWriterDataStoreCreator factory method to create scheduler
+func RedisWriterDataStoreCreator(driver, hostname string) (psmb.IWriterTaskDataStore, error) {
+	return createScheduler(map[string]string{
+		schedulerPlugin:  driver,
+		"redis_hostname": hostname,
+	})
+}

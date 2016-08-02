@@ -1,6 +1,8 @@
 package dbwds_test
 
 import (
+	"fmt"
+	"net"
 	"testing"
 
 	dbwds "github.com/taka-wang/psmb/dbwds"
@@ -8,7 +10,21 @@ import (
 	"github.com/takawang/sugar"
 )
 
+var (
+	hostName string
+)
+
 func init() {
+	// get hostname
+	host, err := net.LookupHost("redis1")
+	if err != nil {
+		fmt.Println("local run")
+		hostName = "127.0.0.2"
+	} else {
+		fmt.Println("docker run")
+		hostName = host[0] //docker
+	}
+
 	psmbtcp.Register("Writer", dbwds.NewDataStore)
 }
 
@@ -16,7 +32,7 @@ func TestWriterMap(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`add` task to map", func(log sugar.Log) bool {
-		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
+		writerMap, err := psmbtcp.RedisWriterDataStoreCreator("Writer", hostName)
 
 		log(err)
 		if err != nil {

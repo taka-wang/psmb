@@ -29,19 +29,6 @@ func Init() {
 		hostName = host[0] //docker
 	}
 
-	RedisPool = &redis.Pool{
-		MaxIdle:     3,
-		MaxActive:   0, // When zero, there is no limit on the number of connections in the pool.
-		IdleTimeout: 30 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", hostName+":6379")
-			if err != nil {
-				fmt.Println("!!!!!!")
-				fmt.Println(err.Error())
-			}
-			return conn, err
-		},
-	}
 }
 
 // @Implement IWriterTaskDataStore contract implicitly
@@ -53,7 +40,24 @@ type writerTaskDataStore struct {
 
 // NewDataStore instantiate mbtcp write task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
-	Init()
+	// get hostname
+	hostName, ok := conf["redis_hostname"]
+	if !ok {
+		return nil, errors.New("Fail to get hostname")
+	}
+
+	RedisPool = &redis.Pool{
+		MaxIdle:     3,
+		MaxActive:   0, // When zero, there is no limit on the number of connections in the pool.
+		IdleTimeout: 30 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			conn, err := redis.Dial("tcp", hostName+":6379")
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+			return conn, err
+		},
+	}
 	conn := RedisPool.Get()
 	if nil == conn {
 		return nil, errors.New("Connect redis failed")
