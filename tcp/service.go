@@ -60,6 +60,8 @@ type Service struct {
 	readerMap IReaderTaskDataStore
 	// writerMap write task map
 	writerMap IWriterTaskDataStore
+	// historyMap history map
+	historyMap IHistoryDataStore
 	// scheduler cron scheduler
 	scheduler cron.Scheduler
 	// sub ZMQ subscriber endpoints
@@ -83,9 +85,10 @@ type Service struct {
 }
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(reader, writer, sch string) (IProactiveService, error) {
+func NewService(reader, writer, history, sch string) (IProactiveService, error) {
 	var readerPlugin IReaderTaskDataStore
 	var writerPlugin IWriterTaskDataStore
+	var historyPlugin IHistoryDataStore
 	var schedulerPlugin cron.Scheduler
 	var err error
 
@@ -102,6 +105,12 @@ func NewService(reader, writer, sch string) (IProactiveService, error) {
 		return nil, err
 	}
 
+	historyPlugin, err = HistoryDataStoreCreator(history)
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Fail to create history data store")
+		return nil, err
+	}
+
 	schedulerPlugin, err = SchedulerCreator(sch)
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create scheduler")
@@ -109,10 +118,11 @@ func NewService(reader, writer, sch string) (IProactiveService, error) {
 	}
 
 	return &Service{
-		enable:    true,
-		readerMap: readerPlugin,
-		writerMap: writerPlugin,
-		scheduler: schedulerPlugin,
+		enable:     true,
+		readerMap:  readerPlugin,
+		writerMap:  writerPlugin,
+		historyMap: historyPlugin,
+		scheduler:  schedulerPlugin,
 	}, nil
 }
 
