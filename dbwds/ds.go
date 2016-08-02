@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	host, err := net.LookupHost("slave")
+	host, err := net.LookupHost("redis")
 	if err != nil {
 		fmt.Println("local run")
 		hostName = "127.0.0.1"

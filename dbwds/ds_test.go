@@ -12,13 +12,6 @@ func init() {
 	psmbtcp.Register("Writer", dbwds.NewDataStore)
 }
 
-/*
-docker run -it --link redis --rm redis sh -c "exec redis-cli -p 6379 -h redis"
-
-docker pull redis
-docker run -d -p 6379:6379 -v /home/vagrant/data:/data --name redis redis
-*/
-
 func TestWriterMap(t *testing.T) {
 	s := sugar.New(t)
 
