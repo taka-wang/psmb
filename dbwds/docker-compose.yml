@@ -5,4 +5,4 @@ redis1:
 dbwds:
     build: .
     links:
-        - redis
+        - redis1
