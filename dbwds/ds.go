@@ -41,9 +41,9 @@ type writerTaskDataStore struct {
 // NewDataStore instantiate mbtcp write task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
 	// get hostname
-	hostName, ok := conf["hostname"]
+	connection, ok := conf["connection_string"]
 	if !ok {
-		return nil, errors.New("Fail to get hostname")
+		return nil, errors.New("Fail to get connection string")
 	}
 
 	RedisPool = &redis.Pool{
@@ -51,7 +51,7 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 		MaxActive:   0, // When zero, there is no limit on the number of connections in the pool.
 		IdleTimeout: 30 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", hostName+":6379")
+			conn, err := redis.Dial("tcp", connection)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
