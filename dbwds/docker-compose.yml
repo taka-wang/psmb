@@ -1,4 +1,4 @@
-redis:
+redis1:
     image: redis
     ports:
         - "6379"
