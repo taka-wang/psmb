@@ -49,7 +49,7 @@ type Job struct {
 }
 
 // NewJob creates a new job
-func newJob(interval uint64) interface{} {
+func newJob(interval uint64) *Job {
 	if interval == 0 {
 		panic(ErrIntervalNotValid)
 	}
