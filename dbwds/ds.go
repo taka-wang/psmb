@@ -71,8 +71,11 @@ func (ds *writerTaskDataStore) connectRedis() error {
 	// get connection
 	conn := RedisPool.Get()
 	if nil == conn {
-		return ErrConnection
+		err := ErrConnection
+		log.Error(err)
+		return err
 	}
+	//log.Debug("connect to redis")
 	ds.redis = conn
 	return nil
 }
@@ -82,9 +85,11 @@ func (ds *writerTaskDataStore) closeRedis() {
 		err := ds.redis.Close()
 		if err != nil {
 			log.WithFields(log.Fields{"err": err}).Error("Fail to close redis connection")
-		} else {
+		}
+		/*else {
 			log.Debug("Close redis connection")
 		}
+		*/
 	}
 }
 
