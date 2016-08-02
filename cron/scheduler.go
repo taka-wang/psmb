@@ -160,32 +160,6 @@ func (s *scheduler) RunPending() {
 	s.runPending(time.Now())
 }
 
-/*
-// Depricated: RunAll rungs all jobs regardless if they are scheduled to run or not
-func (s *scheduler) RunAll() {
-	RunAllWithDelay(0)
-}
-
-// Depricated: RunAllWithDelay all jobs with delay seconds
-func (s *scheduler) RunAllWithDelay(d time.Duration) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	now := time.Now()
-	sort.Sort(s)
-	for _, job := range s.jobs {
-		if !job.isInit() {
-			// set lastRun and nextRun
-			job.init(now)
-		}
-		// force to run
-		job.run()
-		time.Sleep(d)
-	}
-
-}
-*/
-
 // Location sets the default location for every job created
 // with `Scheduler.Every(...)`. By default the location is `time.Local`
 func (s *scheduler) Location(location *time.Location) {

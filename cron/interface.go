@@ -52,16 +52,6 @@ type Scheduler interface {
 	// ResumeAll resume all jobs
 	ResumeAll()
 
-	/*
-		// Depricated: RunAll runs all of the jobs regardless of wether or not
-		// they are pending
-		RunAll()
-
-		// RunAllWithDelay runs all of the jobs regardless of wether or not
-		// they are pending with a delay
-		RunAllWithDelay(time.Duration)
-	*/
-
 	// Depricated: RunPending runs all of the pending jobs
 	RunPending()
 
