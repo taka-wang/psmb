@@ -34,19 +34,18 @@ func TestHistoryMap(t *testing.T) {
 			return false
 		}
 
-		if ret, err := historyMap.GetLast("hello"); ret != nil {
+		if ret, err := historyMap.GetLast("hello"); ret != "" {
 			log(ret)
 		} else {
 			log(err)
 			return false
 		}
 
-		if ret, err := historyMap.GetLast("hello1"); ret != nil {
+		if ret, err := historyMap.GetLast("hello1"); ret != "" {
 			log(ret)
 			return false
 		} else {
 			log(err)
-
 		}
 
 		if ret, err := historyMap.GetAll("hello"); ret != nil {
