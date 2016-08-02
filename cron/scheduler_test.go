@@ -21,6 +21,7 @@ func TestCron(t *testing.T) {
 		if err != nil {
 			return false
 		}
+
 		return true
 	})
 }
