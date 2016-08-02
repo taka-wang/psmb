@@ -7,8 +7,6 @@
 
 package psmb
 
-import "time"
-
 //
 // Interfaces
 //
@@ -90,6 +88,7 @@ type IReaderTaskDataStore interface {
 	// UpdateAllTogglesByName update all poll request enabled flag
 	UpdateAllTogglesByName(toggle bool)
 }
+<<<<<<< HEAD
 
 // IScheduler keeps a slice of jobs that it executes at a regular interval
 type IScheduler interface {
@@ -175,3 +174,5 @@ type IJob interface {
 	Week() IJob
 	Location(loc *time.Location) IJob
 }
+=======
+>>>>>>> parent of e6978b7... refactor

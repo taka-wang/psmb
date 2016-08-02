@@ -10,6 +10,7 @@ import (
 	"time"
 
 	. "github.com/taka-wang/psmb"
+	cron "github.com/taka-wang/psmb/cron"
 	log "github.com/takawang/logrus"
 	zmq "github.com/takawang/zmq3"
 )
@@ -60,7 +61,7 @@ type Service struct {
 	// writerMap write task map
 	writerMap IWriterTaskDataStore
 	// scheduler cron scheduler
-	scheduler IScheduler
+	scheduler cron.Scheduler
 	// sub ZMQ subscriber endpoints
 	sub struct {
 		// upstream subscriber from services
