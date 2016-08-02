@@ -134,7 +134,24 @@ func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error
 }
 
 func (ds *dataStore) GetAll(name string) (map[string]string, error) {
-	return ds.Get(name, 0, -1)
+	if name == "" {
+		return nil, ErrInvalidName
+	}
+	defer ds.closeRedis()
+	if err := ds.connectRedis(); err != nil {
+		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
+	}
+	ret, err := redis.StringMap(ds.redis.Do("ZRANGE", zsetPrefix+name, 0, -1, "WITHSCORES"))
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("GetAll")
+		return nil, err
+	}
+	if len(ret) == 0 {
+		err = ErrNoData
+		log.WithFields(log.Fields{"err": err}).Error("GetAll")
+		return nil, err
+	}
+	return ret, nil
 }
 
 func (ds *dataStore) GetLast(name string) (string, error) {
