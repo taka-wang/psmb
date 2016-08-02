@@ -46,7 +46,7 @@ func createScheduler(conf map[string]string) (cron.Scheduler, error) {
 
 	if ef != nil {
 		fmt.Println(reflect.TypeOf(ef)) // debug
-		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
+		if fn, ok := ef.(func(map[string]string) (cron.Scheduler, error)); ok {
 			if ds, _ := fn(conf); ds != nil { // casting
 				return ds.(cron.Scheduler), nil
 			}
