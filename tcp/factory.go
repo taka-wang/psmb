@@ -41,14 +41,14 @@ func createPlugin(conf map[string]string, key string) (interface{}, error) {
 }
 
 // createScheduler real factory method
-func createScheduler(conf map[string]string) (cron.Scheduler, error) {
+func createScheduler(conf map[string]string) (psmb.IScheduler, error) {
 	ef, _ := createPlugin(conf, schedulerPlugin)
 
 	if ef != nil {
 		fmt.Println(reflect.TypeOf(ef)) // debug
 		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
 			if ds, _ := fn(conf); ds != nil { // casting
-				return ds.(cron.Scheduler), nil
+				return ds.(psmb.IScheduler), nil
 			}
 		}
 		err := ErrCasting

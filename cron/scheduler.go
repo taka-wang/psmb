@@ -8,7 +8,8 @@ import (
 
 // NewScheduler create a new scheduler.
 // Note: the current implementation is not concurrency safe.
-func NewScheduler(conf map[string]string) (Scheduler, error) {
+// type: Scheduler
+func NewScheduler(conf map[string]string) (interface{}, error) {
 	return &scheduler{
 		jobMap:    make(map[string]*Job),
 		isStopped: make(chan bool),
@@ -46,7 +47,8 @@ func (s *scheduler) Less(i, j int) bool {
 }
 
 // NextRun returns the job and time when the next job should run
-func (s *scheduler) NextRun() (*Job, time.Time) {
+// type: *Job
+func (s *scheduler) NextRun() (interface{}, time.Time) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -58,7 +60,8 @@ func (s *scheduler) NextRun() (*Job, time.Time) {
 }
 
 // Every schedules a new job
-func (s *scheduler) Every(interval uint64) *Job {
+// type: *Job
+func (s *scheduler) Every(interval uint64) interface{} {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -80,7 +83,8 @@ func (s *scheduler) Every(interval uint64) *Job {
 }
 
 // Add job name and job object to jobMap
-func (s *scheduler) EveryWithName(interval uint64, name string) *Job {
+// type: *Job
+func (s *scheduler) EveryWithName(interval uint64, name string) interface{} {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -116,7 +120,8 @@ func (s *scheduler) EveryWithName(interval uint64, name string) *Job {
 }
 
 // Emergency schedules a new emergency job
-func (s *scheduler) Emergency() *Job {
+// type: *Job
+func (s *scheduler) Emergency() interface{} {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -167,12 +172,13 @@ func (s *scheduler) Location(location *time.Location) {
 }
 
 // Removes a job from the queue
-func (s *scheduler) Remove(j *Job) bool {
+// type: *Job
+func (s *scheduler) Remove(j interface{}) bool {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
 	for i, job := range s.jobs {
-		if j == job {
+		if j.(*Job) == job {
 			// fix potential memory leak problem arrcording to:
 			// https://github.com/golang/go/wiki/SliceTricks
 			copy(s.jobs[i:], s.jobs[i+1:])
