@@ -125,6 +125,9 @@ func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error
 		log.WithFields(log.Fields{"err": err}).Error("Get")
 		return nil, err
 	}
+	if len(ret) == 0 {
+		return nil, ErrNoData
+	}
 	return ret, nil
 }
 
