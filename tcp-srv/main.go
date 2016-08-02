@@ -35,18 +35,6 @@ func init() {
 func main() {
 	// dependency injection & factory pattern
 	if srv, _ := mbtcp.NewService(
-		"MemReader",   // Reader Data Store
-		"RedisWriter", // Writer Data Store
-		"Cron",        // Scheduler
-	); srv != nil {
-		srv.Start()
-	}
-}
-
-/*
-func main() {
-	// dependency injection & factory pattern
-	if srv, _ := mbtcp.NewService(
 		"MemReader", // Reader Data Store
 		"MemWriter", // Writer Data Store
 		"Cron",      // Scheduler
@@ -54,4 +42,3 @@ func main() {
 		srv.Start()
 	}
 }
-*/
