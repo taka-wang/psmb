@@ -119,6 +119,6 @@ func ReaderDataStoreCreator(driver string) (psmb.IReaderTaskDataStore, error) {
 }
 
 // SchedulerCreator factory method to create scheduler
-func SchedulerCreator(driver string) (psmb.IEveryWithName, error) {
+func SchedulerCreator(driver string) (cron.Scheduler, error) {
 	return createScheduler(map[string]string{schedulerPlugin: driver})
 }
