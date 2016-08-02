@@ -111,7 +111,7 @@ func Register(name string, factory interface{}) {
 
 // WriterDataStoreCreator factory method to create writer task data store
 func WriterDataStoreCreator(driver ...string) (psmb.IWriterTaskDataStore, error) {
-	if len(driver) > 1 && driver[1] != "" {
+	if len(driver) > 1 {
 		return CreateWriterDS(map[string]string{
 			writerPlugin:  driver[0],
 			writerConnStr: driver[1],

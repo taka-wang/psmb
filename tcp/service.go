@@ -83,7 +83,7 @@ type Service struct {
 }
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(reader, writer, sch, conn string) (IProactiveService, error) {
+func NewService(reader, writer, sch string, conn ...string) (IProactiveService, error) {
 	// Factory methods
 	readerPlugin, err1 := ReaderDataStoreCreator(reader)
 	if err1 != nil {
