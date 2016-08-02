@@ -1,3 +1,8 @@
+redis:
+    image: redis
+    ports:
+        - "6379"
+
 slave:
     image: takawang/c-modbus-slave:x86
 
@@ -12,6 +17,10 @@ psmbtcpsrv:
     build: tcp-srv/.
     volumes_from:
         - modbusd
+redis:
+    image: redis
+    ports:
+        - "6379"
 
 dummysrv:
     build: tcp-srv/test/dummy-srv/.
@@ -19,4 +28,5 @@ dummysrv:
         - modbusd
     links:
         - slave
+        - redis
 

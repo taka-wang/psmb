@@ -13,6 +13,7 @@ const (
 	readerPlugin    = "ReaderPlugin"
 	writerPlugin    = "WriterPlugin"
 	schedulerPlugin = "SchedulerPlugin"
+	writerConnStr   = "WriterConnectionStr"
 )
 
 //
@@ -112,8 +113,8 @@ func Register(name string, factory interface{}) {
 func WriterDataStoreCreator(driver ...string) (psmb.IWriterTaskDataStore, error) {
 	if len(driver) > 1 {
 		return CreateWriterDS(map[string]string{
-			writerPlugin:        driver[0],
-			"connection_string": driver[1],
+			writerPlugin:  driver[0],
+			writerConnStr: driver[1],
 		})
 	}
 	return CreateWriterDS(map[string]string{writerPlugin: driver[0]})

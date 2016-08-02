@@ -41,7 +41,7 @@ type writerTaskDataStore struct {
 // NewDataStore instantiate mbtcp write task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
 	// get hostname
-	connection, ok := conf["connection_string"]
+	connection, ok := conf["WriterConnectionStr"]
 	if !ok {
 		return nil, errors.New("Fail to get connection string")
 	}
