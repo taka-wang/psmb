@@ -32,7 +32,11 @@ func TestWriterMap(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`add` task to map", func(log sugar.Log) bool {
-		writerMap, err := psmbtcp.RedisWriterDataStoreCreator("Writer", hostName)
+		writerMap, err := psmbtcp.CreateWriterDS(
+			map[string]string{
+				"WriterPlugin":   "Writer",
+				"redis_hostname": hostName,
+			})
 
 		log(err)
 		if err != nil {

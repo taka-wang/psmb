@@ -58,8 +58,8 @@ func createScheduler(conf map[string]string) (cron.Scheduler, error) {
 	return nil, ErrInvalidPluginName
 }
 
-// createWriterDS real factory method
-func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
+// CreateWriterDS real factory method
+func CreateWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	ef, _ := createPlugin(conf, writerPlugin)
 
 	if ef != nil {
@@ -110,7 +110,7 @@ func Register(name string, factory interface{}) {
 
 // WriterDataStoreCreator factory method to create writer task data store
 func WriterDataStoreCreator(driver string) (psmb.IWriterTaskDataStore, error) {
-	return createWriterDS(map[string]string{writerPlugin: driver})
+	return CreateWriterDS(map[string]string{writerPlugin: driver})
 }
 
 // ReaderDataStoreCreator factory method to create reader task data store
