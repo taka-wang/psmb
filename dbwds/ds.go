@@ -17,13 +17,16 @@ var (
 	// RedisPool redis connection pool
 	RedisPool *redis.Pool
 	hostName  string
+	port      string
 )
 
-func Init() {
-	host, err := net.LookupHost("redis1")
+func init() {
+	// TODO: load config
+	port = "6379"
+	host, err := net.LookupHost("redis")
 	if err != nil {
 		fmt.Println("local run")
-		hostName = "127.0.0.2"
+		hostName = "127.0.0.1"
 	} else {
 		fmt.Println("docker run")
 		hostName = host[0] //docker
@@ -40,18 +43,12 @@ type writerTaskDataStore struct {
 
 // NewDataStore instantiate mbtcp write task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
-	// get hostname
-	connection, ok := conf["WriterConnectionStr"]
-	if !ok {
-		return nil, errors.New("Fail to get connection string")
-	}
-
 	RedisPool = &redis.Pool{
 		MaxIdle:     3,
 		MaxActive:   0, // When zero, there is no limit on the number of connections in the pool.
 		IdleTimeout: 30 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", connection)
+			conn, err := redis.Dial("tcp", hostName+":"+port)
 			if err != nil {
 				fmt.Println(err.Error())
 			}

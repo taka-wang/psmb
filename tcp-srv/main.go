@@ -19,7 +19,7 @@ func init() {
 	host, err := net.LookupHost("redis")
 	if err != nil {
 		fmt.Println("local run")
-		hostName = "127.0.0.2"
+		hostName = "127.0.0.1"
 	} else {
 		fmt.Println("docker run")
 		hostName = host[0] //docker
@@ -35,10 +35,9 @@ func init() {
 func main() {
 	// dependency injection & factory pattern
 	if srv, _ := mbtcp.NewService(
-		"MemReader",      // Reader Data Store
-		"RedisWriter",    // Writer Data Store
-		"Cron",           // Scheduler
-		hostName+":6379", // Connection string
+		"MemReader",   // Reader Data Store
+		"RedisWriter", // Writer Data Store
+		"Cron",        // Scheduler
 	); srv != nil {
 		srv.Start()
 	}

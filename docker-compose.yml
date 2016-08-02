@@ -12,16 +12,10 @@ modbusd:
         - /tmp:/tmp
     links:
         - slave
-
 psmbtcpsrv:
     build: tcp-srv/.
     volumes_from:
         - modbusd
-redis:
-    image: redis
-    ports:
-        - "6379"
-
 dummysrv:
     build: tcp-srv/test/dummy-srv/.
     volumes_from:

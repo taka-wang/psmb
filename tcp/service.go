@@ -83,7 +83,7 @@ type Service struct {
 }
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(reader, writer, sch string, conn ...string) (IProactiveService, error) {
+func NewService(reader, writer, sch string) (IProactiveService, error) {
 	var readerPlugin IReaderTaskDataStore
 	var writerPlugin IWriterTaskDataStore
 	var schedulerPlugin cron.Scheduler
@@ -96,18 +96,10 @@ func NewService(reader, writer, sch string, conn ...string) (IProactiveService, 
 		return nil, err
 	}
 
-	if conn == nil {
-		writerPlugin, err = WriterDataStoreCreator(writer)
-		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Error("Fail to create writer data store")
-			return nil, err
-		}
-	} else {
-		writerPlugin, err = WriterDataStoreCreator(writer, conn[0])
-		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Error("Fail to create writer data store")
-			return nil, err
-		}
+	writerPlugin, err = WriterDataStoreCreator(writer)
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Fail to create writer data store")
+		return nil, err
 	}
 
 	schedulerPlugin, err = SchedulerCreator(sch)
