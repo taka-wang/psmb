@@ -2,9 +2,8 @@ redis:
     image: redis
     volumes:
         - /home/vagrant/data:/data
-    expose:
+    ports:
         - "6379"
-
 dbwds:
     build: .
     links:
