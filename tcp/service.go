@@ -84,23 +84,36 @@ type Service struct {
 
 // NewService modbus tcp proactive serivce constructor
 func NewService(reader, writer, sch string, conn ...string) (IProactiveService, error) {
+	var readerPlugin IReaderTaskDataStore
+	var writerPlugin IWriterTaskDataStore
+	var schedulerPlugin cron.Scheduler
+	var err error
+
 	// Factory methods
-	readerPlugin, err1 := ReaderDataStoreCreator(reader)
-	if err1 != nil {
-		log.WithFields(log.Fields{"err": err1}).Error("Fail to create reader data store")
-		return nil, err1
+	readerPlugin, err = ReaderDataStoreCreator(reader)
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Fail to create reader data store")
+		return nil, err
 	}
 
-	writerPlugin, err2 := WriterDataStoreCreator(writer, conn)
-	if err2 != nil {
-		log.WithFields(log.Fields{"err": err2}).Error("Fail to create writer data store")
-		return nil, err2
+	if conn == nil {
+		writerPlugin, err = WriterDataStoreCreator(writer)
+		if err != nil {
+			log.WithFields(log.Fields{"err": err}).Error("Fail to create writer data store")
+			return nil, err
+		}
+	} else {
+		writerPlugin, err = WriterDataStoreCreator(writer, conn[0])
+		if err != nil {
+			log.WithFields(log.Fields{"err": err}).Error("Fail to create writer data store")
+			return nil, err
+		}
 	}
 
-	schedulerPlugin, err3 := SchedulerCreator(sch)
-	if err3 != nil {
-		log.WithFields(log.Fields{"err": err3}).Error("Fail to create scheduler")
-		return nil, err3
+	schedulerPlugin, err = SchedulerCreator(sch)
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Fail to create scheduler")
+		return nil, err
 	}
 
 	return &Service{
