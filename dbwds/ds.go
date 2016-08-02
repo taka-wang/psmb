@@ -19,7 +19,7 @@ var (
 	hostName  string
 )
 
-func init() {
+func Init() {
 	host, err := net.LookupHost("redis")
 	if err != nil {
 		fmt.Println("local run")
@@ -53,6 +53,7 @@ type writerTaskDataStore struct {
 
 // NewDataStore instantiate mbtcp write task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
+	Init()
 	conn := RedisPool.Get()
 	if nil == conn {
 		return nil, errors.New("Connect redis failed")
