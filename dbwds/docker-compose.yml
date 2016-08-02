@@ -1,7 +1,5 @@
 redis:
     image: redis
-    volumes:
-        - /home/vagrant/data:/data
     ports:
         - "6379"
 dbwds:
