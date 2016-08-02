@@ -11,14 +11,14 @@ var (
 	// ErrCasting is the error when type assert fail
 	ErrCasting = errors.New("Fail to casting")
 
-	// ErrInvalidDataStoreName is the error when the writer store name is not allowed.
-	ErrInvalidDataStoreName = errors.New("Invalid task data store name")
+	// ErrInvalidPluginName is the error when the writer store name is not allowed.
+	ErrInvalidPluginName = errors.New("Invalid plugin name")
 
-	// ErrDataStoreNotExist is the error when the writer store factory does not exist.
-	ErrDataStoreNotExist = errors.New("Writer task store does not exist!")
+	// ErrPluginNotExist is the error when the writer store factory does not exist.
+	ErrPluginNotExist = errors.New("Plugin does not exist!")
 
-	// ErrDataStoreExist is the error when the writer store factory is alreay registered.
-	ErrDataStoreExist = errors.New("Writer task store does already regitered. Ignoring.")
+	// ErrPluginExist is the error when the writer store factory is alreay registered.
+	ErrPluginExist = errors.New("Plugin does already regitered. Ignoring.")
 
 	// ErrRequestNotFound is the error when the request is not in the write task map.
 	ErrRequestNotFound = errors.New("Request not found!")

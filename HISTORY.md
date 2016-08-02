@@ -4,7 +4,7 @@
 
 - [x] evaluate scheduler
 - [x] evaluate scheduler with zmq
-- [x] hacking gocron package
+- [x] hacking cron package
 - [x] setup southbound docker env for testing
 - [x] integrate with travis ci
 - [x] implement binary module unit test

@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/taka-wang/gocron"
 	. "github.com/taka-wang/psmb"
+	cron "github.com/taka-wang/psmb/cron"
 	log "github.com/takawang/logrus"
 	zmq "github.com/takawang/zmq3"
 )
@@ -60,8 +60,8 @@ type Service struct {
 	readerMap IReaderTaskDataStore
 	// writerMap write task map
 	writerMap IWriterTaskDataStore
-	// scheduler gocron scheduler
-	scheduler gocron.Scheduler
+	// scheduler cron scheduler
+	scheduler cron.Scheduler
 	// sub ZMQ subscriber endpoints
 	sub struct {
 		// upstream subscriber from services
@@ -83,25 +83,31 @@ type Service struct {
 }
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(reader, writer string) (IProactiveService, error) {
+func NewService(reader, writer, sch string) (IProactiveService, error) {
 	// Factory methods
-	readerDataStore, err1 := ReaderDataStoreCreator(reader)
+	readerPlugin, err1 := ReaderDataStoreCreator(reader)
 	if err1 != nil {
 		log.WithFields(log.Fields{"err": err1}).Error("Fail to create reader data store")
 		return nil, err1
 	}
 
-	writerDataStore, err2 := WriterDataStoreCreator(writer)
+	writerPlugin, err2 := WriterDataStoreCreator(writer)
 	if err2 != nil {
 		log.WithFields(log.Fields{"err": err2}).Error("Fail to create writer data store")
 		return nil, err2
 	}
 
+	schedulerPlugin, err3 := SchedulerCreator(sch)
+	if err3 != nil {
+		log.WithFields(log.Fields{"err": err3}).Error("Fail to create scheduler")
+		return nil, err3
+	}
+
 	return &Service{
 		enable:    true,
-		readerMap: readerDataStore,
-		writerMap: writerDataStore,
-		scheduler: gocron.NewScheduler(),
+		readerMap: readerPlugin,
+		writerMap: writerPlugin,
+		scheduler: schedulerPlugin,
 	}, nil
 }
 
@@ -115,7 +121,7 @@ func Marshal(r interface{}) (string, error) {
 	return string(bytes), nil
 }
 
-// Task for gocron scheduler
+// Task for cron scheduler
 func (b *Service) Task(socket *zmq.Socket, req interface{}) {
 	str, err := Marshal(req)
 	if err != nil {

@@ -10,6 +10,7 @@ func init() {
 	// register data stores from packages
 	mbtcp.Register("MemReader", mr.NewDataStore)
 	mbtcp.Register("MemWriter", mw.NewDataStore)
+	mbtcp.Register("Cron", cron.NewScheduler)
 }
 
 func main() {
@@ -17,6 +18,7 @@ func main() {
 	if srv, _ := mbtcp.NewService(
 		"MemReader", // Reader Data Store
 		"MemWriter", // Writer Data Store
+		"Cron",      // Scheduler
 	); srv != nil {
 		srv.Start()
 	}
