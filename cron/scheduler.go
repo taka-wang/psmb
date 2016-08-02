@@ -4,6 +4,8 @@ import (
 	"sort"
 	"sync"
 	"time"
+
+	psmb "github.com/taka-wang/psmb"
 )
 
 // NewScheduler create a new scheduler.
@@ -48,7 +50,7 @@ func (s *scheduler) Less(i, j int) bool {
 
 // NextRun returns the job and time when the next job should run
 // type: *Job
-func (s *scheduler) NextRun() (interface{}, time.Time) {
+func (s *scheduler) NextRun() (*psmb.IJob, time.Time) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -61,7 +63,7 @@ func (s *scheduler) NextRun() (interface{}, time.Time) {
 
 // Every schedules a new job
 // type: *Job
-func (s *scheduler) Every(interval uint64) interface{} {
+func (s *scheduler) Every(interval uint64) *psmb.IJob {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -84,7 +86,7 @@ func (s *scheduler) Every(interval uint64) interface{} {
 
 // Add job name and job object to jobMap
 // type: *Job
-func (s *scheduler) EveryWithName(interval uint64, name string) interface{} {
+func (s *scheduler) EveryWithName(interval uint64, name string) *psmb.IJob {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -121,7 +123,7 @@ func (s *scheduler) EveryWithName(interval uint64, name string) interface{} {
 
 // Emergency schedules a new emergency job
 // type: *Job
-func (s *scheduler) Emergency() interface{} {
+func (s *scheduler) Emergency() *psmb.IJob {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -173,7 +175,7 @@ func (s *scheduler) Location(location *time.Location) {
 
 // Removes a job from the queue
 // type: *Job
-func (s *scheduler) Remove(j interface{}) bool {
+func (s *scheduler) Remove(j *psmb.IJob) bool {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 

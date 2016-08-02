@@ -150,3 +150,28 @@ type IScheduler interface {
 	// Stop stops the scheduler from executing jobs
 	Stop()
 }
+
+// IJob keeps a slice of jobs that it executes at a regular interval
+type IJob interface {
+	Do(task interface{}, params ...interface{}) interface{}
+	At(t string) interface{}
+	Seconds() interface{}
+	Second() interface{}
+	Minutes() interface{}
+	Minute() interface{}
+	Hours() interface{}
+	Hour() interface{}
+	Days() interface{}
+	Day() interface{}
+	Weekday(weekday time.Weekday) interface{}
+	Monday() interface{}
+	Tuesday() interface{}
+	Wednesday() interface{}
+	Thursday() interface{}
+	Friday() interface{}
+	Saturday() interface{}
+	Sunday() interface{}
+	Weeks() interface{}
+	Week() interface{}
+	Location(loc *time.Location) interface{}
+}

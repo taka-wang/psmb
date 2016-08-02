@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	"github.com/taka-wang/psmb"
-	"github.com/taka-wang/psmb/cron"
 	log "github.com/takawang/logrus"
 )
 
@@ -119,6 +118,6 @@ func ReaderDataStoreCreator(driver string) (psmb.IReaderTaskDataStore, error) {
 }
 
 // SchedulerCreator factory method to create scheduler
-func SchedulerCreator(driver string) (cron.Scheduler, error) {
+func SchedulerCreator(driver string) (psmb.IEveryWithName, error) {
 	return createScheduler(map[string]string{schedulerPlugin: driver})
 }
