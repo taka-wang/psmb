@@ -5,12 +5,11 @@
 package dbwds
 
 import (
-	"errors"
-	"fmt"
 	"net"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
+	log "github.com/takawang/logrus"
 )
 
 var (
@@ -18,20 +17,34 @@ var (
 	RedisPool *redis.Pool
 	hostName  string
 	port      string
+	hashName  string
 )
 
 func init() {
 	// TODO: load config
 	port = "6379"
+	hashName = "mbtcp:writer"
 	host, err := net.LookupHost("redis")
 	if err != nil {
-		fmt.Println("local run")
+		log.WithFields(log.Fields{"err": err}).Debug("local run")
 		hostName = "127.0.0.1"
 	} else {
-		fmt.Println("docker run")
+		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
 		hostName = host[0] //docker
 	}
 
+	RedisPool = &redis.Pool{
+		MaxIdle:     3,
+		MaxActive:   0, // When zero, there is no limit on the number of connections in the pool.
+		IdleTimeout: 30 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			conn, err := redis.Dial("tcp", hostName+":"+port)
+			if err != nil {
+				log.WithFields(log.Fields{"err": err}).Error("Redis pool dial error")
+			}
+			return conn, err
+		},
+	}
 }
 
 // @Implement IWriterTaskDataStore contract implicitly
@@ -43,21 +56,10 @@ type writerTaskDataStore struct {
 
 // NewDataStore instantiate mbtcp write task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
-	RedisPool = &redis.Pool{
-		MaxIdle:     3,
-		MaxActive:   0, // When zero, there is no limit on the number of connections in the pool.
-		IdleTimeout: 30 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", hostName+":"+port)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-			return conn, err
-		},
-	}
+	// get connection
 	conn := RedisPool.Get()
 	if nil == conn {
-		return nil, errors.New("Connect redis failed")
+		return nil, ErrConnection
 	}
 
 	return &writerTaskDataStore{
@@ -65,19 +67,49 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 	}, nil
 }
 
+func (ds *writerTaskDataStore) connectRedis() error {
+	// get connection
+	conn := RedisPool.Get()
+	if nil == conn {
+		return ErrConnection
+	}
+	ds.redis = conn
+	return nil
+}
+
+func (ds *writerTaskDataStore) closeRedis() {
+	if ds != nil && ds.redis != nil {
+		err := ds.redis.Close()
+		if err != nil {
+			log.WithFields(log.Fields{"err": err}).Error("Fail to close redis connection")
+		} else {
+			log.Debug("Close redis connection")
+		}
+	}
+}
+
 // Add add request to write task map
 func (ds *writerTaskDataStore) Add(tid, cmd string) {
-	_, err := ds.redis.Do("HSET", "mbtcp:writer", tid, cmd)
-	if err != nil {
-		fmt.Println("redis set failed:", err)
+	defer ds.closeRedis()
+	if err := ds.connectRedis(); err != nil {
+		log.WithFields(log.Fields{"err": err}).Debug("Add")
+	}
+
+	if _, err := ds.redis.Do("HSET", hashName, tid, cmd); err != nil {
+		log.WithFields(log.Fields{"err": err}).Debug("Add")
 	}
 }
 
 // Get get request from write task map
 func (ds *writerTaskDataStore) Get(tid string) (string, bool) {
-	ret, err := redis.String(ds.redis.Do("HGET", "mbtcp:writer", tid))
+	defer ds.closeRedis()
+	if err := ds.connectRedis(); err != nil {
+		log.WithFields(log.Fields{"err": err}).Debug("Get")
+	}
+
+	ret, err := redis.String(ds.redis.Do("HGET", hashName, tid))
 	if err != nil {
-		fmt.Println("redis get failed:", err)
+		log.WithFields(log.Fields{"err": err}).Debug("Get")
 		return "", false
 	}
 	return ret, true
@@ -85,8 +117,11 @@ func (ds *writerTaskDataStore) Get(tid string) (string, bool) {
 
 // Delete remove request from write task map
 func (ds *writerTaskDataStore) Delete(tid string) {
-	_, err := ds.redis.Do("HDEL", "mbtcp:writer", tid)
-	if err != nil {
-		fmt.Println("redis set failed:", err)
+	defer ds.closeRedis()
+	if err := ds.connectRedis(); err != nil {
+		log.WithFields(log.Fields{"err": err}).Debug("Delete")
+	}
+	if _, err := ds.redis.Do("HDEL", hashName, tid); err != nil {
+		log.WithFields(log.Fields{"err": err}).Debug("Delete")
 	}
 }

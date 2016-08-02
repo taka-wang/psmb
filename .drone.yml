@@ -2,6 +2,18 @@
 
 pipeline:
 
+    ci:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker-compose rm -f -a
+            - docker-compose pull
+            - docker-compose build
+            - docker-compose up --abort-on-container-exit
+            - docker-compose stop
+            - docker-compose rm -f -a
+
     test-dbwds:
         image: takawang/dind
         volumes:
@@ -49,14 +61,3 @@ pipeline:
         commands:
             - docker build --no-cache=true tcp/.
 
-    ci:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker-compose rm -f -a
-            - docker-compose pull
-            - docker-compose build
-            - docker-compose up --abort-on-container-exit
-            - docker-compose stop
-            - docker-compose rm -f -a

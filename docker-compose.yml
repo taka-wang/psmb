@@ -16,11 +16,13 @@ psmbtcpsrv:
     build: tcp-srv/.
     volumes_from:
         - modbusd
+    links:
+        - redis
 dummysrv:
     build: tcp-srv/test/dummy-srv/.
     volumes_from:
         - modbusd
     links:
         - slave
-        - redis
+        
 

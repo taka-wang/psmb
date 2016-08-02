@@ -27,10 +27,12 @@ func TestWriterMap(t *testing.T) {
 			return false
 		}
 
-		writerMap.Add("123456", "12")
-		log("add `123456` to table")
-		writerMap.Add("234561", "34")
-		log("add `234561` to table")
+		for index := 0; index < 2000; index++ {
+			writerMap.Add("123456", "12")
+			log("add `123456` to table")
+			writerMap.Add("234561", "34")
+			log("add `234561` to table")
+		}
 
 		r1, b1 := writerMap.Get("123456")
 		log("get `123456` from table")
