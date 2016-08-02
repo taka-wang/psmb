@@ -2,6 +2,15 @@
 
 pipeline:
 
+    test-db:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker run -d -p 6379:6379 --name redis redis
+            - docker build -t db --no-cache=true dbwds/.
+            - docker run -it --link redis db
+
     test-dbwds:
         image: takawang/dind
         volumes:
