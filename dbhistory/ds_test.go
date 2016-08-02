@@ -34,34 +34,32 @@ func TestHistoryMap(t *testing.T) {
 			return false
 		}
 
-		if ret, err := historyMap.GetLast("hello"); ret != "" {
-			log(ret)
-		} else {
+		if ret, err := historyMap.GetLast("hello"); err != nil {
 			log(err)
 			return false
+		} else {
+			log(ret)
 		}
 
-		if ret, err := historyMap.GetLast("hello1"); ret != "" {
+		if ret, err := historyMap.GetLast("hello1"); err != nil {
+			log(err)
+		} else {
 			log(ret)
+		}
+
+		if ret, err := historyMap.GetAll("hello"); err != nil {
+			log(err)
 			return false
 		} else {
-			log(err)
-		}
-
-		if ret, err := historyMap.GetAll("hello"); ret != nil {
 			log(ret)
-		} else {
-			log(err)
-			return false
 		}
 
-		if ret, err := historyMap.GetAll("hello1"); ret != nil {
+		if ret, err := historyMap.GetAll("hello1"); err != nil {
+			log(err)
+		} else {
 			log(ret)
-			return false
-		} else {
-			log(err)
-
 		}
+
 		return true
 	})
 }
