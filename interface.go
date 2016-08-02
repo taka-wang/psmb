@@ -153,25 +153,25 @@ type IScheduler interface {
 
 // IJob keeps a slice of jobs that it executes at a regular interval
 type IJob interface {
-	Do(task interface{}, params ...interface{}) interface{}
-	At(t string) interface{}
-	Seconds() interface{}
-	Second() interface{}
-	Minutes() interface{}
-	Minute() interface{}
-	Hours() interface{}
-	Hour() interface{}
-	Days() interface{}
-	Day() interface{}
-	Weekday(weekday time.Weekday) interface{}
-	Monday() interface{}
-	Tuesday() interface{}
-	Wednesday() interface{}
-	Thursday() interface{}
-	Friday() interface{}
-	Saturday() interface{}
-	Sunday() interface{}
-	Weeks() interface{}
-	Week() interface{}
-	Location(loc *time.Location) interface{}
+	Do(task interface{}, params ...interface{}) *IJob
+	At(t string) *IJob
+	Seconds() *IJob
+	Second() *IJob
+	Minutes() *IJob
+	Minute() *IJob
+	Hours() *IJob
+	Hour() *IJob
+	Days() *IJob
+	Day() *IJob
+	Weekday(weekday time.Weekday) *IJob
+	Monday() *IJob
+	Tuesday() *IJob
+	Wednesday() *IJob
+	Thursday() *IJob
+	Friday() *IJob
+	Saturday() *IJob
+	Sunday() *IJob
+	Weeks() *IJob
+	Week() *IJob
+	Location(loc *time.Location) *IJob
 }
