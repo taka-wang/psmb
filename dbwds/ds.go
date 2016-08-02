@@ -36,6 +36,7 @@ func init() {
 		Dial: func() (redis.Conn, error) {
 			conn, err := redis.Dial("tcp", hostName+":6379")
 			if err != nil {
+				fmt.Println("!!!!!!")
 				fmt.Println(err.Error())
 			}
 			return conn, err
