@@ -13,7 +13,7 @@ import (
 // type: Scheduler
 func NewScheduler(conf map[string]string) (interface{}, error) {
 	return &scheduler{
-		jobMap:    make(map[string]*Job),
+		jobMap:    make(map[string]*psmb.IJob),
 		isStopped: make(chan bool),
 		location:  time.Local,
 	}, nil
@@ -21,9 +21,9 @@ func NewScheduler(conf map[string]string) (interface{}, error) {
 
 // Scheduler contains jobs and a loop to run the jobs
 type scheduler struct {
-	jobMap    map[string]*Job
-	ejobs     []*Job // Emergency jobs
-	jobs      []*Job
+	jobMap    map[string]*psmb.IJob
+	ejobs     []*psmb.IJob // Emergency jobs
+	jobs      []*psmb.IJob
 	isRunning bool
 	isStopped chan bool
 	location  *time.Location
