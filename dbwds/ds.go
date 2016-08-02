@@ -23,7 +23,7 @@ func init() {
 	host, err := net.LookupHost("redis")
 	if err != nil {
 		fmt.Println("local run")
-		hostName = "127.0.0.1"
+		hostName = "127.0.0.2"
 	} else {
 		fmt.Println("docker run")
 		hostName = host[0] //docker
