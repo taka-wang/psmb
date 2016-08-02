@@ -1,6 +1,6 @@
 # mrds
 
-Memory reader Data Store
+In-memory reader data store
 
 ## Install
 

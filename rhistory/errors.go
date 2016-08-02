@@ -1,4 +1,4 @@
-package dbhistory
+package rhistory
 
 import "errors"
 

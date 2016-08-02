@@ -1,6 +1,6 @@
 # mwds
 
-Memory writer Data Store
+In-memory writer data store
 
 ## Install
 

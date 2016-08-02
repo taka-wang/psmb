@@ -24,6 +24,7 @@ func init() {
 	// TODO: load config
 	port = "6379"
 	hashName = "mbtcp:writer"
+
 	host, err := net.LookupHost("redis")
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")

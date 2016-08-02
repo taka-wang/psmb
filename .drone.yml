@@ -2,19 +2,19 @@
 
 pipeline:
 
-    test-dbhistory:
+    test-rhistory: # redis-based history data store
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker-compose -f dbhistory/docker-compose.yml rm -f -a
-            - docker-compose -f dbhistory/docker-compose.yml pull
-            - docker-compose -f dbhistory/docker-compose.yml build
-            - docker-compose -f dbhistory/docker-compose.yml up --abort-on-container-exit
-            - docker-compose -f dbhistory/docker-compose.yml stop
-            - docker-compose -f dbhistory/docker-compose.yml rm -f -a
+            - docker-compose -f rhistory/docker-compose.yml rm -f -a
+            - docker-compose -f rhistory/docker-compose.yml pull
+            - docker-compose -f rhistory/docker-compose.yml build
+            - docker-compose -f rhistory/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f rhistory/docker-compose.yml stop
+            - docker-compose -f rhistory/docker-compose.yml rm -f -a
 
-    test-dbwds:
+    test-dbwds: # redis-based writer data store
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -26,35 +26,35 @@ pipeline:
             - docker-compose -f dbwds/docker-compose.yml stop
             - docker-compose -f dbwds/docker-compose.yml rm -f -a
 
-    test-cron:
+    test-cron: # scheduler
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true cron/.
 
-    test-mreader:
+    test-mreader: # in-memory reader data store
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true mrds/.
 
-    test-mwriter:
+    test-mwriter: # in-memory writer data store
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true mrds/.
 
-    test-psmb:
+    test-psmb: # psmb lib
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true .
 
-    test-psmb-tcp:
+    test-psmb-tcp: # psmb/tcp lib
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock

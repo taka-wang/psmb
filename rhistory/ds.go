@@ -1,8 +1,8 @@
-// Package dbhistory an redis-based data store for history.
+// Package rhistory an redis-based data store for history.
 //
 // By taka@cmwang.net
 //
-package dbhistory
+package rhistory
 
 import (
 	"net"
@@ -26,6 +26,7 @@ func init() {
 	port = "6379"
 	hashName = "mbtcp:last"
 	zsetPrefix = "mbtcp:data:"
+
 	host, err := net.LookupHost("redis")
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
