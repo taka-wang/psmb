@@ -13,7 +13,7 @@ import (
 // type: Scheduler
 func NewScheduler(conf map[string]string) (interface{}, error) {
 	return &scheduler{
-		jobMap:    make(map[string]*psmb.IJob),
+		jobMap:    make(map[string]psmb.IJob),
 		isStopped: make(chan bool),
 		location:  time.Local,
 	}, nil
@@ -21,9 +21,9 @@ func NewScheduler(conf map[string]string) (interface{}, error) {
 
 // Scheduler contains jobs and a loop to run the jobs
 type scheduler struct {
-	jobMap    map[string]*psmb.IJob
-	ejobs     []*psmb.IJob // Emergency jobs
-	jobs      []*psmb.IJob
+	jobMap    map[string]psmb.IJob
+	ejobs     []psmb.IJob // Emergency jobs
+	jobs      []psmb.IJob
 	isRunning bool
 	isStopped chan bool
 	location  *time.Location
@@ -50,7 +50,7 @@ func (s *scheduler) Less(i, j int) bool {
 
 // NextRun returns the job and time when the next job should run
 // type: *Job
-func (s *scheduler) NextRun() (*psmb.IJob, time.Time) {
+func (s *scheduler) NextRun() (psmb.IJob, time.Time) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -63,7 +63,7 @@ func (s *scheduler) NextRun() (*psmb.IJob, time.Time) {
 
 // Every schedules a new job
 // type: *Job
-func (s *scheduler) Every(interval uint64) *psmb.IJob {
+func (s *scheduler) Every(interval uint64) psmb.IJob {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -86,7 +86,7 @@ func (s *scheduler) Every(interval uint64) *psmb.IJob {
 
 // Add job name and job object to jobMap
 // type: *Job
-func (s *scheduler) EveryWithName(interval uint64, name string) *psmb.IJob {
+func (s *scheduler) EveryWithName(interval uint64, name string) psmb.IJob {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -123,7 +123,7 @@ func (s *scheduler) EveryWithName(interval uint64, name string) *psmb.IJob {
 
 // Emergency schedules a new emergency job
 // type: *Job
-func (s *scheduler) Emergency() *psmb.IJob {
+func (s *scheduler) Emergency() psmb.IJob {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -175,7 +175,7 @@ func (s *scheduler) Location(location *time.Location) {
 
 // Removes a job from the queue
 // type: *Job
-func (s *scheduler) Remove(j *psmb.IJob) bool {
+func (s *scheduler) Remove(j psmb.IJob) bool {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 

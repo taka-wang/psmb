@@ -98,13 +98,13 @@ type IScheduler interface {
 	Clear()
 
 	// Emergency create a emergency job, and adds it to the `Scheduler`
-	Emergency() *IJob
+	Emergency() IJob
 
 	// Every creates a new job, and adds it to the `Scheduler`
-	Every(interval uint64) *IJob
+	Every(interval uint64) IJob
 
 	// EveryWithName creates a new job, and adds it to the `Scheduler` and job Map
-	EveryWithName(interval uint64, name string) *IJob
+	EveryWithName(interval uint64, name string) IJob
 
 	// IsRunning returns true if the job  has started
 	IsRunning() bool
@@ -115,11 +115,11 @@ type IScheduler interface {
 
 	// NextRun returns the next next job to be run and the time in which
 	// it will be run
-	NextRun() (*IJob, time.Time)
+	NextRun() (IJob, time.Time)
 
 	// Remove removes an individual job from the scheduler. It returns true
 	// if the job was found and removed from the `Scheduler`
-	Remove(*IJob) bool
+	Remove(IJob) bool
 
 	// UpdateIntervalWithName update an individual job's interval from the scheduler by name.
 	// It returns true if the job was found and update interval
@@ -153,25 +153,25 @@ type IScheduler interface {
 
 // IJob keeps a slice of jobs that it executes at a regular interval
 type IJob interface {
-	Do(task interface{}, params ...interface{}) *IJob
-	At(t string) *IJob
-	Seconds() *IJob
-	Second() *IJob
-	Minutes() *IJob
-	Minute() *IJob
-	Hours() *IJob
-	Hour() *IJob
-	Days() *IJob
-	Day() *IJob
-	Weekday(weekday time.Weekday) *IJob
-	Monday() *IJob
-	Tuesday() *IJob
-	Wednesday() *IJob
-	Thursday() *IJob
-	Friday() *IJob
-	Saturday() *IJob
-	Sunday() *IJob
-	Weeks() *IJob
-	Week() *IJob
-	Location(loc *time.Location) *IJob
+	Do(task interface{}, params ...interface{}) IJob
+	At(t string) IJob
+	Seconds() IJob
+	Second() IJob
+	Minutes() IJob
+	Minute() IJob
+	Hours() IJob
+	Hour() IJob
+	Days() IJob
+	Day() IJob
+	Weekday(weekday time.Weekday) IJob
+	Monday() IJob
+	Tuesday() IJob
+	Wednesday() IJob
+	Thursday() IJob
+	Friday() IJob
+	Saturday() IJob
+	Sunday() IJob
+	Weeks() IJob
+	Week() IJob
+	Location(loc *time.Location) IJob
 }
