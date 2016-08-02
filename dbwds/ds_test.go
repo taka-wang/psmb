@@ -27,7 +27,7 @@ func TestWriterMap(t *testing.T) {
 			return false
 		}
 
-		for index := 0; index < 2000; index++ {
+		for index := 0; index < 200; index++ {
 			writerMap.Add("123456", "12")
 			log("add `123456` to table")
 			writerMap.Add("234561", "34")
