@@ -98,13 +98,13 @@ type IScheduler interface {
 	Clear()
 
 	// Emergency create a emergency job, and adds it to the `Scheduler`
-	Emergency() interface{}
+	Emergency() *IJob
 
 	// Every creates a new job, and adds it to the `Scheduler`
-	Every(interval uint64) interface{}
+	Every(interval uint64) *IJob
 
 	// EveryWithName creates a new job, and adds it to the `Scheduler` and job Map
-	EveryWithName(interval uint64, name string) interface{}
+	EveryWithName(interval uint64, name string) *IJob
 
 	// IsRunning returns true if the job  has started
 	IsRunning() bool
@@ -115,11 +115,11 @@ type IScheduler interface {
 
 	// NextRun returns the next next job to be run and the time in which
 	// it will be run
-	NextRun() (interface{}, time.Time)
+	NextRun() (*IJob, time.Time)
 
 	// Remove removes an individual job from the scheduler. It returns true
 	// if the job was found and removed from the `Scheduler`
-	Remove(interface{}) bool
+	Remove(*IJob) bool
 
 	// UpdateIntervalWithName update an individual job's interval from the scheduler by name.
 	// It returns true if the job was found and update interval
