@@ -4,15 +4,13 @@ import (
 	"sort"
 	"sync"
 	"time"
-
-	psmb "github.com/taka-wang/psmb"
 )
 
 // NewScheduler create a new scheduler.
 // Note: the current implementation is not concurrency safe.
 func NewScheduler(conf map[string]string) (Scheduler, error) {
 	return &scheduler{
-		jobMap:    make(map[string]psmb.IJob),
+		jobMap:    make(map[string]*Job),
 		isStopped: make(chan bool),
 		location:  time.Local,
 	}, nil
@@ -20,9 +18,9 @@ func NewScheduler(conf map[string]string) (Scheduler, error) {
 
 // Scheduler contains jobs and a loop to run the jobs
 type scheduler struct {
-	jobMap    map[string]psmb.IJob
-	ejobs     []psmb.IJob // Emergency jobs
-	jobs      []psmb.IJob
+	jobMap    map[string]*Job
+	ejobs     []*Job // Emergency jobs
+	jobs      []*Job
 	isRunning bool
 	isStopped chan bool
 	location  *time.Location

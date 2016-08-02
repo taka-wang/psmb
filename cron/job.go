@@ -3,8 +3,6 @@ package cron
 import (
 	"reflect"
 	"time"
-
-	psmb "github.com/taka-wang/psmb"
 )
 
 const (
@@ -153,7 +151,7 @@ func (j *Job) init(now time.Time) {
 //	job := Every(1).Day().At("10:30").Do(task, paramOne, "paramTwo")  // performs `task(paramOne, "paramTwo")` every day at 10:30 am
 //  job.Do(task2, paramThree, "paramFour")                            // `task2(paramThree, "paramFour")` will perperformed at the same interval
 //
-func (j *Job) Do(task interface{}, params ...interface{}) psmb.IJob {
+func (j *Job) Do(task interface{}, params ...interface{}) *Job {
 	// reflect the task and params in to values
 	taskValue := reflect.ValueOf(task)
 	paramValues := make([]reflect.Value, len(params))
@@ -186,7 +184,7 @@ func (j *Job) Do(task interface{}, params ...interface{}) psmb.IJob {
 //	Every(1).Monday().At("22:30").Do(task) // performs a task every Monday at 10:30 pm
 //	Every(1).Monday().Do(task)             // performs a task every Monday at whatever time `Schedule.Start()` is called
 //
-func (j *Job) At(t string) psmb.IJob {
+func (j *Job) At(t string) *Job {
 	hour := int((t[0]-'0')*10 + (t[1] - '0'))
 	min := int((t[3]-'0')*10 + (t[4] - '0'))
 	if hour < 0 || hour > 23 || min < 0 || min > 59 {
@@ -204,13 +202,13 @@ func (j *Job) At(t string) psmb.IJob {
 //  // ...
 //	Every(5).Seconds().Do(task) // executes the task func every 5 seconds
 //
-func (j *Job) Seconds() psmb.IJob {
+func (j *Job) Seconds() *Job {
 	j.unit = time.Second
 	return j
 }
 
 // Second is an alias for `Seconds`
-func (j *Job) Second() psmb.IJob {
+func (j *Job) Second() *Job {
 	return j.Seconds()
 }
 
@@ -221,13 +219,13 @@ func (j *Job) Second() psmb.IJob {
 //  // ...
 //	Every(5).Minutes().Do(task) // executes the task func every 5 minutes
 //
-func (j *Job) Minutes() psmb.IJob {
+func (j *Job) Minutes() *Job {
 	j.unit = time.Minute
 	return j
 }
 
 // Minute is an alias for `Minutes`
-func (j *Job) Minute() psmb.IJob {
+func (j *Job) Minute() *Job {
 	return j.Minutes()
 }
 
@@ -238,13 +236,13 @@ func (j *Job) Minute() psmb.IJob {
 //  // ...
 //	Every(5).Hours().Do(task) // executes the task func every 5 hours
 //
-func (j *Job) Hours() psmb.IJob {
+func (j *Job) Hours() *Job {
 	j.unit = time.Hour
 	return j
 }
 
 // Hour is an alias for `Hours`
-func (j *Job) Hour() psmb.IJob {
+func (j *Job) Hour() *Job {
 	return j.Hours()
 }
 
@@ -255,13 +253,13 @@ func (j *Job) Hour() psmb.IJob {
 //  // ...
 //	Every(5).Days().Do(task) // executes the task func every 5 days
 //
-func (j *Job) Days() psmb.IJob {
+func (j *Job) Days() *Job {
 	j.unit = Day
 	return j
 }
 
 // Day is an alias for `Days`
-func (j *Job) Day() psmb.IJob {
+func (j *Job) Day() *Job {
 	return j.Days()
 }
 
@@ -273,54 +271,54 @@ func (j *Job) Day() psmb.IJob {
 //  scheduler.Every(1).Weekday(time.Sunday).Do(task) // executes the task once every Sunday at whatever time `Scheduler.Start()` is called
 //  scheduler.Every(2).Weekday(time.Monday).At("05:00").Do(task) // executes the task every other Monday at 7 am
 //
-func (j *Job) Weekday(weekday time.Weekday) psmb.IJob {
+func (j *Job) Weekday(weekday time.Weekday) *Job {
 	j.weekDay = weekday
 	j.unit = Week
 	return j
 }
 
 // Monday is an alias for `Weekday(time.Monday)`
-func (j *Job) Monday() psmb.IJob {
+func (j *Job) Monday() *Job {
 	return j.Weekday(time.Monday)
 }
 
 // Tuesday is an alias for `Weekday(time.Tuesday)`
-func (j *Job) Tuesday() psmb.IJob {
+func (j *Job) Tuesday() *Job {
 	return j.Weekday(time.Tuesday)
 }
 
 // Wednesday is an alias for `Weekday(time.Wednesday)`
-func (j *Job) Wednesday() psmb.IJob {
+func (j *Job) Wednesday() *Job {
 	return j.Weekday(time.Wednesday)
 }
 
 // Thursday is an alias for `Weekday(time.Thursday)`
-func (j *Job) Thursday() psmb.IJob {
+func (j *Job) Thursday() *Job {
 	return j.Weekday(time.Thursday)
 }
 
 // Friday is an alias for `Weekday(time.Friday)`
-func (j *Job) Friday() psmb.IJob {
+func (j *Job) Friday() *Job {
 	return j.Weekday(time.Friday)
 }
 
 // Saturday is an alias for `Weekday(time.Saturday)`
-func (j *Job) Saturday() psmb.IJob {
+func (j *Job) Saturday() *Job {
 	return j.Weekday(time.Saturday)
 }
 
 // Sunday is an alias for `Weekday(time.Sunday)`
-func (j *Job) Sunday() psmb.IJob {
+func (j *Job) Sunday() *Job {
 	return j.Weekday(time.Sunday)
 }
 
 // Weeks is an alias for `Weekday(time.Now().Weekday())`
-func (j *Job) Weeks() psmb.IJob {
+func (j *Job) Weeks() *Job {
 	return j.Weekday(time.Now().Weekday())
 }
 
 // Week is an alias for `Weekday(time.Now().Weekday())`
-func (j *Job) Week() psmb.IJob {
+func (j *Job) Week() *Job {
 	return j.Weekday(time.Now().Weekday())
 }
 
@@ -337,7 +335,7 @@ func (j *Job) Week() psmb.IJob {
 //  }
 //  Every(2).Monday().At("05:00").Location(est).Do(task) // executes the task every monday at 5:00 am eastern standard time
 //
-func (j *Job) Location(loc *time.Location) psmb.IJob {
+func (j *Job) Location(loc *time.Location) *Job {
 	j.location = loc
 	return j
 }
