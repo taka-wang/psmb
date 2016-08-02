@@ -12,11 +12,11 @@ func init() {
 	psmbtcp.Register("Cron", cron.NewScheduler)
 }
 
-func TestMbtcpReadTask(t *testing.T) {
+func TestCron(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("``add` task to map", func(log sugar.Log) bool {
-		_, err := psmbtcp.createScheduler("Cron")
+		_, err := psmbtcp.CreateScheduler("Cron")
 		log(err)
 		if err != nil {
 			return false
