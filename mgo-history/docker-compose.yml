@@ -2,7 +2,7 @@ mongodb:
     image: mongo
     ports:
         - "27017"
-redis-history:
+mgo-history:
     build: .
     links:
         - mongodb

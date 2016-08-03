@@ -128,7 +128,7 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	return nil
 }
 
-func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error) {
+func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	session, err := ds.openSession()
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
@@ -136,9 +136,30 @@ func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error
 	}
 	defer ds.closeSession(session)
 
-	//
-	//
-	return nil, nil
+	// Collection history
+	c := session.DB(dbName).C(cDataName)
+	var results []blob
+	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").Limit(limit).All(&results); err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Get")
+		return nil, err
+	}
+
+	// Convert to map
+	m := make(map[string]string)
+	for _, v := range results {
+		// marshal data to string
+		if str, err := marshal(v.Data); err == nil {
+			m[str] = strconv.FormatInt(v.Timestamp, 10)
+		}
+	}
+
+	// Check length
+	if len(m) == 0 {
+		err = ErrNoData
+		log.WithFields(log.Fields{"err": err}).Error("Get")
+		return nil, err
+	}
+	return m, nil
 }
 
 func (ds *dataStore) GetAll(name string) (map[string]string, error) {
@@ -175,10 +196,10 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	return m, nil
 }
 
-func (ds *dataStore) GetLast(name string) (string, error) {
+func (ds *dataStore) GetLatest(name string) (string, error) {
 	session, err := ds.openSession()
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("GetLast")
+		log.WithFields(log.Fields{"err": err}).Error("GetLatest")
 		return "", err
 	}
 	defer ds.closeSession(session)
@@ -189,7 +210,7 @@ func (ds *dataStore) GetLast(name string) (string, error) {
 
 	// Query latest
 	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").One(&result); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("GetLast")
+		log.WithFields(log.Fields{"err": err.Error()}).Error("GetLatest")
 		return "", err
 	}
 

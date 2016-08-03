@@ -121,7 +121,7 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	return nil
 }
 
-func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error) {
+func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	if name == "" {
 		return nil, ErrInvalidName
 	}
@@ -129,7 +129,7 @@ func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("Get")
 	}
-	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, start, stop, "WITHSCORES"))
+	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, limit, "WITHSCORES"))
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
 		return nil, err
@@ -163,15 +163,15 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	return ret, nil
 }
 
-func (ds *dataStore) GetLast(name string) (string, error) {
+func (ds *dataStore) GetLatest(name string) (string, error) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("GetLast")
+		log.WithFields(log.Fields{"err": err}).Error("GetLatest")
 	}
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("GetLast")
+		log.WithFields(log.Fields{"err": err}).Error("GetLatest")
 		return "", err
 	}
 	return ret, nil
