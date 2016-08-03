@@ -22,7 +22,6 @@ var (
 	port              string // "27017"
 	isDrop            bool
 	dbName            string
-	cLatestName       string
 	cDataName         string
 	connectionTimeout time.Duration
 )
@@ -31,7 +30,6 @@ func init() {
 	// TODO: load config
 	isDrop = true
 	dbName = "test"
-	cLatestName = "mbtcp:last"
 	cDataName = "mbtcp:history"
 	connectionTimeout = 60
 	port = "27017"
@@ -61,9 +59,9 @@ func init() {
 // blob data object
 type blob struct {
 	ID        bson.ObjectId `bson:"_id,omitempty"`
-	Name      string
-	Data      interface{}
-	Timestamp time.Time
+	Name      string        `bson:"name"`
+	Data      interface{}   `bson:"data"`
+	Timestamp time.Time     `bson:"timestamp"`
 }
 
 // dataStore data store structure
@@ -122,18 +120,12 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	defer ds.closeSession(session)
 
 	// Collection history
-	c1 := session.DB(dbName).C(cDataName)
-	if err := c1.Insert(&blob{Name: name, Data: data, Timestamp: time.Now().UTC()}); err != nil {
+	c := session.DB(dbName).C(cDataName)
+	if err := c.Insert(&blob{Name: name, Data: data, Timestamp: time.Now().UTC()}); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("Fail to add to history collection")
 		return err
 	}
 
-	// Collection latest
-	c2 := session.DB(dbName).C(cLatestName)
-	if err := c2.Insert(&blob{Name: name, Data: data, Timestamp: time.Now().UTC()}); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("Fail to add to latest collection")
-		return err
-	}
 	return nil
 }
 
@@ -159,9 +151,9 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	defer ds.closeSession(session)
 
 	// Collection history
-	c1 := session.DB(dbName).C(cDataName)
+	c := session.DB(dbName).C(cDataName)
 	var results []blob
-	if err := c1.Find(bson.M{"name": name}).Sort("-timestamp").All(&results); err != nil {
+	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").All(&results); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
 		return nil, err
 	}
@@ -195,9 +187,10 @@ func (ds *dataStore) GetLast(name string) (string, error) {
 	defer ds.closeSession(session)
 
 	// Collection latest
-	c2 := session.DB(dbName).C(cLatestName)
+	c := session.DB(dbName).C(cDataName)
 	result := blob{}
-	if err := c2.Find(bson.M{"name": name}).One(&result); err != nil {
+
+	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").One(&result); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("GetLast")
 		return "", err
 	}
