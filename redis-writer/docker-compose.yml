@@ -2,7 +2,7 @@ redis:
     image: redis
     ports:
         - "6379"
-dbwds:
+redis-writer:
     build: .
     links:
         - redis

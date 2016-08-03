@@ -1,15 +1,19 @@
-package mwds_test
+package writer_test
 
 import (
 	"testing"
 
-	mrds "github.com/taka-wang/psmb/mrds"
+	rwriter "github.com/taka-wang/psmb/redis-writer"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
+var (
+	hostName string
+)
+
 func init() {
-	psmbtcp.Register("Writer", mrds.NewDataStore)
+	psmbtcp.Register("Writer", rwriter.NewDataStore)
 }
 
 func TestWriterMap(t *testing.T) {
@@ -23,10 +27,12 @@ func TestWriterMap(t *testing.T) {
 			return false
 		}
 
-		writerMap.Add("123456", "12")
-		log("add `123456` to table")
-		writerMap.Add("234561", "34")
-		log("add `234561` to table")
+		for index := 0; index < 200; index++ {
+			writerMap.Add("123456", "12")
+			log("add `123456` to table")
+			writerMap.Add("234561", "34")
+			log("add `234561` to table")
+		}
 
 		r1, b1 := writerMap.Get("123456")
 		log("get `123456` from table")

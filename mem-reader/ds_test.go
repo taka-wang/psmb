@@ -1,15 +1,15 @@
-package mrds_test
+package reader_test
 
 import (
 	"testing"
 
-	mr "github.com/taka-wang/psmb/mrds"
+	mreader "github.com/taka-wang/psmb/mem-reader"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
 func init() {
-	psmbtcp.Register("Reader", mr.NewDataStore)
+	psmbtcp.Register("Reader", mreader.NewDataStore)
 }
 
 func TestMbtcpReadTask(t *testing.T) {

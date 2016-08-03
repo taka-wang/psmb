@@ -2,18 +2,18 @@ package main
 
 import (
 	cron "github.com/taka-wang/psmb/cron"
-	dbwriter "github.com/taka-wang/psmb/dbwds"
-	reader "github.com/taka-wang/psmb/mrds"
-	writer "github.com/taka-wang/psmb/mwds"
+	mreader "github.com/taka-wang/psmb/mem-reader"
+	mwriter "github.com/taka-wang/psmb/mem-writer"
 	history "github.com/taka-wang/psmb/redis-history"
+	rwriter "github.com/taka-wang/psmb/redis-writer"
 	mbtcp "github.com/taka-wang/psmb/tcp"
 )
 
 func init() {
 	// register plugins
-	mbtcp.Register("MemReader", reader.NewDataStore)
-	mbtcp.Register("MemWriter", writer.NewDataStore)
-	mbtcp.Register("RedisWriter", dbwriter.NewDataStore)
+	mbtcp.Register("MemReader", mreader.NewDataStore)
+	mbtcp.Register("MemWriter", mwriter.NewDataStore)
+	mbtcp.Register("RedisWriter", rwriter.NewDataStore)
 	mbtcp.Register("History", history.NewDataStore)
 	mbtcp.Register("Cron", cron.NewScheduler)
 }

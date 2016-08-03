@@ -1,19 +1,15 @@
-package dbwds_test
+package writer_test
 
 import (
 	"testing"
 
-	dbwds "github.com/taka-wang/psmb/dbwds"
+	mwriter "github.com/taka-wang/psmb/mem-writer"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
-var (
-	hostName string
-)
-
 func init() {
-	psmbtcp.Register("Writer", dbwds.NewDataStore)
+	psmbtcp.Register("Writer", mwriter.NewDataStore)
 }
 
 func TestWriterMap(t *testing.T) {
@@ -27,12 +23,10 @@ func TestWriterMap(t *testing.T) {
 			return false
 		}
 
-		for index := 0; index < 200; index++ {
-			writerMap.Add("123456", "12")
-			log("add `123456` to table")
-			writerMap.Add("234561", "34")
-			log("add `234561` to table")
-		}
+		writerMap.Add("123456", "12")
+		log("add `123456` to table")
+		writerMap.Add("234561", "34")
+		log("add `234561` to table")
 
 		r1, b1 := writerMap.Get("123456")
 		log("get `123456` from table")

@@ -1,8 +1,8 @@
-// Package mwds an in-memory data store for writer.
+// Package writer an in-memory data store for writer.
 //
 // By taka@cmwang.net
 //
-package mwds
+package writer
 
 import "sync"
 

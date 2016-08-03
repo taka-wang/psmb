@@ -1,8 +1,8 @@
-// Package dbwds an redis-based data store for writer.
+// Package writer an redis-based data store for writer.
 //
 // By taka@cmwang.net
 //
-package dbwds
+package writer
 
 import (
 	"net"

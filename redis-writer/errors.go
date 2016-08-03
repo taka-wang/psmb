@@ -1,4 +1,4 @@
-package dbwds
+package writer
 
 import "errors"
 

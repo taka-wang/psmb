@@ -14,17 +14,17 @@ pipeline:
             - docker-compose -f redis-history/docker-compose.yml stop
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
 
-    test-dbwds: # redis-based writer data store
+    test-redis-writer: # redis-based writer data store
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker-compose -f dbwds/docker-compose.yml rm -f -a
-            - docker-compose -f dbwds/docker-compose.yml pull
-            - docker-compose -f dbwds/docker-compose.yml build
-            - docker-compose -f dbwds/docker-compose.yml up --abort-on-container-exit
-            - docker-compose -f dbwds/docker-compose.yml stop
-            - docker-compose -f dbwds/docker-compose.yml rm -f -a
+            - docker-compose -f redis-writer/docker-compose.yml rm -f -a
+            - docker-compose -f redis-writer/docker-compose.yml pull
+            - docker-compose -f redis-writer/docker-compose.yml build
+            - docker-compose -f redis-writer/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f redis-writer/docker-compose.yml stop
+            - docker-compose -f redis-writer/docker-compose.yml rm -f -a
 
     test-cron: # scheduler
         image: takawang/dind
@@ -38,14 +38,14 @@ pipeline:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true mrds/.
+            - docker build --no-cache=true mem-reader/.
 
     test-mwriter: # in-memory writer data store
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true mrds/.
+            - docker build --no-cache=true mem-writer/.
 
     test-psmb: # psmb lib
         image: takawang/dind

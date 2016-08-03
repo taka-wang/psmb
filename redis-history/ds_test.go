@@ -3,7 +3,7 @@ package history_test
 import (
 	"testing"
 
-	r "github.com/taka-wang/psmb/redis-history"
+	rhistory "github.com/taka-wang/psmb/redis-history"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
@@ -13,7 +13,7 @@ var (
 )
 
 func init() {
-	psmbtcp.Register("History", r.NewDataStore)
+	psmbtcp.Register("History", rhistory.NewDataStore)
 }
 
 func TestHistoryMap(t *testing.T) {

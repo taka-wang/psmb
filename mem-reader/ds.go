@@ -1,8 +1,8 @@
-// Package mrds an in-memory data store for reader.
+// Package reader an in-memory data store for reader.
 //
 // By taka@cmwang.net
 //
-package mrds
+package reader
 
 import (
 	"errors"
