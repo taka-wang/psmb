@@ -27,11 +27,16 @@ func TestHistoryMap(t *testing.T) {
 			return false
 		}
 
+		if err := historyMap.Add("hello", "[0,1,2]"); err != nil {
+			return false
+		}
+
 		data1 := []uint16{1, 2, 3, 4, 5}
 		if err := historyMap.Add("hello", data1); err != nil {
 			return false
 		}
-		if err := historyMap.Add("hello", "[2,3,4,5,6]"); err != nil {
+		data2 := []uint16{2, 3, 4, 5, 6}
+		if err := historyMap.Add("hello", data2); err != nil {
 			return false
 		}
 
