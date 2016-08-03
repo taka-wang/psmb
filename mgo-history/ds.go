@@ -78,7 +78,7 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 		return nil, err
 	}
 	//
-	pool.SetMode(mgo.Monotonic, true)
+	//pool.SetMode(mgo.Monotonic, true)
 
 	// Drop Database
 	if isDrop {
