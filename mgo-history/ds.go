@@ -35,7 +35,7 @@ func init() {
 	port = "27017"
 
 	// lookup IP
-	host, err := net.LookupHost("mongo")
+	host, err := net.LookupHost("mongodb")
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 		hostName = "127.0.0.1"
@@ -151,7 +151,7 @@ func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error
 func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	session, err := ds.openSession()
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("Add")
+		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
 		return nil, err
 	}
 	defer ds.closeSession(session)
