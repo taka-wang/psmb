@@ -146,10 +146,10 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 
 	// Convert to map
 	m := make(map[string]string)
-	for _, v := range results {
+	for i := 0; i < len(results); i++ {
 		// marshal data to string
-		if str, err := marshal(v.Data); err == nil {
-			m[str] = strconv.FormatInt(v.Timestamp, 10)
+		if str, err := marshal(results[i].Data); err == nil {
+			m[str] = strconv.FormatInt(results[i].Timestamp, 10)
 		}
 	}
 
@@ -180,10 +180,10 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 
 	// Convert to map
 	m := make(map[string]string)
-	for _, v := range results {
+	for i := 0; i < len(results); i++ {
 		// marshal data to string
-		if str, err := marshal(v.Data); err == nil {
-			m[str] = strconv.FormatInt(v.Timestamp, 10)
+		if str, err := marshal(results[i].Data); err == nil {
+			m[str] = strconv.FormatInt(results[i].Timestamp, 10)
 		}
 	}
 
