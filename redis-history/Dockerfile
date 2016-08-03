@@ -2,7 +2,8 @@ FROM takawang/gozmq:pull
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 WORKDIR /go
-RUN go get -u github.com/taka-wang/psmb && go get -u github.com/taka-wang/psmb/tcp
+RUN go get -u github.com/taka-wang/psmb
+RUN go get -u github.com/taka-wang/psmb/tcp
 
 ## Load app files
 ADD . /go/src/github.com/taka-wang/psmb/redis-history
