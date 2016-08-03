@@ -66,3 +66,9 @@ func main() {
 
 }
 ```
+
+---
+
+## UML
+
+![PlantUML model](http://plantuml.com/plantuml/svg/1S6B4OCW303GLTe1QXIKJxT90b6lYXw4S_s-zzuB7ptbNe_NfdgtBy2wDntMNRTElUNALz5STE3h1CKVVXuiAz0IdBEJ4KuaSVJH1IO9DYvBdZX5gFY0D-pcE95bn75cyZu5Z6J8OCXs5WnMU1G1hbSPxduUVm00)
