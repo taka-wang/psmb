@@ -17,4 +17,4 @@ Redis-based writer data store
 
 ## UML 
 
-![PlantUML model](http://plantuml.com/plantuml/svg/5SdR3O0W3030LNG0wB_RL6Y028Nq4TPNFoztDaxTCxdqevejlG04TopDgj-k96co4LjCSu3XWs4Z5rW-EWnK8m6Xt3HiQH_Y7oy0)
+![PlantUML model](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/taka-wang/puml/master/redis-writer.puml)

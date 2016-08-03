@@ -130,4 +130,4 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ## UML 
 
-![PlantUML model](http://plantuml.com/plantuml/svg/5SZR3O0W3030LNG0wR_R56o0I0lf8wnllCyxkvGH3uMEexalkm4KTwhTM-GmqZB5IJoLoU3uuhLHAgpW0OpcfB2CS_hZ0m00)
+![PlantUML model](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/taka-wang/puml/master/psmb.puml)

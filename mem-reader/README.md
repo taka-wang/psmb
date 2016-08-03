@@ -17,4 +17,4 @@ In-memory reader data store
 
 ## UML 
 
-![PlantUML model](http://plantuml.com/plantuml/svg/5SZ13S0W2030LTe1b7-tGILgAcWGulfDxtbtbpoyaEkucjdQ3u3YYRLRy-IRD4yn4ejvCXY-60vAXUKyW74RAJ1nKC926l_-0000)
+![PlantUML model](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/taka-wang/puml/master/mem-reader.puml)

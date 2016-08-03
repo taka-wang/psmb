@@ -71,4 +71,4 @@ func main() {
 
 ## UML
 
-![PlantUML model](http://plantuml.com/plantuml/svg/5SZH3O0W30N0LNG0wR_RrDeW4Gefhs5zuttUNangt1fUjmSOyoHoNYaNF775L9TkK4EItWZyyh7OCerebHfFg9Duj_J71m00)
+![PlantUML model](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/taka-wang/puml/master/cron.puml)

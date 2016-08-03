@@ -17,4 +17,4 @@ In-memory writer data store
 
 ## UML 
 
-![PlantUML model](http://plantuml.com/plantuml/svg/5SZ13O0W3030LNG0wDzj2ZP0f8MKDgol_YvtDidTRtBjHpMRwm9GtB4qgvvyaUOXHc8n3mR31yD6AJ2TEp0k8mKc3blRn_Zt2m00)
+![PlantUML model](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/taka-wang/puml/master/mem-writer.puml)
