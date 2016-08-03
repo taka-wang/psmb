@@ -142,6 +142,16 @@ func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error
 	return nil, nil
 }
 
+// Marshal helper function to marshal structure
+func Marshal(r interface{}) (string, error) {
+	bytes, err := json.Marshal(r) // marshal to json string
+	if err != nil {
+		// TODO: remove table
+		return "", errors.New("Fail to marshal")
+	}
+	return string(bytes), nil
+}
+
 func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	session, err := ds.openSession()
 	if err != nil {
@@ -161,21 +171,11 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	// convert
 	m := make(map[string]string)
 	for _, v := range results {
-		if str, ok := v.Data.(string); ok {
+		if str, err := Marshal(v.Data); err == nil {
 			m[str] = strconv.FormatInt(v.Timestamp.UnixNano(), 10)
 		}
 	}
 	return m, nil
-}
-
-// Marshal helper function to marshal structure
-func Marshal(r interface{}) (string, error) {
-	bytes, err := json.Marshal(r) // marshal to json string
-	if err != nil {
-		// TODO: remove table
-		return "", errors.New("Fail to marshal")
-	}
-	return string(bytes), nil
 }
 
 func (ds *dataStore) GetLast(name string) (string, error) {
