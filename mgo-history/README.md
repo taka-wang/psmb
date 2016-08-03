@@ -16,4 +16,4 @@ Mongodb-based history data store
 
 ## UML 
 
-![PlantUML model](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/taka-wang/puml/master/mgo.puml)
+![uml](http://plantuml.com/plantuml/svg/5Sd93O0m302mLM00cZ_RX12r5UcX7AhO7k6lzzf9ukPGsOhxj1D0SQLSlSGLnagZEtTFD1euFdWix1bcD866vgn0WcRGyZXADH_wfdy_.svg)
