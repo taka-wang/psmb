@@ -92,7 +92,7 @@ type IReaderTaskDataStore interface {
 // IHistoryDataStore history interface
 type IHistoryDataStore interface {
 	// Add add history
-	Add(name, data string) error
+	Add(name string, data interface{}) error
 	// Get get history within range
 	Get(name string, start, stop int) (map[string]string, error)
 	// GetAll get all history

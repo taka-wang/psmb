@@ -16,9 +16,9 @@ var (
 	// RedisPool redis connection pool
 	RedisPool  *redis.Pool
 	hostName   string
-	port       string
-	hashName   string
-	zsetPrefix string
+	port       string // "6379"
+	hashName   string // "mbtcp:last"
+	zsetPrefix string // "mbtcp:data:"
 )
 
 func init() {
@@ -96,7 +96,7 @@ func (ds *dataStore) closeRedis() {
 	}
 }
 
-func (ds *dataStore) Add(name, data string) error {
+func (ds *dataStore) Add(name string, data interface{}) error {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("Add")
