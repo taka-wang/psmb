@@ -2,7 +2,7 @@
 
 pipeline:
 
-    test-redis-history: # redis-based history data store
+    test-redis-history:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -14,7 +14,7 @@ pipeline:
             - docker-compose -f redis-history/docker-compose.yml stop
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
 
-    test-redis-writer: # redis-based writer data store
+    test-redis-writer:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -26,35 +26,35 @@ pipeline:
             - docker-compose -f redis-writer/docker-compose.yml stop
             - docker-compose -f redis-writer/docker-compose.yml rm -f -a
 
-    test-cron: # scheduler
+    test-cron:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true cron/.
 
-    test-mreader: # in-memory reader data store
+    test-mem-reader:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true mem-reader/.
 
-    test-mwriter: # in-memory writer data store
+    test-mem-reader:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true mem-writer/.
 
-    test-psmb: # psmb lib
+    test-psmb:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true .
 
-    test-psmb-tcp: # psmb/tcp lib
+    test-psmb-tcp:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock

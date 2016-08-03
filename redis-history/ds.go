@@ -102,6 +102,13 @@ func (ds *dataStore) Add(name, data string) error {
 		log.WithFields(log.Fields{"err": err}).Debug("Add")
 	}
 
+	//
+	// Time epoch: https://gobyexample.com/epoch
+	// nanos := now.UnixNano()
+	// fmt.Println(nanos) => 1351700038292387000
+	// fmt.Println(time.Unix(0, nanos)) => 2012-10-31 16:13:58.292387 +0000 UTC
+	//
+
 	// MULTI
 	ds.redis.Send("MULTI")
 	ds.redis.Send("HSET", hashName, name, data)                               // latest
@@ -121,7 +128,7 @@ func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("Get")
 	}
-	ret, err := redis.StringMap(ds.redis.Do("ZRANGE", zsetPrefix+name, start, stop, "WITHSCORES"))
+	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, start, stop, "WITHSCORES"))
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
 		return nil, err
@@ -142,7 +149,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
 	}
-	ret, err := redis.StringMap(ds.redis.Do("ZRANGE", zsetPrefix+name, 0, -1, "WITHSCORES"))
+	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, -1, "WITHSCORES"))
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("GetAll")
 		return nil, err
