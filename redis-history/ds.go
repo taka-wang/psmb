@@ -171,7 +171,7 @@ func (ds *dataStore) GetLatest(name string) (string, error) {
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("GetLatest")
+		log.WithFields(log.Fields{"err": "Not Found"}).Error("GetLatest")
 		return "", err
 	}
 	return ret, nil

@@ -210,7 +210,7 @@ func (ds *dataStore) GetLatest(name string) (string, error) {
 
 	// Query latest
 	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").One(&result); err != nil {
-		log.WithFields(log.Fields{"err": err.Error()}).Error("GetLatest")
+		log.WithFields(log.Fields{"err": "Not Found"}).Error("GetLatest")
 		return "", err
 	}
 

@@ -69,6 +69,9 @@ func TestHistoryMap(t *testing.T) {
 			return false
 		} else {
 			log(ret)
+			for k, v := range ret {
+				log(k, v)
+			}
 		}
 
 		if ret, err := historyMap.GetAll("hello1"); err != nil {
