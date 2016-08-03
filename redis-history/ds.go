@@ -5,6 +5,7 @@
 package history
 
 import (
+	"encoding/json"
 	"net"
 	"time"
 
@@ -103,6 +104,13 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 		log.WithFields(log.Fields{"err": err}).Debug("Add")
 	}
 
+	// marshal
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("marshal")
+		return err
+	}
+
 	//
 	// Time epoch: https://gobyexample.com/epoch
 	// nanos := now.UnixNano()
@@ -112,8 +120,8 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 
 	// MULTI
 	ds.redis.Send("MULTI")
-	ds.redis.Send("HSET", hashName, name, data)                               // latest
-	ds.redis.Send("ZADD", zsetPrefix+name, time.Now().UTC().UnixNano(), data) // add to zset
+	ds.redis.Send("HSET", hashName, name, string(bytes))                               // latest
+	ds.redis.Send("ZADD", zsetPrefix+name, time.Now().UTC().UnixNano(), string(bytes)) // add to zset
 	if _, err := ds.redis.Do("EXEC"); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Add")
 		return err
