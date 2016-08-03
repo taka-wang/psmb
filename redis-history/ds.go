@@ -137,7 +137,8 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("Get")
 	}
-	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, limit, "WITHSCORES"))
+	// zset limit is inclusive
+	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, limit-1, "WITHSCORES"))
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
 		return nil, err
