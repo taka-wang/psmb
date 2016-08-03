@@ -27,6 +27,7 @@ func init() {
 	hashName = "mbtcp:last"
 	zsetPrefix = "mbtcp:data:"
 
+	// lookup IP
 	host, err := net.LookupHost("redis")
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
@@ -57,7 +58,7 @@ type dataStore struct {
 	redis redis.Conn
 }
 
-// NewDataStore instantiate mbtcp write task map
+// NewDataStore instantiate data store
 func NewDataStore(conf map[string]string) (interface{}, error) {
 	// get connection
 	conn := RedisPool.Get()
