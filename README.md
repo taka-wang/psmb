@@ -50,7 +50,7 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ## Deployment Diagram
 
-![deployment](_image/ndeployment.png)
+![deployment](http://plantuml.com/plantuml/svg/5Sh13O0W3030LNG0wTzj2ZH0f8MKDiRjrVVTtYHrp-JQjsesrmcWU8VIh7hqHPg668c5D1WCBpnkb0BJkGFZCbB8DFju-4im5yVmsmi0.svg)
 
 ---
 
