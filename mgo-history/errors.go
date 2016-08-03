@@ -13,4 +13,7 @@ var (
 
 	// ErrNoData is the error when the return is empty
 	ErrNoData = errors.New("Data does not exist.")
+
+	// ErrMarshal is the error when marshalling to JSON string failed.
+	ErrMarshal = errors.New("Fail to marshal!")
 )

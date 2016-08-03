@@ -6,7 +6,6 @@ package history
 
 import (
 	"encoding/json"
-	"errors"
 	"net"
 	"strconv"
 	"time"
@@ -61,7 +60,7 @@ type blob struct {
 	ID        bson.ObjectId `bson:"_id,omitempty"`
 	Name      string        `bson:"name"`
 	Data      interface{}   `bson:"data"`
-	Timestamp time.Time     `bson:"timestamp"`
+	Timestamp int64         `bson:"timestamp"`
 }
 
 // dataStore data store structure
@@ -78,7 +77,7 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 		return nil, err
 	}
 	//
-	//pool.SetMode(mgo.Monotonic, true)
+	pool.SetMode(mgo.Monotonic, true)
 
 	// Drop Database
 	if isDrop {
@@ -114,15 +113,15 @@ func (ds *dataStore) closeSession(session *mgo.Session) {
 func (ds *dataStore) Add(name string, data interface{}) error {
 	session, err := ds.openSession()
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("Add")
+		log.WithFields(log.Fields{"err": err}).Error("Add")
 		return err
 	}
 	defer ds.closeSession(session)
 
 	// Collection history
 	c := session.DB(dbName).C(cDataName)
-	if err := c.Insert(&blob{Name: name, Data: data, Timestamp: time.Now().UTC()}); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("Fail to add to history collection")
+	if err := c.Insert(&blob{Name: name, Data: data, Timestamp: time.Now().UTC().UnixNano()}); err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Fail to add to history collection")
 		return err
 	}
 
@@ -132,7 +131,7 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error) {
 	session, err := ds.openSession()
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("Add")
+		log.WithFields(log.Fields{"err": err}).Error("Get")
 		return nil, err
 	}
 	defer ds.closeSession(session)
@@ -142,20 +141,10 @@ func (ds *dataStore) Get(name string, start, stop int) (map[string]string, error
 	return nil, nil
 }
 
-// Marshal helper function to marshal structure
-func Marshal(r interface{}) (string, error) {
-	bytes, err := json.Marshal(r) // marshal to json string
-	if err != nil {
-		// TODO: remove table
-		return "", errors.New("Fail to marshal")
-	}
-	return string(bytes), nil
-}
-
 func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	session, err := ds.openSession()
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
+		log.WithFields(log.Fields{"err": err}).Error("GetAll")
 		return nil, err
 	}
 	defer ds.closeSession(session)
@@ -164,16 +153,24 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	c := session.DB(dbName).C(cDataName)
 	var results []blob
 	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").All(&results); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
+		log.WithFields(log.Fields{"err": err}).Error("GetAll")
 		return nil, err
 	}
 
-	// convert
+	// Convert to map
 	m := make(map[string]string)
 	for _, v := range results {
-		if str, err := Marshal(v.Data); err == nil {
-			m[str] = strconv.FormatInt(v.Timestamp.UnixNano(), 10)
+		// marshal data to string
+		if str, err := marshal(v.Data); err == nil {
+			m[str] = strconv.FormatInt(v.Timestamp, 10)
 		}
+	}
+
+	// Check length
+	if len(m) == 0 {
+		err = ErrNoData
+		log.WithFields(log.Fields{"err": err}).Error("GetAll")
+		return nil, err
 	}
 	return m, nil
 }
@@ -181,7 +178,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 func (ds *dataStore) GetLast(name string) (string, error) {
 	session, err := ds.openSession()
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("Add")
+		log.WithFields(log.Fields{"err": err}).Error("GetLast")
 		return "", err
 	}
 	defer ds.closeSession(session)
@@ -190,14 +187,25 @@ func (ds *dataStore) GetLast(name string) (string, error) {
 	c := session.DB(dbName).C(cDataName)
 	result := blob{}
 
+	// Query latest
 	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").One(&result); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("GetLast")
+		log.WithFields(log.Fields{"err": err}).Error("GetLast")
 		return "", err
 	}
 
-	log.WithFields(log.Fields{"data": result}).Debug("GetLast")
-	if str, err := Marshal(result.Data); err == nil {
-		return str, nil
+	// marshal to string
+	ret, err1 := marshal(result.Data)
+	if err1 != nil {
+		return "", err
 	}
-	return "", ErrInvalidName // TODO
+	return ret, nil
+}
+
+func marshal(r interface{}) (string, error) {
+	bytes, err := json.Marshal(r)
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("marshal")
+		return "", ErrMarshal
+	}
+	return string(bytes), nil
 }
