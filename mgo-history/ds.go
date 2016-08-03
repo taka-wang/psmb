@@ -5,6 +5,8 @@
 package history
 
 import (
+	"encoding/json"
+	"errors"
 	"net"
 	"strconv"
 	"time"
@@ -174,6 +176,16 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	return m, nil
 }
 
+// Marshal helper function to marshal structure
+func Marshal(r interface{}) (string, error) {
+	bytes, err := json.Marshal(r) // marshal to json string
+	if err != nil {
+		// TODO: remove table
+		return "", errors.New("Fail to marshal")
+	}
+	return string(bytes), nil
+}
+
 func (ds *dataStore) GetLast(name string) (string, error) {
 	session, err := ds.openSession()
 	if err != nil {
@@ -190,7 +202,8 @@ func (ds *dataStore) GetLast(name string) (string, error) {
 		return "", err
 	}
 
-	if str, ok := result.Data.(string); ok {
+	log.WithFields(log.Fields{"data": result}).Debug("GetLast")
+	if str, err := Marshal(result.Data); err == nil {
 		return str, nil
 	}
 	return "", ErrInvalidName // TODO
