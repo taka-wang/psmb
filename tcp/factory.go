@@ -1,9 +1,6 @@
 package tcp
 
 import (
-	"fmt"
-	"reflect"
-
 	"github.com/taka-wang/psmb"
 	"github.com/taka-wang/psmb/cron"
 	log "github.com/takawang/logrus"
@@ -46,7 +43,7 @@ func createScheduler(conf map[string]string) (cron.Scheduler, error) {
 	ef, _ := createPlugin(conf, schedulerPlugin)
 
 	if ef != nil {
-		fmt.Println(reflect.TypeOf(ef)) // debug
+		//fmt.Println(reflect.TypeOf(ef)) // debug
 		if fn, ok := ef.(func(map[string]string) (cron.Scheduler, error)); ok {
 			if ds, _ := fn(conf); ds != nil { // casting
 				return ds.(cron.Scheduler), nil
@@ -64,7 +61,7 @@ func createHistoryDS(conf map[string]string) (psmb.IHistoryDataStore, error) {
 	ef, _ := createPlugin(conf, historyPlugin)
 
 	if ef != nil {
-		fmt.Println(reflect.TypeOf(ef)) // debug
+		//fmt.Println(reflect.TypeOf(ef)) // debug
 		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
 			if ds, _ := fn(conf); ds != nil { // casting
 				return ds.(psmb.IHistoryDataStore), nil
@@ -82,7 +79,7 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 	ef, _ := createPlugin(conf, writerPlugin)
 
 	if ef != nil {
-		fmt.Println(reflect.TypeOf(ef)) // debug
+		//fmt.Println(reflect.TypeOf(ef)) // debug
 		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
 			if ds, _ := fn(conf); ds != nil { // casting
 				return ds.(psmb.IWriterTaskDataStore), nil
@@ -100,7 +97,7 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 	ef, _ := createPlugin(conf, readerPlugin)
 
 	if ef != nil {
-		fmt.Println(reflect.TypeOf(ef)) // debug
+		//fmt.Println(reflect.TypeOf(ef)) // debug
 		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
 			if ds, _ := fn(conf); ds != nil { // casting
 				return ds.(psmb.IReaderTaskDataStore), nil
