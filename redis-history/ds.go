@@ -16,6 +16,9 @@ import (
 	log "github.com/takawang/logrus"
 )
 
+// environment variable backup
+const defaultConfPath = "/etc/psmbtcp"
+
 var (
 	// RedisPool redis connection pool
 	RedisPool  *redis.Pool
@@ -50,7 +53,7 @@ func loadConf(path, endpoint string) {
 		log.Debug("redis-history: Try to load local config file")
 		if path == "" {
 			log.Warn("Config environment variable not found, set to default")
-			path = "/etc/psmbtcp"
+			path = defaultConfPath
 		}
 		viper.AddConfigPath(path)
 		err := viper.ReadInConfig()
@@ -78,7 +81,7 @@ func loadConf(path, endpoint string) {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Info("docker run")
-		viper.Set("redis.server", host[0]) // override
+		viper.Set("redis.server", host[0]) // override default
 	}
 }
 
