@@ -1,4 +1,4 @@
-# TOML config
+# TOML config @20160804
 
 [log]
 debug       = true                      # log level

@@ -47,19 +47,18 @@ func loadConf(path, backend, endpoint string) {
 
 	// local or remote
 	if backend == "" {
-		log.Debug("Try to load local config file")
+		log.Debug("mgo-history: Try to load local config file")
 		if path == "" {
 			log.Debug("Config environment variable not found, set to default")
 			path = "/etc/psmbtcp"
 		}
-		// ex: viper.AddConfigPath("/go/src/github.com/taka-wang/psmb")
 		viper.AddConfigPath(path)
 		err := viper.ReadInConfig()
 		if err != nil {
 			log.Debug("Local config file not found!")
 		}
 	} else {
-		log.Debug("Try to load remote config file")
+		log.Debug("mgo-history: Try to load remote config file")
 		if endpoint == "" {
 			log.Debug("Endpoint environment variable not found!")
 			return
