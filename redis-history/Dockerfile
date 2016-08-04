@@ -1,13 +1,12 @@
 FROM takawang/gozmq:pull
 MAINTAINER Taka Wang <taka@cmwang.net>
 
-#ENV PSMBTCP_CONFIG "/etc/psmbtcp"
+#ENV CONF_PSMBTCP "/etc/psmbtcp"
 ENV CONF_PSMBTCP "/psmbtcp/config.toml"
 ENV EP_CONSUL "dev.cmwang.net:8500"
 
 WORKDIR /go
 RUN go get -u github.com/spf13/viper
-#RUN go get github.com/spf13/viper/remote
 RUN go get -u github.com/taka-wang/psmb
 RUN go get -u github.com/taka-wang/psmb/tcp
 

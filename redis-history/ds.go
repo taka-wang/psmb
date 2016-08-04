@@ -33,12 +33,14 @@ func loadConf(path, endpoint string) {
 	viper.SetDefault("log.json", false)
 	viper.SetDefault("log.to_file", false)
 	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
+
 	// set default redis values
 	viper.SetDefault("redis.server", "127.0.0.1")
 	viper.SetDefault("redis.port", "6379")
 	viper.SetDefault("redis.max_idel", 3)
 	viper.SetDefault("redis.max_active", 0)
 	viper.SetDefault("redis.idel_timeout", 30)
+
 	// set default redis-history values
 	viper.SetDefault("redis_history.hash_name", "mbtcp:latest")
 	viper.SetDefault("redis_history.zset_prefix", "mbtcp:data:")
@@ -47,15 +49,15 @@ func loadConf(path, endpoint string) {
 	if endpoint == "" {
 		log.Debug("redis-history: Try to load local config file")
 		if path == "" {
-			log.Debug("Config environment variable not found, set to default")
+			log.Warn("Config environment variable not found, set to default")
 			path = "/etc/psmbtcp"
 		}
 		viper.AddConfigPath(path)
 		err := viper.ReadInConfig()
 		if err != nil {
-			log.Debug("Local config file not found!")
+			log.Warn("Local config file not found!")
 		} else {
-			log.Debug("Read local config file successfully")
+			log.Info("Read local config file successfully")
 		}
 	} else {
 		log.Debug("redis-history: Try to load remote config file")
@@ -63,9 +65,9 @@ func loadConf(path, endpoint string) {
 		viper.AddRemoteProvider("consul", endpoint, path)
 		err := viper.ReadRemoteConfig()
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Debug("Remote config file not found!")
+			log.WithFields(log.Fields{"err": err}).Warn("Remote config file not found!")
 		} else {
-			log.Debug("Read remote config file successfully")
+			log.Info("Read remote config file successfully")
 		}
 	}
 
@@ -75,7 +77,7 @@ func loadConf(path, endpoint string) {
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 	} else {
-		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
+		log.WithFields(log.Fields{"hostname": host[0]}).Info("docker run")
 		viper.Set("redis.server", host[0]) // override
 	}
 }

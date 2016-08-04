@@ -38,3 +38,5 @@ hash_name           = "mbtcp:writer"    # redis hash table name
 modbus_port             = "502"         # modbus slave default port
 min_connection_timeout  = 200000        # minimal tcp connection timeout in ms
 min_poll_interval       = 1             # minimal poll interval in second
+# zmq endpoint
+# zmq endpoint

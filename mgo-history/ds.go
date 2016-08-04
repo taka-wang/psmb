@@ -124,7 +124,7 @@ func init() {
 		// We need this object to establish a session to our MongoDB.
 		mongoDBDialInfo = &mgo.DialInfo{
 			Addrs:    []string{viper.GetString("mongo.server") + ":" + viper.GetString("mongo.port")}, // allow multiple connection string
-			Timeout:  time.Duration(viper.GetInt("mongo.connection_timeout")) * time.Second,
+			Timeout:  viper.GetDuration("mongo.connection_timeout") * time.Second,
 			Database: viper.GetString("mongo.db_name"),
 			Username: viper.GetString("mongo.username"),
 			Password: viper.GetString("mongo.password"),
@@ -133,7 +133,7 @@ func init() {
 		// We need this object to establish a session to our MongoDB.
 		mongoDBDialInfo = &mgo.DialInfo{
 			Addrs:   []string{viper.GetString("mongo.server") + ":" + viper.GetString("mongo.port")}, // allow multiple connection string
-			Timeout: time.Duration(viper.GetInt("mongo.connection_timeout")) * time.Second,
+			Timeout: viper.GetDuration("mongo.connection_timeout") * time.Second,
 		}
 	}
 
