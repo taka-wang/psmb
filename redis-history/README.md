@@ -8,6 +8,11 @@ Redis-based history data store
     go get -u github.com/taka-wang/psmb/redis-history
 ```
 
+## Environment variables
+
+- PSMBTCP_CONFIG: config file location
+- CONSUL_ENDPOINT: remote consul endpoint (optional)
+
 ## Test cases
 
 - [x] TestHistoryMap tests

@@ -35,7 +35,7 @@ func loadConf(path, remote string) {
 	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
 	// set default redis values
 	viper.SetDefault("redis_history.server", "127.0.0.1")
-	viper.SetDefault("redis_history.port", "6378")
+	viper.SetDefault("redis_history.port", "6379")
 	viper.SetDefault("redis_history.hash_name", "mbtcp:latest")
 	viper.SetDefault("redis_history.zset_prefix", "mbtcp:data:")
 	viper.SetDefault("redis_history.max_idel", 3)
@@ -46,7 +46,7 @@ func loadConf(path, remote string) {
 	if remote == "" {
 		log.Debug("Try to load local config file")
 		if path == "" {
-			log.Debug("Config filepath environment variable not found, set to default")
+			log.Debug("Config environment variable not found, set to default")
 			path = "/etc/psmbtcp"
 		}
 		// ex: viper.AddConfigPath("/go/src/github.com/taka-wang/psmb")
@@ -65,7 +65,7 @@ func loadConf(path, remote string) {
 		}
 	}
 
-	// note: for docker environment
+	// Note: for docker environment
 	// lookup redis server
 	host, err := net.LookupHost("redis")
 	if err != nil {
@@ -77,19 +77,23 @@ func loadConf(path, remote string) {
 }
 
 func initLogger() {
+	// set debug level
 	if viper.GetBool("log.debug") {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
+	// set log formatter
 	if viper.GetBool("log.json") {
 		log.SetFormatter(&log.JSONFormatter{})
 	} else {
 		log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	}
+	// set log output
 	if viper.GetBool("log.to_file") {
 		f, err := os.OpenFile(viper.GetString("log.filename"), os.O_WRONLY|os.O_CREATE, 0755)
 		if err != nil {
+			log.WithFields(log.Fields{"err": err}).Debug("Fail to write to log file")
 			f = os.Stdout
 		}
 		log.SetOutput(f)
@@ -102,9 +106,11 @@ func init() {
 	// before init logger
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetLevel(log.DebugLevel)
+	// load config
+	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("CONSUL_ENDPOINT"))
+	// init logger from config
+	initLogger()
 
-	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("CONSUL")) // load config
-	initLogger()                                               // init logger
 	hashName = viper.GetString("redis_history.hash_name")
 	zsetPrefix = viper.GetString("redis_history.zset_prefix")
 
