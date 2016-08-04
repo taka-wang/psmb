@@ -105,7 +105,7 @@ func init() {
 	initLogger()
 
 	defaultMbPort = viper.GetString("psmbtcp.modbus_port")
-	minConnTimeout = uint64(viper.GetInt("psmbtcp.min_connection_timeout"))
+	minConnTimeout = int64(viper.GetInt("psmbtcp.min_connection_timeout"))
 	minPollInterval = uint64(viper.GetInt("psmbtcp.min_poll_interval"))
 }
 
