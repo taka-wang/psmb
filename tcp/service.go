@@ -21,7 +21,7 @@ var (
 	// defaultMbPort default modbus slave port number
 	defaultMbPort string
 	// minConnTimeout minimal modbus tcp connection timeout
-	minConnTimeout uint64
+	minConnTimeout int64
 	// minPollInterval minimal modbus tcp poll interval
 	minPollInterval uint64
 )
