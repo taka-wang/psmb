@@ -23,7 +23,7 @@ var (
 	zsetPrefix string // "mbtcp:data:"
 )
 
-func loadConf(path, backend, endpoint string) {
+func loadConf(path, endpoint string) {
 	// setup viper
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
@@ -44,7 +44,7 @@ func loadConf(path, backend, endpoint string) {
 	viper.SetDefault("redis_history.zset_prefix", "mbtcp:data:")
 
 	// local or remote
-	if backend == "" {
+	if endpoint == "" {
 		log.Debug("redis-history: Try to load local config file")
 		if path == "" {
 			log.Debug("Config environment variable not found, set to default")
@@ -59,12 +59,8 @@ func loadConf(path, backend, endpoint string) {
 		}
 	} else {
 		log.Debug("redis-history: Try to load remote config file")
-		if endpoint == "" {
-			log.Debug("Endpoint environment variable not found!")
-			return
-		}
 		//log.WithFields(log.Fields{"backend": backend, "endpoint": endpoint, "path": path}).Debug("remote debug")
-		viper.AddRemoteProvider(backend, endpoint, path)
+		viper.AddRemoteProvider("consul", endpoint, path)
 		err := viper.ReadRemoteConfig()
 		if err != nil {
 			log.WithFields(log.Fields{"err": err}).Debug("Remote config file not found!")
@@ -111,13 +107,11 @@ func initLogger() {
 }
 
 func init() {
-	// before init logger
-	log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	log.SetLevel(log.DebugLevel)
-	// load config
-	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("SD_BACKEND"), os.Getenv("SD_ENDPOINT"))
-	// init logger from config
-	initLogger()
+	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
+	log.SetLevel(log.DebugLevel)                            // ...
+
+	loadConf(os.Getenv("CONF_PSMBTCP"), os.Getenv("EP_CONSUL")) // load config
+	initLogger()                                                // init logger from config
 
 	hashName = viper.GetString("redis_history.hash_name")
 	zsetPrefix = viper.GetString("redis_history.zset_prefix")
@@ -125,7 +119,7 @@ func init() {
 	RedisPool = &redis.Pool{
 		MaxIdle:     viper.GetInt("redis.max_idel"),
 		MaxActive:   viper.GetInt("redis.max_active"), // When zero, there is no limit on the number of connections in the pool.
-		IdleTimeout: time.Duration(viper.GetInt("redis.idel_timeout")) * time.Second,
+		IdleTimeout: viper.GetDuration("redis.idel_timeout") * time.Second,
 		Dial: func() (redis.Conn, error) {
 			conn, err := redis.Dial("tcp", viper.GetString("redis.server")+":"+viper.GetString("redis.port"))
 			if err != nil {
