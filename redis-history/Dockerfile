@@ -6,15 +6,15 @@ ENV PSMBTCP_CONFIG "/etc/psmbtcp"
 #ENV SD_BACKEND "consul"
 
 WORKDIR /go
-RUN go get -u github.com/taka-wang/psmb
-RUN go get -u github.com/taka-wang/psmb/tcp
 RUN go get -u github.com/spf13/viper
 #RUN go get github.com/spf13/viper/remote
+RUN go get -u github.com/taka-wang/psmb
+RUN go get -u github.com/taka-wang/psmb/tcp
 
 ## Load app files
 ADD . /go/src/github.com/taka-wang/psmb/redis-history
 # add config file
-ADD config.toml ${PSMBTCP_CONFIG}/
+RUN cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${PSMBTCP_CONFIG}/
 WORKDIR /go/src/github.com/taka-wang/psmb/redis-history
 
 RUN go get -t ./...
