@@ -16,7 +16,8 @@ ADD . /go/src/github.com/taka-wang/psmb/redis-writer
 # add config file
 RUN ls /go/src/github.com/
 RUN ls /go/src/github.com/taka-wang/
-RUN ls /go/src/github.com/taka-wang/tcp/
+RUN ls /go/src/github.com/taka-wang/psmb/
+RUN ls /go/src/github.com/taka-wang/psmb/tcp/
 
 RUN cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${PSMBTCP_CONFIG}/
 WORKDIR /go/src/github.com/taka-wang/psmb/redis-writer
