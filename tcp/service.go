@@ -21,9 +21,9 @@ var (
 	// defaultMbPort default modbus slave port number
 	defaultMbPort string
 	// minConnTimeout minimal modbus tcp connection timeout
-	minConnTimeout int64
+	minConnTimeout uint64
 	// minPollInterval minimal modbus tcp poll interval
-	minPollInterval int64
+	minPollInterval uint64
 )
 
 func loadConf(path, backend, endpoint string) {
@@ -105,8 +105,8 @@ func init() {
 	initLogger()
 
 	defaultMbPort = viper.GetString("psmbtcp.modbus_port")
-	minConnTimeout = int64(viper.GetInt("psmbtcp.min_connection_timeout"))
-	minPollInterval = int64(viper.GetInt("psmbtcp.min_poll_interval"))
+	minConnTimeout = uint64(viper.GetInt("psmbtcp.min_connection_timeout"))
+	minPollInterval = uint64(viper.GetInt("psmbtcp.min_poll_interval"))
 }
 
 // @Implement IProactiveService contract implicitly
