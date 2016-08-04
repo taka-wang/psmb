@@ -6,8 +6,8 @@ package history
 
 import (
 	"encoding/json"
-	"fmt"
 	"net"
+	"os"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
@@ -28,8 +28,12 @@ func loadConf(path, remote string) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 
-	// set default values
-	viper.SetDefault("redis_history.verbose", false)
+	// set default log values
+	viper.SetDefault("log.debug", true)
+	viper.SetDefault("log.json", false)
+	viper.SetDefault("log.to_file", false)
+	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
+	// set default redis values
 	viper.SetDefault("redis_history.port", "6378")
 	viper.SetDefault("redis_history.hash_name", "mbtcp:latest")
 	viper.SetDefault("redis_history.zset_prefix", "mbtcp:data:")
@@ -65,12 +69,35 @@ func loadConf(path, remote string) {
 	}
 }
 
+func initLogger() {
+	if viper.GetBool("log.debug") {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
+	if viper.GetBool("log.json") {
+		log.SetFormatter(&log.JSONFormatter{})
+	} else {
+		log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	}
+	if viper.GetBool("log.to_file") {
+		f, err := os.OpenFile(viper.GetString("log.filename"), os.O_WRONLY|os.O_CREATE, 0755)
+		if err != nil {
+			f = os.Stdout
+		}
+		log.SetOutput(f)
+	} else {
+		log.SetOutput(os.Stdout)
+	}
+}
+
 func init() {
-	fmt.Println("DS Init")
+	// before init logger
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetLevel(log.DebugLevel)
-	loadConf("/etc/psmbtcp", "") // load config
 
+	loadConf("/etc/psmbtcp", "") // load config
+	initLogger()                 // init logger
 	hashName = viper.GetString("redis_history.hash_name")
 	zsetPrefix = viper.GetString("redis_history.zset_prefix")
 
