@@ -127,22 +127,22 @@ func Register(name string, factory interface{}) {
 	factories[name] = factory
 }
 
-// SchedulerCreator factory method to create scheduler
+// SchedulerCreator concrete creator to create scheduler
 func SchedulerCreator(driver string) (cron.Scheduler, error) {
 	return createScheduler(map[string]string{schedulerPlugin: driver})
 }
 
-// HistoryDataStoreCreator factory method to create writer task data store
+// HistoryDataStoreCreator concrete creator to create writer task data store
 func HistoryDataStoreCreator(driver string) (psmb.IHistoryDataStore, error) {
 	return createHistoryDS(map[string]string{historyPlugin: driver})
 }
 
-// WriterDataStoreCreator factory method to create writer task data store
+// WriterDataStoreCreator concrete creator to create writer task data store
 func WriterDataStoreCreator(driver string) (psmb.IWriterTaskDataStore, error) {
 	return createWriterDS(map[string]string{writerPlugin: driver})
 }
 
-// ReaderDataStoreCreator factory method to create reader task data store
+// ReaderDataStoreCreator concrete creator to create reader task data store
 func ReaderDataStoreCreator(driver string) (psmb.IReaderTaskDataStore, error) {
 	return createReaderDS(map[string]string{readerPlugin: driver})
 }

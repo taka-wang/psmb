@@ -16,6 +16,7 @@ import (
 )
 
 func init() {
+	// load config
 	initLogger()
 }
 
@@ -45,6 +46,7 @@ func initLogger() {
 
 // @Implement IProactiveService contract implicitly
 
+// TODO: load config
 const (
 	// defaultMbPort default modbus slave port number
 	defaultMbPort = "502"
@@ -92,27 +94,23 @@ func NewService(reader, writer, history, sch string) (IProactiveService, error) 
 	var schedulerPlugin cron.Scheduler
 	var err error
 
-	// Factory methods
-	readerPlugin, err = ReaderDataStoreCreator(reader)
-	if err != nil {
+	// factory methods
+	if readerPlugin, err = ReaderDataStoreCreator(reader); err != nil { // reader factory
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create reader data store")
 		return nil, err
 	}
 
-	writerPlugin, err = WriterDataStoreCreator(writer)
-	if err != nil {
+	if writerPlugin, err = WriterDataStoreCreator(writer); err != nil { // writer factory
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create writer data store")
 		return nil, err
 	}
 
-	historyPlugin, err = HistoryDataStoreCreator(history)
-	if err != nil {
+	if historyPlugin, err = HistoryDataStoreCreator(history); err != nil { // historian factory
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create history data store")
 		return nil, err
 	}
 
-	schedulerPlugin, err = SchedulerCreator(sch)
-	if err != nil {
+	if schedulerPlugin, err = SchedulerCreator(sch); err != nil { // scheduler factory
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create scheduler")
 		return nil, err
 	}
@@ -1131,6 +1129,7 @@ func (b *Service) Start() {
 	log.Debug("Start proactive service")
 	b.scheduler.Start()
 	b.enable = true
+	// TODO: load config
 	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
 	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
 	b.initZMQPoller()
