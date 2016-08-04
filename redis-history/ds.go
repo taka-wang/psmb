@@ -6,6 +6,7 @@ package history
 
 import (
 	"encoding/json"
+	"fmt"
 	"net"
 	"time"
 
@@ -65,7 +66,9 @@ func loadConf(path, remote string) {
 }
 
 func init() {
-
+	fmt.Println("DS Init")
+	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	log.SetLevel(log.DebugLevel)
 	loadConf("/etc/psmbtcp", "") // load config
 
 	hashName = viper.GetString("redis_history.hash_name")
