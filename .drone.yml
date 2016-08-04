@@ -3,6 +3,13 @@
 pipeline:
 
 
+    test-psmb-tcp:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true tcp/.
+
     ci:
         image: takawang/dind
         volumes:
@@ -78,10 +85,3 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true .
-
-    test-psmb-tcp:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true tcp/.
