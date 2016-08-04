@@ -54,6 +54,8 @@ func loadConf(path, backend, endpoint string) {
 		err := viper.ReadInConfig()
 		if err != nil {
 			log.Debug("Local config file not found!")
+		} else {
+			log.Debug("Read local config file successfully")
 		}
 	} else {
 		log.Debug("redis-history: Try to load remote config file")
@@ -61,15 +63,13 @@ func loadConf(path, backend, endpoint string) {
 			log.Debug("Endpoint environment variable not found!")
 			return
 		}
-		log.WithFields(log.Fields{
-			"backend":  backend,
-			"endpoint": endpoint,
-			"path":     path,
-		}).Debug("remote debug")
+		//log.WithFields(log.Fields{"backend": backend, "endpoint": endpoint, "path": path}).Debug("remote debug")
 		viper.AddRemoteProvider(backend, endpoint, path)
 		err := viper.ReadRemoteConfig()
 		if err != nil {
 			log.WithFields(log.Fields{"err": err}).Debug("Remote config file not found!")
+		} else {
+			log.Debug("Read remote config file successfully")
 		}
 	}
 
