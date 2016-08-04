@@ -7,7 +7,8 @@ to_file = false                     # log to file flag
 filename = "/var/log/psmbtcp.log"   # log file location
 
 [redis_history]
-server      = "127.0.0.1"           # redis server ip
+# let net.Lookup do the trick for development
+#server      = "127.0.0.1"           # redis server ip
 port        = "6379"                # redis server port
 hash_name   = "mbtcp:latest"        # redis hash table name
 zset_prefix = "mbtcp:data:"         # redis zset key prefix

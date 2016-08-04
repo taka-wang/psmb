@@ -53,6 +53,10 @@ func loadConf(path, remote string) {
 
 	// local or remote
 	if remote == "" {
+		if path == "" {
+			log.Debug("Config path not found, set to default")
+			path = "/etc/psmbtcp"
+		}
 		// ex: viper.AddConfigPath("/go/src/github.com/taka-wang/psmb")
 		viper.AddConfigPath(path)
 		err := viper.ReadInConfig()
@@ -96,8 +100,8 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetLevel(log.DebugLevel)
 
-	loadConf("/etc/psmbtcp", "") // load config
-	initLogger()                 // init logger
+	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("CONSUL")) // load config
+	initLogger()                                               // init logger
 	hashName = viper.GetString("redis_history.hash_name")
 	zsetPrefix = viper.GetString("redis_history.zset_prefix")
 
