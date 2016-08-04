@@ -11,7 +11,8 @@ Redis-based history data store
 ## Environment variables
 
 - PSMBTCP_CONFIG: config file location
-- CONSUL_ENDPOINT: remote consul endpoint (optional)
+- SD_ENDPOINT: remote service discovery endpoint (optional)
+- SD_BACKEND: remote service name, ex: "consul"
 
 ## Test cases
 

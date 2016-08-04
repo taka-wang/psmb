@@ -20,7 +20,7 @@ var (
 	hashName  string
 )
 
-func loadConf(path, remote string) {
+func loadConf(path, backend, endpoint string) {
 	// setup viper
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
@@ -40,7 +40,7 @@ func loadConf(path, remote string) {
 	viper.SetDefault("redis_writer.hash_name", "mbtcp:writer")
 
 	// local or remote
-	if remote == "" {
+	if backend == "" {
 		log.Debug("Try to load local config file")
 		if path == "" {
 			log.Debug("Config environment variable not found, set to default")
@@ -54,8 +54,12 @@ func loadConf(path, remote string) {
 		}
 	} else {
 		log.Debug("Try to load remote config file")
+		if endpoint == "" {
+			log.Debug("Endpoint environment variable not found!")
+			return
+		}
 		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
-		viper.AddRemoteProvider("consul", remote, path)
+		viper.AddRemoteProvider(backend, endpoint, path)
 		err := viper.ReadRemoteConfig()
 		if err != nil {
 			log.Debug("Remote config file not found!")
@@ -104,7 +108,7 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetLevel(log.DebugLevel)
 	// load config
-	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("CONSUL_ENDPOINT"))
+	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("SD_BACKEND"), os.Getenv("SD_ENDPOINT"))
 	// init logger from config
 	initLogger()
 
