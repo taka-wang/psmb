@@ -29,7 +29,7 @@ func loadConf(path, remote string) {
 
 	// set default values
 	viper.SetDefault("redis_history.verbose", false)
-	viper.SetDefault("redis_history.port", "6379")
+	viper.SetDefault("redis_history.port", "6378")
 	viper.SetDefault("redis_history.hash_name", "mbtcp:latest")
 	viper.SetDefault("redis_history.zset_prefix", "mbtcp:data:")
 	viper.SetDefault("redis_history.max_idel", 3)
