@@ -110,7 +110,6 @@ func initLogger() {
 }
 
 func init() {
-
 	// before init logger
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetLevel(log.DebugLevel)

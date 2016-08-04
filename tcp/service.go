@@ -6,55 +6,110 @@ package tcp
 
 import (
 	"encoding/json"
+	"os"
 	"strconv"
 	"time"
 
+	"github.com/spf13/viper"
 	. "github.com/taka-wang/psmb"
 	cron "github.com/taka-wang/psmb/cron"
 	log "github.com/takawang/logrus"
 	zmq "github.com/takawang/zmq3"
 )
 
-func init() {
-	// load config
-	initLogger()
+var (
+	// defaultMbPort default modbus slave port number
+	defaultMbPort string
+	// minConnTimeout minimal modbus tcp connection timeout
+	minConnTimeout int
+	// minPollInterval minimal modbus tcp poll interval
+	minPollInterval int
+)
+
+func loadConf(path, backend, endpoint string) {
+	// setup viper
+	viper.SetConfigName("config")
+	viper.SetConfigType("toml")
+	// set default log values
+	viper.SetDefault("log.debug", true)
+	viper.SetDefault("log.json", false)
+	viper.SetDefault("log.to_file", false)
+	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
+	// set default psmbtcp values
+	viper.SetDefault("psmbtcp.modbus_port", "502")
+	viper.SetDefault("psmbtcp.min_connection_timeout", 200000)
+	viper.SetDefault("psmbtcp.min_poll_interval", 1)
+
+	// local or remote
+	if backend == "" {
+		log.Debug("Try to load local config file")
+		if path == "" {
+			log.Debug("Config environment variable not found, set to default")
+			path = "/etc/psmbtcp"
+		}
+		// ex: viper.AddConfigPath("/go/src/github.com/taka-wang/psmb")
+		viper.AddConfigPath(path)
+		err := viper.ReadInConfig()
+		if err != nil {
+			log.Debug("Local config file not found!")
+		}
+	} else {
+		log.Debug("Try to load remote config file")
+		if endpoint == "" {
+			log.Debug("Endpoint environment variable not found!")
+			return
+		}
+		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
+		viper.AddRemoteProvider(backend, endpoint, path)
+		err := viper.ReadRemoteConfig()
+		if err != nil {
+			log.Debug("Remote config file not found!")
+		}
+	}
+
 }
 
-// initLogger init logger
 func initLogger() {
-	// Log as JSON instead of the default ASCII formatter.
-	//log.SetFormatter(&log.JSONFormatter{})
+	// set debug level
+	if viper.GetBool("log.debug") {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
+	// set log formatter
+	if viper.GetBool("log.json") {
+		log.SetFormatter(&log.JSONFormatter{})
+	} else {
+		log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	}
+	// set log output
+	if viper.GetBool("log.to_file") {
+		f, err := os.OpenFile(viper.GetString("log.filename"), os.O_WRONLY|os.O_CREATE, 0755)
+		if err != nil {
+			log.WithFields(log.Fields{"err": err}).Debug("Fail to write to log file")
+			f = os.Stdout
+		}
+		log.SetOutput(f)
+	} else {
+		log.SetOutput(os.Stdout)
+	}
+}
 
-	// Output to stderr instead of stdout, could also be a file.
-	//log.SetOutput(os.Stderr)
-
-	// Only log the warning severity or above.
-	//log.SetLevel(log.WarnLevel)
-
-	/*
-	   if Environment == "production" {
-	       log.SetFormatter(&log.JSONFormatter{})
-	   } else {
-	       // The TextFormatter is default, you don't actually have to do this.
-	       log.SetFormatter(&log.TextFormatter{})
-	   }
-	*/
+func init() {
+	// before init logger
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetLevel(log.DebugLevel)
-	//log.SetLevel(log.ErrorLevel)
+	// load config
+	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("SD_BACKEND"), os.Getenv("SD_ENDPOINT"))
+	// init logger from config
+	initLogger()
+
+	defaultMbPort = viper.GetString("psmbtcp.modbus_port")
+	minConnTimeout = viper.GetInt("psmbtcp.min_connection_timeout")
+	minPollInterval = viper.GetInt("psmbtcp.min_poll_interval")
 }
 
 // @Implement IProactiveService contract implicitly
-
-// TODO: load config
-const (
-	// defaultMbPort default modbus slave port number
-	defaultMbPort = "502"
-	// minConnTimeout minimal modbus tcp connection timeout
-	minConnTimeout = 200000
-	// minPollInterval minimal modbus tcp poll interval
-	minPollInterval = 1
-)
 
 // Service modbusd tcp proactive service type
 type Service struct {

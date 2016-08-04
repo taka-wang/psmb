@@ -2,17 +2,18 @@
 
 pipeline:
 
-    test-mgo-history:
+
+    ci:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
-            - docker-compose -f mgo-history/docker-compose.yml pull
-            - docker-compose -f mgo-history/docker-compose.yml build
-            - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
-            - docker-compose -f mgo-history/docker-compose.yml stop
-            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
+            - docker-compose rm -f -a
+            - docker-compose pull
+            - docker-compose build
+            - docker-compose up --abort-on-container-exit
+            - docker-compose stop
+            - docker-compose rm -f -a
 
     test-redis-history:
         image: takawang/dind
@@ -37,6 +38,18 @@ pipeline:
             - docker-compose -f redis-writer/docker-compose.yml up --abort-on-container-exit
             - docker-compose -f redis-writer/docker-compose.yml stop
             - docker-compose -f redis-writer/docker-compose.yml rm -f -a
+
+    test-mgo-history:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
+            - docker-compose -f mgo-history/docker-compose.yml pull
+            - docker-compose -f mgo-history/docker-compose.yml build
+            - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f mgo-history/docker-compose.yml stop
+            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
 
     test-cron:
         image: takawang/dind
@@ -72,15 +85,3 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true tcp/.
-
-    ci:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker-compose rm -f -a
-            - docker-compose pull
-            - docker-compose build
-            - docker-compose up --abort-on-container-exit
-            - docker-compose stop
-            - docker-compose rm -f -a
