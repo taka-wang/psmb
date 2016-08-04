@@ -12,7 +12,7 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/spf13/viper"
-	//_ "github.com/spf13/viper/remote"
+	_ "github.com/spf13/viper/remote"
 	log "github.com/takawang/logrus"
 )
 
@@ -62,6 +62,11 @@ func loadConf(path, backend, endpoint string) {
 			return
 		}
 		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
+		log.WithFields(log.Fields{
+			"backend":  backend,
+			"endpoint": endpoint,
+			"path":     path,
+		}).Debug("remote debug")
 		viper.AddRemoteProvider(backend, endpoint, path)
 		err := viper.ReadRemoteConfig()
 		if err != nil {
