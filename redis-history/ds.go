@@ -34,13 +34,14 @@ func loadConf(path, remote string) {
 	viper.SetDefault("log.to_file", false)
 	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
 	// set default redis values
-	viper.SetDefault("redis_history.server", "127.0.0.1")
-	viper.SetDefault("redis_history.port", "6379")
+	viper.SetDefault("redis.server", "127.0.0.1")
+	viper.SetDefault("redis.port", "6379")
+	viper.SetDefault("redis.max_idel", 3)
+	viper.SetDefault("redis.max_active", 0)
+	viper.SetDefault("redis.idel_timeout", 30)
+	// set default redis-history values
 	viper.SetDefault("redis_history.hash_name", "mbtcp:latest")
 	viper.SetDefault("redis_history.zset_prefix", "mbtcp:data:")
-	viper.SetDefault("redis_history.max_idel", 3)
-	viper.SetDefault("redis_history.max_active", 0)
-	viper.SetDefault("redis_history.idel_timeout", 30)
 
 	// local or remote
 	if remote == "" {
@@ -72,7 +73,7 @@ func loadConf(path, remote string) {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
-		viper.Set("redis_history.server", host[0]) // override
+		viper.Set("redis.server", host[0]) // override
 	}
 }
 
@@ -115,11 +116,11 @@ func init() {
 	zsetPrefix = viper.GetString("redis_history.zset_prefix")
 
 	RedisPool = &redis.Pool{
-		MaxIdle:     viper.GetInt("redis_history.max_idel"),
-		MaxActive:   viper.GetInt("redis_history.max_active"), // When zero, there is no limit on the number of connections in the pool.
-		IdleTimeout: time.Duration(viper.GetInt("redis_history.idel_timeout")) * time.Second,
+		MaxIdle:     viper.GetInt("redis.max_idel"),
+		MaxActive:   viper.GetInt("redis.max_active"), // When zero, there is no limit on the number of connections in the pool.
+		IdleTimeout: time.Duration(viper.GetInt("redis.idel_timeout")) * time.Second,
 		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", viper.GetString("redis_history.server")+":"+viper.GetString("redis_history.port"))
+			conn, err := redis.Dial("tcp", viper.GetString("redis.server")+":"+viper.GetString("redis.port"))
 			if err != nil {
 				log.WithFields(log.Fields{"err": err}).Error("Redis pool dial error")
 			}

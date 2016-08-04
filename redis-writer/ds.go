@@ -6,40 +6,116 @@ package writer
 
 import (
 	"net"
+	"os"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
+	"github.com/spf13/viper"
 	log "github.com/takawang/logrus"
 )
 
 var (
 	// RedisPool redis connection pool
 	RedisPool *redis.Pool
-	hostName  string
-	port      string
 	hashName  string
 )
 
-func init() {
-	// TODO: load config
-	port = "6379"
-	hashName = "mbtcp:writer"
+func loadConf(path, remote string) {
+	// setup viper
+	viper.SetConfigName("config")
+	viper.SetConfigType("toml")
 
+	// set default log values
+	viper.SetDefault("log.debug", true)
+	viper.SetDefault("log.json", false)
+	viper.SetDefault("log.to_file", false)
+	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
+	// set default redis values
+	viper.SetDefault("redis.server", "127.0.0.1")
+	viper.SetDefault("redis.port", "6379")
+	viper.SetDefault("redis.max_idel", 3)
+	viper.SetDefault("redis.max_active", 0)
+	viper.SetDefault("redis.idel_timeout", 30)
+	// set default redis-writer values
+	viper.SetDefault("redis_writer.hash_name", "mbtcp:writer")
+
+	// local or remote
+	if remote == "" {
+		log.Debug("Try to load local config file")
+		if path == "" {
+			log.Debug("Config environment variable not found, set to default")
+			path = "/etc/psmbtcp"
+		}
+		// ex: viper.AddConfigPath("/go/src/github.com/taka-wang/psmb")
+		viper.AddConfigPath(path)
+		err := viper.ReadInConfig()
+		if err != nil {
+			log.Debug("Local config file not found!")
+		}
+	} else {
+		log.Debug("Try to load remote config file")
+		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
+		viper.AddRemoteProvider("consul", remote, path)
+		err := viper.ReadRemoteConfig()
+		if err != nil {
+			log.Debug("Remote config file not found!")
+		}
+	}
+
+	// Note: for docker environment
+	// lookup redis server
 	host, err := net.LookupHost("redis")
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
-		hostName = "127.0.0.1"
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
-		hostName = host[0] //docker
+		viper.Set("redis.server", host[0]) // override
 	}
+}
+
+func initLogger() {
+	// set debug level
+	if viper.GetBool("log.debug") {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
+	// set log formatter
+	if viper.GetBool("log.json") {
+		log.SetFormatter(&log.JSONFormatter{})
+	} else {
+		log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	}
+	// set log output
+	if viper.GetBool("log.to_file") {
+		f, err := os.OpenFile(viper.GetString("log.filename"), os.O_WRONLY|os.O_CREATE, 0755)
+		if err != nil {
+			log.WithFields(log.Fields{"err": err}).Debug("Fail to write to log file")
+			f = os.Stdout
+		}
+		log.SetOutput(f)
+	} else {
+		log.SetOutput(os.Stdout)
+	}
+}
+
+func init() {
+	// before init logger
+	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	log.SetLevel(log.DebugLevel)
+	// load config
+	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("CONSUL_ENDPOINT"))
+	// init logger from config
+	initLogger()
+
+	hashName = viper.GetString("redis_writer.hash_name")
 
 	RedisPool = &redis.Pool{
-		MaxIdle:     3,
-		MaxActive:   0, // When zero, there is no limit on the number of connections in the pool.
-		IdleTimeout: 30 * time.Second,
+		MaxIdle:     viper.GetInt("redis.max_idel"),
+		MaxActive:   viper.GetInt("redis.max_active"), // When zero, there is no limit on the number of connections in the pool.
+		IdleTimeout: time.Duration(viper.GetInt("redis.idel_timeout")) * time.Second,
 		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", hostName+":"+port)
+			conn, err := redis.Dial("tcp", viper.GetString("redis.server")+":"+viper.GetString("redis.port"))
 			if err != nil {
 				log.WithFields(log.Fields{"err": err}).Error("Redis pool dial error")
 			}
