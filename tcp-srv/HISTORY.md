@@ -1,4 +1,7 @@
-# Done
+# History
+
+## Done
+
 - [x] evaluate scheduler
 - [x] evaluate scheduler with zmq
 - [x] hacking cron package
@@ -23,10 +26,8 @@
 - [x] unify types definitions
 - [x] support docker compose
 
-# TODO
-- [ ] define request type
+## Backlog:
 
-# Backlog:
 - if scheduler is stop, trigger requests directly.
 - handle default port if not set
 - handle data length

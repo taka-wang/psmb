@@ -5,7 +5,7 @@ import "errors"
 // Service
 
 var (
-	// ErrTodo is the error of todo
+	// ErrTodo is the error of TODO
 	ErrTodo = errors.New("TODO")
 
 	// ErrCasting is the error when type assert fail

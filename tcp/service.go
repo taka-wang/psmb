@@ -130,7 +130,6 @@ func NewService(reader, writer, history, sch string) (IProactiveService, error) 
 func Marshal(r interface{}) (string, error) {
 	bytes, err := json.Marshal(r) // marshal to json string
 	if err != nil {
-		// TODO: remove table
 		return "", ErrMarshal
 	}
 	return string(bytes), nil
@@ -745,7 +744,7 @@ func (b *Service) ParseResponse(msg []string) (interface{}, error) {
 }
 
 // HandleResponse handle responses from modbusd,
-// Todo: filter, handle
+// TODO: filter, handle
 func (b *Service) HandleResponse(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle response from modbusd")
 
