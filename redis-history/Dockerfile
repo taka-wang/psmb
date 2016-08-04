@@ -1,7 +1,7 @@
 FROM takawang/gozmq:pull
 MAINTAINER Taka Wang <taka@cmwang.net>
 
-ENV PSMBTCP_CONFIG "/etc/psmbtcp"
+#ENV PSMBTCP_CONFIG "/etc/psmbtcp"
 
 WORKDIR /go
 RUN go get -u github.com/taka-wang/psmb
@@ -12,7 +12,7 @@ RUN go get -u github.com/spf13/viper
 ## Load app files
 ADD . /go/src/github.com/taka-wang/psmb/redis-history
 # add config file
-#ADD config.toml ${PSMBTCP_CONFIG}/
+ADD config.toml ${PSMBTCP_CONFIG}/
 WORKDIR /go/src/github.com/taka-wang/psmb/redis-history
 
 RUN go get -t ./...

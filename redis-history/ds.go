@@ -44,7 +44,7 @@ func loadConf(path, remote string) {
 
 	// local or remote
 	if remote == "" {
-		log.Debug("Load local config file")
+		log.Debug("Try to load local config file")
 		if path == "" {
 			log.Debug("Config filepath environment variable not found, set to default")
 			path = "/etc/psmbtcp"
@@ -56,7 +56,7 @@ func loadConf(path, remote string) {
 			log.Debug("Local config file not found!")
 		}
 	} else {
-		log.Debug("Load remote config file")
+		log.Debug("Try to load remote config file")
 		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
 		viper.AddRemoteProvider("consul", remote, path)
 		err := viper.ReadRemoteConfig()
