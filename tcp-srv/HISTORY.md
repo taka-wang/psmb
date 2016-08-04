@@ -26,7 +26,7 @@
 - [x] unify types definitions
 - [x] support docker compose
 
-## Backlog:
+## Backlog
 
 - if scheduler is stop, trigger requests directly.
 - handle default port if not set

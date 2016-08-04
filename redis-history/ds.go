@@ -10,40 +10,73 @@ import (
 	"time"
 
 	"github.com/garyburd/redigo/redis"
+	"github.com/spf13/viper"
+	_ "github.com/spf13/viper/remote"
 	log "github.com/takawang/logrus"
 )
 
 var (
 	// RedisPool redis connection pool
 	RedisPool  *redis.Pool
-	hostName   string
-	port       string // "6379"
 	hashName   string // "mbtcp:last"
 	zsetPrefix string // "mbtcp:data:"
 )
 
-func init() {
-	// TODO: load config
-	port = "6379"
-	hashName = "mbtcp:last"
-	zsetPrefix = "mbtcp:data:"
+func loadConf(path, remote string) {
+	// setup viper
+	viper.SetConfigName("config")
+	viper.SetConfigType("toml")
 
-	// lookup IP
+	// set default values
+	viper.SetDefault("redis_history.verbose", false)
+	viper.SetDefault("redis_history.port", "6379")
+	viper.SetDefault("redis_history.hash_name", "mbtcp:latest")
+	viper.SetDefault("redis_history.zset_prefix", "mbtcp:data:")
+	viper.SetDefault("redis_history.max_idel", 3)
+	viper.SetDefault("redis_history.max_active", 0)
+	viper.SetDefault("redis_history.idel_timeout", 30)
+
+	// lookup redis server
 	host, err := net.LookupHost("redis")
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
-		hostName = "127.0.0.1"
+		viper.SetDefault("redis_history.server", "127.0.0.1")
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
-		hostName = host[0] //docker
+		viper.SetDefault("redis_history.server", host[0])
 	}
 
+	// local or remote
+	if remote == "" {
+		// ex: viper.AddConfigPath("/go/src/github.com/taka-wang/psmb")
+		viper.AddConfigPath(path)
+		err := viper.ReadInConfig()
+		if err != nil {
+			log.Debug("Local config file not found!")
+		}
+	} else {
+		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
+		viper.AddRemoteProvider("consul", remote, path)
+		err := viper.ReadRemoteConfig()
+		if err != nil {
+			log.Debug("Remote config file not found!")
+		}
+	}
+}
+
+func init() {
+
+	loadConf("/etc/psmbtcp", "") // load config
+
+	hashName = viper.GetString("redis_history.hash_name")
+	zsetPrefix = viper.GetString("redis_history.zset_prefix")
+
 	RedisPool = &redis.Pool{
-		MaxIdle:     3,
-		MaxActive:   0, // When zero, there is no limit on the number of connections in the pool.
-		IdleTimeout: 30 * time.Second,
+		MaxIdle:     viper.GetInt("redis_history.max_idel"),
+		MaxActive:   viper.GetInt("redis_history.max_active"), // When zero, there is no limit on the number of connections in the pool.
+		IdleTimeout: viper.GetInt("redis_history.idel_timeout") * time.Second,
 		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", hostName+":"+port)
+			conn, err := redis.Dial("tcp", viper.GetString("redis_history.server")+":"+viper.GetString("redis_history.port"))
 			if err != nil {
 				log.WithFields(log.Fields{"err": err}).Error("Redis pool dial error")
 			}

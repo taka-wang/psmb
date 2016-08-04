@@ -1,0 +1,11 @@
+# TOML config for redis-history
+
+[redis_history]
+verbose = false
+server = "127.0.0.1"        # redis server ip
+port = "6379"               # redis server port
+hash_name = "mbtcp:latest"  # redis hash table name
+zset_prefix = "mbtcp:data:" # redis zset key prefix
+max_idel = 3                # maximum number of idle connections in the pool.
+max_active = 0              # maximum number of connections allocated by the pool at a given time. When zero, there is no limit on the number of connections in the pool.
+idel_timeout = 30           # close connections after remaining idle for this duration. If the value is zero, then idle connections are not closed.

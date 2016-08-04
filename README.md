@@ -14,7 +14,6 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 - IWriterTaskDataStore: write task map
 - IHistoryDataStore: history map
 
-
 ## Docker
 
 ### Docker Compose
@@ -46,7 +45,6 @@ docker run -v /tmp:/tmp --link slave -it takawang/dummy-srv
 ## Continuous Integration
 
 I do continuous integration and build docker images after git push by self-hosted drone.io server and [dockerhub]((https://hub.docker.com/r/takawang/c-modbus-slave/)) service.
-
 
 ## Deployment Diagram
 
@@ -99,7 +97,6 @@ I do continuous integration and build docker images after git push by self-hoste
     - [x] `LinearScalingRegisters` test - (0,0,0,0)
     - [x] `LinearScalingRegisters` test - reverse
 
-
 ### Types
 
 #### Upstream structure test
@@ -128,6 +125,6 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ---
 
-## UML 
+## UML
 
 ![uml](http://plantuml.com/plantuml/svg/5SZR3O0W3030LNG0wR_RbDe04Ghf8wnllCyxcr2FXqFxKTsNtG2AEvNcDN8OAqrn5ayq1pY-U6sK0Yj6Xu7ch40TpM3PoEdl3m00)
