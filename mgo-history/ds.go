@@ -19,15 +19,14 @@ import (
 
 var (
 	mongoDBDialInfo *mgo.DialInfo
-	dbName          string
-	cDataName       string
+	databaseName    string
+	collectionName  string
 )
 
 func loadConf(path, backend, endpoint string) {
 	// setup viper
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
-
 	// set default log values
 	viper.SetDefault("log.debug", true)
 	viper.SetDefault("log.json", false)
@@ -42,8 +41,7 @@ func loadConf(path, backend, endpoint string) {
 	viper.SetDefault("mongo.authentication", false)
 	viper.SetDefault("mongo.username", "username")
 	viper.SetDefault("mongo.password", "password")
-
-	// set default redis-history values
+	// set default mongo-history values
 	viper.SetDefault("mgo-history.db_name", "test")
 	viper.SetDefault("mgo-history.collection_name", "mbtcp:history")
 
@@ -121,8 +119,8 @@ func init() {
 	// init logger from config
 	initLogger()
 
-	dbName = viper.GetString("mgo-history.db_name")
-	cDataName = viper.GetString("mgo-history.collection_name")
+	databaseName = viper.GetString("mgo-history.db_name")
+	collectionName = viper.GetString("mgo-history.collection_name")
 
 	if viper.GetBool("mongo.authentication") {
 		// We need this object to establish a session to our MongoDB.
@@ -172,7 +170,7 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 	// Drop Database
 	if viper.GetBool("mongo.is_drop") {
 		sessionCopy := pool.Copy()
-		err = sessionCopy.DB(dbName).DropDatabase()
+		err = sessionCopy.DB(databaseName).DropDatabase()
 		if err != nil {
 			log.WithFields(log.Fields{"err": err}).Error("Fail to drop database")
 		}
@@ -209,7 +207,7 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	defer ds.closeSession(session)
 
 	// Collection history
-	c := session.DB(dbName).C(cDataName)
+	c := session.DB(databaseName).C(collectionName)
 	if err := c.Insert(&blob{Name: name, Data: data, Timestamp: time.Now().UTC().UnixNano()}); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Fail to add to history collection")
 		return err
@@ -227,7 +225,7 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	defer ds.closeSession(session)
 
 	// Collection history
-	c := session.DB(dbName).C(cDataName)
+	c := session.DB(databaseName).C(collectionName)
 	var results []blob
 	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").Limit(limit).All(&results); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
@@ -261,7 +259,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	defer ds.closeSession(session)
 
 	// Collection history
-	c := session.DB(dbName).C(cDataName)
+	c := session.DB(databaseName).C(collectionName)
 	var results []blob
 	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").All(&results); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("GetAll")
@@ -295,7 +293,7 @@ func (ds *dataStore) GetLatest(name string) (string, error) {
 	defer ds.closeSession(session)
 
 	// Collection latest
-	c := session.DB(dbName).C(cDataName)
+	c := session.DB(databaseName).C(collectionName)
 	result := blob{}
 
 	// Query latest
