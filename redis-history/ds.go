@@ -61,7 +61,6 @@ func loadConf(path, backend, endpoint string) {
 			log.Debug("Endpoint environment variable not found!")
 			return
 		}
-		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
 		log.WithFields(log.Fields{
 			"backend":  backend,
 			"endpoint": endpoint,
@@ -70,7 +69,7 @@ func loadConf(path, backend, endpoint string) {
 		viper.AddRemoteProvider(backend, endpoint, path)
 		err := viper.ReadRemoteConfig()
 		if err != nil {
-			log.Debug("Remote config file not found!")
+			log.WithFields(log.Fields{"err": err}).Debug("Remote config file not found!")
 		}
 	}
 
