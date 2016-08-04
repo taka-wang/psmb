@@ -46,7 +46,7 @@ func loadConf(path, remote string) {
 	if remote == "" {
 		log.Debug("Load local config file")
 		if path == "" {
-			log.Debug("Config path not found, set to default")
+			log.Debug("Config filepath environment variable not found, set to default")
 			path = "/etc/psmbtcp"
 		}
 		// ex: viper.AddConfigPath("/go/src/github.com/taka-wang/psmb")
@@ -65,11 +65,11 @@ func loadConf(path, remote string) {
 		}
 	}
 
+	// note: for docker environment
 	// lookup redis server
 	host, err := net.LookupHost("redis")
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
-
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
 		viper.Set("redis_history.server", host[0]) // override
