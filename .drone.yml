@@ -2,6 +2,17 @@
 
 pipeline:
 
+    test-redis-history:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker-compose -f redis-history/docker-compose.yml rm -f -a
+            - docker-compose -f redis-history/docker-compose.yml pull
+            - docker-compose -f redis-history/docker-compose.yml build
+            - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f redis-history/docker-compose.yml stop
+            - docker-compose -f redis-history/docker-compose.yml rm -f -a
 
     test-psmb-tcp:
         image: takawang/dind
@@ -22,17 +33,6 @@ pipeline:
             - docker-compose stop
             - docker-compose rm -f -a
 
-    test-redis-history:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker-compose -f redis-history/docker-compose.yml rm -f -a
-            - docker-compose -f redis-history/docker-compose.yml pull
-            - docker-compose -f redis-history/docker-compose.yml build
-            - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
-            - docker-compose -f redis-history/docker-compose.yml stop
-            - docker-compose -f redis-history/docker-compose.yml rm -f -a
 
     test-redis-writer:
         image: takawang/dind
