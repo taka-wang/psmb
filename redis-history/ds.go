@@ -34,6 +34,7 @@ func loadConf(path, remote string) {
 	viper.SetDefault("log.to_file", false)
 	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
 	// set default redis values
+	viper.SetDefault("redis_history.server", "127.0.0.1")
 	viper.SetDefault("redis_history.port", "6378")
 	viper.SetDefault("redis_history.hash_name", "mbtcp:latest")
 	viper.SetDefault("redis_history.zset_prefix", "mbtcp:data:")
@@ -41,18 +42,9 @@ func loadConf(path, remote string) {
 	viper.SetDefault("redis_history.max_active", 0)
 	viper.SetDefault("redis_history.idel_timeout", 30)
 
-	// lookup redis server
-	host, err := net.LookupHost("redis")
-	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("local run")
-		viper.SetDefault("redis_history.server", "127.0.0.1")
-	} else {
-		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
-		viper.SetDefault("redis_history.server", host[0])
-	}
-
 	// local or remote
 	if remote == "" {
+		log.Debug("Load local config file")
 		if path == "" {
 			log.Debug("Config path not found, set to default")
 			path = "/etc/psmbtcp"
@@ -64,12 +56,23 @@ func loadConf(path, remote string) {
 			log.Debug("Local config file not found!")
 		}
 	} else {
+		log.Debug("Load remote config file")
 		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
 		viper.AddRemoteProvider("consul", remote, path)
 		err := viper.ReadRemoteConfig()
 		if err != nil {
 			log.Debug("Remote config file not found!")
 		}
+	}
+
+	// lookup redis server
+	host, err := net.LookupHost("redis")
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Debug("local run")
+
+	} else {
+		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
+		viper.Set("redis_history.server", host[0]) // override
 	}
 }
 
