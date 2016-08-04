@@ -74,7 +74,7 @@ func init() {
 	RedisPool = &redis.Pool{
 		MaxIdle:     viper.GetInt("redis_history.max_idel"),
 		MaxActive:   viper.GetInt("redis_history.max_active"), // When zero, there is no limit on the number of connections in the pool.
-		IdleTimeout: viper.GetInt("redis_history.idel_timeout") * time.Second,
+		IdleTimeout: time.Duration(viper.GetInt("redis_history.idel_timeout")) * time.Second,
 		Dial: func() (redis.Conn, error) {
 			conn, err := redis.Dial("tcp", viper.GetString("redis_history.server")+":"+viper.GetString("redis_history.port"))
 			if err != nil {
