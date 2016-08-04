@@ -11,7 +11,7 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/spf13/viper"
-	_ "github.com/spf13/viper/remote"
+	//_ "github.com/spf13/viper/remote"
 	log "github.com/takawang/logrus"
 )
 
