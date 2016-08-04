@@ -14,8 +14,8 @@ RUN go get -u github.com/taka-wang/psmb/tcp
 ## Load app files
 ADD . /go/src/github.com/taka-wang/psmb/redis-writer
 # add config file
-RUN ls /go/src/github.com/taka-wang/psmb/tcp
-RUN cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${PSMBTCP_CONFIG}/
+RUN mkdir -p ${PSMBTCP_CONFIG} && \ 
+    cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${PSMBTCP_CONFIG}/
 WORKDIR /go/src/github.com/taka-wang/psmb/redis-writer
 
 RUN go get -t ./...
