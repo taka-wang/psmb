@@ -16,6 +16,7 @@ ADD . /go/src/github.com/taka-wang/psmb/redis-history
 # add config file
 RUN mkdir -p ${PSMBTCP_CONFIG} && \ 
     cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${PSMBTCP_CONFIG}/
+
 WORKDIR /go/src/github.com/taka-wang/psmb/redis-history
 
 RUN go get -t ./...

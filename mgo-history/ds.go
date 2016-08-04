@@ -7,50 +7,140 @@ package history
 import (
 	"encoding/json"
 	"net"
+	"os"
 	"strconv"
 	"time"
 
+	"github.com/spf13/viper"
 	log "github.com/takawang/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 var (
-	mongoDBDialInfo   *mgo.DialInfo
-	hostName          string
-	port              string // "27017"
-	isDrop            bool
-	dbName            string
-	cDataName         string
-	connectionTimeout time.Duration
+	mongoDBDialInfo *mgo.DialInfo
+	dbName          string
+	cDataName       string
 )
 
-func init() {
-	// TODO: load config
-	isDrop = true
-	dbName = "test"
-	cDataName = "mbtcp:history"
-	connectionTimeout = 60
-	port = "27017"
+func loadConf(path, backend, endpoint string) {
+	// setup viper
+	viper.SetConfigName("config")
+	viper.SetConfigType("toml")
 
-	// lookup IP
+	// set default log values
+	viper.SetDefault("log.debug", true)
+	viper.SetDefault("log.json", false)
+	viper.SetDefault("log.to_file", false)
+	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
+	// set default mongo values
+	viper.SetDefault("mongo.server", "127.0.0.1")
+	viper.SetDefault("mongo.port", "27017")
+	viper.SetDefault("mongo.is_drop", true)
+	viper.SetDefault("mongo.connection_timeout", 60)
+	viper.SetDefault("mongo.db_name", "test")
+	viper.SetDefault("mongo.authentication", false)
+	viper.SetDefault("mongo.username", "username")
+	viper.SetDefault("mongo.password", "password")
+
+	// set default redis-history values
+	viper.SetDefault("mgo-history.db_name", "test")
+	viper.SetDefault("mgo-history.collection_name", "mbtcp:history")
+
+	// local or remote
+	if backend == "" {
+		log.Debug("Try to load local config file")
+		if path == "" {
+			log.Debug("Config environment variable not found, set to default")
+			path = "/etc/psmbtcp"
+		}
+		// ex: viper.AddConfigPath("/go/src/github.com/taka-wang/psmb")
+		viper.AddConfigPath(path)
+		err := viper.ReadInConfig()
+		if err != nil {
+			log.Debug("Local config file not found!")
+		}
+	} else {
+		log.Debug("Try to load remote config file")
+		if endpoint == "" {
+			log.Debug("Endpoint environment variable not found!")
+			return
+		}
+		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
+		viper.AddRemoteProvider(backend, endpoint, path)
+		err := viper.ReadRemoteConfig()
+		if err != nil {
+			log.Debug("Remote config file not found!")
+		}
+	}
+
+	// Note: for docker environment
+	// lookup mongo server
 	host, err := net.LookupHost("mongodb")
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
-		hostName = "127.0.0.1"
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
-		hostName = host[0] //docker
+		viper.Set("mongo.server", host[0]) // override
+	}
+}
+
+func initLogger() {
+	// set debug level
+	if viper.GetBool("log.debug") {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
+	// set log formatter
+	if viper.GetBool("log.json") {
+		log.SetFormatter(&log.JSONFormatter{})
+	} else {
+		log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	}
+	// set log output
+	if viper.GetBool("log.to_file") {
+		f, err := os.OpenFile(viper.GetString("log.filename"), os.O_WRONLY|os.O_CREATE, 0755)
+		if err != nil {
+			log.WithFields(log.Fields{"err": err}).Debug("Fail to write to log file")
+			f = os.Stdout
+		}
+		log.SetOutput(f)
+	} else {
+		log.SetOutput(os.Stdout)
+	}
+}
+
+func init() {
+
+	// before init logger
+	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	log.SetLevel(log.DebugLevel)
+	// load config
+	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("SD_BACKEND"), os.Getenv("SD_ENDPOINT"))
+	// init logger from config
+	initLogger()
+
+	dbName = viper.GetString("mgo-history.db_name")
+	cDataName = viper.GetString("mgo-history.collection_name")
+
+	if viper.GetBool("mongo.authentication") {
+		// We need this object to establish a session to our MongoDB.
+		mongoDBDialInfo = &mgo.DialInfo{
+			Addrs:    []string{viper.GetString("mongo.server") + ":" + viper.GetString("mongo.port")}, // allow multiple connection string
+			Timeout:  time.Duration(viper.GetInt("mongo.connection_timeout")) * time.Second,
+			Database: viper.GetString("mongo.db_name"),
+			Username: viper.GetString("mongo.username"),
+			Password: viper.GetString("mongo.password"),
+		}
+	} else {
+		// We need this object to establish a session to our MongoDB.
+		mongoDBDialInfo = &mgo.DialInfo{
+			Addrs:   []string{viper.GetString("mongo.server") + ":" + viper.GetString("mongo.port")}, // allow multiple connection string
+			Timeout: time.Duration(viper.GetInt("mongo.connection_timeout")) * time.Second,
+		}
 	}
 
-	// We need this object to establish a session to our MongoDB.
-	mongoDBDialInfo = &mgo.DialInfo{
-		Addrs:   []string{hostName + ":" + port}, // allow multiple connection string
-		Timeout: connectionTimeout * time.Second,
-		//Database: AuthDatabase,
-		//Username: AuthUserName,
-		//Password: AuthPassword,
-	}
 }
 
 // @Implement IHistoryDataStore contract implicitly
@@ -80,7 +170,7 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 	pool.SetMode(mgo.Monotonic, true)
 
 	// Drop Database
-	if isDrop {
+	if viper.GetBool("mongo.is_drop") {
 		sessionCopy := pool.Copy()
 		err = sessionCopy.DB(dbName).DropDatabase()
 		if err != nil {
