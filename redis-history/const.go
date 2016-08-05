@@ -32,7 +32,7 @@ const (
 	keyRedisMaxActive       = "redis.max_active"
 	keyRedisIdelTimeout     = "redis.idel_timeout"
 	defaultRedisServer      = "127.0.0.1"
-	defaultRedisPort        = "6379"
+	defaultRedisPort        = "6378"
 	defaultRedisMaxIdel     = 3
 	defaultRedisMaxActive   = 0
 	defaultRedisIdelTimeout = 30
