@@ -11,7 +11,7 @@ pipeline:
             - docker-compose -f redis-history/docker-compose.yml pull
             - docker-compose -f redis-history/docker-compose.yml build
             - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit --force-recreate
-            - docker-compose -f redis-history/docker-compose.yml stop
+            #- docker-compose -f redis-history/docker-compose.yml stop
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
 
     ci:
