@@ -84,23 +84,28 @@ type Service struct {
 
 // NewService modbus tcp proactive serivce constructor
 func NewService(reader, writer, history, sch string) (IProactiveService, error) {
+	var readerPlugin IReaderTaskDataStore
+	var writerPlugin IWriterTaskDataStore
+	var historyPlugin IHistoryDataStore
+	var schedulerPlugin cron.Scheduler
+	var err error
 	// factory methods
-	if readerPlugin, err := ReaderDataStoreCreator(reader); err != nil { // reader factory
+	if readerPlugin, err = ReaderDataStoreCreator(reader); err != nil { // reader factory
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create reader data store")
 		return nil, err
 	}
 
-	if writerPlugin, err := WriterDataStoreCreator(writer); err != nil { // writer factory
+	if writerPlugin, err = WriterDataStoreCreator(writer); err != nil { // writer factory
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create writer data store")
 		return nil, err
 	}
 
-	if historyPlugin, err := HistoryDataStoreCreator(history); err != nil { // historian factory
+	if historyPlugin, err = HistoryDataStoreCreator(history); err != nil { // historian factory
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create history data store")
 		return nil, err
 	}
 
-	if schedulerPlugin, err := SchedulerCreator(sch); err != nil { // scheduler factory
+	if schedulerPlugin, err = SchedulerCreator(sch); err != nil { // scheduler factory
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create scheduler")
 		return nil, err
 	}
