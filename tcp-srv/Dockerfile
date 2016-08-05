@@ -8,6 +8,11 @@ ENV EP_BACKEND "dev.cmwang.net:8500"
 
 WORKDIR /go
 RUN go get -u github.com/taka-wang/psmb/tcp
+RUN go get -u github.com/garyburd/redigo/redis
+RUN go get -u github.com/spf13/viper
+RUN go get -u github.com/takawang/logrus
+RUN go get -u gopkg.in/mgo.v2
+RUN go get -u gopkg.in/mgo.v2/bson
 
 ADD . /go/src/github.com/taka-wang/psmb/tcp-srv
 # add config file
