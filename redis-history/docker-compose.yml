@@ -7,5 +7,5 @@ redis-history:
     links:
         - redis
     volumes:
-        - /var:/var
+        - /var/tmp:/var/tmp
 

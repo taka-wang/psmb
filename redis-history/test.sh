@@ -7,7 +7,7 @@ go test -v
 if [ $? -eq 0 ]
 then
   echo "Successfully"
-  touch /var/success
+  touch /var/tmp/success
   exit 0
 else
   echo "Fail" >&2
