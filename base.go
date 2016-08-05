@@ -9,15 +9,15 @@ import (
 	log "github.com/takawang/logrus"
 )
 
-// InitLogger generic init logger
-func InitLogger(packageName string) {
+// SetLogger generic logger init function
+func SetLogger(packageName string) {
 	// set debug level
 	if viper.GetBool(keyLogEnableDebug) {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
-	// set log formatter
+	// set log formatter, JSON or plain text
 	if viper.GetBool(keyLogToJSONFormat) {
 		log.SetFormatter(&log.JSONFormatter{})
 	} else {
@@ -36,26 +36,24 @@ func InitLogger(packageName string) {
 	}
 }
 
-//path.Join
-
-// InitConfig generic init config
+// InitConfig generic config function
 func InitConfig(packageName string) {
 	// get environment variables
-	confPath := os.Getenv(envConfPSMBTCP)
+	confPath := os.Getenv(envConfPSMBTCP) // config file location
 	if confPath == "" {
 		confPath = defaultConfigPath
 	}
-	endpoint := os.Getenv(envBackendEndpoint)
+	endpoint := os.Getenv(envBackendEndpoint) // backend endpoint, i.e., consul url
 
-	// setup viper
+	// setup config filename and extension
 	viper.SetConfigName(keyConfigName)
 	viper.SetConfigType(keyConfigType)
 
-	// local or remote
+	// local or remote config
 	if endpoint == "" {
 		log.Debug(packageName + ": Try to load 'local' config file")
 		viper.AddConfigPath(confPath)
-		err := viper.ReadInConfig()
+		err := viper.ReadInConfig() // read config from file
 		if err != nil {
 			log.Warn(packageName + ": Fail to load 'local' config file, not found!")
 		} else {
@@ -65,7 +63,7 @@ func InitConfig(packageName string) {
 		log.Debug(packageName + ": Try to load 'remote' config file")
 		//log.WithFields(log.Fields{"endpoint": endpoint, "path": confPath}).Debug("remote debug")
 		viper.AddRemoteProvider(defaultBackendName, endpoint, path.Join(confPath, keyConfigName)+"."+keyConfigType)
-		err := viper.ReadRemoteConfig()
+		err := viper.ReadRemoteConfig() // read config from backend
 		if err != nil {
 			log.WithFields(log.Fields{"err": err}).Warn(packageName + ": Fail to load 'remote' config file, not found!")
 		} else {

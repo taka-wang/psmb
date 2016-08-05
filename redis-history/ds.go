@@ -22,7 +22,7 @@ var (
 	zsetPrefix string
 )
 
-func initConfig() {
+func setDefaults() {
 	// set default redis values
 	viper.SetDefault(keyRedisServer, defaultRedisServer)
 	viper.SetDefault(keyRedisPort, defaultRedisPort)
@@ -50,15 +50,16 @@ func init() {
 	log.SetLevel(log.DebugLevel)                            // ...
 
 	psmb.InitConfig(packageName) // init based config
-	initConfig()                 // init config
-	psmb.InitLogger(packageName) // init logger
+	setDefaults()                // set defaults
+	psmb.SetLogger(packageName)  // init logger
 
 	hashName = viper.GetString(keyHashName)
 	zsetPrefix = viper.GetString(keySetPrefix)
 
 	RedisPool = &redis.Pool{
-		MaxIdle:     viper.GetInt(keyRedisMaxIdel),
-		MaxActive:   viper.GetInt(keyRedisMaxActive), // When zero, there is no limit on the number of connections in the pool.
+		MaxIdle: viper.GetInt(keyRedisMaxIdel),
+		// MaxActive: When zero, there is no limit on the number of connections in the pool.
+		MaxActive:   viper.GetInt(keyRedisMaxActive),
 		IdleTimeout: viper.GetDuration(keyRedisIdelTimeout) * time.Second,
 		Dial: func() (redis.Conn, error) {
 			conn, err := redis.Dial("tcp", viper.GetString(keyRedisServer)+":"+viper.GetString(keyRedisPort))
@@ -79,7 +80,7 @@ type dataStore struct {
 
 // NewDataStore instantiate data store
 func NewDataStore(conf map[string]string) (interface{}, error) {
-	// get connection
+	// get connection from pool
 	conn := RedisPool.Get()
 	if nil == conn {
 		return nil, ErrConnection
@@ -91,7 +92,7 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 }
 
 func (ds *dataStore) connectRedis() error {
-	// get connection
+	// get connection from pool
 	conn := RedisPool.Get()
 	if nil == conn {
 		err := ErrConnection
@@ -136,7 +137,7 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	// fmt.Println(time.Unix(0, nanos)) => 2012-10-31 16:13:58.292387 +0000 UTC
 	//
 
-	// MULTI
+	// redis pipeline
 	ds.redis.Send("MULTI")
 	ds.redis.Send("HSET", hashName, name, string(bytes))                               // latest
 	ds.redis.Send("ZADD", zsetPrefix+name, time.Now().UTC().UnixNano(), string(bytes)) // add to zset
@@ -155,7 +156,7 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("Get")
 	}
-	// zset limit is inclusive
+	// zset limit is inclusive; zrevrange: from lateste to oldest
 	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, limit-1, "WITHSCORES"))
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
@@ -177,6 +178,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
 	}
+	// zrevrange: from lateste to oldest
 	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, -1, "WITHSCORES"))
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("GetAll")

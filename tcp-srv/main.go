@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	// register plugins
+	// register plugins explicitly
 	mbtcp.Register("MemReader", mreader.NewDataStore)
 	mbtcp.Register("MemWriter", mwriter.NewDataStore)
 	mbtcp.Register("RedisWriter", rwriter.NewDataStore)

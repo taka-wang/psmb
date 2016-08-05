@@ -54,7 +54,7 @@ func (ds *readerTaskDataStore) Add(name, tid, cmd string, req interface{}) {
 }
 
 // GetTaskByID get request via TID from read/poll task map
-// interface{}: ReaderTask
+// 	interface{}: ReaderTask
 func (ds *readerTaskDataStore) GetTaskByID(tid string) (interface{}, bool) {
 	ds.RLock()
 	task, ok := ds.idMap[tid]
@@ -72,6 +72,7 @@ func (ds *readerTaskDataStore) GetTaskByName(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from read/poll task map
+//	interface{}: []psmb.MbtcpPollStatus
 func (ds *readerTaskDataStore) GetAll() interface{} {
 	arr := []psmb.MbtcpPollStatus{}
 	ds.RLock()
@@ -95,7 +96,7 @@ func (ds *readerTaskDataStore) DeleteAll() {
 	ds.Unlock()
 }
 
-// DeleteTaskByID remove request from via TID from read/poll task map
+// DeleteTaskByID remove request via TID from read/poll task map
 func (ds *readerTaskDataStore) DeleteTaskByID(tid string) {
 	ds.RLock()
 	name, ok := ds.idName[tid]

@@ -2,7 +2,7 @@ package history
 
 // [redis]
 const (
-	defaultRedisDocker      = "redis"
+	defaultRedisDocker      = "redis" // redis service name for link
 	keyRedisServer          = "redis.server"
 	keyRedisPort            = "redis.port"
 	keyRedisMaxIdel         = "redis.max_idel"

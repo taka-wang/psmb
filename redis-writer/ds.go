@@ -20,7 +20,7 @@ var (
 	hashName  string
 )
 
-func initConfig() {
+func setDefaults() {
 	// set default redis values
 	viper.SetDefault(keyRedisServer, defaultRedisServer)
 	viper.SetDefault(keyRedisPort, defaultRedisPort)
@@ -47,14 +47,15 @@ func init() {
 	log.SetLevel(log.DebugLevel)                            // ...
 
 	psmb.InitConfig(packageName) // init based config
-	initConfig()                 // init config
-	psmb.InitLogger(packageName) // init logger
+	setDefaults()                // set defaults
+	psmb.SetLogger(packageName)  // init logger
 
 	hashName = viper.GetString(keyHashName)
 
 	RedisPool = &redis.Pool{
-		MaxIdle:     viper.GetInt(keyRedisMaxIdel),
-		MaxActive:   viper.GetInt(keyRedisMaxActive), // When zero, there is no limit on the number of connections in the pool.
+		MaxIdle: viper.GetInt(keyRedisMaxIdel),
+		// When zero, there is no limit on the number of connections in the pool.
+		MaxActive:   viper.GetInt(keyRedisMaxActive),
 		IdleTimeout: viper.GetDuration(keyRedisIdelTimeout) * time.Second,
 		Dial: func() (redis.Conn, error) {
 			conn, err := redis.Dial("tcp", viper.GetString(keyRedisServer)+":"+viper.GetString(keyRedisPort))
@@ -75,7 +76,7 @@ type writerTaskDataStore struct {
 
 // NewDataStore instantiate mbtcp write task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
-	// get connection
+	// get connection from pool
 	conn := RedisPool.Get()
 	if nil == conn {
 		return nil, ErrConnection
@@ -87,7 +88,7 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 }
 
 func (ds *writerTaskDataStore) connectRedis() error {
-	// get connection
+	// get connection from pool
 	conn := RedisPool.Get()
 	if nil == conn {
 		err := ErrConnection

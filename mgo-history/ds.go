@@ -1,4 +1,4 @@
-// Package history an redis-based data store for history.
+// Package history an mongodb-based data store for history.
 //
 // By taka@cmwang.net
 //
@@ -19,11 +19,11 @@ import (
 
 var (
 	mongoDBDialInfo *mgo.DialInfo
-	databaseName    string
-	collectionName  string
+	databaseName    string // mongo database name
+	collectionName  string // mongo collection name for history
 )
 
-func initConfig() {
+func setDefaults() {
 	// set default mongo values
 	viper.SetDefault(keyMongoServer, defaultMongoServer)
 	viper.SetDefault(keyMongoPort, defaultMongoPort)
@@ -38,14 +38,14 @@ func initConfig() {
 	viper.SetDefault(keyDbName, defaultDbName)
 	viper.SetDefault(keyCollectionName, defaultCollectionName)
 
-	// Note: for docker environment
+	// Note: for docker environment,
 	// lookup mongo server
 	host, err := net.LookupHost(defaultMongoDocker)
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
-		viper.Set(keyMongoServer, host[0]) // override
+		viper.Set(keyMongoServer, host[0]) // override defaults
 	}
 }
 
@@ -54,8 +54,8 @@ func init() {
 	log.SetLevel(log.DebugLevel)                            // ...
 
 	psmb.InitConfig(packageName) // init based config
-	initConfig()                 // init config
-	psmb.InitLogger(packageName) // init logger
+	setDefaults()                // set defaults
+	psmb.SetLogger(packageName)  // init logger
 
 	databaseName = viper.GetString(keyDbName)
 	collectionName = viper.GetString(keyCollectionName)
@@ -63,7 +63,8 @@ func init() {
 	if viper.GetBool(keyMongoEnableAuth) {
 		// We need this object to establish a session to our MongoDB.
 		mongoDBDialInfo = &mgo.DialInfo{
-			Addrs:    []string{viper.GetString(keyMongoServer) + ":" + viper.GetString(keyMongoPort)}, // allow multiple connection string
+			// allow multiple connection string
+			Addrs:    []string{viper.GetString(keyMongoServer) + ":" + viper.GetString(keyMongoPort)},
 			Timeout:  viper.GetDuration(keyMongoConnTimeout) * time.Second,
 			Database: viper.GetString(keyMongoDbName),
 			Username: viper.GetString(keyMongoUserName),
@@ -72,11 +73,21 @@ func init() {
 	} else {
 		// We need this object to establish a session to our MongoDB.
 		mongoDBDialInfo = &mgo.DialInfo{
-			Addrs:   []string{viper.GetString(keyMongoServer) + ":" + viper.GetString(keyMongoPort)}, // allow multiple connection string
+			// allow multiple connection string
+			Addrs:   []string{viper.GetString(keyMongoServer) + ":" + viper.GetString(keyMongoPort)},
 			Timeout: viper.GetDuration(keyMongoConnTimeout) * time.Second,
 		}
 	}
+}
 
+// marshal helper function
+func marshal(r interface{}) (string, error) {
+	bytes, err := json.Marshal(r)
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("marshal")
+		return "", ErrMarshal
+	}
+	return string(bytes), nil
 }
 
 // @Implement IHistoryDataStore contract implicitly
@@ -165,6 +176,7 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	// Collection history
 	c := session.DB(databaseName).C(collectionName)
 	var results []blob
+	// limit the response
 	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").Limit(limit).All(&results); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
 		return nil, err
@@ -179,7 +191,7 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 		}
 	}
 
-	// Check length
+	// Check map length
 	if len(m) == 0 {
 		err = ErrNoData
 		log.WithFields(log.Fields{"err": err}).Error("Get")
@@ -213,7 +225,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 		}
 	}
 
-	// Check length
+	// Check map length
 	if len(m) == 0 {
 		err = ErrNoData
 		log.WithFields(log.Fields{"err": err}).Error("GetAll")
@@ -246,13 +258,4 @@ func (ds *dataStore) GetLatest(name string) (string, error) {
 		return "", err
 	}
 	return ret, nil
-}
-
-func marshal(r interface{}) (string, error) {
-	bytes, err := json.Marshal(r)
-	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("marshal")
-		return "", ErrMarshal
-	}
-	return string(bytes), nil
 }

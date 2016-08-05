@@ -2,8 +2,7 @@ package history
 
 // [mongo]
 const (
-	defaultMongoDocker = "mongodb"
-
+	defaultMongoDocker      = "mongodb" // mongo service name for link
 	keyMongoServer          = "mongo.server"
 	keyMongoPort            = "mongo.port"
 	keyMongoIsDrop          = "mongo.is_drop"

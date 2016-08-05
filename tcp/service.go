@@ -25,7 +25,7 @@ var (
 	minPollInterval uint64
 )
 
-func initConfig() {
+func setDefaults() {
 	// set default psmbtcp values
 	viper.SetDefault(keyTCPDefaultPort, defaultTCPDefaultPort)
 	viper.SetDefault(keyMinConnectionTimout, defaultMinConnectionTimout)
@@ -42,8 +42,8 @@ func init() {
 	log.SetLevel(log.DebugLevel)                            // ...
 
 	InitConfig(packageName) // init psmb based config
-	initConfig()            // init config
-	InitLogger(packageName) // init psmb logger
+	setDefaults()           // set defaults
+	SetLogger(packageName)  // init psmb logger
 
 	defaultMbPort = viper.GetString(keyTCPDefaultPort)
 	minConnTimeout = int64(viper.GetInt(keyMinConnectionTimout))
@@ -138,11 +138,12 @@ func (b *Service) addToHistory(taskName string, data interface{}) {
 			"data": data,
 		}).Error("Fail to add data to history data store")
 	}
-	// TODO: remove debug message
+	/* debug
 	log.WithFields(log.Fields{
 		"name": taskName,
 		"data": data,
 	}).Debug("Add data to history data store")
+	*/
 }
 
 // Task for cron scheduler
@@ -785,7 +786,9 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 			}
 		}
 
+		//
 		// send back one-off task reponse and remove from write task map
+		//
 		respStr, err := Marshal(resp)
 		if err != nil {
 			log.WithFields(log.Fields{"error": err}).Error(err.Error())
