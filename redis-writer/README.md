@@ -8,6 +8,11 @@ Redis-based writer data store
     go get -u github.com/taka-wang/psmb/redis-writer
 ```
 
+## Environment variables
+
+- CONF_PSMBTCP: config file location
+- EP_BACKEND: remote service discovery endpoint (optional)
+
 ## Test cases
 
 - [x] TestWriterMap tests

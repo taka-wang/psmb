@@ -8,6 +8,12 @@ Mongodb-based history data store
     go get -u github.com/taka-wang/psmb/mgo-history
 ```
 
+## Environment variables
+
+- CONF_PSMBTCP: config file location
+- EP_BACKEND: remote service discovery endpoint (optional)
+
+
 ## Test cases
 
 - [x] TestHistoryMap tests

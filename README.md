@@ -7,6 +7,11 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ---
 
+## Environment variables
+
+- CONF_PSMBTCP: config file location
+- EP_BACKEND: remote service discovery endpoint (optional)
+
 ## Contracts (Interfaces)
 
 - IProactiveService: proactive service
