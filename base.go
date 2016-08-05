@@ -2,6 +2,7 @@ package psmb
 
 import (
 	"os"
+	"path"
 
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
@@ -35,10 +36,15 @@ func InitLogger(packageName string) {
 	}
 }
 
+//path.Join
+
 // InitConfig generic init config
 func InitConfig(packageName string) {
 	// get environment variables
-	path := os.Getenv(envConfPSMBTCP)
+	confPath := os.Getenv(envConfPSMBTCP)
+	if confPath == "" {
+		confPath = defaultConfigPath
+	}
 	endpoint := os.Getenv(envBackendEndpoint)
 
 	// setup viper
@@ -47,25 +53,21 @@ func InitConfig(packageName string) {
 
 	// local or remote
 	if endpoint == "" {
-		log.Debug(packageName + ": Try to load local config file")
-		if path == "" {
-			log.Warn(packageName + ": Config environment variable not found, set to default")
-			path = defaultConfigPath
-		}
-		viper.AddConfigPath(path)
+		log.Debug(packageName + ": Try to load 'local' config file")
+		viper.AddConfigPath(confPath)
 		err := viper.ReadInConfig()
 		if err != nil {
-			log.Warn(packageName + ": Local config file not found!")
+			log.Warn(packageName + ": Fail to load 'local' config file, not found!")
 		} else {
-			log.Info(packageName + ": Read local config file successfully")
+			log.Info(packageName + ": Read 'local' config file successfully")
 		}
 	} else {
-		log.Debug(packageName + ": Try to load remote config file")
-		//log.WithFields(log.Fields{"backend": backend, "endpoint": endpoint, "path": path}).Debug("remote debug")
-		viper.AddRemoteProvider(defaultBackendName, endpoint, path)
+		log.Debug(packageName + ": Try to load 'remote' config file")
+		//log.WithFields(log.Fields{"endpoint": endpoint, "path": confPath}).Debug("remote debug")
+		viper.AddRemoteProvider(defaultBackendName, endpoint, path.Join(confPath, keyConfigName)+"."+keyConfigType)
 		err := viper.ReadRemoteConfig()
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Warn("Remote config file not found!")
+			log.WithFields(log.Fields{"err": err}).Warn(packageName + ": Fail to load 'remote' config file, not found!")
 		} else {
 			log.Info(packageName + ": Read remote config file successfully")
 		}
