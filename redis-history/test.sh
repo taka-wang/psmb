@@ -8,6 +8,7 @@ if [ $? -eq 0 ]
 then
   echo "Successfully"
   touch /var/tmp/success
+  ls /var/tmp
   exit 0
 else
   echo "Fail" >&2
