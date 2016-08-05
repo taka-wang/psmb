@@ -6,7 +6,6 @@ package tcp
 
 import (
 	"encoding/json"
-	"os"
 	"strconv"
 	"time"
 
@@ -26,85 +25,29 @@ var (
 	minPollInterval uint64
 )
 
-func loadConf(path, backend, endpoint string) {
-	// setup viper
-	viper.SetConfigName("config")
-	viper.SetConfigType("toml")
-	// set default log values
-	viper.SetDefault("log.debug", true)
-	viper.SetDefault("log.json", false)
-	viper.SetDefault("log.to_file", false)
-	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
+func initConfig() {
 	// set default psmbtcp values
-	viper.SetDefault("psmbtcp.modbus_port", "502")
-	viper.SetDefault("psmbtcp.min_connection_timeout", 200000)
-	viper.SetDefault("psmbtcp.min_poll_interval", 1)
-
-	// local or remote
-	if backend == "" {
-		log.Debug("tcp: Try to load local config file")
-		if path == "" {
-			log.Debug("Config environment variable not found, set to default")
-			path = "/etc/psmbtcp"
-		}
-		viper.AddConfigPath(path)
-		err := viper.ReadInConfig()
-		if err != nil {
-			log.Debug("Local config file not found!")
-		}
-	} else {
-		log.Debug("tcp: Try to load remote config file")
-		if endpoint == "" {
-			log.Debug("Endpoint environment variable not found!")
-			return
-		}
-		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
-		viper.AddRemoteProvider(backend, endpoint, path)
-		err := viper.ReadRemoteConfig()
-		if err != nil {
-			log.Debug("Remote config file not found!")
-		}
-	}
-}
-
-func initLogger() {
-	// set debug level
-	if viper.GetBool("log.debug") {
-		log.SetLevel(log.DebugLevel)
-	} else {
-		log.SetLevel(log.InfoLevel)
-	}
-	// set log formatter
-	if viper.GetBool("log.json") {
-		log.SetFormatter(&log.JSONFormatter{})
-	} else {
-		log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	}
-	// set log output
-	if viper.GetBool("log.to_file") {
-		f, err := os.OpenFile(viper.GetString("log.filename"), os.O_WRONLY|os.O_CREATE, 0755)
-		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Debug("Fail to write to log file")
-			f = os.Stdout
-		}
-		log.SetOutput(f)
-	} else {
-		log.SetOutput(os.Stdout)
-	}
+	viper.SetDefault(keyTCPDefaultPort, defaultTCPDefaultPort)
+	viper.SetDefault(keyMinConnectionTimout, defaultMinConnectionTimout)
+	viper.SetDefault(keyPollInterval, defaultPollInterval)
+	// set default zmq values
+	viper.SetDefault(keyZmqPubUpstream, defaultZmqPubUpstream)
+	viper.SetDefault(keyZmqPubDownstream, defaultZmqPubDownstream)
+	viper.SetDefault(keyZmqSubUpstream, defaultZmqSubUpstream)
+	viper.SetDefault(keyZmqSubDownstream, defaultZmqSubDownstream)
 }
 
 func init() {
-	// before init logger
-	log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	log.SetLevel(log.DebugLevel)
-	// load config
-	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("SD_BACKEND"), os.Getenv("SD_ENDPOINT"))
-	// init logger from config
-	initLogger()
+	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
+	log.SetLevel(log.DebugLevel)                            // ...
 
-	defaultMbPort = viper.GetString("psmbtcp.modbus_port")
-	minConnTimeout = int64(viper.GetInt("psmbtcp.min_connection_timeout"))
-	minPollInterval = uint64(viper.GetInt("psmbtcp.min_poll_interval"))
+	psmb.InitConfig(packageName) // init based config
+	initConfig()                 // init config
+	psmb.InitLogger(packageName) // init logger
+
+	defaultMbPort = viper.GetString(keyTCPDefaultPort)
+	minConnTimeout = int64(viper.GetInt(keyMinConnectionTimout))
+	minPollInterval = uint64(viper.GetInt(keyPollInterval))
 }
 
 // @Implement IProactiveService contract implicitly
@@ -199,32 +142,28 @@ func (b *Service) Task(socket *zmq.Socket, req interface{}) {
 }
 
 // initZMQPub init ZMQ publishers.
-// Example:
-// 	initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
-func (b *Service) initZMQPub(toServiceEndpoint, toModbusdEndpoint string) {
+func (b *Service) initZMQPub() {
 	log.Debug("Init ZMQ Publishers")
 	// upstream publisher
 	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
-	b.pub.upstream.Bind(toServiceEndpoint)
+	b.pub.upstream.Bind(viper.GetString(keyZmqPubUpstream))
 
 	// downstream publisher
 	b.pub.downstream, _ = zmq.NewSocket(zmq.PUB)
-	b.pub.downstream.Connect(toModbusdEndpoint)
+	b.pub.downstream.Connect(viper.GetString(keyZmqPubDownstream))
 }
 
 // initZMQSub init ZMQ subscribers.
-// Example:
-// 	initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
-func (b *Service) initZMQSub(fromServiceEndpoint, fromModbusdEndpoint string) {
+func (b *Service) initZMQSub() {
 	log.Debug("Init ZMQ Subscribers")
 	// upstream subscriber
 	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
-	b.sub.upstream.Bind(fromServiceEndpoint)
+	b.sub.upstream.Bind(viper.GetString(keyZmqSubUpstream))
 	b.sub.upstream.SetSubscribe("")
 
 	// downstream subscriber
 	b.sub.downstream, _ = zmq.NewSocket(zmq.SUB)
-	b.sub.downstream.Connect(fromModbusdEndpoint)
+	b.sub.downstream.Connect(viper.GetString(keyZmqSubDownstream))
 	b.sub.downstream.SetSubscribe("")
 }
 
@@ -1183,8 +1122,8 @@ func (b *Service) Start() {
 	b.scheduler.Start()
 	b.enable = true
 	// TODO: load config
-	b.initZMQPub("ipc:///tmp/from.psmb", "ipc:///tmp/to.modbus")
-	b.initZMQSub("ipc:///tmp/to.psmb", "ipc:///tmp/from.modbus")
+	b.initZMQPub()
+	b.initZMQSub()
 	b.initZMQPoller()
 
 	// process messages from both subscriber sockets
