@@ -21,6 +21,7 @@ psmbtcpsrv:
         - modbusd
     links:
         - redis
+        - mongodb
 dummysrv:
     build: tcp-srv/test/dummy-srv/.
     volumes_from:
