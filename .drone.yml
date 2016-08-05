@@ -14,8 +14,8 @@ pipeline:
             - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
             - docker-compose -f redis-history/docker-compose.yml stop
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
-            - ls /var/tmp/
-            - cat /var/tmp/success # test
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
 
     ci:
         image: takawang/dind
