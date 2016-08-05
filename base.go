@@ -62,7 +62,7 @@ func LoadConfig(packageName string) {
 
 	// setup viper
 	viper.SetConfigName(keyConfigName)
-	viper.SetConfigType(KeyConfigType)
+	viper.SetConfigType(keyConfigType)
 
 	// local or remote
 	if endpoint == "" {

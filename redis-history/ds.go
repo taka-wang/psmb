@@ -25,9 +25,6 @@ var (
 )
 
 func loadConfig() {
-	// base load config function
-	psmb.LoadConfig()
-
 	// set default redis values
 	viper.SetDefault(keyRedisServer, defaultRedisServer)
 	viper.SetDefault(keyRedisPort, defaultRedisPort)
@@ -54,6 +51,7 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
+	psmb.LoadConfig() // load based config
 	loadConfig()      // load config
 	psmb.InitLogger() // init logger
 
