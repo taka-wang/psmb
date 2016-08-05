@@ -7,8 +7,9 @@ package history
 import (
 	"encoding/json"
 	"net"
-	"os"
 	"time"
+
+	psmb "github.com/taka-wang/psmb"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/spf13/viper"
@@ -23,42 +24,9 @@ var (
 	zsetPrefix string
 )
 
-func loadConf(path, endpoint string) {
-	// setup viper
-	viper.SetConfigName(KeyConfigName)
-	viper.SetConfigType(KeyConfigType)
-
-	// local or remote
-	if endpoint == "" {
-		log.Debug("redis-history: Try to load local config file")
-		if path == "" {
-			log.Warn("Config environment variable not found, set to default")
-			path = DefaultConfigPath
-		}
-		viper.AddConfigPath(path)
-		err := viper.ReadInConfig()
-		if err != nil {
-			log.Warn("Local config file not found!")
-		} else {
-			log.Info("Read local config file successfully")
-		}
-	} else {
-		log.Debug("redis-history: Try to load remote config file")
-		//log.WithFields(log.Fields{"backend": backend, "endpoint": endpoint, "path": path}).Debug("remote debug")
-		viper.AddRemoteProvider(DefaultBackendName, endpoint, path)
-		err := viper.ReadRemoteConfig()
-		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Warn("Remote config file not found!")
-		} else {
-			log.Info("Read remote config file successfully")
-		}
-	}
-
-	// set default log values
-	viper.SetDefault(keyLogEnableDebug, defaultLogEnableDebug)
-	viper.SetDefault(keyLogToJSONFormat, defaultLogToJSONFormat)
-	viper.SetDefault(keyLogToFile, defaultLogToFile)
-	viper.SetDefault(keyLogFileName, defaultLogFileName)
+func loadConfig() {
+	// base load config function
+	psmb.LoadConfig()
 
 	// set default redis values
 	viper.SetDefault(keyRedisServer, defaultRedisServer)
@@ -82,38 +50,12 @@ func loadConf(path, endpoint string) {
 	}
 }
 
-func initLogger() {
-	// set debug level
-	if viper.GetBool(keyLogEnableDebug) {
-		log.SetLevel(log.DebugLevel)
-	} else {
-		log.SetLevel(log.InfoLevel)
-	}
-	// set log formatter
-	if viper.GetBool(keyLogToJSONFormat) {
-		log.SetFormatter(&log.JSONFormatter{})
-	} else {
-		log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	}
-	// set log output
-	if viper.GetBool(keyLogToFile) {
-		f, err := os.OpenFile(viper.GetString(keyLogFileName), os.O_WRONLY|os.O_CREATE, 0755)
-		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Debug("Fail to create log file")
-			f = os.Stdout
-		}
-		log.SetOutput(f)
-	} else {
-		log.SetOutput(os.Stdout)
-	}
-}
-
 func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	loadConf(os.Getenv(EnvConfPSMBTCP), os.Getenv(EnvBackendEndpoint)) // load config
-	initLogger()                                                       // init logger from config
+	loadConfig()      // load config
+	psmb.InitLogger() // init logger
 
 	hashName = viper.GetString(keyHashName)
 	zsetPrefix = viper.GetString(keySetPrefix)
