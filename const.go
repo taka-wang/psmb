@@ -1,5 +1,12 @@
 package psmb
 
+// environment variable names
+const (
+	envConfPSMBTCP     = "CONF_PSMBTCP" // config path
+	envBackendEndpoint = "EP_BACKEND"   // backend endpoint
+)
+
+// config
 const (
 	defaultConfigPath  = "/etc/psmbtcp" // environment variable backup
 	defaultBackendName = "consul"       // remote backend name
@@ -7,18 +14,12 @@ const (
 	keyConfigType      = "toml"         // config file extension
 )
 
-// environment variables
-const (
-	envConfPSMBTCP     = "CONF_PSMBTCP"
-	envBackendEndpoint = "EP_BACKEND"
-)
-
 // logs
 const (
-	keyLogEnableDebug      = "log.debug"
-	keyLogToJSONFormat     = "log.json"
-	keyLogToFile           = "log.to_file"
-	keyLogFileName         = "log.filename"
+	keyLogEnableDebug      = "log.debug"    // enable debug flag
+	keyLogToJSONFormat     = "log.json"     // log to json format flag
+	keyLogToFile           = "log.to_file"  // log to file flag
+	keyLogFileName         = "log.filename" // log filename
 	defaultLogEnableDebug  = true
 	defaultLogToJSONFormat = false
 	defaultLogToFile       = false
