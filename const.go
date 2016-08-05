@@ -3,10 +3,8 @@ package psmb
 const (
 	defaultConfigPath  = "/etc/psmbtcp" // environment variable backup
 	defaultBackendName = "consul"       // remote backend name
-	keyConfigName      = "config"
-	keyConfigType      = "toml"
-	envConfPSMBTCP     = "CONF_PSMBTCP"
-	envBackendEndpoint = "EP_BACKEND"
+	keyConfigName      = "config"       // config file name
+	keyConfigType      = "toml"         // config file extension
 )
 
 // environment variables
