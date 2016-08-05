@@ -13,10 +13,12 @@ const (
 	defaultBackendName = "consul"       // remote backend name
 	keyConfigName      = "config"
 	keyConfigType      = "toml"
-	// envs
-	envConfPSMBTCP     = "CONF_PSMBTCP"
+	envConfPSMBTCP     = "CONF_PSMBTCP" // envs
 	envBackendEndpoint = "EP_BACKEND"
-	// logs
+)
+
+// logs
+const (
 	keyLogEnableDebug      = "log.debug"
 	keyLogToJSONFormat     = "log.json"
 	keyLogToFile           = "log.to_file"
@@ -54,7 +56,7 @@ func InitLogger(packageName string) {
 	}
 }
 
-// InitConfig load config
+// InitConfig init config
 func InitConfig(packageName string) {
 	// get environment variables
 	path := os.Getenv(envConfPSMBTCP)
