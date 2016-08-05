@@ -8,7 +8,7 @@ import (
 	log "github.com/takawang/logrus"
 )
 
-// InitLogger init logger
+// InitLogger generic init logger
 func InitLogger(packageName string) {
 	// set debug level
 	if viper.GetBool(keyLogEnableDebug) {
@@ -35,7 +35,7 @@ func InitLogger(packageName string) {
 	}
 }
 
-// InitConfig init config
+// InitConfig generic init config
 func InitConfig(packageName string) {
 	// get environment variables
 	path := os.Getenv(envConfPSMBTCP)
