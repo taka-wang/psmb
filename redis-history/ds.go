@@ -41,7 +41,8 @@ func setDefaults() {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Info("docker run")
-		viper.Set(keyRedisServer, host[0]) // override default
+		viper.Set(keyRedisServer, host[0])            // override default
+		viper.Set(keyRedisServer, defaultRedisServer) // TODOTODOTODO
 	}
 }
 
