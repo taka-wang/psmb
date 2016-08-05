@@ -12,9 +12,7 @@ pipeline:
             - docker-compose -f redis-history/docker-compose.yml build --no-cache
             - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
             #&& /bin/false
-            - docker-compose -f redis-history/docker-compose.yml run redis-history cat /file/does/not/exist
-            - echo $?
-
+            - docker-compose -f redis-history/docker-compose.yml run redis-history cat /go/ok
             - docker-compose -f redis-history/docker-compose.yml stop
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
 

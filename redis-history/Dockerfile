@@ -22,4 +22,5 @@ WORKDIR /go/src/github.com/taka-wang/psmb/redis-history
 RUN go get -t ./...
 
 ## Default command
-CMD ["go", "test", "-v"]
+#CMD ["go", "test", "-v"]
+cmd ./test.sh
