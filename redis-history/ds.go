@@ -16,44 +16,41 @@ import (
 	log "github.com/takawang/logrus"
 )
 
-// environment variable backup
-const defaultConfPath = "/etc/psmbtcp"
-
 var (
 	// RedisPool redis connection pool
 	RedisPool  *redis.Pool
-	hashName   string // "mbtcp:last"
-	zsetPrefix string // "mbtcp:data:"
+	hashName   string
+	zsetPrefix string
 )
 
 func loadConf(path, endpoint string) {
 	// setup viper
-	viper.SetConfigName("config")
-	viper.SetConfigType("toml")
+	viper.SetConfigName(keyConfigName)
+	viper.SetConfigType(keyConfigType)
 
 	// set default log values
-	viper.SetDefault("log.debug", true)
-	viper.SetDefault("log.json", false)
-	viper.SetDefault("log.to_file", false)
-	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
+	viper.SetDefault(keyLogDebug, defaultLogDebug)
+	viper.SetDefault(keyLogJSON, defaultLogJSON)
+	viper.SetDefault(keyLogToFile, defaultLogToFile)
+	viper.SetDefault(keyLogFileName, defaultLogFileName)
 
 	// set default redis values
-	viper.SetDefault("redis.server", "127.0.0.1")
-	viper.SetDefault("redis.port", "6379")
-	viper.SetDefault("redis.max_idel", 3)
-	viper.SetDefault("redis.max_active", 0)
-	viper.SetDefault("redis.idel_timeout", 30)
+	viper.SetDefault(keyRedisServer, defaultRedisServer)
+	viper.SetDefault(keyRedisPort, defaultRedisPort)
+	viper.SetDefault(keyRedisMaxIdel, defaultRedisMaxIdel)
+	viper.SetDefault(keyRedisMaxActive, defaultRedisMaxActive)
+	viper.SetDefault(keyRedisIdelTimeout, defaultRedisIdelTimeout)
 
 	// set default redis-history values
-	viper.SetDefault("redis_history.hash_name", "mbtcp:latest")
-	viper.SetDefault("redis_history.zset_prefix", "mbtcp:data:")
+	viper.SetDefault(keyHashName, defaultHashName)
+	viper.SetDefault(keySetPrefix, defaultSetPrefix)
 
 	// local or remote
 	if endpoint == "" {
 		log.Debug("redis-history: Try to load local config file")
 		if path == "" {
 			log.Warn("Config environment variable not found, set to default")
-			path = defaultConfPath
+			path = defaultConfigPath
 		}
 		viper.AddConfigPath(path)
 		err := viper.ReadInConfig()
@@ -65,7 +62,7 @@ func loadConf(path, endpoint string) {
 	} else {
 		log.Debug("redis-history: Try to load remote config file")
 		//log.WithFields(log.Fields{"backend": backend, "endpoint": endpoint, "path": path}).Debug("remote debug")
-		viper.AddRemoteProvider("consul", endpoint, path)
+		viper.AddRemoteProvider(defaultBackendName, endpoint, path)
 		err := viper.ReadRemoteConfig()
 		if err != nil {
 			log.WithFields(log.Fields{"err": err}).Warn("Remote config file not found!")
@@ -76,33 +73,33 @@ func loadConf(path, endpoint string) {
 
 	// Note: for docker environment
 	// lookup redis server
-	host, err := net.LookupHost("redis")
+	host, err := net.LookupHost(defaultRedisDocker)
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Info("docker run")
-		viper.Set("redis.server", host[0]) // override default
+		viper.Set(keyRedisServer, host[0]) // override default
 	}
 }
 
 func initLogger() {
 	// set debug level
-	if viper.GetBool("log.debug") {
+	if viper.GetBool(keyLogDebug) {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
 	// set log formatter
-	if viper.GetBool("log.json") {
+	if viper.GetBool(keyLogJSON) {
 		log.SetFormatter(&log.JSONFormatter{})
 	} else {
 		log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	}
 	// set log output
-	if viper.GetBool("log.to_file") {
-		f, err := os.OpenFile(viper.GetString("log.filename"), os.O_WRONLY|os.O_CREATE, 0755)
+	if viper.GetBool(keyLogToFile) {
+		f, err := os.OpenFile(viper.GetString(keyLogFileName), os.O_WRONLY|os.O_CREATE, 0755)
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Debug("Fail to write to log file")
+			log.WithFields(log.Fields{"err": err}).Debug("Fail to create log file")
 			f = os.Stdout
 		}
 		log.SetOutput(f)
@@ -115,18 +112,18 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	loadConf(os.Getenv("CONF_PSMBTCP"), os.Getenv("EP_CONSUL")) // load config
-	initLogger()                                                // init logger from config
+	loadConf(os.Getenv(envConfPSMBTCP), os.Getenv(envBackendEndpoint)) // load config
+	initLogger()                                                       // init logger from config
 
-	hashName = viper.GetString("redis_history.hash_name")
-	zsetPrefix = viper.GetString("redis_history.zset_prefix")
+	hashName = viper.GetString(keyHashName)
+	zsetPrefix = viper.GetString(keySetPrefix)
 
 	RedisPool = &redis.Pool{
-		MaxIdle:     viper.GetInt("redis.max_idel"),
-		MaxActive:   viper.GetInt("redis.max_active"), // When zero, there is no limit on the number of connections in the pool.
-		IdleTimeout: viper.GetDuration("redis.idel_timeout") * time.Second,
+		MaxIdle:     viper.GetInt(keyRedisMaxIdel),
+		MaxActive:   viper.GetInt(keyRedisMaxActive), // When zero, there is no limit on the number of connections in the pool.
+		IdleTimeout: viper.GetDuration(keyRedisIdelTimeout) * time.Second,
 		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", viper.GetString("redis.server")+":"+viper.GetString("redis.port"))
+			conn, err := redis.Dial("tcp", viper.GetString(keyRedisServer)+":"+viper.GetString(keyRedisPort))
 			if err != nil {
 				log.WithFields(log.Fields{"err": err}).Error("Redis pool dial error")
 			}

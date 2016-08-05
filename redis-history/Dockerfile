@@ -3,7 +3,7 @@ MAINTAINER Taka Wang <taka@cmwang.net>
 
 #ENV CONF_PSMBTCP "/etc/psmbtcp"
 ENV CONF_PSMBTCP "/psmbtcp/config.toml"
-ENV EP_CONSUL "dev.cmwang.net:8500"
+ENV EP_BACKEND "dev.cmwang.net:8500"
 
 WORKDIR /go
 RUN go get -u github.com/spf13/viper
