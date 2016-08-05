@@ -6,6 +6,6 @@ redis-history:
     build: .
     links:
         - redis
-    volumes:
+    volumes: # mount for test
         - /var/tmp:/var/tmp
 

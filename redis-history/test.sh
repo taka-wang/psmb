@@ -1,15 +1,14 @@
 #!/bin/bash
 
-#touch /root/test 2> /dev/null
-
+# test command
 go test -v
 
 if [ $? -eq 0 ]
 then
-  echo "Successfully"
+  echo "<<<Test PASS>>>"
   touch /var/tmp/success
   exit 0
 else
-  echo "Fail" >&2
+  echo "<<<TEST FAIL>>>" >&2
   exit 1
 fi
