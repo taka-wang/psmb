@@ -1,4 +1,4 @@
-# TOML config @20160804
+# TOML config begin
 
 [log]
 debug       = true                      # log level
@@ -46,3 +46,5 @@ min_poll_interval       = 1             # minimal poll interval in second
 [zmq.sub]
     upstream   = "ipc:///tmp/to.psmb"       # from services
     downstream = "ipc:///tmp/from.modbus"   # from modbusd
+
+# TOML config end @20160805
