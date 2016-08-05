@@ -7,11 +7,11 @@ package history
 import (
 	"encoding/json"
 	"net"
-	"os"
 	"strconv"
 	"time"
 
 	"github.com/spf13/viper"
+	psmb "github.com/taka-wang/psmb"
 	log "github.com/takawang/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -23,117 +23,57 @@ var (
 	collectionName  string
 )
 
-func loadConf(path, backend, endpoint string) {
-	// setup viper
-	viper.SetConfigName("config")
-	viper.SetConfigType("toml")
-	// set default log values
-	viper.SetDefault("log.debug", true)
-	viper.SetDefault("log.json", false)
-	viper.SetDefault("log.to_file", false)
-	viper.SetDefault("log.filename", "/var/log/psmbtcp.log")
+func initConfig() {
 	// set default mongo values
-	viper.SetDefault("mongo.server", "127.0.0.1")
-	viper.SetDefault("mongo.port", "27017")
-	viper.SetDefault("mongo.is_drop", true)
-	viper.SetDefault("mongo.connection_timeout", 60)
-	viper.SetDefault("mongo.db_name", "test")
-	viper.SetDefault("mongo.authentication", false)
-	viper.SetDefault("mongo.username", "username")
-	viper.SetDefault("mongo.password", "password")
-	// set default mongo-history values
-	viper.SetDefault("mgo-history.db_name", "test")
-	viper.SetDefault("mgo-history.collection_name", "mbtcp:history")
+	viper.SetDefault(keyMongoServer, defaultMongoServer)
+	viper.SetDefault(keyMongoPort, defaultMongoPort)
+	viper.SetDefault(keyMongoIsDrop, defaultMongoIsDrop)
+	viper.SetDefault(keyMongoConnTimeout, defaultMongoConnTimeout)
+	viper.SetDefault(keyMongoDbName, defaultMongoDbName)
+	viper.SetDefault(keyMongoEnableAuth, defaultMongoEnableAuth)
+	viper.SetDefault(keyMongoUserName, defaultMongoUserName)
+	viper.SetDefault(keyMongoPassword, defaultMongoPassword)
 
-	// local or remote
-	if backend == "" {
-		log.Debug("mgo-history: Try to load local config file")
-		if path == "" {
-			log.Debug("Config environment variable not found, set to default")
-			path = "/etc/psmbtcp"
-		}
-		viper.AddConfigPath(path)
-		err := viper.ReadInConfig()
-		if err != nil {
-			log.Debug("Local config file not found!")
-		}
-	} else {
-		log.Debug("mgo-history: Try to load remote config file")
-		if endpoint == "" {
-			log.Debug("Endpoint environment variable not found!")
-			return
-		}
-		// ex: viper.AddRemoteProvider("consul", "192.168.33.10:8500", "/etc/psmbtcp.toml")
-		viper.AddRemoteProvider(backend, endpoint, path)
-		err := viper.ReadRemoteConfig()
-		if err != nil {
-			log.Debug("Remote config file not found!")
-		}
-	}
+	// set default mongo-history values
+	viper.SetDefault(keyDbName, defaultDbName)
+	viper.SetDefault(keyCollectionName, defaultCollectionName)
 
 	// Note: for docker environment
 	// lookup mongo server
-	host, err := net.LookupHost("mongodb")
+	host, err := net.LookupHost(defaultMongoDocker)
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
-		viper.Set("mongo.server", host[0]) // override
-	}
-}
-
-func initLogger() {
-	// set debug level
-	if viper.GetBool("log.debug") {
-		log.SetLevel(log.DebugLevel)
-	} else {
-		log.SetLevel(log.InfoLevel)
-	}
-	// set log formatter
-	if viper.GetBool("log.json") {
-		log.SetFormatter(&log.JSONFormatter{})
-	} else {
-		log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	}
-	// set log output
-	if viper.GetBool("log.to_file") {
-		f, err := os.OpenFile(viper.GetString("log.filename"), os.O_WRONLY|os.O_CREATE, 0755)
-		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Debug("Fail to write to log file")
-			f = os.Stdout
-		}
-		log.SetOutput(f)
-	} else {
-		log.SetOutput(os.Stdout)
+		viper.Set(keyMongoServer, host[0]) // override
 	}
 }
 
 func init() {
-	// before init logger
-	log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	log.SetLevel(log.DebugLevel)
-	// load config
-	loadConf(os.Getenv("PSMBTCP_CONFIG"), os.Getenv("SD_BACKEND"), os.Getenv("SD_ENDPOINT"))
-	// init logger from config
-	initLogger()
+	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
+	log.SetLevel(log.DebugLevel)                            // ...
 
-	databaseName = viper.GetString("mgo-history.db_name")
-	collectionName = viper.GetString("mgo-history.collection_name")
+	psmb.InitConfig(packageName) // init based config
+	initConfig()                 // init config
+	psmb.InitLogger(packageName) // init logger
 
-	if viper.GetBool("mongo.authentication") {
+	databaseName = viper.GetString(keyDbName)
+	collectionName = viper.GetString(keyCollectionName)
+
+	if viper.GetBool(keyMongoEnableAuth) {
 		// We need this object to establish a session to our MongoDB.
 		mongoDBDialInfo = &mgo.DialInfo{
-			Addrs:    []string{viper.GetString("mongo.server") + ":" + viper.GetString("mongo.port")}, // allow multiple connection string
-			Timeout:  viper.GetDuration("mongo.connection_timeout") * time.Second,
-			Database: viper.GetString("mongo.db_name"),
-			Username: viper.GetString("mongo.username"),
-			Password: viper.GetString("mongo.password"),
+			Addrs:    []string{viper.GetString(keyMongoServer) + ":" + viper.GetString(keyMongoPort)}, // allow multiple connection string
+			Timeout:  viper.GetDuration(keyMongoConnTimeout) * time.Second,
+			Database: viper.GetString(keyMongoDbName),
+			Username: viper.GetString(keyMongoUserName),
+			Password: viper.GetString(keyMongoPassword),
 		}
 	} else {
 		// We need this object to establish a session to our MongoDB.
 		mongoDBDialInfo = &mgo.DialInfo{
-			Addrs:   []string{viper.GetString("mongo.server") + ":" + viper.GetString("mongo.port")}, // allow multiple connection string
-			Timeout: viper.GetDuration("mongo.connection_timeout") * time.Second,
+			Addrs:   []string{viper.GetString(keyMongoServer) + ":" + viper.GetString(keyMongoPort)}, // allow multiple connection string
+			Timeout: viper.GetDuration(keyMongoConnTimeout) * time.Second,
 		}
 	}
 
@@ -166,7 +106,7 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 	pool.SetMode(mgo.Monotonic, true)
 
 	// Drop Database
-	if viper.GetBool("mongo.is_drop") {
+	if viper.GetBool(keyMongoIsDrop) {
 		sessionCopy := pool.Copy()
 		err = sessionCopy.DB(databaseName).DropDatabase()
 		if err != nil {
