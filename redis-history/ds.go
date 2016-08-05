@@ -25,12 +25,38 @@ var (
 
 func loadConf(path, endpoint string) {
 	// setup viper
-	viper.SetConfigName(keyConfigName)
-	viper.SetConfigType(keyConfigType)
+	viper.SetConfigName(KeyConfigName)
+	viper.SetConfigType(KeyConfigType)
+
+	// local or remote
+	if endpoint == "" {
+		log.Debug("redis-history: Try to load local config file")
+		if path == "" {
+			log.Warn("Config environment variable not found, set to default")
+			path = DefaultConfigPath
+		}
+		viper.AddConfigPath(path)
+		err := viper.ReadInConfig()
+		if err != nil {
+			log.Warn("Local config file not found!")
+		} else {
+			log.Info("Read local config file successfully")
+		}
+	} else {
+		log.Debug("redis-history: Try to load remote config file")
+		//log.WithFields(log.Fields{"backend": backend, "endpoint": endpoint, "path": path}).Debug("remote debug")
+		viper.AddRemoteProvider(DefaultBackendName, endpoint, path)
+		err := viper.ReadRemoteConfig()
+		if err != nil {
+			log.WithFields(log.Fields{"err": err}).Warn("Remote config file not found!")
+		} else {
+			log.Info("Read remote config file successfully")
+		}
+	}
 
 	// set default log values
-	viper.SetDefault(keyLogDebug, defaultLogDebug)
-	viper.SetDefault(keyLogJSON, defaultLogJSON)
+	viper.SetDefault(keyLogEnableDebug, defaultLogEnableDebug)
+	viper.SetDefault(keyLogToJSONFormat, defaultLogToJSONFormat)
 	viper.SetDefault(keyLogToFile, defaultLogToFile)
 	viper.SetDefault(keyLogFileName, defaultLogFileName)
 
@@ -45,32 +71,6 @@ func loadConf(path, endpoint string) {
 	viper.SetDefault(keyHashName, defaultHashName)
 	viper.SetDefault(keySetPrefix, defaultSetPrefix)
 
-	// local or remote
-	if endpoint == "" {
-		log.Debug("redis-history: Try to load local config file")
-		if path == "" {
-			log.Warn("Config environment variable not found, set to default")
-			path = defaultConfigPath
-		}
-		viper.AddConfigPath(path)
-		err := viper.ReadInConfig()
-		if err != nil {
-			log.Warn("Local config file not found!")
-		} else {
-			log.Info("Read local config file successfully")
-		}
-	} else {
-		log.Debug("redis-history: Try to load remote config file")
-		//log.WithFields(log.Fields{"backend": backend, "endpoint": endpoint, "path": path}).Debug("remote debug")
-		viper.AddRemoteProvider(defaultBackendName, endpoint, path)
-		err := viper.ReadRemoteConfig()
-		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Warn("Remote config file not found!")
-		} else {
-			log.Info("Read remote config file successfully")
-		}
-	}
-
 	// Note: for docker environment
 	// lookup redis server
 	host, err := net.LookupHost(defaultRedisDocker)
@@ -84,13 +84,13 @@ func loadConf(path, endpoint string) {
 
 func initLogger() {
 	// set debug level
-	if viper.GetBool(keyLogDebug) {
+	if viper.GetBool(keyLogEnableDebug) {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
 	// set log formatter
-	if viper.GetBool(keyLogJSON) {
+	if viper.GetBool(keyLogToJSONFormat) {
 		log.SetFormatter(&log.JSONFormatter{})
 	} else {
 		log.SetFormatter(&log.TextFormatter{ForceColors: true})
@@ -112,7 +112,7 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	loadConf(os.Getenv(envConfPSMBTCP), os.Getenv(envBackendEndpoint)) // load config
+	loadConf(os.Getenv(EnvConfPSMBTCP), os.Getenv(EnvBackendEndpoint)) // load config
 	initLogger()                                                       // init logger from config
 
 	hashName = viper.GetString(keyHashName)

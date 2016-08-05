@@ -1,26 +1,26 @@
 package history
 
 const (
-	defaultConfigPath  = "/etc/psmbtcp" // environment variable backup
-	defaultBackendName = "consul"       // remote backend name
+	DefaultConfigPath  = "/etc/psmbtcp" // environment variable backup
+	DefaultBackendName = "consul"       // remote backend name
 	// config
-	keyConfigName = "config"
-	keyConfigType = "toml"
+	KeyConfigName = "config"
+	KeyConfigType = "toml"
 	// environment variable name
-	envConfPSMBTCP     = "CONF_PSMBTCP"
-	envBackendEndpoint = "EP_BACKEND"
+	EnvConfPSMBTCP     = "CONF_PSMBTCP"
+	EnvBackendEndpoint = "EP_BACKEND"
 )
 
 // [log]
 const (
-	keyLogDebug        = "log.debug"
-	keyLogJSON         = "log.json"
-	keyLogToFile       = "log.to_file"
-	keyLogFileName     = "log.filename"
-	defaultLogDebug    = true
-	defaultLogJSON     = false
-	defaultLogToFile   = false
-	defaultLogFileName = "/var/log/psmbtcp.log"
+	keyLogEnableDebug      = "log.debug"
+	keyLogToJSONFormat     = "log.json"
+	keyLogToFile           = "log.to_file"
+	keyLogFileName         = "log.filename"
+	defaultLogEnableDebug  = true
+	defaultLogToJSONFormat = false
+	defaultLogToFile       = false
+	defaultLogFileName     = "/var/log/psmbtcp.log"
 )
 
 // [redis]
