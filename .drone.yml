@@ -14,14 +14,12 @@ pipeline:
             - docker-compose stop
             - docker-compose rm -f -a
 
-
     test-psmbtcp-srv:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true tcp-srv/.
-
 
     test-psmb-tcp:
         image: takawang/dind

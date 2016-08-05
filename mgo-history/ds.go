@@ -241,8 +241,8 @@ func (ds *dataStore) GetLatest(name string) (string, error) {
 	}
 
 	// marshal to string
-	ret, err1 := marshal(result.Data)
-	if err1 != nil {
+	ret, err := marshal(result.Data)
+	if err != nil {
 		return "", err
 	}
 	return ret, nil
