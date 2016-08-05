@@ -12,9 +12,8 @@ pipeline:
             - docker-compose -f redis-history/docker-compose.yml build --no-cache
             #- docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
             #&& /bin/false
-            - exec 5>&1
-            - log=$(docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit | tee /dev/fd/5)
-            - exitcode=$(echo $log | grep 'exited with code' | sed 's/^.*exited with code \([0-9]\+\).*$/\1/g')
+            - docker-compose -f redis-history/docker-compose.yml -d redis
+            - docker-compose -f redis-history/docker-compose.yml run redis-history
 
             - docker-compose -f redis-history/docker-compose.yml stop
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
