@@ -6,3 +6,5 @@ redis-history:
     build: .
     links:
         - redis
+    volumes:
+        - /tmp:/tmp
