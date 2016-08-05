@@ -46,7 +46,7 @@ func init() {
 	SetLogger(packageName)  // init psmb logger
 
 	defaultMbPort = viper.GetString(keyTCPDefaultPort)
-	minConnTimeout = int64(viper.GetInt(keyMinConnectionTimout))
+	minConnTimeout = viper.GetInt64(keyMinConnectionTimout)
 	minPollInterval = uint64(viper.GetInt(keyPollInterval))
 }
 

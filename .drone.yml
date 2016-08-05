@@ -2,6 +2,18 @@
 
 pipeline:
 
+    test-redis-history:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker-compose -f redis-history/docker-compose.yml rm -f -a
+            - docker-compose -f redis-history/docker-compose.yml pull
+            - docker-compose -f redis-history/docker-compose.yml build
+            - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f redis-history/docker-compose.yml stop
+            - docker-compose -f redis-history/docker-compose.yml rm -f -a
+
     ci:
         image: takawang/dind
         volumes:
@@ -28,17 +40,6 @@ pipeline:
         commands:
             - docker build --no-cache=true tcp/.
 
-    test-redis-history:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker-compose -f redis-history/docker-compose.yml rm -f -a
-            - docker-compose -f redis-history/docker-compose.yml pull
-            - docker-compose -f redis-history/docker-compose.yml build
-            - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
-            - docker-compose -f redis-history/docker-compose.yml stop
-            - docker-compose -f redis-history/docker-compose.yml rm -f -a
 
     test-mgo-history:
         image: takawang/dind
