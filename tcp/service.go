@@ -41,9 +41,9 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	psmb.InitConfig(packageName) // init based config
-	initConfig()                 // init config
-	psmb.InitLogger(packageName) // init logger
+	InitConfig(packageName) // init psmb based config
+	initConfig()            // init config
+	InitLogger(packageName) // init psmb logger
 
 	defaultMbPort = viper.GetString(keyTCPDefaultPort)
 	minConnTimeout = int64(viper.GetInt(keyMinConnectionTimout))

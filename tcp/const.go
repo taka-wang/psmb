@@ -2,7 +2,7 @@ package tcp
 
 // [psmbtcp]
 const (
-	packageName                = "mbtcp"
+	packageName                = "tcp"
 	keyTCPDefaultPort          = "psmbtcp.default_port"
 	keyMinConnectionTimout     = "psmbtcp.min_connection_timeout"
 	keyPollInterval            = "psmbtcp.min_poll_interval"

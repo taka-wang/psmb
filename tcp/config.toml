@@ -40,9 +40,9 @@ min_connection_timeout  = 200000        # minimal tcp connection timeout in ms
 min_poll_interval       = 1             # minimal poll interval in second
 
 [zmq]
-    [zmq.pub]
-        upstream   = "ipc:///tmp/from.psmb"     # to services
-        downstream = "ipc:///tmp/to.modbus"     # to modbusd
-    [zmq.sub]
-        upstream   = "ipc:///tmp/to.psmb"       # from services
-        downstream = "ipc:///tmp/from.modbus"   # from modbusd
+[zmq.pub]
+    upstream   = "ipc:///tmp/from.psmb"     # to services
+    downstream = "ipc:///tmp/to.modbus"     # to modbusd
+[zmq.sub]
+    upstream   = "ipc:///tmp/to.psmb"       # from services
+    downstream = "ipc:///tmp/from.modbus"   # from modbusd
