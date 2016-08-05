@@ -6,6 +6,7 @@ pipeline:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp
         commands:
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
             - docker-compose -f redis-history/docker-compose.yml pull
