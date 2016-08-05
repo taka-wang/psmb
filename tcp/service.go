@@ -134,7 +134,7 @@ func (b *Service) addToHistory(taskName string, data interface{}) {
 	if err := b.historyMap.Add(taskName, data); err != nil {
 		log.WithFields(log.Fields{
 			"err":  err,
-			"name": task.Name,
+			"name": taskName,
 			"data": data,
 		}).Error("Fail to add to history data store")
 	}
@@ -1097,7 +1097,6 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					data = res.Data
 					status = res.Status
 					b.addToHistory(task.Name, data) // add to history
-
 				}
 
 				// shared response
