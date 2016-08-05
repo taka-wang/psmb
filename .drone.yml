@@ -2,12 +2,6 @@
 
 pipeline:
 
-    test-psmb-tcp:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true tcp/.
 
     ci:
         image: takawang/dind
@@ -20,6 +14,14 @@ pipeline:
             - docker-compose up --abort-on-container-exit
             - docker-compose stop
             - docker-compose rm -f -a
+
+
+    test-psmb-tcp:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true tcp/.
 
     test-redis-history:
         image: takawang/dind

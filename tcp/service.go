@@ -1121,7 +1121,7 @@ func (b *Service) Start() {
 	log.Debug("Start proactive service")
 	b.scheduler.Start()
 	b.enable = true
-	// TODO: load config
+
 	b.initZMQPub()
 	b.initZMQSub()
 	b.initZMQPoller()
