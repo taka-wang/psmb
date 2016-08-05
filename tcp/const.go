@@ -1,5 +1,13 @@
 package tcp
 
+// plugin name
+const (
+	readerPluginName    = "ReaderPlugin"
+	writerPluginName    = "WriterPlugin"
+	schedulerPluginName = "SchedulerPlugin"
+	historyPluginName   = "HistoryPlugin"
+)
+
 // [psmbtcp]
 const (
 	packageName                = "tcp"
