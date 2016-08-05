@@ -1,9 +1,9 @@
 FROM takawang/gozmq:pull
 MAINTAINER Taka Wang <taka@cmwang.net>
 
-ENV PSMBTCP_CONFIG "/etc/psmbtcp"
-#ENV SD_ENDPOINT "127.0.0.1:8500"
-#ENV SD_BACKEND "consul"
+#ENV CONF_PSMBTCP "/etc/psmbtcp"
+ENV CONF_PSMBTCP "/psmbtcp/config.toml"
+ENV EP_BACKEND "dev.cmwang.net:8500"
 
 WORKDIR /go
 RUN go get -u github.com/spf13/viper

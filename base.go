@@ -8,27 +8,6 @@ import (
 	log "github.com/takawang/logrus"
 )
 
-const (
-	defaultConfigPath  = "/etc/psmbtcp" // environment variable backup
-	defaultBackendName = "consul"       // remote backend name
-	keyConfigName      = "config"
-	keyConfigType      = "toml"
-	envConfPSMBTCP     = "CONF_PSMBTCP" // envs
-	envBackendEndpoint = "EP_BACKEND"
-)
-
-// logs
-const (
-	keyLogEnableDebug      = "log.debug"
-	keyLogToJSONFormat     = "log.json"
-	keyLogToFile           = "log.to_file"
-	keyLogFileName         = "log.filename"
-	defaultLogEnableDebug  = true
-	defaultLogToJSONFormat = false
-	defaultLogToFile       = false
-	defaultLogFileName     = "/var/log/psmbtcp.log"
-)
-
 // InitLogger init logger
 func InitLogger(packageName string) {
 	// set debug level

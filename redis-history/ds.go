@@ -9,11 +9,9 @@ import (
 	"net"
 	"time"
 
-	psmb "github.com/taka-wang/psmb"
-
 	"github.com/garyburd/redigo/redis"
 	"github.com/spf13/viper"
-	_ "github.com/spf13/viper/remote"
+	psmb "github.com/taka-wang/psmb"
 	log "github.com/takawang/logrus"
 )
 
@@ -51,9 +49,9 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	psmb.InitConfig("redis-history") // init based config
-	initConfig()                     // init config
-	psmb.InitLogger("redis-history") // init logger
+	psmb.InitConfig(packageName) // init based config
+	initConfig()                 // init config
+	psmb.InitLogger(packageName) // init logger
 
 	hashName = viper.GetString(keyHashName)
 	zsetPrefix = viper.GetString(keySetPrefix)

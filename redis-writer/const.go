@@ -1,4 +1,4 @@
-package history
+package writer
 
 // [redis]
 const (
@@ -15,11 +15,9 @@ const (
 	defaultRedisIdelTimeout = 30
 )
 
-// [redis_history]
+// [redis_writer]
 const (
-	packageName      = "redis_history"
-	keyHashName      = "redis_history.hash_name"
-	keySetPrefix     = "redis_history.zset_prefix"
-	defaultHashName  = "mbtcp:latest"
-	defaultSetPrefix = "mbtcp:data:"
+	packageName     = "redis_writer"
+	keyHashName     = "redis_writer.hash_name"
+	defaultHashName = "mbtcp:writer"
 )
