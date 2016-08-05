@@ -24,7 +24,7 @@ var (
 	zsetPrefix string
 )
 
-func loadConfig() {
+func initConfig() {
 	// set default redis values
 	viper.SetDefault(keyRedisServer, defaultRedisServer)
 	viper.SetDefault(keyRedisPort, defaultRedisPort)
@@ -51,9 +51,9 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	psmb.LoadConfig() // load based config
-	loadConfig()      // load config
-	psmb.InitLogger() // init logger
+	psmb.InitConfig("redis-history") // init based config
+	initConfig()                     // init config
+	psmb.InitLogger("redis-history") // init logger
 
 	hashName = viper.GetString(keyHashName)
 	zsetPrefix = viper.GetString(keySetPrefix)

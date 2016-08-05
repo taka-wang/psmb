@@ -54,8 +54,8 @@ func InitLogger(packageName string) {
 	}
 }
 
-// LoadConfig load config
-func LoadConfig(packageName string) {
+// InitConfig load config
+func InitConfig(packageName string) {
 	// get environment variables
 	path := os.Getenv(envConfPSMBTCP)
 	endpoint := os.Getenv(envBackendEndpoint)
