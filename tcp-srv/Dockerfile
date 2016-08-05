@@ -15,7 +15,7 @@ RUN mkdir -p ${CONF_PSMBTCP} && \
     cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${CONF_PSMBTCP}/
 
 WORKDIR /go/src/github.com/taka-wang/psmb/tcp-srv
-RUN go get -t ./... 
+#RUN go get -t ./... 
 RUN go build -o psmbtcp-srv 
 RUN cp psmbtcp-srv /usr/bin/ 
 

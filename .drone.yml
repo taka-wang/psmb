@@ -21,7 +21,6 @@ pipeline:
             - docker-compose stop
             - docker-compose rm -f -a
 
-
     test-psmb-tcp:
         image: takawang/dind
         volumes:
