@@ -163,7 +163,7 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 		return nil, err
 	}
 	if len(ret) == 0 {
-		err = ErrNoData
+		err := ErrNoData
 		log.WithFields(log.Fields{"err": err}).Error("Get")
 		return nil, err
 	}
@@ -185,7 +185,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 		return nil, err
 	}
 	if len(ret) == 0 {
-		err = ErrNoData
+		err := ErrNoData
 		log.WithFields(log.Fields{"err": err}).Error("GetAll")
 		return nil, err
 	}
