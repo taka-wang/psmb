@@ -130,7 +130,7 @@ func Marshal(r interface{}) (string, error) {
 }
 
 // addToHistory helper function to add data to history map
-func addToHistory(taskName string, data interface{}) {
+func (b *Service) addToHistory(taskName string, data interface{}) {
 	if err := b.historyMap.Add(taskName, data); err != nil {
 		log.WithFields(log.Fields{
 			"err":  err,
@@ -839,7 +839,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					data = nil
 				} else {
 					data = res.Data
-					addToHistory(task.Name, data) // add to history
+					b.addToHistory(task.Name, data) // add to history
 				}
 				response = MbtcpPollData{
 					TimeStamp: time.Now().UTC().UnixNano(),
@@ -1018,7 +1018,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				case HexString:
 					data = BytesToHexString(bytes) // convert byte to hex
 					status = res.Status
-					addToHistory(task.Name, data) // add to history
+					b.addToHistory(task.Name, data) // add to history
 				case UInt16:
 					ret, err := BytesToUInt16s(bytes, readReq.Order) // order
 					if err != nil {
@@ -1027,7 +1027,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					} else {
 						data = ret
 						status = res.Status
-						addToHistory(task.Name, data) // add to history
+						b.addToHistory(task.Name, data) // add to history
 					}
 				case Int16:
 					ret, err := BytesToInt16s(bytes, readReq.Order) // order
@@ -1037,7 +1037,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					} else {
 						data = ret
 						status = res.Status
-						addToHistory(task.Name, data) // add to history
+						b.addToHistory(task.Name, data) // add to history
 					}
 				case Scale, UInt32, Int32, Float32: // 32-Bits
 					if readReq.Len%2 != 0 {
@@ -1059,7 +1059,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								addToHistory(task.Name, data) // add to history
+								b.addToHistory(task.Name, data) // add to history
 							}
 						case UInt32:
 							ret, err := BytesToUInt32s(bytes, readReq.Order)
@@ -1069,7 +1069,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								addToHistory(task.Name, data) // add to history
+								b.addToHistory(task.Name, data) // add to history
 							}
 						case Int32:
 							ret, err := BytesToInt32s(bytes, readReq.Order)
@@ -1079,7 +1079,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								addToHistory(task.Name, data) // add to history
+								b.addToHistory(task.Name, data) // add to history
 							}
 						case Float32:
 							ret, err := BytesToFloat32s(bytes, readReq.Order)
@@ -1089,14 +1089,14 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								addToHistory(task.Name, data) // add to history
+								b.addToHistory(task.Name, data) // add to history
 							}
 						}
 					}
 				default: // case 0, 1(RegisterArray)
 					data = res.Data
 					status = res.Status
-					addToHistory(task.Name, data) // add to history
+					b.addToHistory(task.Name, data) // add to history
 
 				}
 
