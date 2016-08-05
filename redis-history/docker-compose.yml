@@ -8,3 +8,4 @@ redis-history:
         - redis
     volumes:
         - /tmp:/tmp
+
