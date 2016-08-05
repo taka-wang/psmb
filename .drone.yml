@@ -10,7 +10,8 @@ pipeline:
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
             - docker-compose -f redis-history/docker-compose.yml pull
             - docker-compose -f redis-history/docker-compose.yml build
-            - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit --force-recreate; echo $?
+            - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit --force-recreate
+            - docker-compose ps -q | xargs docker inspect -f '{{ .State.ExitCode }}' | grep -v 0 | wc -l | tr -d ' '
             - docker-compose -f redis-history/docker-compose.yml stop
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
 
