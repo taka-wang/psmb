@@ -10,7 +10,7 @@ pipeline:
         commands:
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
             - docker-compose -f redis-history/docker-compose.yml pull
-            - docker-compose -f redis-history/docker-compose.yml build --no-cache
+            - docker-compose -f redis-history/docker-compose.yml build #--no-cache
             - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
             - docker-compose -f redis-history/docker-compose.yml stop
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
@@ -42,7 +42,6 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true tcp/.
-
 
     test-mgo-history:
         image: takawang/dind
