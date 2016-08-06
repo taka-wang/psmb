@@ -6,6 +6,7 @@ pipeline:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
         commands:
             - docker-compose -f mgo-history/docker-compose.yml rm -f -a
             - docker-compose -f mgo-history/docker-compose.yml pull
@@ -13,11 +14,14 @@ pipeline:
             - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
             - docker-compose -f mgo-history/docker-compose.yml stop
             - docker-compose -f mgo-history/docker-compose.yml rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
 
     test-redis-writer:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
         commands:
             - docker-compose -f redis-writer/docker-compose.yml rm -f -a
             - docker-compose -f redis-writer/docker-compose.yml pull
@@ -25,12 +29,14 @@ pipeline:
             - docker-compose -f redis-writer/docker-compose.yml up --abort-on-container-exit
             - docker-compose -f redis-writer/docker-compose.yml stop
             - docker-compose -f redis-writer/docker-compose.yml rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
 
     test-redis-history:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-            - /var/tmp:/var/tmp
+            - /var/tmp:/var/tmp # for test
         commands:
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
             - docker-compose -f redis-history/docker-compose.yml pull
@@ -45,6 +51,7 @@ pipeline:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
         commands:
             - docker-compose rm -f -a
             - docker-compose pull
@@ -52,6 +59,8 @@ pipeline:
             - docker-compose up --abort-on-container-exit
             - docker-compose stop
             - docker-compose rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
 
     test-psmbtcp-srv:
         image: takawang/dind
