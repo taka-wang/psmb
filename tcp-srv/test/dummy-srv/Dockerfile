@@ -9,4 +9,4 @@ ADD . /go/src/github.com/taka-wang/psmb/tcp-srv/test/dummy-srv
 WORKDIR /go/src/github.com/taka-wang/psmb/tcp-srv/test/dummy-srv
 RUN go get -t ./...
 
-RUN ./test.sh
+CMD ./test.sh

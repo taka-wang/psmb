@@ -14,7 +14,7 @@ modbusd:
     image: edgepro/modbusd:nolog
     volumes:
         - /tmp:/tmp
-        #- /var/tmp:/var/tmp # mount for test
+        - /var/tmp:/var/tmp # mount for test
     links:
         - slave
 
