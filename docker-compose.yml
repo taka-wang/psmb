@@ -2,10 +2,12 @@ redis:
     image: redis
     ports:
         - "6379"
+
 mongodb:
     image: mongo
     ports:
         - "27017"
+
 slave:
     image: takawang/c-modbus-slave:x86
 
@@ -13,8 +15,10 @@ modbusd:
     image: edgepro/modbusd:nolog
     volumes:
         - /tmp:/tmp
+        - /var/tmp:/var/tmp # mount for test
     links:
         - slave
+
 psmbtcpsrv:
     build: tcp-srv/.
     volumes_from:
@@ -22,14 +26,13 @@ psmbtcpsrv:
     links:
         - redis
         - mongodb
+
 dummysrv:
     build: tcp-srv/test/dummy-srv/.
     volumes_from:
         - modbusd
     links:
         - slave
-    volumes: # mount for test
-        - /var/tmp:/var/tmp
 
 
 
