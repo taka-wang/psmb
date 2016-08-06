@@ -47,4 +47,4 @@ min_poll_interval       = 1             # minimal poll interval in second
     upstream   = "ipc:///tmp/to.psmb"       # from services
     downstream = "ipc:///tmp/from.modbus"   # from modbusd
 
-# TOML config end @20160805
+# TOML config end @20160806
