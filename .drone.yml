@@ -1,6 +1,20 @@
 # drone.io:0.5
 
 pipeline:
+    ci:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
+        commands:
+            - docker-compose rm -f -a
+            - docker-compose pull
+            - docker-compose build --no-cache
+            - docker-compose up --abort-on-container-exit
+            - docker-compose stop
+            - docker-compose rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
 
     test-mgo-history:
         image: takawang/dind
@@ -48,20 +62,6 @@ pipeline:
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
-    ci:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-            - /var/tmp:/var/tmp # for test
-        commands:
-            - docker-compose rm -f -a
-            - docker-compose pull
-            - docker-compose build --no-cache
-            - docker-compose up --abort-on-container-exit
-            - docker-compose stop
-            - docker-compose rm -f -a
-            - cat /var/tmp/success      # test
-            - rm -f /var/tmp/success    # cleanup
 
     test-psmbtcp-srv:
         image: takawang/dind
