@@ -1,5 +1,6 @@
 # drone.io:0.5
 
+
 pipeline:
     ci:
         image: takawang/dind
