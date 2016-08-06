@@ -7,7 +7,7 @@ ENV CONF_PSMBTCP "/etc/psmbtcp"
 ENV EP_BACKEND "dev.cmwang.net:8500"
 
 WORKDIR /go
-RUN go get -u github.com/spf13/viper
+RUN go get github.com/spf13/viper
 RUN go get -u github.com/taka-wang/psmb
 
 ## Load app files
