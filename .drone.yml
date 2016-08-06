@@ -8,8 +8,8 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
             - /var/tmp:/var/tmp # for test
         commands:
-            - docker rm `docker ps --no-trunc -aq`
-            - docker-compose rm -f -a
+            - docker rm `docker ps --no-trunc -aq` && docker-compose rm -f -a
+            #- docker-compose rm -f -a
             - docker-compose pull
             - docker-compose build --no-cache
             - docker-compose up --abort-on-container-exit
@@ -70,7 +70,6 @@ pipeline:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker rm `docker ps --no-trunc -aq`
             - docker build --no-cache=true tcp-srv/.
     test-psmb-tcp:
         image: takawang/dind
