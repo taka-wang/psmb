@@ -1,6 +1,6 @@
 # psmb
 
-[![Build Status](http://dev.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://dev.cmwang.net/taka-wang/psmb)
+[![Build Status](http://drone.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://drone.cmwang.net/taka-wang/psmb)
 [![GoDoc](https://godoc.org/github.com/taka-wang/psmb?status.svg)](http://godoc.org/github.com/taka-wang/psmb)
 
 Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
