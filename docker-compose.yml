@@ -9,6 +9,7 @@ mongodb:
         - "27017"
 slave:
     image: takawang/c-modbus-slave:x86
+
 modbusd:
     image: edgepro/modbusd:nolog
     volumes:
@@ -16,6 +17,7 @@ modbusd:
         #- /var/tmp:/var/tmp # mount for test
     links:
         - slave
+
 psmbtcpsrv:
     build: tcp-srv/.
     volumes_from:
