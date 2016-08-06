@@ -4,7 +4,7 @@ FROM takawang/gozmq:pull
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 ENV CONF_PSMBTCP "/etc/psmbtcp"
-ENV EP_BACKEND "drone.cmwang.net:8500"
+ENV EP_BACKEND "dev.cmwang.net:8500"
 
 WORKDIR /go
 
