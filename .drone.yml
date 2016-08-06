@@ -100,9 +100,9 @@ pipeline:
         commands:
             - docker build --no-cache=true mem-writer/.
 
-    test-psmb:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true .
+#    test-psmb:
+#        image: takawang/dind
+#        volumes:
+#            - /var/run/docker.sock:/var/run/docker.sock
+#        commands:
+#            - docker build --no-cache=true .
