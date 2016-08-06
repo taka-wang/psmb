@@ -28,5 +28,8 @@ dummysrv:
         - modbusd
     links:
         - slave
-        
+    volumes: # mount for test
+        - /var/tmp:/var/tmp
+
+
 

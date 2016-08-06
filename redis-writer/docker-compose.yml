@@ -6,3 +6,6 @@ redis-writer:
     build: .
     links:
         - redis
+    volumes: # mount for test
+        - /var/tmp:/var/tmp
+

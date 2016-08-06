@@ -2,6 +2,30 @@
 
 pipeline:
 
+    test-mgo-history:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
+            - docker-compose -f mgo-history/docker-compose.yml pull
+            - docker-compose -f mgo-history/docker-compose.yml build --no-cache
+            - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f mgo-history/docker-compose.yml stop
+            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
+
+    test-redis-writer:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker-compose -f redis-writer/docker-compose.yml rm -f -a
+            - docker-compose -f redis-writer/docker-compose.yml pull
+            - docker-compose -f redis-writer/docker-compose.yml build --no-cache
+            - docker-compose -f redis-writer/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f redis-writer/docker-compose.yml stop
+            - docker-compose -f redis-writer/docker-compose.yml rm -f -a
+
     test-redis-history:
         image: takawang/dind
         volumes:
@@ -43,29 +67,6 @@ pipeline:
         commands:
             - docker build --no-cache=true tcp/.
 
-    test-mgo-history:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
-            - docker-compose -f mgo-history/docker-compose.yml pull
-            - docker-compose -f mgo-history/docker-compose.yml build --no-cache
-            - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
-            - docker-compose -f mgo-history/docker-compose.yml stop
-            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
-
-    test-redis-writer:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker-compose -f redis-writer/docker-compose.yml rm -f -a
-            - docker-compose -f redis-writer/docker-compose.yml pull
-            - docker-compose -f redis-writer/docker-compose.yml build --no-cache
-            - docker-compose -f redis-writer/docker-compose.yml up --abort-on-container-exit
-            - docker-compose -f redis-writer/docker-compose.yml stop
-            - docker-compose -f redis-writer/docker-compose.yml rm -f -a
 
     test-cron:
         image: takawang/dind

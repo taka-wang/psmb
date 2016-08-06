@@ -6,3 +6,5 @@ mgo-history:
     build: .
     links:
         - mongodb
+    volumes: # mount for test
+        - /var/tmp:/var/tmp

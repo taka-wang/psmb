@@ -22,4 +22,4 @@ WORKDIR /go/src/github.com/taka-wang/psmb/mgo-history
 RUN go get -t ./...
 
 ## Default command
-CMD ["go", "test", "-v"]
+CMD ./test.sh
