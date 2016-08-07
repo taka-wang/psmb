@@ -1,14 +1,14 @@
 # drone.io:0.5
 
-
 pipeline:
+
     ci:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - /var/tmp:/var/tmp # for test
         commands:
-            - docker rm `docker ps --no-trunc -aq` && docker-compose rm -f -a
+            - docker-compose rm -f -a
             #- docker-compose rm -f -a
             - docker-compose pull
             - docker-compose build --no-cache
@@ -32,7 +32,6 @@ pipeline:
             - docker-compose -f mgo-history/docker-compose.yml rm -f -a
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
-
 
     test-redis-writer:
         image: takawang/dind
@@ -71,13 +70,13 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true tcp-srv/.
+
     test-psmb-tcp:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true tcp/.
-
 
     test-cron:
         image: takawang/dind
@@ -100,9 +99,9 @@ pipeline:
         commands:
             - docker build --no-cache=true mem-writer/.
 
-#    test-psmb:
-#        image: takawang/dind
-#        volumes:
-#            - /var/run/docker.sock:/var/run/docker.sock
-#        commands:
-#            - docker build --no-cache=true .
+    test-psmb:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true .
