@@ -10,17 +10,17 @@ import (
 	log "github.com/takawang/logrus"
 )
 
-var baseConf Base
+var base vConf // config instance
 
-// Base base structu with viper instance
-type Base struct {
+// vConf base structu with viper instance
+type vConf struct {
 	v *viper.Viper
 }
 
 func init() {
-	baseConf = Base{v: viper.New()}
-	baseConf.initConfig()
-	baseConf.setLogger()
+	base = vConf{v: viper.New()}
+	base.initConfig()
+	base.setLogger()
 }
 
 //
@@ -29,42 +29,42 @@ func init() {
 
 // SetDefault set the default value for this key.
 func SetDefault(key string, value interface{}) {
-	baseConf.v.SetDefault(key, value)
+	base.v.SetDefault(key, value)
 }
 
 // Set set the value for the key in the override regiser.
 func Set(key string, value interface{}) {
-	baseConf.v.Set(key, value)
+	base.v.Set(key, value)
 }
 
 // GetInt returns the value associated with the key as an integer
 func GetInt(key string) int {
-	return baseConf.v.GetInt(key)
+	return base.v.GetInt(key)
 }
 
 // GetInt64 returns the value associated with the key as an int64
 func GetInt64(key string) int64 {
-	return baseConf.v.GetInt64(key)
+	return base.v.GetInt64(key)
 }
 
 // GetString returns the value associated with the key as a string
 func GetString(key string) string {
-	return baseConf.v.GetString(key)
+	return base.v.GetString(key)
 }
 
 // GetBool returns the value associated with the key as a boolean
 func GetBool(key string) bool {
-	return baseConf.v.GetBool(key)
+	return base.v.GetBool(key)
 }
 
 // GetFloat64 returns the value associated with the key as a float64
 func GetFloat64(key string) float64 {
-	return baseConf.v.GetFloat64(key)
+	return base.v.GetFloat64(key)
 }
 
 // GetDuration returns the value associated with the key as a duration
 func GetDuration(key string) time.Duration {
-	return baseConf.v.GetDuration(key)
+	return base.v.GetDuration(key)
 }
 
 //
@@ -72,7 +72,7 @@ func GetDuration(key string) time.Duration {
 //
 
 // setLogger init logger function
-func (b *Base) setLogger() {
+func (b *vConf) setLogger() {
 
 	// set debug level
 	if b.v.GetBool(keyLogEnableDebug) {
@@ -100,7 +100,7 @@ func (b *Base) setLogger() {
 }
 
 // InitConfig int config function
-func (b *Base) initConfig() {
+func (b *vConf) initConfig() {
 	// get environment variables
 	confPath := os.Getenv(envConfPSMBTCP) // config file location
 	if confPath == "" {

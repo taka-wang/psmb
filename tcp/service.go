@@ -1222,10 +1222,4 @@ func (b *Service) Stop() {
 	b.scheduler.Stop()
 	b.enable = false
 	b.stopZMQ()
-	if b.sub.upstream != nil {
-		b.sub.upstream.Close()
-		b.pub.upstream.Close()
-		b.sub.downstream.Close()
-		b.pub.downstream.Close()
-	}
 }
