@@ -23,7 +23,6 @@ const (
 
 // [mgo_history]
 const (
-	packageName           = "mgo_history"
 	keyDbName             = "mgo-history.db_name"
 	keyCollectionName     = "mgo-history.collection_name"
 	defaultDbName         = "test"

@@ -17,7 +17,6 @@ const (
 
 // [redis_history]
 const (
-	packageName      = "redis_history"
 	keyHashName      = "redis_history.hash_name"
 	keySetPrefix     = "redis_history.zset_prefix"
 	defaultHashName  = "mbtcp:latest"

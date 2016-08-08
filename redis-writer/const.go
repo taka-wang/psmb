@@ -17,7 +17,6 @@ const (
 
 // [redis_writer]
 const (
-	packageName     = "redis_writer"
 	keyHashName     = "redis_writer.hash_name"
 	defaultHashName = "mbtcp:writer"
 )
