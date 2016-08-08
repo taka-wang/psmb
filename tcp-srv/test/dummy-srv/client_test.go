@@ -20,10 +20,6 @@ var portNum1 = "502"
 var portNum2 = "503"
 var longRun = true
 
-func init() {
-	psmbtcp.Register("History", mgohistory.NewDataStore)
-}
-
 // generic tcp publisher
 func publisher(cmd, json string) {
 	sender, _ := zmq.NewSocket(zmq.PUB)
@@ -79,7 +75,7 @@ func longSubscriber() {
 // init functions
 func init() {
 	time.Sleep(2000 * time.Millisecond)
-
+	psmbtcp.Register("History", mgohistory.NewDataStore)
 	// generalize host reslove for docker/local env
 	host, err := net.LookupHost("slave")
 	if err != nil {
@@ -102,7 +98,7 @@ func TestPollRequestSingle(t *testing.T) {
 			return false
 		}
 		data4 := []uint16{4, 5, 6, 7, 8}
-		if err := historyMap.Add("hello", data4); err != nil {
+		if err := historyMap.Add("LED_11", data4); err != nil {
 			return false
 		}
 
