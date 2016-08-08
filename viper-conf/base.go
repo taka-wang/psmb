@@ -114,23 +114,23 @@ func (b *Base) initConfig() {
 
 	// local or remote config
 	if endpoint == "" {
-		log.Debug(": Try to load 'local' config file")
+		log.Debug("Try to load 'local' config file")
 		b.v.AddConfigPath(confPath)
 		err := b.v.ReadInConfig() // read config from file
 		if err != nil {
-			log.Warn(": Fail to load 'local' config file, not found!")
+			log.Warn("Fail to load 'local' config file, not found!")
 		} else {
-			log.Info(": Read 'local' config file successfully")
+			log.Info("Read 'local' config file successfully")
 		}
 	} else {
-		log.Debug(": Try to load 'remote' config file")
+		log.Debug("Try to load 'remote' config file")
 		//log.WithFields(log.Fields{"endpoint": endpoint, "path": confPath}).Debug("remote debug")
 		b.v.AddRemoteProvider(defaultBackendName, endpoint, path.Join(confPath, keyConfigName)+"."+keyConfigType)
 		err := b.v.ReadRemoteConfig() // read config from backend
 		if err != nil {
 			log.WithFields(log.Fields{"err": err}).Warn(": Fail to load 'remote' config file, not found!")
 		} else {
-			log.Info(": Read remote config file successfully")
+			log.Info("Read remote config file successfully")
 		}
 	}
 

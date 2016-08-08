@@ -1,3 +1,3 @@
-# v-conf
+# viper-conf
 
 Singleton viper config
