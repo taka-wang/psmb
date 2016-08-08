@@ -1156,6 +1156,16 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 
 // Start enable proactive service
 func (b *Service) Start() {
+	// debug
+	data3 := []uint16{3, 4, 5, 6, 7}
+	if err := b.historyMap.Add("LED_11", data3); err != nil {
+		return false
+	}
+	data4 := []uint16{4, 5, 6, 7, 8}
+	if err := b.historyMap.Add("LED_11", data4); err != nil {
+		return false
+	}
+
 	log.Debug("Start proactive service")
 	b.scheduler.Start()
 	b.enable = true

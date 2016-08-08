@@ -9,8 +9,6 @@ import (
 	"time"
 
 	psmb "github.com/taka-wang/psmb"
-	mgohistory "github.com/taka-wang/psmb/mgo-history"
-	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 	zmq "github.com/takawang/zmq3"
 )
@@ -75,7 +73,6 @@ func longSubscriber() {
 // init functions
 func init() {
 	time.Sleep(2000 * time.Millisecond)
-	psmbtcp.Register("History", mgohistory.NewDataStore)
 	// generalize host reslove for docker/local env
 	host, err := net.LookupHost("slave")
 	if err != nil {
@@ -91,16 +88,6 @@ func TestPollRequestSingle(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`mbtcp.poll.create/mbtcp.poll.history/mbtcp.poll.delete FC1` read bits test: port 503 - interval 1", func(log sugar.Log) bool {
-		// test
-		historyMap, _ := psmbtcp.HistoryDataStoreCreator("History")
-		data3 := []uint16{3, 4, 5, 6, 7}
-		if err := historyMap.Add("LED_11", data3); err != nil {
-			return false
-		}
-		data4 := []uint16{4, 5, 6, 7, 8}
-		if err := historyMap.Add("LED_11", data4); err != nil {
-			return false
-		}
 
 		// send request
 		readReq := psmb.MbtcpPollStatus{
