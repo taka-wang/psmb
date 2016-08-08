@@ -701,13 +701,14 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbGetPollHistory:
 		req := r.(MbtcpPollOpReq)
+		resp := MbtcpHistoryData{Tid: req.Tid, Name: req.Name, Status: "ok"}
 		ret, err := b.historyMap.GetAll(req.Name)
 		if err != nil {
 			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
-			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+			resp.Status = err.Error()
 			return b.naiveResponder(cmd, resp)
 		}
-		resp := MbtcpHistoryData{Tid: req.Tid, Name: req.Name, Status: "ok", Data: ret}
+		resp.Data = ret
 		return b.naiveResponder(cmd, resp)
 	case mbCreateFilter, mbUpdateFilter:
 		//req := r.(MbtcpFilterStatus)
@@ -1156,15 +1157,6 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 
 // Start enable proactive service
 func (b *Service) Start() {
-	// debug
-	data3 := []uint16{3, 4, 5, 6, 7}
-	if err := b.historyMap.Add("LED_11", data3); err != nil {
-		log.Debug("error")
-	}
-	data4 := []uint16{4, 5, 6, 7, 8}
-	if err := b.historyMap.Add("LED_11", data4); err != nil {
-		log.Debug("error")
-	}
 
 	log.Debug("Start proactive service")
 	b.scheduler.Start()
