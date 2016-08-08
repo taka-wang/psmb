@@ -135,7 +135,7 @@ func TestPollRequestSingle(t *testing.T) {
 		time.Sleep(10 * time.Second)
 
 		// test
-		historyMap, err := psmbtcp.HistoryDataStoreCreator("History")
+		historyMap, _ := psmbtcp.HistoryDataStoreCreator("History")
 		data3 := []uint16{3, 4, 5, 6, 7}
 		if err := historyMap.Add("LED_11", data3); err != nil {
 			return false
