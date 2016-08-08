@@ -160,12 +160,12 @@ func (b *Service) addToHistory(taskName string, data interface{}) {
 			"data": data,
 		}).Error("Fail to add data to history data store")
 	}
-	// TODO: remove debug
+	/* debug
 	log.WithFields(log.Fields{
 		"name": taskName,
 		"data": data,
 	}).Debug("Add data to history data store")
-
+	*/
 }
 
 // Task for cron scheduler
@@ -866,8 +866,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					data = nil
 				} else {
 					data = res.Data
-					his := HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data}
-					b.addToHistory(task.Name, his) // add to history
+					b.addToHistory(task.Name, data) // add to history
 				}
 				response = MbtcpPollData{
 					TimeStamp: time.Now().UTC().UnixNano(),
@@ -1046,8 +1045,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				case HexString:
 					data = BytesToHexString(bytes) // convert byte to hex
 					status = res.Status
-					his := HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data}
-					b.addToHistory(task.Name, his) // add to history
+					b.addToHistory(task.Name, data) // add to history
 				case UInt16:
 					ret, err := BytesToUInt16s(bytes, readReq.Order) // order
 					if err != nil {
@@ -1056,8 +1054,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					} else {
 						data = ret
 						status = res.Status
-						his := HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data}
-						b.addToHistory(task.Name, his) // add to history
+						b.addToHistory(task.Name, data) // add to history
 					}
 				case Int16:
 					ret, err := BytesToInt16s(bytes, readReq.Order) // order
@@ -1067,8 +1064,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					} else {
 						data = ret
 						status = res.Status
-						his := HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data}
-						b.addToHistory(task.Name, his) // add to history
+						b.addToHistory(task.Name, data) // add to history
 					}
 				case Scale, UInt32, Int32, Float32: // 32-Bits
 					if readReq.Len%2 != 0 {
@@ -1090,8 +1086,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								his := HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data}
-								b.addToHistory(task.Name, his) // add to history
+								b.addToHistory(task.Name, data) // add to history
 							}
 						case UInt32:
 							ret, err := BytesToUInt32s(bytes, readReq.Order)
@@ -1101,8 +1096,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								his := HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data}
-								b.addToHistory(task.Name, his) // add to history
+								b.addToHistory(task.Name, data) // add to history
 							}
 						case Int32:
 							ret, err := BytesToInt32s(bytes, readReq.Order)
@@ -1112,8 +1106,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								his := HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data}
-								b.addToHistory(task.Name, his) // add to history
+								b.addToHistory(task.Name, data) // add to history
 							}
 						case Float32:
 							ret, err := BytesToFloat32s(bytes, readReq.Order)
@@ -1123,16 +1116,15 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								his := HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data}
-								b.addToHistory(task.Name, his) // add to history
+								b.addToHistory(task.Name, data) // add to history
 							}
 						}
 					}
 				default: // case 0, 1(RegisterArray)
 					data = res.Data
 					status = res.Status
-					his := HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data}
-					b.addToHistory(task.Name, his) // add to history
+					// b.addToHistory(task.Name, HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data})
+					b.addToHistory(task.Name, data) // add to history
 				}
 
 				// shared response

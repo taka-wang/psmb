@@ -134,14 +134,16 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	//
 
 	// redis pipeline
+	ts := time.Now().UTC().UnixNano()
 	ds.redis.Send("MULTI")
-	ds.redis.Send("HSET", hashName, name, string(bytes))                               // latest
-	ds.redis.Send("ZADD", zsetPrefix+name, time.Now().UTC().UnixNano(), string(bytes)) // add to zset
+	ds.redis.Send("HSET", hashName, name, string(bytes))      // latest
+	ds.redis.Send("ZADD", zsetPrefix+name, ts, string(bytes)) // add to zset
 	if _, err := ds.redis.Do("EXEC"); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Add")
 		return err
 	}
-
+	// TODO: remove debug
+	log.WithFields(log.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to redis")
 	return nil
 }
 

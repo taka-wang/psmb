@@ -151,13 +151,15 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	}
 	defer ds.closeSession(session)
 
+	ts := time.Now().UTC().UnixNano()
 	// Collection history
 	c := session.DB(databaseName).C(collectionName)
-	if err := c.Insert(&blob{Name: name, Data: data, Timestamp: time.Now().UTC().UnixNano()}); err != nil {
+	if err := c.Insert(&blob{Name: name, Data: data, Timestamp: ts}); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Fail to add to history collection")
 		return err
 	}
-
+	// TODO: remove debug
+	log.WithFields(log.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to mongo")
 	return nil
 }
 
