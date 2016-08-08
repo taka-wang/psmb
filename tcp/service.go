@@ -47,6 +47,13 @@ func init() {
 	minPollInterval = uint64(conf.GetInt(keyPollInterval))
 }
 
+type zSockets struct {
+	// upstream subscriber from services
+	upstream *zmq.Socket
+	// downstream subscriber from modbusd
+	downstream *zmq.Socket
+}
+
 // @Implement IProactiveService contract implicitly
 
 // Service modbusd tcp proactive service type
@@ -60,19 +67,9 @@ type Service struct {
 	// scheduler cron scheduler
 	scheduler cron.Scheduler
 	// sub ZMQ subscriber endpoints
-	sub struct {
-		// upstream subscriber from services
-		upstream *zmq.Socket
-		// downstream subscriber from modbusd
-		downstream *zmq.Socket
-	}
+	sub zSockets
 	// pub ZMQ publisher endpoints
-	pub struct {
-		// upstream publisher to services
-		upstream *zmq.Socket
-		// downstream publisher to modbusd
-		downstream *zmq.Socket
-	}
+	pub zSockets
 	// poller ZMQ poller
 	poller *zmq.Poller
 	// enable poller flag
@@ -134,11 +131,11 @@ func NewService(reader, writer, history, sch string) (IProactiveService, error) 
 		writerMap:  writerPlugin,
 		historyMap: historyPlugin,
 		scheduler:  schedulerPlugin,
-		pub: {
+		pub: zSockets{
 			upstream:   pubUpstream,
 			downstream: pubDownstream,
 		},
-		sub: {
+		sub: zSockets{
 			upstream:   subUpstream,
 			downstream: subDownstream,
 		},
