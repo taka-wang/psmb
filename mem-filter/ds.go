@@ -14,27 +14,27 @@ var ErrInvalidFilterName = errors.New("Invalid Filter name")
 
 // NewDataStore instantiate filter map
 func NewDataStore(conf map[string]string) (interface{}, error) {
-	return &filterDataStore{
+	return &dataStore{
 		m: make(map[string]interface{}),
 	}, nil
 }
 
-// filterDataStore filter map
-type filterDataStore struct {
+// dataStore filter map
+type dataStore struct {
 	sync.RWMutex
 	// m key-value map: (name, psmb.MbtcpFilterStatus)
 	m map[string]interface{}
 }
 
 // Add add request to filter map
-func (ds *filterDataStore) Add(name string, req interface{}) {
+func (ds *dataStore) Add(name string, req interface{}) {
 	ds.Lock()
 	ds.m[name] = req
 	ds.Unlock()
 }
 
 // Get get request from filter map
-func (ds *filterDataStore) Get(name string) (interface{}, bool) {
+func (ds *dataStore) Get(name string) (interface{}, bool) {
 	ds.RLock()
 	req, ok := ds.m[name]
 	ds.RUnlock()
@@ -42,7 +42,7 @@ func (ds *filterDataStore) Get(name string) (interface{}, bool) {
 }
 
 // GetAll get request from filter map
-func (ds *filterDataStore) GetAll(name string) interface{} {
+func (ds *dataStore) GetAll(name string) interface{} {
 	arr := []psmb.MbtcpFilterStatus{}
 	ds.RLock()
 	for _, v := range ds.m {
@@ -53,21 +53,21 @@ func (ds *filterDataStore) GetAll(name string) interface{} {
 }
 
 // Delete remove request from filter map
-func (ds *filterDataStore) Delete(name string) {
+func (ds *dataStore) Delete(name string) {
 	ds.Lock()
 	delete(ds.m, name)
 	ds.Unlock()
 }
 
 // DeleteAll delete all filters
-func (ds *filterDataStore) DeleteAll() {
+func (ds *dataStore) DeleteAll() {
 	ds.Lock()
 	ds.m = make(map[string]interface{})
 	ds.Unlock()
 }
 
 // Toggle toggle request from filter map
-func (ds *filterDataStore) UpdateToggle(name string, toggle bool) error {
+func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 	ds.RLock()
 	req, ok := ds.m[name]
 	ds.RUnlock()
@@ -84,7 +84,7 @@ func (ds *filterDataStore) UpdateToggle(name string, toggle bool) error {
 }
 
 // UpdateAllToggles toggle all request from filter map
-func (ds *filterDataStore) UpdateAllToggles(toggle bool) {
+func (ds *dataStore) UpdateAllToggles(toggle bool) {
 	ds.Lock()
 	for name, req := range ds.m {
 		r := req.(psmb.MbtcpFilterStatus)
