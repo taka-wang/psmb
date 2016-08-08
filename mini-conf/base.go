@@ -24,7 +24,7 @@ func (b *mConf) initConfig() {
 		confPath = defaultConfigPath
 	}
 	m := multiconfig.NewWithPath(path.Join(confPath, keyConfigName) + "." + keyConfigType)
-	m.MustLoad(b.conf) // Populated the  struct
+	m.MustLoad(b.conf) // Populated the struct
 }
 
 // setLogger init logger function
