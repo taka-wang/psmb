@@ -160,7 +160,7 @@ func (b *Service) addToHistory(taskName string, data interface{}) {
 			"data": data,
 		}).Error("Fail to add data to history data store")
 	}
-
+	// TODO: remove debug
 	log.WithFields(log.Fields{
 		"name": taskName,
 		"data": data,
