@@ -18,7 +18,7 @@ func init() {
 	mbtcp.Register("RedisWriter", rwriter.NewDataStore)
 	mbtcp.Register("History", history.NewDataStore)
 	mbtcp.Register("MgoHistory", mgohistory.NewDataStore)
-	mbtcp.Register("MemFilter1", mfilter.NewDataStore)
+	mbtcp.Register("MemFilter", mfilter.NewDataStore)
 	mbtcp.Register("Cron", cron.NewScheduler)
 }
 
