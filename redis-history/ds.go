@@ -140,9 +140,11 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	if ret, err := ds.redis.Do("EXEC"); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Add")
 		return err
+	} else {
+		// TODO: remove debug
+		log.WithFields(log.Fields{"ret": ret}).Info("Add")
 	}
-	// TODO: remove debug
-	log.WithFields(log.Fields{"ret": ret}).Info("Add")
+
 	return nil
 }
 
