@@ -9,7 +9,6 @@ pipeline:
             - /var/tmp:/var/tmp # for test
         commands:
             - docker-compose rm -f -a
-            #- docker-compose rm -f -a
             - docker-compose pull
             - docker-compose build --no-cache
             - docker-compose up --abort-on-container-exit
@@ -62,7 +61,6 @@ pipeline:
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
-
 
     test-psmbtcp-srv:
         image: takawang/dind
