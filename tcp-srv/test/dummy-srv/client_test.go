@@ -9,6 +9,8 @@ import (
 	"time"
 
 	psmb "github.com/taka-wang/psmb"
+	mgohistory "github.com/taka-wang/psmb/mgo-history"
+	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 	zmq "github.com/takawang/zmq3"
 )
@@ -17,6 +19,10 @@ var hostName string
 var portNum1 = "502"
 var portNum2 = "503"
 var longRun = true
+
+func init() {
+	psmbtcp.Register("History", mgohistory.NewDataStore)
+}
 
 // generic tcp publisher
 func publisher(cmd, json string) {
@@ -127,6 +133,17 @@ func TestPollRequestSingle(t *testing.T) {
 		}
 
 		time.Sleep(10 * time.Second)
+
+		// test
+		historyMap, err := psmbtcp.HistoryDataStoreCreator("History")
+		data3 := []uint16{3, 4, 5, 6, 7}
+		if err := historyMap.Add("LED_11", data3); err != nil {
+			return false
+		}
+		data4 := []uint16{4, 5, 6, 7, 8}
+		if err := historyMap.Add("hello", data4); err != nil {
+			return false
+		}
 
 		historyReq := psmb.MbtcpPollOpReq{
 			From: "web",
