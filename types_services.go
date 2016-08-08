@@ -136,6 +136,12 @@ type MbtcpHistoryData struct {
 	Data   interface{} `json:"history,omitempty"` // universal data container
 }
 
+// HistoryData history data
+type HistoryData struct {
+	Ts   int64       `json:"ts,omitempty"`
+	Data interface{} `json:"history,omitempty"` // universal data container
+}
+
 // MbtcpFilterStatus filter status
 type MbtcpFilterStatus struct {
 	Tid     int64        `json:"tid"`
