@@ -50,6 +50,11 @@ func GetInt(key string) int {
 	return baseConf.v.GetInt(key)
 }
 
+// GetInt64 returns the value associated with the key as an int64
+func GetInt64(key string) int64 {
+	return baseConf.v.GetInt64(key)
+}
+
 // GetString returns the value associated with the key as a string
 func GetString(key string) string {
 	return baseConf.v.GetString(key)
