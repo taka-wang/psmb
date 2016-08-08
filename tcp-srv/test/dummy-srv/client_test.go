@@ -175,7 +175,7 @@ func TestPollRequestSingle(t *testing.T) {
 
 		historyReqStr, _ := json.Marshal(historyReq)
 		cmd = "mbtcp.poll.history"
-		go publisher(cmd, string(delReqStr))
+		go publisher(cmd, string(historyReqStr))
 
 		time.Sleep(5 * time.Second)
 
