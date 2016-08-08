@@ -107,24 +107,23 @@ func NewService(reader, writer, history, sch string) (IProactiveService, error) 
 		return nil, err
 	}
 
-
 	pubUpstream, err := zmq.NewSocket(zmq.PUB)
-	if err!= nil {
+	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create upstream publisher")
 		return nil, err
 	}
 	pubDownstream, err := zmq.NewSocket(zmq.PUB)
-	if err!= nil {
+	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create downstream publisher")
 		return nil, err
 	}
 	subUpstream, err := zmq.NewSocket(zmq.SUB)
-	if err!= nil {
+	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create upstream subscriber")
 		return nil, err
 	}
 	subDownstream, err := zmq.NewSocket(zmq.SUB)
-	if err!= nil {
+	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create downstream subscriber")
 		return nil, err
 	}
@@ -135,12 +134,12 @@ func NewService(reader, writer, history, sch string) (IProactiveService, error) 
 		writerMap:  writerPlugin,
 		historyMap: historyPlugin,
 		scheduler:  schedulerPlugin,
-		pub: struct {
-			upstream: pubUpstream,
+		pub: {
+			upstream:   pubUpstream,
 			downstream: pubDownstream,
 		},
-		sub: struct {
-			upstream: subUpstream,
+		sub: {
+			upstream:   subUpstream,
 			downstream: subDownstream,
 		},
 	}, nil
@@ -184,7 +183,7 @@ func (b *Service) Task(socket *zmq.Socket, req interface{}) {
 	socket.Send(str, 0)             // convert to string; frame 2
 }
 
-func (b *Service) startZMQ(){
+func (b *Service) startZMQ() {
 	log.Debug("Start ZMQ")
 	// publishers
 	b.pub.upstream.Bind(conf.GetString(keyZmqPubUpstream))
@@ -195,12 +194,12 @@ func (b *Service) startZMQ(){
 	b.sub.downstream.Connect(conf.GetString(keyZmqSubDownstream))
 	b.sub.downstream.SetSubscribe("")
 	// poller
-	b.poller = zmq.NewPoller()
+	b.poller = zmq.NewPoller() // new poller
 	b.poller.Add(b.sub.upstream, zmq.POLLIN)
 	b.poller.Add(b.sub.downstream, zmq.POLLIN)
 }
 
-func (b *Service) stopZMQ(){
+func (b *Service) stopZMQ() {
 	log.Debug("Stop ZMQ")
 	// publishers
 	b.pub.upstream.Unbind(conf.GetString(keyZmqPubUpstream))
