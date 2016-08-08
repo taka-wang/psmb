@@ -47,8 +47,7 @@ func setDefaults() {
 func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
-
-	setDefaults() // set defaults
+	setDefaults()                                           // set defaults
 
 	hashName = conf.GetString(keyHashName)
 	zsetPrefix = conf.GetString(keySetPrefix)

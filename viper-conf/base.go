@@ -71,7 +71,7 @@ func GetDuration(key string) time.Duration {
 // Internal
 //
 
-// setLogger generic logger init function
+// setLogger init logger function
 func (b *Base) setLogger() {
 
 	// set debug level
@@ -99,7 +99,7 @@ func (b *Base) setLogger() {
 	}
 }
 
-// InitConfig generic config function
+// InitConfig int config function
 func (b *Base) initConfig() {
 	// get environment variables
 	confPath := os.Getenv(envConfPSMBTCP) // config file location

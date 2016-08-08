@@ -40,8 +40,7 @@ func setDefaults() {
 func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
-
-	setDefaults() // set defaults
+	setDefaults()                                           // set defaults
 
 	defaultMbPort = conf.GetString(keyTCPDefaultPort)
 	minConnTimeout = conf.GetInt64(keyMinConnectionTimout)
@@ -108,12 +107,42 @@ func NewService(reader, writer, history, sch string) (IProactiveService, error) 
 		return nil, err
 	}
 
+
+	pubUpstream, err := zmq.NewSocket(zmq.PUB)
+	if err!= nil {
+		log.WithFields(log.Fields{"err": err}).Error("Fail to create upstream publisher")
+		return nil, err
+	}
+	pubDownstream, err := zmq.NewSocket(zmq.PUB)
+	if err!= nil {
+		log.WithFields(log.Fields{"err": err}).Error("Fail to create downstream publisher")
+		return nil, err
+	}
+	subUpstream, err := zmq.NewSocket(zmq.SUB)
+	if err!= nil {
+		log.WithFields(log.Fields{"err": err}).Error("Fail to create upstream subscriber")
+		return nil, err
+	}
+	subDownstream, err := zmq.NewSocket(zmq.SUB)
+	if err!= nil {
+		log.WithFields(log.Fields{"err": err}).Error("Fail to create downstream subscriber")
+		return nil, err
+	}
+
 	return &Service{
 		enable:     true,
 		readerMap:  readerPlugin,
 		writerMap:  writerPlugin,
 		historyMap: historyPlugin,
 		scheduler:  schedulerPlugin,
+		pub: struct {
+			upstream: pubUpstream,
+			downstream: pubDownstream,
+		},
+		sub: struct {
+			upstream: subUpstream,
+			downstream: subDownstream,
+		},
 	}, nil
 }
 
@@ -155,40 +184,30 @@ func (b *Service) Task(socket *zmq.Socket, req interface{}) {
 	socket.Send(str, 0)             // convert to string; frame 2
 }
 
-// initZMQPub init ZMQ publishers.
-func (b *Service) initZMQPub() {
-	log.Debug("Init ZMQ Publishers")
-	// upstream publisher
-	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
+func (b *Service) startZMQ(){
+	log.Debug("Start ZMQ")
+	// publishers
 	b.pub.upstream.Bind(conf.GetString(keyZmqPubUpstream))
-
-	// downstream publisher
-	b.pub.downstream, _ = zmq.NewSocket(zmq.PUB)
 	b.pub.downstream.Connect(conf.GetString(keyZmqPubDownstream))
-}
-
-// initZMQSub init ZMQ subscribers.
-func (b *Service) initZMQSub() {
-	log.Debug("Init ZMQ Subscribers")
-	// upstream subscriber
-	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
+	// subscribers
 	b.sub.upstream.Bind(conf.GetString(keyZmqSubUpstream))
 	b.sub.upstream.SetSubscribe("")
-
-	// downstream subscriber
-	b.sub.downstream, _ = zmq.NewSocket(zmq.SUB)
 	b.sub.downstream.Connect(conf.GetString(keyZmqSubDownstream))
 	b.sub.downstream.SetSubscribe("")
-}
-
-// initZMQPoller init ZMQ poller.
-// polling from upstream services and downstream modbusd
-func (b *Service) initZMQPoller() {
-	log.Debug("Init ZMQ Poller")
-	// initialize poll set
+	// poller
 	b.poller = zmq.NewPoller()
 	b.poller.Add(b.sub.upstream, zmq.POLLIN)
 	b.poller.Add(b.sub.downstream, zmq.POLLIN)
+}
+
+func (b *Service) stopZMQ(){
+	log.Debug("Stop ZMQ")
+	// publishers
+	b.pub.upstream.Unbind(conf.GetString(keyZmqPubUpstream))
+	b.pub.downstream.Disconnect(conf.GetString(keyZmqPubDownstream))
+	// subscribers
+	b.sub.upstream.Unbind(conf.GetString(keyZmqSubUpstream))
+	b.sub.downstream.Disconnect(conf.GetString(keyZmqSubDownstream))
 }
 
 // naiveResponder naive responder to send message back to upstream.
@@ -1136,10 +1155,7 @@ func (b *Service) Start() {
 	log.Debug("Start proactive service")
 	b.scheduler.Start()
 	b.enable = true
-
-	b.initZMQPub()
-	b.initZMQSub()
-	b.initZMQPoller()
+	b.startZMQ()
 
 	// process messages from both subscriber sockets
 	for b.enable {
@@ -1209,6 +1225,7 @@ func (b *Service) Stop() {
 	log.Debug("Stop proactive service")
 	b.scheduler.Stop()
 	b.enable = false
+	b.stopZMQ()
 	if b.sub.upstream != nil {
 		b.sub.upstream.Close()
 		b.pub.upstream.Close()
