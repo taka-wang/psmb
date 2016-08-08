@@ -105,7 +105,7 @@ type dataStore struct {
 }
 
 // NewDataStore instantiate data store
-func NewDataStore(conf map[string]string) (interface{}, error) {
+func NewDataStore(c map[string]string) (interface{}, error) {
 	// Create a session which maintains a pool of socket connections
 	pool, err := mgo.DialWithInfo(mongoDBDialInfo)
 	if err != nil {
