@@ -185,6 +185,8 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 		log.WithFields(log.Fields{"err": err}).Error("GetAll")
 		return nil, err
 	}
+	// TODO: remove
+	log.WithFields(log.Fields{"data": ret}).Info("GetAll")
 	return ret, nil
 }
 
