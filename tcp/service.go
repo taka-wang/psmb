@@ -160,12 +160,12 @@ func (b *Service) addToHistory(taskName string, data interface{}) {
 			"data": data,
 		}).Error("Fail to add data to history data store")
 	}
-	/* debug
+
 	log.WithFields(log.Fields{
 		"name": taskName,
 		"data": data,
 	}).Debug("Add data to history data store")
-	*/
+
 }
 
 // Task for cron scheduler
