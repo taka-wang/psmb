@@ -700,8 +700,15 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		resp := MbtcpSimpleRes{Tid: request.Tid, Status: "ok"}
 		return b.naiveResponder(cmd, resp)
 	case mbGetPollHistory:
-		//req := r.(MbtcpPollOpReq)
-		return ErrTodo
+		req := r.(MbtcpPollOpReq)
+		ret, err := b.historyMap.GetAll(req.Name)
+		if err != nil {
+			log.WithFields(log.Fields{"Name": req.Name}).Error(err.Error())
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+			return b.naiveResponder(cmd, resp)
+		}
+		resp := MbtcpHistoryData{Tid: req.Tid, Name: req.Name, Status: "ok", Data: ret}
+		return b.naiveResponder(cmd, resp)
 	case mbCreateFilter, mbUpdateFilter:
 		//req := r.(MbtcpFilterStatus)
 		return ErrTodo

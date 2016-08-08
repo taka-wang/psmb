@@ -128,6 +128,14 @@ type MbtcpPollsStatus struct {
 	Polls  []MbtcpPollStatus `json:"polls"`
 }
 
+// MbtcpHistoryData history data
+type MbtcpHistoryData struct {
+	Tid    int64       `json:"tid"`
+	Name   string      `json:"name"`
+	Status string      `json:"status"`
+	Data   interface{} `json:"history,omitempty"` // universal data container
+}
+
 // MbtcpFilterStatus filter status
 type MbtcpFilterStatus struct {
 	Tid     int64        `json:"tid"`

@@ -85,6 +85,562 @@ func init() {
 	}
 }
 
+func TestPollRequestSingle(t *testing.T) {
+	s := sugar.New(t)
+
+	s.Assert("`mbtcp.poll.create FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
+		// send request
+		readReq := psmb.MbtcpPollStatus{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			//Name:     "LED_11",
+			Interval: 1,
+			Enabled:  true,
+			IP:       hostName,
+			Port:     portNum1,
+			FC:       1,
+			Slave:    1,
+			Addr:     3,
+			Len:      7,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.poll.create"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return true
+		}
+		return false
+
+	})
+
+	s.Assert("`mbtcp.poll.create/mbtcp.poll.delete FC1` read bits test: port 503 - interval 1", func(log sugar.Log) bool {
+		// send request
+		readReq := psmb.MbtcpPollStatus{
+			From:     "web",
+			Tid:      time.Now().UTC().UnixNano(),
+			Name:     "LED_11",
+			Interval: 1,
+			Enabled:  true,
+			IP:       hostName,
+			Port:     portNum1,
+			FC:       1,
+			Slave:    1,
+			Addr:     3,
+			Len:      7,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.poll.create"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		go longSubscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		time.Sleep(10 * time.Second)
+
+		historyReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+
+		historyReqStr, _ := json.Marshal(historyReq)
+		cmd = "mbtcp.poll.history"
+		go publisher(cmd, string(delReqStr))
+
+		time.Sleep(5 * time.Second)
+
+		// delete poller
+		delReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+
+		delReqStr, _ := json.Marshal(delReq)
+		cmd = "mbtcp.poll.delete"
+		go publisher(cmd, string(delReqStr))
+
+		time.Sleep(5 * time.Second)
+
+		longRun = false
+		time.Sleep(1 * time.Second)
+
+		return true
+	})
+
+	s.Assert("`mbtcp.poll.update/mbtcp.poll.delete FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
+		// send request
+		readReq := psmb.MbtcpPollStatus{
+			From:     "web",
+			Tid:      time.Now().UTC().UnixNano(),
+			Name:     "LED_11",
+			Interval: 1,
+			Enabled:  true,
+			IP:       hostName,
+			Port:     portNum1,
+			FC:       1,
+			Slave:    1,
+			Addr:     3,
+			Len:      7,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.poll.create"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		go longSubscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		time.Sleep(10 * time.Second)
+
+		// update request
+		updateReq := psmb.MbtcpPollOpReq{
+			From:     "web",
+			Tid:      time.Now().UTC().UnixNano(),
+			Name:     "",
+			Interval: 2,
+		}
+		updateReqStr, _ := json.Marshal(updateReq)
+		cmd = "mbtcp.poll.update"
+		go publisher(cmd, string(updateReqStr))
+
+		time.Sleep(3 * time.Second)
+
+		// delete poller
+		delReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+
+		delReqStr, _ := json.Marshal(delReq)
+		cmd = "mbtcp.poll.delete"
+		go publisher(cmd, string(delReqStr))
+
+		time.Sleep(5 * time.Second)
+
+		longRun = false // bad
+		time.Sleep(1 * time.Second)
+
+		return true
+	})
+
+	s.Assert("`mbtcp.poll.update/mbtcp.poll.delete FC1` read bits test: port 503 - interval 2", func(log sugar.Log) bool {
+		// send request
+		readReq := psmb.MbtcpPollStatus{
+			From:     "web",
+			Tid:      time.Now().UTC().UnixNano(),
+			Name:     "LED_11",
+			Interval: 1,
+			Enabled:  true,
+			IP:       hostName,
+			Port:     portNum1,
+			FC:       1,
+			Slave:    1,
+			Addr:     3,
+			Len:      7,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.poll.create"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		go longSubscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		time.Sleep(10 * time.Second)
+
+		// update request
+		updateReq := psmb.MbtcpPollOpReq{
+			From:     "web",
+			Tid:      time.Now().UTC().UnixNano(),
+			Name:     "LED_11",
+			Interval: 2,
+		}
+		updateReqStr, _ := json.Marshal(updateReq)
+		cmd = "mbtcp.poll.update"
+		go publisher(cmd, string(updateReqStr))
+
+		time.Sleep(20 * time.Second)
+
+		// delete poller
+		delReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+
+		delReqStr, _ := json.Marshal(delReq)
+		cmd = "mbtcp.poll.delete"
+		go publisher(cmd, string(delReqStr))
+
+		time.Sleep(5 * time.Second)
+
+		longRun = false // bad
+		time.Sleep(1 * time.Second)
+
+		return true
+	})
+
+	s.Assert("`mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
+		// send request
+		readReq := psmb.MbtcpPollStatus{
+			From:     "web",
+			Tid:      time.Now().UTC().UnixNano(),
+			Name:     "LED_11",
+			Interval: 1,
+			Enabled:  true,
+			IP:       hostName,
+			Port:     portNum1,
+			FC:       1,
+			Slave:    1,
+			Addr:     3,
+			Len:      7,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.poll.create"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		go longSubscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		time.Sleep(10 * time.Second)
+
+		// update request
+		updateReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "",
+		}
+		updateReqStr, _ := json.Marshal(updateReq)
+		cmd = "mbtcp.poll.read"
+		go publisher(cmd, string(updateReqStr))
+
+		time.Sleep(3 * time.Second)
+
+		// delete poller
+		delReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+
+		delReqStr, _ := json.Marshal(delReq)
+		cmd = "mbtcp.poll.delete"
+		go publisher(cmd, string(delReqStr))
+
+		time.Sleep(5 * time.Second)
+
+		longRun = false // bad
+		time.Sleep(1 * time.Second)
+
+		return true
+	})
+
+	s.Assert("`mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503", func(log sugar.Log) bool {
+		// send request
+		readReq := psmb.MbtcpPollStatus{
+			From:     "web",
+			Tid:      time.Now().UTC().UnixNano(),
+			Name:     "LED_11",
+			Interval: 1,
+			Enabled:  false,
+			IP:       hostName,
+			Port:     portNum1,
+			FC:       1,
+			Slave:    1,
+			Addr:     3,
+			Len:      7,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.poll.create"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		go longSubscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		time.Sleep(10 * time.Second)
+
+		// update request
+		updateReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+		updateReqStr, _ := json.Marshal(updateReq)
+		cmd = "mbtcp.poll.read"
+		go publisher(cmd, string(updateReqStr))
+
+		time.Sleep(3 * time.Second)
+
+		// delete poller
+		delReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+
+		delReqStr, _ := json.Marshal(delReq)
+		cmd = "mbtcp.poll.delete"
+		go publisher(cmd, string(delReqStr))
+
+		time.Sleep(5 * time.Second)
+
+		longRun = false // bad
+		time.Sleep(1 * time.Second)
+
+		return true
+	})
+
+	s.Assert("`mbtcp.poll.toggle/mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503", func(log sugar.Log) bool {
+		// send request
+		readReq := psmb.MbtcpPollStatus{
+			From:     "web",
+			Tid:      time.Now().UTC().UnixNano(),
+			Name:     "LED_11",
+			Interval: 1,
+			Enabled:  true,
+			IP:       hostName,
+			Port:     portNum1,
+			FC:       1,
+			Slave:    1,
+			Addr:     3,
+			Len:      7,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.poll.create"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		go longSubscriber()
+
+		time.Sleep(10 * time.Second)
+
+		// update request
+		updateReq := psmb.MbtcpPollOpReq{
+			From:    "web",
+			Tid:     time.Now().UTC().UnixNano(),
+			Name:    "LED_11",
+			Enabled: false,
+		}
+		updateReqStr, _ := json.Marshal(updateReq)
+		cmd = "mbtcp.poll.toggle"
+		go publisher(cmd, string(updateReqStr))
+
+		time.Sleep(3 * time.Second)
+
+		// read request
+		updateReq2 := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+		updateReqStr2, _ := json.Marshal(updateReq2)
+		cmd = "mbtcp.poll.read"
+		go publisher(cmd, string(updateReqStr2))
+
+		time.Sleep(3 * time.Second)
+
+		// delete poller
+		delReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+
+		delReqStr, _ := json.Marshal(delReq)
+		cmd = "mbtcp.poll.delete"
+		go publisher(cmd, string(delReqStr))
+
+		time.Sleep(5 * time.Second)
+
+		longRun = false // bad
+		time.Sleep(1 * time.Second)
+
+		return true
+	})
+
+	s.Assert("`mbtcp.poll.toggle/mbtcp.poll.delete FC1` read bits test: port 503 - enable", func(log sugar.Log) bool {
+		// send request
+		readReq := psmb.MbtcpPollStatus{
+			From:     "web",
+			Tid:      time.Now().UTC().UnixNano(),
+			Name:     "LED_11",
+			Interval: 1,
+			Enabled:  false,
+			IP:       hostName,
+			Port:     portNum1,
+			FC:       1,
+			Slave:    1,
+			Addr:     3,
+			Len:      7,
+		}
+
+		readReqStr, _ := json.Marshal(readReq)
+		cmd := "mbtcp.poll.create"
+		go publisher(cmd, string(readReqStr))
+
+		// receive response
+		s1, s2 := subscriber()
+
+		go longSubscriber()
+
+		log("req: %s, %s", cmd, string(readReqStr))
+		log("res: %s, %s", s1, s2)
+
+		// parse resonse
+		var r2 psmb.MbtcpSimpleRes
+		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
+			fmt.Println("json err:", err)
+		}
+		// check response
+		if r2.Status != "ok" {
+			return false
+		}
+
+		time.Sleep(10 * time.Second)
+
+		// enable poller
+		enableReq := psmb.MbtcpPollOpReq{
+			From:    "web",
+			Tid:     time.Now().UTC().UnixNano(),
+			Name:    "LED_11",
+			Enabled: true,
+		}
+
+		enableReqStr, _ := json.Marshal(enableReq)
+		cmd = "mbtcp.poll.toggle"
+		go publisher(cmd, string(enableReqStr))
+
+		time.Sleep(10 * time.Second)
+
+		// delete poller
+		delReq := psmb.MbtcpPollOpReq{
+			From: "web",
+			Tid:  time.Now().UTC().UnixNano(),
+			Name: "LED_11",
+		}
+
+		delReqStr, _ := json.Marshal(delReq)
+		cmd = "mbtcp.poll.delete"
+		go publisher(cmd, string(delReqStr))
+
+		time.Sleep(2 * time.Second)
+
+		longRun = false
+		time.Sleep(1 * time.Second)
+
+		return true
+	})
+}
+
 func TestTimeoutOps(t *testing.T) {
 	s := sugar.New(t)
 
@@ -4044,550 +4600,6 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-}
-
-func TestPollRequestSingle(t *testing.T) {
-	s := sugar.New(t)
-
-	s.Assert("`mbtcp.poll.create FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
-		// send request
-		readReq := psmb.MbtcpPollStatus{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			//Name:     "LED_11",
-			Interval: 1,
-			Enabled:  true,
-			IP:       hostName,
-			Port:     portNum1,
-			FC:       1,
-			Slave:    1,
-			Addr:     3,
-			Len:      7,
-		}
-
-		readReqStr, _ := json.Marshal(readReq)
-		cmd := "mbtcp.poll.create"
-		go publisher(cmd, string(readReqStr))
-
-		// receive response
-		s1, s2 := subscriber()
-
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
-
-		// parse resonse
-		var r2 psmb.MbtcpSimpleRes
-		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
-		}
-		// check response
-		if r2.Status != "ok" {
-			return true
-		}
-		return false
-
-	})
-
-	s.Assert("`mbtcp.poll.create/mbtcp.poll.delete FC1` read bits test: port 503 - interval 1", func(log sugar.Log) bool {
-		// send request
-		readReq := psmb.MbtcpPollStatus{
-			From:     "web",
-			Tid:      time.Now().UTC().UnixNano(),
-			Name:     "LED_11",
-			Interval: 1,
-			Enabled:  true,
-			IP:       hostName,
-			Port:     portNum1,
-			FC:       1,
-			Slave:    1,
-			Addr:     3,
-			Len:      7,
-		}
-
-		readReqStr, _ := json.Marshal(readReq)
-		cmd := "mbtcp.poll.create"
-		go publisher(cmd, string(readReqStr))
-
-		// receive response
-		s1, s2 := subscriber()
-
-		go longSubscriber()
-
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
-
-		// parse resonse
-		var r2 psmb.MbtcpSimpleRes
-		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
-		}
-		// check response
-		if r2.Status != "ok" {
-			return false
-		}
-
-		time.Sleep(10 * time.Second)
-
-		// delete poller
-		delReq := psmb.MbtcpPollOpReq{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			Name: "LED_11",
-		}
-
-		delReqStr, _ := json.Marshal(delReq)
-		cmd = "mbtcp.poll.delete"
-		go publisher(cmd, string(delReqStr))
-
-		time.Sleep(5 * time.Second)
-
-		longRun = false
-		time.Sleep(1 * time.Second)
-
-		return true
-	})
-
-	s.Assert("`mbtcp.poll.update/mbtcp.poll.delete FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
-		// send request
-		readReq := psmb.MbtcpPollStatus{
-			From:     "web",
-			Tid:      time.Now().UTC().UnixNano(),
-			Name:     "LED_11",
-			Interval: 1,
-			Enabled:  true,
-			IP:       hostName,
-			Port:     portNum1,
-			FC:       1,
-			Slave:    1,
-			Addr:     3,
-			Len:      7,
-		}
-
-		readReqStr, _ := json.Marshal(readReq)
-		cmd := "mbtcp.poll.create"
-		go publisher(cmd, string(readReqStr))
-
-		// receive response
-		s1, s2 := subscriber()
-
-		go longSubscriber()
-
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
-
-		// parse resonse
-		var r2 psmb.MbtcpSimpleRes
-		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
-		}
-		// check response
-		if r2.Status != "ok" {
-			return false
-		}
-
-		time.Sleep(10 * time.Second)
-
-		// update request
-		updateReq := psmb.MbtcpPollOpReq{
-			From:     "web",
-			Tid:      time.Now().UTC().UnixNano(),
-			Name:     "",
-			Interval: 2,
-		}
-		updateReqStr, _ := json.Marshal(updateReq)
-		cmd = "mbtcp.poll.update"
-		go publisher(cmd, string(updateReqStr))
-
-		time.Sleep(3 * time.Second)
-
-		// delete poller
-		delReq := psmb.MbtcpPollOpReq{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			Name: "LED_11",
-		}
-
-		delReqStr, _ := json.Marshal(delReq)
-		cmd = "mbtcp.poll.delete"
-		go publisher(cmd, string(delReqStr))
-
-		time.Sleep(5 * time.Second)
-
-		longRun = false // bad
-		time.Sleep(1 * time.Second)
-
-		return true
-	})
-
-	s.Assert("`mbtcp.poll.update/mbtcp.poll.delete FC1` read bits test: port 503 - interval 2", func(log sugar.Log) bool {
-		// send request
-		readReq := psmb.MbtcpPollStatus{
-			From:     "web",
-			Tid:      time.Now().UTC().UnixNano(),
-			Name:     "LED_11",
-			Interval: 1,
-			Enabled:  true,
-			IP:       hostName,
-			Port:     portNum1,
-			FC:       1,
-			Slave:    1,
-			Addr:     3,
-			Len:      7,
-		}
-
-		readReqStr, _ := json.Marshal(readReq)
-		cmd := "mbtcp.poll.create"
-		go publisher(cmd, string(readReqStr))
-
-		// receive response
-		s1, s2 := subscriber()
-
-		go longSubscriber()
-
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
-
-		// parse resonse
-		var r2 psmb.MbtcpSimpleRes
-		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
-		}
-		// check response
-		if r2.Status != "ok" {
-			return false
-		}
-
-		time.Sleep(10 * time.Second)
-
-		// update request
-		updateReq := psmb.MbtcpPollOpReq{
-			From:     "web",
-			Tid:      time.Now().UTC().UnixNano(),
-			Name:     "LED_11",
-			Interval: 2,
-		}
-		updateReqStr, _ := json.Marshal(updateReq)
-		cmd = "mbtcp.poll.update"
-		go publisher(cmd, string(updateReqStr))
-
-		time.Sleep(20 * time.Second)
-
-		// delete poller
-		delReq := psmb.MbtcpPollOpReq{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			Name: "LED_11",
-		}
-
-		delReqStr, _ := json.Marshal(delReq)
-		cmd = "mbtcp.poll.delete"
-		go publisher(cmd, string(delReqStr))
-
-		time.Sleep(5 * time.Second)
-
-		longRun = false // bad
-		time.Sleep(1 * time.Second)
-
-		return true
-	})
-
-	s.Assert("`mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
-		// send request
-		readReq := psmb.MbtcpPollStatus{
-			From:     "web",
-			Tid:      time.Now().UTC().UnixNano(),
-			Name:     "LED_11",
-			Interval: 1,
-			Enabled:  true,
-			IP:       hostName,
-			Port:     portNum1,
-			FC:       1,
-			Slave:    1,
-			Addr:     3,
-			Len:      7,
-		}
-
-		readReqStr, _ := json.Marshal(readReq)
-		cmd := "mbtcp.poll.create"
-		go publisher(cmd, string(readReqStr))
-
-		// receive response
-		s1, s2 := subscriber()
-
-		go longSubscriber()
-
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
-
-		// parse resonse
-		var r2 psmb.MbtcpSimpleRes
-		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
-		}
-		// check response
-		if r2.Status != "ok" {
-			return false
-		}
-
-		time.Sleep(10 * time.Second)
-
-		// update request
-		updateReq := psmb.MbtcpPollOpReq{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			Name: "",
-		}
-		updateReqStr, _ := json.Marshal(updateReq)
-		cmd = "mbtcp.poll.read"
-		go publisher(cmd, string(updateReqStr))
-
-		time.Sleep(3 * time.Second)
-
-		// delete poller
-		delReq := psmb.MbtcpPollOpReq{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			Name: "LED_11",
-		}
-
-		delReqStr, _ := json.Marshal(delReq)
-		cmd = "mbtcp.poll.delete"
-		go publisher(cmd, string(delReqStr))
-
-		time.Sleep(5 * time.Second)
-
-		longRun = false // bad
-		time.Sleep(1 * time.Second)
-
-		return true
-	})
-
-	s.Assert("`mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503", func(log sugar.Log) bool {
-		// send request
-		readReq := psmb.MbtcpPollStatus{
-			From:     "web",
-			Tid:      time.Now().UTC().UnixNano(),
-			Name:     "LED_11",
-			Interval: 1,
-			Enabled:  false,
-			IP:       hostName,
-			Port:     portNum1,
-			FC:       1,
-			Slave:    1,
-			Addr:     3,
-			Len:      7,
-		}
-
-		readReqStr, _ := json.Marshal(readReq)
-		cmd := "mbtcp.poll.create"
-		go publisher(cmd, string(readReqStr))
-
-		// receive response
-		s1, s2 := subscriber()
-
-		go longSubscriber()
-
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
-
-		// parse resonse
-		var r2 psmb.MbtcpSimpleRes
-		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
-		}
-		// check response
-		if r2.Status != "ok" {
-			return false
-		}
-
-		time.Sleep(10 * time.Second)
-
-		// update request
-		updateReq := psmb.MbtcpPollOpReq{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			Name: "LED_11",
-		}
-		updateReqStr, _ := json.Marshal(updateReq)
-		cmd = "mbtcp.poll.read"
-		go publisher(cmd, string(updateReqStr))
-
-		time.Sleep(3 * time.Second)
-
-		// delete poller
-		delReq := psmb.MbtcpPollOpReq{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			Name: "LED_11",
-		}
-
-		delReqStr, _ := json.Marshal(delReq)
-		cmd = "mbtcp.poll.delete"
-		go publisher(cmd, string(delReqStr))
-
-		time.Sleep(5 * time.Second)
-
-		longRun = false // bad
-		time.Sleep(1 * time.Second)
-
-		return true
-	})
-
-	s.Assert("`mbtcp.poll.toggle/mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503", func(log sugar.Log) bool {
-		// send request
-		readReq := psmb.MbtcpPollStatus{
-			From:     "web",
-			Tid:      time.Now().UTC().UnixNano(),
-			Name:     "LED_11",
-			Interval: 1,
-			Enabled:  true,
-			IP:       hostName,
-			Port:     portNum1,
-			FC:       1,
-			Slave:    1,
-			Addr:     3,
-			Len:      7,
-		}
-
-		readReqStr, _ := json.Marshal(readReq)
-		cmd := "mbtcp.poll.create"
-		go publisher(cmd, string(readReqStr))
-
-		// receive response
-		s1, s2 := subscriber()
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
-
-		// parse resonse
-		var r2 psmb.MbtcpSimpleRes
-		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
-		}
-		// check response
-		if r2.Status != "ok" {
-			return false
-		}
-
-		go longSubscriber()
-
-		time.Sleep(10 * time.Second)
-
-		// update request
-		updateReq := psmb.MbtcpPollOpReq{
-			From:    "web",
-			Tid:     time.Now().UTC().UnixNano(),
-			Name:    "LED_11",
-			Enabled: false,
-		}
-		updateReqStr, _ := json.Marshal(updateReq)
-		cmd = "mbtcp.poll.toggle"
-		go publisher(cmd, string(updateReqStr))
-
-		time.Sleep(3 * time.Second)
-
-		// read request
-		updateReq2 := psmb.MbtcpPollOpReq{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			Name: "LED_11",
-		}
-		updateReqStr2, _ := json.Marshal(updateReq2)
-		cmd = "mbtcp.poll.read"
-		go publisher(cmd, string(updateReqStr2))
-
-		time.Sleep(3 * time.Second)
-
-		// delete poller
-		delReq := psmb.MbtcpPollOpReq{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			Name: "LED_11",
-		}
-
-		delReqStr, _ := json.Marshal(delReq)
-		cmd = "mbtcp.poll.delete"
-		go publisher(cmd, string(delReqStr))
-
-		time.Sleep(5 * time.Second)
-
-		longRun = false // bad
-		time.Sleep(1 * time.Second)
-
-		return true
-	})
-
-	s.Assert("`mbtcp.poll.toggle/mbtcp.poll.delete FC1` read bits test: port 503 - enable", func(log sugar.Log) bool {
-		// send request
-		readReq := psmb.MbtcpPollStatus{
-			From:     "web",
-			Tid:      time.Now().UTC().UnixNano(),
-			Name:     "LED_11",
-			Interval: 1,
-			Enabled:  false,
-			IP:       hostName,
-			Port:     portNum1,
-			FC:       1,
-			Slave:    1,
-			Addr:     3,
-			Len:      7,
-		}
-
-		readReqStr, _ := json.Marshal(readReq)
-		cmd := "mbtcp.poll.create"
-		go publisher(cmd, string(readReqStr))
-
-		// receive response
-		s1, s2 := subscriber()
-
-		go longSubscriber()
-
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
-
-		// parse resonse
-		var r2 psmb.MbtcpSimpleRes
-		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
-		}
-		// check response
-		if r2.Status != "ok" {
-			return false
-		}
-
-		time.Sleep(10 * time.Second)
-
-		// enable poller
-		enableReq := psmb.MbtcpPollOpReq{
-			From:    "web",
-			Tid:     time.Now().UTC().UnixNano(),
-			Name:    "LED_11",
-			Enabled: true,
-		}
-
-		enableReqStr, _ := json.Marshal(enableReq)
-		cmd = "mbtcp.poll.toggle"
-		go publisher(cmd, string(enableReqStr))
-
-		time.Sleep(10 * time.Second)
-
-		// delete poller
-		delReq := psmb.MbtcpPollOpReq{
-			From: "web",
-			Tid:  time.Now().UTC().UnixNano(),
-			Name: "LED_11",
-		}
-
-		delReqStr, _ := json.Marshal(delReq)
-		cmd = "mbtcp.poll.delete"
-		go publisher(cmd, string(delReqStr))
-
-		time.Sleep(2 * time.Second)
-
-		longRun = false
-		time.Sleep(1 * time.Second)
-
-		return true
-	})
 }
 
 func TestPollsRequest(t *testing.T) {
