@@ -8,8 +8,9 @@ ENV EP_BACKEND "consul.cmwang.net:8500"
 
 WORKDIR /go
 RUN go get github.com/taka-wang/psmb/v-conf
-RUN go get github.com/taka-wang/psmb
 RUN go get -u github.com/taka-wang/psmb/tcp
+RUN go get github.com/taka-wang/psmb
+
 
 ## Load app files
 ADD . /go/src/github.com/taka-wang/psmb/redis-history
