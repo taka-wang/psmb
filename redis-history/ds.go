@@ -10,8 +10,7 @@ import (
 	"time"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/spf13/viper"
-	psmb "github.com/taka-wang/psmb"
+	conf "github.com/taka-wang/v-conf"
 	log "github.com/takawang/logrus"
 )
 
@@ -24,15 +23,15 @@ var (
 
 func setDefaults() {
 	// set default redis values
-	viper.SetDefault(keyRedisServer, defaultRedisServer)
-	viper.SetDefault(keyRedisPort, defaultRedisPort)
-	viper.SetDefault(keyRedisMaxIdel, defaultRedisMaxIdel)
-	viper.SetDefault(keyRedisMaxActive, defaultRedisMaxActive)
-	viper.SetDefault(keyRedisIdelTimeout, defaultRedisIdelTimeout)
+	conf.SetDefault(keyRedisServer, defaultRedisServer)
+	conf.SetDefault(keyRedisPort, defaultRedisPort)
+	conf.SetDefault(keyRedisMaxIdel, defaultRedisMaxIdel)
+	conf.SetDefault(keyRedisMaxActive, defaultRedisMaxActive)
+	conf.SetDefault(keyRedisIdelTimeout, defaultRedisIdelTimeout)
 
 	// set default redis-history values
-	viper.SetDefault(keyHashName, defaultHashName)
-	viper.SetDefault(keySetPrefix, defaultSetPrefix)
+	conf.SetDefault(keyHashName, defaultHashName)
+	conf.SetDefault(keySetPrefix, defaultSetPrefix)
 
 	// Note: for docker environment
 	// lookup redis server
@@ -41,7 +40,7 @@ func setDefaults() {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Info("docker run")
-		viper.Set(keyRedisServer, host[0]) // override default
+		conf.Set(keyRedisServer, host[0]) // override default
 	}
 }
 
@@ -49,20 +48,20 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	psmb.InitConfig(packageName) // init based config
+	conf.InitConfig(packageName) // init based config
 	setDefaults()                // set defaults
-	psmb.SetLogger(packageName)  // init logger
+	conf.SetLogger(packageName)  // init logger
 
-	hashName = viper.GetString(keyHashName)
-	zsetPrefix = viper.GetString(keySetPrefix)
+	hashName = conf.GetString(keyHashName)
+	zsetPrefix = conf.GetString(keySetPrefix)
 
 	RedisPool = &redis.Pool{
-		MaxIdle: viper.GetInt(keyRedisMaxIdel),
+		MaxIdle: conf.GetInt(keyRedisMaxIdel),
 		// MaxActive: When zero, there is no limit on the number of connections in the pool.
-		MaxActive:   viper.GetInt(keyRedisMaxActive),
-		IdleTimeout: viper.GetDuration(keyRedisIdelTimeout) * time.Second,
+		MaxActive:   conf.GetInt(keyRedisMaxActive),
+		IdleTimeout: conf.GetDuration(keyRedisIdelTimeout) * time.Second,
 		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", viper.GetString(keyRedisServer)+":"+viper.GetString(keyRedisPort))
+			conn, err := redis.Dial("tcp", conf.GetString(keyRedisServer)+":"+conf.GetString(keyRedisPort))
 			if err != nil {
 				log.WithFields(log.Fields{"err": err}).Error("Redis pool dial error")
 			}

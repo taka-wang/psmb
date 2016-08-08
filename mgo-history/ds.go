@@ -10,8 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/spf13/viper"
-	psmb "github.com/taka-wang/psmb"
+	conf "github.com/taka-wang/v-conf"
 	log "github.com/takawang/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -25,18 +24,18 @@ var (
 
 func setDefaults() {
 	// set default mongo values
-	viper.SetDefault(keyMongoServer, defaultMongoServer)
-	viper.SetDefault(keyMongoPort, defaultMongoPort)
-	viper.SetDefault(keyMongoIsDrop, defaultMongoIsDrop)
-	viper.SetDefault(keyMongoConnTimeout, defaultMongoConnTimeout)
-	viper.SetDefault(keyMongoDbName, defaultMongoDbName)
-	viper.SetDefault(keyMongoEnableAuth, defaultMongoEnableAuth)
-	viper.SetDefault(keyMongoUserName, defaultMongoUserName)
-	viper.SetDefault(keyMongoPassword, defaultMongoPassword)
+	conf.SetDefault(keyMongoServer, defaultMongoServer)
+	conf.SetDefault(keyMongoPort, defaultMongoPort)
+	conf.SetDefault(keyMongoIsDrop, defaultMongoIsDrop)
+	conf.SetDefault(keyMongoConnTimeout, defaultMongoConnTimeout)
+	conf.SetDefault(keyMongoDbName, defaultMongoDbName)
+	conf.SetDefault(keyMongoEnableAuth, defaultMongoEnableAuth)
+	conf.SetDefault(keyMongoUserName, defaultMongoUserName)
+	conf.SetDefault(keyMongoPassword, defaultMongoPassword)
 
 	// set default mongo-history values
-	viper.SetDefault(keyDbName, defaultDbName)
-	viper.SetDefault(keyCollectionName, defaultCollectionName)
+	conf.SetDefault(keyDbName, defaultDbName)
+	conf.SetDefault(keyCollectionName, defaultCollectionName)
 
 	// Note: for docker environment,
 	// lookup mongo server
@@ -45,7 +44,7 @@ func setDefaults() {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
-		viper.Set(keyMongoServer, host[0]) // override defaults
+		conf.Set(keyMongoServer, host[0]) // override defaults
 	}
 }
 
@@ -53,29 +52,29 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	psmb.InitConfig(packageName) // init based config
+	conf.InitConfig(packageName) // init based config
 	setDefaults()                // set defaults
-	psmb.SetLogger(packageName)  // init logger
+	conf.SetLogger(packageName)  // init logger
 
-	databaseName = viper.GetString(keyDbName)
-	collectionName = viper.GetString(keyCollectionName)
+	databaseName = conf.GetString(keyDbName)
+	collectionName = conf.GetString(keyCollectionName)
 
-	if viper.GetBool(keyMongoEnableAuth) {
+	if conf.GetBool(keyMongoEnableAuth) {
 		// We need this object to establish a session to our MongoDB.
 		mongoDBDialInfo = &mgo.DialInfo{
 			// allow multiple connection string
-			Addrs:    []string{viper.GetString(keyMongoServer) + ":" + viper.GetString(keyMongoPort)},
-			Timeout:  viper.GetDuration(keyMongoConnTimeout) * time.Second,
-			Database: viper.GetString(keyMongoDbName),
-			Username: viper.GetString(keyMongoUserName),
-			Password: viper.GetString(keyMongoPassword),
+			Addrs:    []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
+			Timeout:  conf.GetDuration(keyMongoConnTimeout) * time.Second,
+			Database: conf.GetString(keyMongoDbName),
+			Username: conf.GetString(keyMongoUserName),
+			Password: conf.GetString(keyMongoPassword),
 		}
 	} else {
 		// We need this object to establish a session to our MongoDB.
 		mongoDBDialInfo = &mgo.DialInfo{
 			// allow multiple connection string
-			Addrs:   []string{viper.GetString(keyMongoServer) + ":" + viper.GetString(keyMongoPort)},
-			Timeout: viper.GetDuration(keyMongoConnTimeout) * time.Second,
+			Addrs:   []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
+			Timeout: conf.GetDuration(keyMongoConnTimeout) * time.Second,
 		}
 	}
 }
@@ -117,7 +116,7 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 	pool.SetMode(mgo.Monotonic, true)
 
 	// Drop Database
-	if viper.GetBool(keyMongoIsDrop) {
+	if conf.GetBool(keyMongoIsDrop) {
 		sessionCopy := pool.Copy()
 		err := sessionCopy.DB(databaseName).DropDatabase()
 		if err != nil {

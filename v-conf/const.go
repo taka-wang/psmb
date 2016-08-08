@@ -1,4 +1,4 @@
-package psmb
+package conf
 
 // environment variable names
 const (

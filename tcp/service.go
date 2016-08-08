@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/spf13/viper"
 	. "github.com/taka-wang/psmb"
 	cron "github.com/taka-wang/psmb/cron"
+	conf "github.com/taka-wang/v-conf"
 	log "github.com/takawang/logrus"
 	zmq "github.com/takawang/zmq3"
 )
@@ -27,27 +27,27 @@ var (
 
 func setDefaults() {
 	// set default psmbtcp values
-	viper.SetDefault(keyTCPDefaultPort, defaultTCPDefaultPort)
-	viper.SetDefault(keyMinConnectionTimout, defaultMinConnectionTimout)
-	viper.SetDefault(keyPollInterval, defaultPollInterval)
+	conf.SetDefault(keyTCPDefaultPort, defaultTCPDefaultPort)
+	conf.SetDefault(keyMinConnectionTimout, defaultMinConnectionTimout)
+	conf.SetDefault(keyPollInterval, defaultPollInterval)
 	// set default zmq values
-	viper.SetDefault(keyZmqPubUpstream, defaultZmqPubUpstream)
-	viper.SetDefault(keyZmqPubDownstream, defaultZmqPubDownstream)
-	viper.SetDefault(keyZmqSubUpstream, defaultZmqSubUpstream)
-	viper.SetDefault(keyZmqSubDownstream, defaultZmqSubDownstream)
+	conf.SetDefault(keyZmqPubUpstream, defaultZmqPubUpstream)
+	conf.SetDefault(keyZmqPubDownstream, defaultZmqPubDownstream)
+	conf.SetDefault(keyZmqSubUpstream, defaultZmqSubUpstream)
+	conf.SetDefault(keyZmqSubDownstream, defaultZmqSubDownstream)
 }
 
 func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	InitConfig(packageName) // init psmb based config
-	setDefaults()           // set defaults
-	SetLogger(packageName)  // init psmb logger
+	conf.InitConfig(packageName) // init psmb based config
+	setDefaults()                // set defaults
+	conf.SetLogger(packageName)  // init psmb logger
 
-	defaultMbPort = viper.GetString(keyTCPDefaultPort)
-	minConnTimeout = viper.GetInt64(keyMinConnectionTimout)
-	minPollInterval = uint64(viper.GetInt(keyPollInterval))
+	defaultMbPort = conf.GetString(keyTCPDefaultPort)
+	minConnTimeout = conf.GetInt64(keyMinConnectionTimout)
+	minPollInterval = uint64(conf.GetInt(keyPollInterval))
 }
 
 // @Implement IProactiveService contract implicitly
@@ -162,11 +162,11 @@ func (b *Service) initZMQPub() {
 	log.Debug("Init ZMQ Publishers")
 	// upstream publisher
 	b.pub.upstream, _ = zmq.NewSocket(zmq.PUB)
-	b.pub.upstream.Bind(viper.GetString(keyZmqPubUpstream))
+	b.pub.upstream.Bind(conf.GetString(keyZmqPubUpstream))
 
 	// downstream publisher
 	b.pub.downstream, _ = zmq.NewSocket(zmq.PUB)
-	b.pub.downstream.Connect(viper.GetString(keyZmqPubDownstream))
+	b.pub.downstream.Connect(conf.GetString(keyZmqPubDownstream))
 }
 
 // initZMQSub init ZMQ subscribers.
@@ -174,12 +174,12 @@ func (b *Service) initZMQSub() {
 	log.Debug("Init ZMQ Subscribers")
 	// upstream subscriber
 	b.sub.upstream, _ = zmq.NewSocket(zmq.SUB)
-	b.sub.upstream.Bind(viper.GetString(keyZmqSubUpstream))
+	b.sub.upstream.Bind(conf.GetString(keyZmqSubUpstream))
 	b.sub.upstream.SetSubscribe("")
 
 	// downstream subscriber
 	b.sub.downstream, _ = zmq.NewSocket(zmq.SUB)
-	b.sub.downstream.Connect(viper.GetString(keyZmqSubDownstream))
+	b.sub.downstream.Connect(conf.GetString(keyZmqSubDownstream))
 	b.sub.downstream.SetSubscribe("")
 }
 
