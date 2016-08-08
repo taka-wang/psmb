@@ -53,7 +53,7 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ## Deployment Diagram
 
-![deployment](http://plantuml.com/plantuml/svg/5Sh13O0W3030LNG0wTzj2ZH0f8MKDiRjrVVTtYHrp-JQjsesrmcWU8VIh7hqHPg668c5D1WCBpnkb0BJkGFZCbB8DFju-4im5yVmsmi0)
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0wTzj2ZH0f8MKDiRjrVVTtYHrp-JQjsesrmcWU8VIh7hqHPg668c5D1WCBpnkb0BJkGFZCbB8DFju-4im5yVmsmi0)
 
 ---
 
@@ -132,4 +132,4 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ## UML
 
-![uml](http://plantuml.com/plantuml/svg/5SZR3O0W3030LNG0wR_RbDe04Ghf8wnllCyxcr2FXqFxKTsNtG2AEvNcDN8OAqrn5ayq1pY-U6sK0Yj6Xu7ch40TpM3PoEdl3m00.svg)
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZR3O0W3030LNG0wR_RbDe04Ghf8wnllCyxcr2FXqFxKTsNtG2AEvNcDN8OAqrn5ayq1pY-U6sK0Yj6Xu7ch40TpM3PoEdl3m00)
