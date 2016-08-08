@@ -23,10 +23,10 @@ func init() {
 func main() {
 	// dependency injection & factory pattern
 	if srv, _ := mbtcp.NewService(
-		"MemReader",  // Reader Data Store
-		"MemWriter",  // Writer Data Store
-		"MgoHistory", // History Data Store
-		"Cron",       // Scheduler
+		"MemReader", // Reader Data Store
+		"MemWriter", // Writer Data Store
+		"History",   // History Data Store
+		"Cron",      // Scheduler
 	); srv != nil {
 		srv.Start()
 	}

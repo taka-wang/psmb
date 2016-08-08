@@ -154,6 +154,7 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	ts := time.Now().UTC().UnixNano()
 	// Collection history
 	c := session.DB(databaseName).C(collectionName)
+	// update or insert by name and data
 	if _, err := c.Upsert(bson.M{"name": name, "data": data}, &blob{Name: name, Data: data, Timestamp: ts}); err != nil {
 
 		log.WithFields(log.Fields{"err": err}).Error("Fail to add to history collection")
