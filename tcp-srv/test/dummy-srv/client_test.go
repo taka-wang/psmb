@@ -127,7 +127,7 @@ func TestPollRequestSingle(t *testing.T) {
 
 	})
 
-	s.Assert("`mbtcp.poll.create/mbtcp.poll.delete FC1` read bits test: port 503 - interval 1", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.poll.create/mbtcp.poll.history/mbtcp.poll.delete FC1` read bits test: port 503 - interval 1", func(log sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From:     "web",
