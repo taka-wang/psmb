@@ -95,6 +95,17 @@ func TestPollRequestSingle(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`mbtcp.poll.create/mbtcp.poll.history/mbtcp.poll.delete FC1` read bits test: port 503 - interval 1", func(log sugar.Log) bool {
+		// test
+		historyMap, _ := psmbtcp.HistoryDataStoreCreator("History")
+		data3 := []uint16{3, 4, 5, 6, 7}
+		if err := historyMap.Add("LED_11", data3); err != nil {
+			return false
+		}
+		data4 := []uint16{4, 5, 6, 7, 8}
+		if err := historyMap.Add("hello", data4); err != nil {
+			return false
+		}
+
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From:     "web",
@@ -133,17 +144,6 @@ func TestPollRequestSingle(t *testing.T) {
 		}
 
 		time.Sleep(10 * time.Second)
-
-		// test
-		historyMap, _ := psmbtcp.HistoryDataStoreCreator("History")
-		data3 := []uint16{3, 4, 5, 6, 7}
-		if err := historyMap.Add("LED_11", data3); err != nil {
-			return false
-		}
-		data4 := []uint16{4, 5, 6, 7, 8}
-		if err := historyMap.Add("hello", data4); err != nil {
-			return false
-		}
 
 		historyReq := psmb.MbtcpPollOpReq{
 			From: "web",
