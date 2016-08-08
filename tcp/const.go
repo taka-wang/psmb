@@ -6,6 +6,7 @@ const (
 	writerPluginName    = "WriterPlugin"
 	schedulerPluginName = "SchedulerPlugin"
 	historyPluginName   = "HistoryPlugin"
+	filterPluginName    = "FilterPlugin"
 )
 
 // [psmbtcp]

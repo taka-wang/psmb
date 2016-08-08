@@ -85,8 +85,8 @@ type IReaderTaskDataStore interface {
 	// UpdateToggleByName update poll request enabled flag
 	UpdateToggleByName(name string, toggle bool) error
 
-	// UpdateAllTogglesByName update all poll request enabled flag
-	UpdateAllTogglesByName(toggle bool)
+	// UpdateAllToggles update all poll requests enabled flag
+	UpdateAllToggles(toggle bool)
 }
 
 // IHistoryDataStore history interface
@@ -99,4 +99,22 @@ type IHistoryDataStore interface {
 	GetAll(name string) (map[string]string, error)
 	// GetLatest get latest history
 	GetLatest(name string) (string, error)
+}
+
+// IFilterDataStore filter interface
+type IFilterDataStore interface {
+	// Add add request to filter map
+	Add(name string, req interface{})
+	// Get get request from filter map
+	Get(name string) (interface{}, bool)
+	// GetAll get all request from filter map
+	GetAll(name string) interface{}
+	// Delete delete request from filter map
+	Delete(name string)
+	// DeleteAll delete all requests from filter map
+	DeleteAll()
+	// UpdateToggle update filter request enabled flag
+	UpdateToggle(name string, toggle bool) error
+	// UpdateAllToggles update all filter requests enabled flag
+	UpdateAllToggles(toggle bool)
 }

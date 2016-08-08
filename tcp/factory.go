@@ -49,6 +49,24 @@ func createScheduler(conf map[string]string) (cron.Scheduler, error) {
 	return nil, ErrInvalidPluginName
 }
 
+// createFilterDS real factory method
+func createFilterDS(conf map[string]string) (psmb.IFilterDataStore, error) {
+	ef, _ := createPlugin(conf, filterPluginName)
+
+	if ef != nil {
+		//fmt.Println(reflect.TypeOf(ef)) // debug
+		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
+			if ds, _ := fn(conf); ds != nil { // casting
+				return ds.(psmb.IFilterDataStore), nil
+			}
+		}
+		err := ErrCasting
+		log.WithFields(log.Fields{"err": err}).Error("Create filter data store")
+		return nil, err
+	}
+	return nil, ErrInvalidPluginName
+}
+
 // createWriterDS real factory method
 func createHistoryDS(conf map[string]string) (psmb.IHistoryDataStore, error) {
 	ef, _ := createPlugin(conf, historyPluginName)
@@ -115,6 +133,11 @@ func Register(name string, factory interface{}) {
 		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
 	}
 	factories[name] = factory
+}
+
+// FilterDataStoreCreator concrete creator to create filter data store
+func FilterDataStoreCreator(driver string) (psmb.IFilterDataStore, error) {
+	return createFilterDS(map[string]string{filterPluginName: driver})
 }
 
 // SchedulerCreator concrete creator to create scheduler

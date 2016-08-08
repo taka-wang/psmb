@@ -176,8 +176,8 @@ func (ds *readerTaskDataStore) UpdateToggleByName(name string, toggle bool) erro
 	return nil
 }
 
-// UpdateAllTogglesByName update all poll request enabled flag
-func (ds *readerTaskDataStore) UpdateAllTogglesByName(toggle bool) {
+// UpdateAllToggles update all poll request enabled flag
+func (ds *readerTaskDataStore) UpdateAllToggles(toggle bool) {
 	ds.Lock()
 	for name, task := range ds.nameMap {
 		// type casting check!

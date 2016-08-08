@@ -64,6 +64,8 @@ type Service struct {
 	writerMap IWriterTaskDataStore
 	// historyMap history map
 	historyMap IHistoryDataStore
+	// filterMap filter map
+	filterMap IFilterDataStore
 	// scheduler cron scheduler
 	scheduler cron.Scheduler
 	// sub ZMQ subscriber endpoints
@@ -77,10 +79,11 @@ type Service struct {
 }
 
 // NewService modbus tcp proactive serivce constructor
-func NewService(reader, writer, history, sch string) (IProactiveService, error) {
+func NewService(reader, writer, history, filter, sch string) (IProactiveService, error) {
 	var readerPlugin IReaderTaskDataStore
 	var writerPlugin IWriterTaskDataStore
 	var historyPlugin IHistoryDataStore
+	var filterPlugin IFilterDataStore
 	var schedulerPlugin cron.Scheduler
 	var err error
 	// factory methods
@@ -96,6 +99,11 @@ func NewService(reader, writer, history, sch string) (IProactiveService, error) 
 
 	if historyPlugin, err = HistoryDataStoreCreator(history); err != nil { // historian factory
 		log.WithFields(log.Fields{"err": err}).Error("Fail to create history data store")
+		return nil, err
+	}
+
+	if filterPlugin, err = FilterDataStoreCreator(filter); err != nil { // filter factory
+		log.WithFields(log.Fields{"err": err}).Error("Fail to create filter data store")
 		return nil, err
 	}
 
@@ -130,6 +138,7 @@ func NewService(reader, writer, history, sch string) (IProactiveService, error) 
 		readerMap:  readerPlugin,
 		writerMap:  writerPlugin,
 		historyMap: historyPlugin,
+		filterMap:  filterPlugin,
 		scheduler:  schedulerPlugin,
 		pub: zSockets{
 			upstream:   pubUpstream,
@@ -642,7 +651,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			b.scheduler.PauseAll()
 		}
 		// update read/poll task map
-		b.readerMap.UpdateAllTogglesByName(req.Enabled)
+		b.readerMap.UpdateAllToggles(req.Enabled)
 		// send back
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
 		return b.naiveResponder(cmd, resp)
@@ -699,7 +708,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpSimpleRes{Tid: request.Tid, Status: "ok"}
 		return b.naiveResponder(cmd, resp)
-	case mbGetPollHistory:
+	case mbGetPollHistory: // done
 		req := r.(MbtcpPollOpReq)
 		resp := MbtcpHistoryData{Tid: req.Tid, Name: req.Name, Status: "ok"}
 		ret, err := b.historyMap.GetAll(req.Name)

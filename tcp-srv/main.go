@@ -2,6 +2,7 @@ package main
 
 import (
 	cron "github.com/taka-wang/psmb/cron"
+	mfilter "github.com/taka-wang/psmb/mem-filter"
 	mreader "github.com/taka-wang/psmb/mem-reader"
 	mwriter "github.com/taka-wang/psmb/mem-writer"
 	mgohistory "github.com/taka-wang/psmb/mgo-history"
@@ -17,6 +18,7 @@ func init() {
 	mbtcp.Register("RedisWriter", rwriter.NewDataStore)
 	mbtcp.Register("History", history.NewDataStore)
 	mbtcp.Register("MgoHistory", mgohistory.NewDataStore)
+	mbtcp.Register("MemFilter", mfilter.NewDataStore)
 	mbtcp.Register("Cron", cron.NewScheduler)
 }
 
@@ -26,6 +28,7 @@ func main() {
 		"MemReader", // Reader Data Store
 		"MemWriter", // Writer Data Store
 		"History",   // History Data Store
+		"MemFilter", // Filter Data Store
 		"Cron",      // Scheduler
 	); srv != nil {
 		srv.Start()
