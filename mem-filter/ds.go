@@ -1,10 +1,14 @@
 package filter
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/taka-wang/psmb"
 )
+
+// ErrInvalidFilterName is the error when the name is invalid
+var ErrInvalidFilterName = errors.New("Invalid Filter name")
 
 //@Implement IFilterDataStore implicitly
 
