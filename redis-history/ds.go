@@ -137,12 +137,9 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	ds.redis.Send("MULTI")
 	ds.redis.Send("HSET", hashName, name, string(bytes))                               // latest
 	ds.redis.Send("ZADD", zsetPrefix+name, time.Now().UTC().UnixNano(), string(bytes)) // add to zset
-	if ret, err := ds.redis.Do("EXEC"); err != nil {
+	if _, err := ds.redis.Do("EXEC"); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Add")
 		return err
-	} else {
-		// TODO: remove debug
-		log.WithFields(log.Fields{"ret": ret}).Info("Add")
 	}
 
 	return nil
