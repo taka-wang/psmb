@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	conf "github.com/taka-wang/v-conf"
+	conf "github.com/taka-wang/psmb/v-conf"
 	log "github.com/takawang/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
