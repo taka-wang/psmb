@@ -65,8 +65,8 @@ func init() {
 
 // @Implement IWriterTaskDataStore contract implicitly
 
-// writerTaskDataStore write task map type
-type writerTaskDataStore struct {
+// dataStore write task map type
+type dataStore struct {
 	redis redis.Conn
 }
 
@@ -78,12 +78,12 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 		return nil, ErrConnection
 	}
 
-	return &writerTaskDataStore{
+	return &dataStore{
 		redis: conn,
 	}, nil
 }
 
-func (ds *writerTaskDataStore) connectRedis() error {
+func (ds *dataStore) connectRedis() error {
 	// get connection from pool
 	conn := RedisPool.Get()
 	if nil == conn {
@@ -96,7 +96,7 @@ func (ds *writerTaskDataStore) connectRedis() error {
 	return nil
 }
 
-func (ds *writerTaskDataStore) closeRedis() {
+func (ds *dataStore) closeRedis() {
 	if ds != nil && ds.redis != nil {
 		err := ds.redis.Close()
 		if err != nil {
@@ -110,7 +110,7 @@ func (ds *writerTaskDataStore) closeRedis() {
 }
 
 // Add add request to write task map
-func (ds *writerTaskDataStore) Add(tid, cmd string) {
+func (ds *dataStore) Add(tid, cmd string) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Add")
@@ -122,7 +122,7 @@ func (ds *writerTaskDataStore) Add(tid, cmd string) {
 }
 
 // Get get request from write task map
-func (ds *writerTaskDataStore) Get(tid string) (string, bool) {
+func (ds *dataStore) Get(tid string) (string, bool) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
@@ -137,7 +137,7 @@ func (ds *writerTaskDataStore) Get(tid string) (string, bool) {
 }
 
 // Delete remove request from write task map
-func (ds *writerTaskDataStore) Delete(tid string) {
+func (ds *dataStore) Delete(tid string) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Delete")

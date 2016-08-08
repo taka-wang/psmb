@@ -8,8 +8,8 @@ import "sync"
 
 // @Implement IWriterTaskDataStore contract implicitly
 
-// writerTaskDataStore write task map type
-type writerTaskDataStore struct {
+// dataStore write task map type
+type dataStore struct {
 	sync.RWMutex
 	// m key-value map: (tid, command)
 	m map[string]string
@@ -17,20 +17,20 @@ type writerTaskDataStore struct {
 
 // NewDataStore instantiate mbtcp write task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
-	return &writerTaskDataStore{
+	return &dataStore{
 		m: make(map[string]string),
 	}, nil
 }
 
 // Add add request to write task map
-func (ds *writerTaskDataStore) Add(tid, cmd string) {
+func (ds *dataStore) Add(tid, cmd string) {
 	ds.Lock()
 	ds.m[tid] = cmd
 	ds.Unlock()
 }
 
 // Get get request from write task map
-func (ds *writerTaskDataStore) Get(tid string) (string, bool) {
+func (ds *dataStore) Get(tid string) (string, bool) {
 	ds.RLock()
 	cmd, ok := ds.m[tid]
 	ds.RUnlock()
@@ -38,7 +38,7 @@ func (ds *writerTaskDataStore) Get(tid string) (string, bool) {
 }
 
 // Delete remove request from write task map
-func (ds *writerTaskDataStore) Delete(tid string) {
+func (ds *dataStore) Delete(tid string) {
 	ds.Lock()
 	delete(ds.m, tid)
 	ds.Unlock()

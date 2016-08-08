@@ -22,4 +22,4 @@ Redis-based writer data store
 
 ## UML 
 
-![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sd94O0W3030LhG0oDzk8cI0CHoJOsXV_UwURIJsJ2vyLBEb5u3WZgLPzTkL9CrXD2ocsS7mmR1n55ZU6JggaK1YL0MXt3HiQH_5lry0)
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sd93O0W4030LhG0sV3rOoqhR838bJr2--ftPYyzL8jaNBUiEkK4O5mk5Srscn27qPMwkZ0QA3vuBEm9fhKA3KM98LGK0QPOv5XSFd9_Nzw_)
