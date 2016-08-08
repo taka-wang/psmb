@@ -19,21 +19,13 @@ type Base struct {
 
 func init() {
 	baseConf = Base{v: viper.New()}
+	baseConf.initConfig()
+	baseConf.setLogger()
 }
 
 //
 // Exported API
 //
-
-// SetLogger generic logger init function
-func SetLogger(packageName string) {
-	baseConf.setLogger(packageName)
-}
-
-// InitConfig generic config function
-func InitConfig(packageName string) {
-	baseConf.initConfig(packageName)
-}
 
 // SetDefault set the default value for this key.
 func SetDefault(key string, value interface{}) {
@@ -80,7 +72,7 @@ func GetDuration(key string) time.Duration {
 //
 
 // setLogger generic logger init function
-func (b *Base) setLogger(packageName string) {
+func (b *Base) setLogger() {
 
 	// set debug level
 	if b.v.GetBool(keyLogEnableDebug) {
@@ -98,7 +90,7 @@ func (b *Base) setLogger(packageName string) {
 	if b.v.GetBool(keyLogToFile) {
 		f, err := os.OpenFile(b.v.GetString(keyLogFileName), os.O_WRONLY|os.O_CREATE, 0755)
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Debug(packageName + ": Fail to create log file")
+			log.WithFields(log.Fields{"err": err}).Debug(": Fail to create log file")
 			f = os.Stdout
 		}
 		log.SetOutput(f)
@@ -108,7 +100,7 @@ func (b *Base) setLogger(packageName string) {
 }
 
 // InitConfig generic config function
-func (b *Base) initConfig(packageName string) {
+func (b *Base) initConfig() {
 	// get environment variables
 	confPath := os.Getenv(envConfPSMBTCP) // config file location
 	if confPath == "" {
@@ -122,23 +114,23 @@ func (b *Base) initConfig(packageName string) {
 
 	// local or remote config
 	if endpoint == "" {
-		log.Debug(packageName + ": Try to load 'local' config file")
+		log.Debug(": Try to load 'local' config file")
 		b.v.AddConfigPath(confPath)
 		err := b.v.ReadInConfig() // read config from file
 		if err != nil {
-			log.Warn(packageName + ": Fail to load 'local' config file, not found!")
+			log.Warn(": Fail to load 'local' config file, not found!")
 		} else {
-			log.Info(packageName + ": Read 'local' config file successfully")
+			log.Info(": Read 'local' config file successfully")
 		}
 	} else {
-		log.Debug(packageName + ": Try to load 'remote' config file")
+		log.Debug(": Try to load 'remote' config file")
 		//log.WithFields(log.Fields{"endpoint": endpoint, "path": confPath}).Debug("remote debug")
 		b.v.AddRemoteProvider(defaultBackendName, endpoint, path.Join(confPath, keyConfigName)+"."+keyConfigType)
 		err := b.v.ReadRemoteConfig() // read config from backend
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Warn(packageName + ": Fail to load 'remote' config file, not found!")
+			log.WithFields(log.Fields{"err": err}).Warn(": Fail to load 'remote' config file, not found!")
 		} else {
-			log.Info(packageName + ": Read remote config file successfully")
+			log.Info(": Read remote config file successfully")
 		}
 	}
 

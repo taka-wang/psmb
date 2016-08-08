@@ -41,9 +41,7 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	conf.InitConfig(packageName) // init psmb based config
-	setDefaults()                // set defaults
-	conf.SetLogger(packageName)  // init psmb logger
+	setDefaults() // set defaults
 
 	defaultMbPort = conf.GetString(keyTCPDefaultPort)
 	minConnTimeout = conf.GetInt64(keyMinConnectionTimout)

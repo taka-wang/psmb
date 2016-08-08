@@ -52,9 +52,7 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
 	log.SetLevel(log.DebugLevel)                            // ...
 
-	conf.InitConfig(packageName) // init based config
-	setDefaults()                // set defaults
-	conf.SetLogger(packageName)  // init logger
+	setDefaults() // set defaults
 
 	databaseName = conf.GetString(keyDbName)
 	collectionName = conf.GetString(keyCollectionName)

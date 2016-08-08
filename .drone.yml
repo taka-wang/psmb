@@ -2,6 +2,21 @@
 
 pipeline:
 
+    test-mgo-history:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
+        commands:
+            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
+            - docker-compose -f mgo-history/docker-compose.yml pull
+            - docker-compose -f mgo-history/docker-compose.yml build --no-cache
+            - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f mgo-history/docker-compose.yml stop
+            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
+
     ci:
         image: takawang/dind
         volumes:
@@ -17,20 +32,6 @@ pipeline:
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
-    test-mgo-history:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-            - /var/tmp:/var/tmp # for test
-        commands:
-            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
-            - docker-compose -f mgo-history/docker-compose.yml pull
-            - docker-compose -f mgo-history/docker-compose.yml build --no-cache
-            - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
-            - docker-compose -f mgo-history/docker-compose.yml stop
-            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
-            - cat /var/tmp/success      # test
-            - rm -f /var/tmp/success    # cleanup
 
     test-redis-writer:
         image: takawang/dind
