@@ -108,7 +108,7 @@ type IFilterDataStore interface {
 	// Get get request from filter map
 	Get(name string) (interface{}, bool)
 	// GetAll get all request from filter map
-	GetAll(name string) interface{}
+	GetAll() interface{}
 	// Delete delete request from filter map
 	Delete(name string)
 	// DeleteAll delete all requests from filter map
