@@ -1,6 +1,14 @@
 # drone.io:0.5
 
 pipeline:
+
+    test-mem-filter:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true mem-filter/.
+
     ci:
         image: takawang/dind
         volumes:
