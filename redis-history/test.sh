@@ -7,7 +7,7 @@ COLOR_RED='\e[1;31m';
 
 
 # test command -------------
-go test -v
+go test 
 
 if [ $? -eq 0 ]
 then
