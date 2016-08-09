@@ -915,6 +915,8 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				Tid:    tid,
 				Status: res.Status,
 			}
+		default: // should not reach here
+			return ErrResponseNotSupport
 		}
 
 		//
@@ -1259,6 +1261,8 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				}
 				return b.naiveResponder(respCmd, response)
 			}
+		default: // should not reach here
+			return ErrResponseNotSupport
 		}
 	default: // should not reach here!!
 		return ErrResponseNotSupport
