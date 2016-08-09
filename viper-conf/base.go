@@ -1,3 +1,7 @@
+// Package conf a viper-based config
+//
+// By taka@cmwang.net
+//
 package conf
 
 import (

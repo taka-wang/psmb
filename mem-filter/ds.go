@@ -1,3 +1,7 @@
+// Package filter an in-memory data store for filter.
+//
+// By taka@cmwang.net
+//
 package filter
 
 import (

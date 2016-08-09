@@ -4,7 +4,6 @@
 //
 // By taka@cmwang.net
 //
-
 package psmb
 
 //

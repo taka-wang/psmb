@@ -1,3 +1,7 @@
+// Package conf a multiconfig-based config
+//
+// By taka@cmwang.net
+//
 package conf
 
 import (

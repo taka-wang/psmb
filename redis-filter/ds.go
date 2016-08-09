@@ -1,3 +1,7 @@
+// Package filter an redis-based data store for filter.
+//
+// By taka@cmwang.net
+//
 package filter
 
 import (
