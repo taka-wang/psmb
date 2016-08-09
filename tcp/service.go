@@ -191,7 +191,7 @@ func (b *Service) addToHistory(name string, data interface{}) bool {
 func (b *Service) applyFilter(name string, data interface{}) bool {
 	f, ok := b.filterMap.Get(name) // get filter request from map
 	if !ok {
-		log.Debug(ErrFilterNotFound.Error())
+		//log.Debug(ErrFilterNotFound.Error())
 		return true // no filter
 	}
 	filter := f.(MbtcpFilterStatus) // casting
