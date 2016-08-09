@@ -52,6 +52,11 @@ const (
 	keyWriterHashName = "redis_writer.hash_name"
 )
 
+// redis-filter
+const (
+	keyFilterHashName = "redis_filter.hash_name"
+)
+
 // tcp
 const (
 	keyTCPDefaultPort      = "psmbtcp.default_port"

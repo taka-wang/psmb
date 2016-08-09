@@ -154,6 +154,8 @@ func GetString(key string) string {
 		return base.conf.Redis.Port
 	case keyWriterHashName:
 		return base.conf.RedisWriter.HashName
+	case keyFilterHashName:
+		return base.conf.RedisFilter.HashName
 	case keyTCPDefaultPort:
 		return base.conf.Psmbtcp.DefaultPort
 	case keyZmqPubUpstream:

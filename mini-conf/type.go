@@ -35,6 +35,9 @@ type confType struct {
 	RedisWriter struct {
 		HashName string `default:"mbtcp:writer"`
 	}
+	RedisFilter struct {
+		HashName string `default:"mbtcp:filter"`
+	}
 	Psmbtcp struct {
 		DefaultPort          string `default:"502"`
 		MinConnectionTimeout int64  `default:"200000"`
