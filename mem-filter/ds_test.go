@@ -65,7 +65,7 @@ func TestFilter(t *testing.T) {
 			return false
 		}
 
-		// GETALL
+		// GET ALL
 		log("Get all items")
 		if r := filterMap.GetAll(a.Poll); r != nil {
 			log(r)
@@ -77,7 +77,7 @@ func TestFilter(t *testing.T) {
 		log("Toggle all items")
 		filterMap.UpdateAllToggles(false)
 
-		// GETALL
+		// GET ALL
 		log("Get all items")
 		if r := filterMap.GetAll(a.Poll); r != nil {
 			log(r)
@@ -89,12 +89,22 @@ func TestFilter(t *testing.T) {
 		log("Remove A item")
 		filterMap.Delete(a.Poll)
 
-		// GETALL
+		// GET ALL
 		log("Get all items")
 		if r := filterMap.GetAll(a.Poll); r != nil {
 			log(r)
 		} else {
 			return false
+		}
+
+		// DELETe ALL
+		log("Delete all items")
+		filterMap.DeleteAll()
+
+		// GET ALL
+		log("Get all items")
+		if r := filterMap.GetAll(a.Poll); r != nil {
+			log(r)
 		}
 
 		return true
