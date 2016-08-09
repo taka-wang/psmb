@@ -39,7 +39,7 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from filter map
-func (ds *dataStore) GetAll(name string) interface{} {
+func (ds *dataStore) GetAll() interface{} {
 	arr := []psmb.MbtcpFilterStatus{}
 	ds.RLock()
 	for _, v := range ds.m {

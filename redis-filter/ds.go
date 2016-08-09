@@ -154,10 +154,7 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from filter map
-func (ds *dataStore) GetAll(name string) interface{} {
-	if name == "" {
-		return nil
-	}
+func (ds *dataStore) GetAll() interface{} {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
@@ -170,8 +167,20 @@ func (ds *dataStore) GetAll(name string) interface{} {
 		return nil
 	}
 	log.WithFields(log.Fields{"data": ret}).Debug("GetAll")
-	// TODO!!
-	return nil
+
+	arr := []psmb.MbtcpFilterStatus{}
+	for _, v := range ret {
+		var d psmb.MbtcpFilterStatus
+		if err := json.Unmarshal([]byte(v), &d); err == nil {
+			arr = append(arr, d)
+		}
+	}
+	if len(arr) == 0 {
+		err := ErrNoData
+		log.WithFields(log.Fields{"err": err}).Error("GetAll")
+		return nil
+	}
+	return arr
 }
 
 // Delete remove request from filter map
