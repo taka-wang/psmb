@@ -1,4 +1,4 @@
-# mem-filter
+# redis-filter
 
 FROM takawang/gozmq:pull
 MAINTAINER Taka Wang <taka@cmwang.net>
@@ -10,10 +10,13 @@ WORKDIR /go
 RUN go get -u github.com/taka-wang/psmb
 
 ## Load app files
-ADD . /go/src/github.com/taka-wang/psmb/mem-filter
+ADD . /go/src/github.com/taka-wang/psmb/redis-filter
 # add config file
 RUN mkdir -p ${CONF_PSMBTCP} && \ 
     cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${CONF_PSMBTCP}/
 
-WORKDIR /go/src/github.com/taka-wang/psmb/mem-filter
-RUN go get -t ./... && go test -v
+WORKDIR /go/src/github.com/taka-wang/psmb/redis-filter
+RUN go get -t ./... 
+
+## Default command
+CMD ./test.sh
