@@ -18,33 +18,14 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 - IReaderTaskDataStore:  read/poll task map
 - IWriterTaskDataStore: write task map
 - IHistoryDataStore: history map
+- IFilterDataStore: filter map
+- IConfig: config
 
-## Docker
-
-### Docker Compose
-
-```bash
-docker-compose build  --pull
-docker-compose up --abort-on-container-exit
-```
-
-### From docker images
+## Docker Compose
 
 ```bash
-
-# run modbus slave
-docker run -itd --name=slave takawang/c-modbus-slave:x86
-
-# run modbusd
-docker run -v /tmp:/tmp --link slave -it --name=modbusd takawang/modbusd:x86
-
-# run psmbtcp-srv
-docker build -t takawang/psmbtcp-srv tcp-srv/.
-docker run -v /tmp:/tmp -itd takawang/psmbtcp-srv
-
-# run dummy-srv
-docker build -t takawang/dummy-srv test/dummy-srv/.
-docker run -v /tmp:/tmp --link slave -it takawang/dummy-srv
+docker-compose build --pull
+docker-compose up
 ```
 
 ## Continuous Integration
