@@ -848,7 +848,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			}
 		}
 		// send back
-		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+		resp := MbtcpSimpleRes{Tid: requests.Tid, Status: status}
 		return b.naiveResponder(cmd, resp)
 	default: // should not reach here!!
 		return ErrRequestNotSupport
