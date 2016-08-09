@@ -9,7 +9,6 @@ pipeline:
         commands:
             - docker build --no-cache=true mem-filter/.
 
-
     test-redis-filter:
         image: takawang/dind
         volumes:
@@ -24,7 +23,6 @@ pipeline:
             - docker-compose -f redis-filter/docker-compose.yml rm -f -a
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
-
 
     ci:
         image: takawang/dind
