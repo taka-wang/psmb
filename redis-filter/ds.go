@@ -145,13 +145,29 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 	// unmarshal
 	var d psmb.MbtcpFilterStatus
 	if err := json.Unmarshal([]byte(ret), &d); err != nil {
-		return nil, ErrUnmarshal
+		log.WithFields(log.Fields{"err": ErrUnmarshal}).Debug("Get")
+		return nil, false
 	}
 	return d, true
 }
 
 // GetAll get all requests from filter map
 func (ds *dataStore) GetAll(name string) interface{} {
+	if name == "" {
+		return nil
+	}
+	defer ds.closeRedis()
+	if err := ds.connectRedis(); err != nil {
+		log.WithFields(log.Fields{"err": err}).Debug("Get")
+	}
+
+	ret, err := redis.StringMap(ds.redis.Do("HGETALL", hashName))
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("GetAll")
+		return nil
+	}
+	log.WithFields(log.Fields{"data": ret}).Debug("Get")
+	// TODO
 	return nil
 }
 
