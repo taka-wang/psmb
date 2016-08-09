@@ -146,13 +146,13 @@ type (
 
 	// MbtcpFilterStatus filter status
 	MbtcpFilterStatus struct {
-		Tid     int64        `json:"tid"`
-		From    string       `json:"from,omitempty"`
-		Name    string       `json:"name"`
-		Enabled bool         `json:"enabled"`
-		Type    RegValueType `json:"type,omitempty"`
-		Arg     []float32    `json:"arg,omitempty"`
-		Status  string       `json:"status,omitempty"`
+		Tid     int64      `json:"tid"`
+		From    string     `json:"from,omitempty"`
+		Name    string     `json:"name"`
+		Enabled bool       `json:"enabled"`
+		Type    FilterType `json:"type,omitempty"`
+		Arg     []float32  `json:"arg,omitempty"`
+		Status  string     `json:"status,omitempty"`
 	}
 
 	// MbtcpFilterOpReq generic modbus tcp filter operation request

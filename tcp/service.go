@@ -6,6 +6,7 @@ package tcp
 
 import (
 	"encoding/json"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -180,6 +181,126 @@ func (b *Service) addToHistory(taskName string, data interface{}) {
 		"data": data,
 	}).Debug("Add data to history data store")
 	*/
+}
+
+// applyFilter apply filter, if no need to filter, return true.
+func (b *Service) applyFilter(name string, data interface{}) bool {
+	ret, ok := b.filterMap.Get(req.Name) // check map
+	if !ok {
+		return true // no filter
+	}
+	filter := ret.(MbtcpFilterStatus) // casting
+	if len(filter.Arg) == 0 {
+		return true // no args
+	}
+
+	var latest string
+	var err error
+	if filter.Type == Change {
+		if latest, err = b.historyMap.GetLatest(name); err != nil {
+			return true // no latest
+		}
+	}
+
+	val := reflect.ValueOf(data)
+	switch val.Kind() {
+	case reflect.Array:
+		if val.Len() == 0 {
+			return true // no data to filter
+		}
+		var v float32
+		switch val.Index(0).Kind() {
+		case uint16, uint32:
+			v = float32(val.Index(0).Uint())
+		case float32:
+			v = float32(val.Index(0).Float())
+		default: // should not reach here
+			return true
+		}
+
+		switch filter.Type {
+		case GreaterEqual:
+			if v >= filter.Arg[0] {
+				return true
+			}
+			return false
+		case Greater:
+			if v > filter.Arg[0] {
+				return true
+			}
+			return false
+		case Equal:
+			if v == filter.Arg[0] {
+				return true
+			}
+			return false
+		case Less:
+			if v < filter.Arg[0] {
+				return true
+			}
+			return false
+		case LessEqual:
+			if v <= filter.Arg[0] {
+				return true
+			}
+			return false
+		case InsideRange:
+			if len(filter.Arg) < 2 {
+				return true // not enough args
+			}
+			if v > filter.Arg[0] && v < filter.Arg[1] {
+				return true
+			}
+			return false
+		case InsideIncRange:
+			if len(filter.Arg) < 2 {
+				return true // not enough args
+			}
+			if v >= filter.Arg[0] && v <= filter.Arg[1] {
+				return true
+			}
+			return false
+		case OutsideRange:
+			if len(filter.Arg) < 2 {
+				return true // not enough args
+			}
+			if v < filter.Arg[0] || v > filter.Arg[1] {
+				return true
+			}
+			return false
+		case OutsideIncRange:
+			if len(filter.Arg) < 2 {
+				return true // not enough args
+			}
+			if v <= filter.Arg[0] || v >= filter.Arg[1] {
+				return true
+			}
+			return false
+		default: // change
+			// unmarshal
+			var d []float32
+			if err := json.Unmarshal([]byte(latest), &d); err != nil {
+				return true // fail to unmarshal latest
+			}
+			if len(d) == 0 {
+				return true // empty history
+			}
+			if v == d[0] {
+				return true
+			}
+			return false
+		}
+	case reflect.String:
+		/* not support filter
+		str := val.String()
+		if str == "" {
+			return true // no data to filter
+		}
+		*/
+		return true
+	default: // should not reach here
+		return true
+	}
 }
 
 // Task for cron scheduler
@@ -735,6 +856,13 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			status = err.Error() // set error status
 		}
 		if status == "ok" {
+			// swap
+			if len(req.Arg) > 1 && req.Arg[0] > req.Arg[1] {
+				tmp := req.Arg[1]
+				req.Arg[1] = req.Arg[0]
+				req.Arg[0] = tmp
+			}
+
 			b.filterMap.Add(req.Name, req) // add or update to filter map
 		}
 		// send back
@@ -844,6 +972,12 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		if status == "ok" {
 			for _, v := range requests.Filters {
 				if v.Name != "" {
+					// swap
+					if len(v.Arg) > 1 && v.Arg[0] > v.Arg[1] {
+						tmp := v.Arg[1]
+						v.Arg[1] = v.Arg[0]
+						v.Arg[0] = tmp
+					}
 					b.filterMap.Add(v.Name, v) // add or update to filter map
 				}
 			}
@@ -982,7 +1116,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					data = nil
 				} else {
 					data = res.Data
-					b.addToHistory(task.Name, data) // add to history
+					b.addToHistory(task.Name, data) // add to history; type: []uint16
 				}
 				response = MbtcpPollData{
 					TimeStamp: time.Now().UTC().UnixNano(),
@@ -1159,28 +1293,26 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 
 				switch readReq.Type {
 				case HexString:
-					data = BytesToHexString(bytes) // convert byte to hex
+					data = BytesToHexString(bytes) // convert byte to hex string
 					status = res.Status
-					b.addToHistory(task.Name, data) // add to history
+					b.addToHistory(task.Name, data) // add to history; type: string
 				case UInt16:
-					ret, err := BytesToUInt16s(bytes, readReq.Order) // order
-					if err != nil {
+					if ret, err := BytesToUInt16s(bytes, readReq.Order); err != nil {
 						data = nil
 						status = err.Error()
 					} else {
 						data = ret
 						status = res.Status
-						b.addToHistory(task.Name, data) // add to history
+						b.addToHistory(task.Name, data) // add to history; type: []uint16
 					}
 				case Int16:
-					ret, err := BytesToInt16s(bytes, readReq.Order) // order
-					if err != nil {
+					if ret, err := BytesToInt16s(bytes, readReq.Order); err != nil {
 						data = nil
 						status = err.Error()
 					} else {
 						data = ret
 						status = res.Status
-						b.addToHistory(task.Name, data) // add to history
+						b.addToHistory(task.Name, data) // add to history; type: []uint16
 					}
 				case Scale, UInt32, Int32, Float32: // 32-Bits
 					if readReq.Len%2 != 0 {
@@ -1190,49 +1322,46 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					} else {
 						switch readReq.Type {
 						case Scale:
-							ret, err := LinearScalingRegisters(
+							if ret, err := LinearScalingRegisters(
 								res.Data,
 								readReq.Range.DomainLow,
 								readReq.Range.DomainHigh,
 								readReq.Range.RangeLow,
-								readReq.Range.RangeHigh)
-							if err != nil {
+								readReq.Range.RangeHigh); err != nil {
+
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-								b.addToHistory(task.Name, data) // add to history
+								b.addToHistory(task.Name, data) // add to history; type: []float32
 							}
 						case UInt32:
-							ret, err := BytesToUInt32s(bytes, readReq.Order)
-							if err != nil {
+							if ret, err := BytesToUInt32s(bytes, readReq.Order); err != nil {
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-								b.addToHistory(task.Name, data) // add to history
+								b.addToHistory(task.Name, data) // add to history; type: []uint32
 							}
 						case Int32:
-							ret, err := BytesToInt32s(bytes, readReq.Order)
-							if err != nil {
+							if ret, err := BytesToInt32s(bytes, readReq.Order); err != nil {
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-								b.addToHistory(task.Name, data) // add to history
+								b.addToHistory(task.Name, data) // add to history; type: []uint32
 							}
 						case Float32:
-							ret, err := BytesToFloat32s(bytes, readReq.Order)
-							if err != nil {
+							if ret, err := BytesToFloat32s(bytes, readReq.Order); err != nil {
 								data = nil
 								status = err.Error()
 							} else {
 								data = ret
 								status = res.Status
-								b.addToHistory(task.Name, data) // add to history
+								b.addToHistory(task.Name, data) // add to history; type: []float32
 							}
 						}
 					}
@@ -1240,7 +1369,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					data = res.Data
 					status = res.Status
 					// b.addToHistory(task.Name, HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data})
-					b.addToHistory(task.Name, data) // add to history
+					b.addToHistory(task.Name, data) // add to history; type: []uint16
 				}
 
 				// shared response
