@@ -1081,8 +1081,6 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 
-		// feedback data or not flag
-		noFilter := true
 		// check read task table
 		t, ok := b.readerMap.GetTaskByID(res.Tid)
 		if !ok {
@@ -1093,6 +1091,8 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 		respCmd := task.Cmd    // default response command string
 		var response interface{}
 		var data interface{} // shared variable
+		status := "ok"       // shared variables
+		noFilter := true     // feedback data or not flag
 
 		switch MbCmdType(cmd) {
 		case fc1, fc2: // done: read bits
@@ -1138,7 +1138,6 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 			}
 			return nil
 		case fc3, fc4: // read registers
-
 			switch task.Cmd {
 			case mbOnceRead: // one-off requests
 				readReq := task.Req.(MbtcpReadReq) // type casting
@@ -1170,8 +1169,6 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				}
 
 				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
-
-				var status string // shared variables
 
 				switch readReq.Type {
 				case HexString:
