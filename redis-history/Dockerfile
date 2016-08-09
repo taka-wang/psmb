@@ -8,6 +8,7 @@ ENV EP_BACKEND "consul.cmwang.net:8500"
 
 WORKDIR /go
 RUN go get github.com/taka-wang/psmb/viper-conf
+RUN go get github.com/taka-wang/psmb/mini-conf
 RUN go get -u github.com/taka-wang/psmb/tcp
 RUN go get github.com/taka-wang/psmb
 
