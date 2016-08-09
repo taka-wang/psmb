@@ -99,7 +99,7 @@ func (b *vConf) setLogger() {
 	}
 }
 
-// InitConfig int config function
+// initConfig int config function
 func (b *vConf) initConfig() {
 	// get environment variables
 	confPath := os.Getenv(envConfPSMBTCP) // config file location

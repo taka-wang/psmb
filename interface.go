@@ -118,3 +118,11 @@ type IFilterDataStore interface {
 	// UpdateAllToggles update all filter requests enabled flag
 	UpdateAllToggles(toggle bool)
 }
+
+// IConfig config interface
+type IConfig interface {
+	// setLogger init logger function
+	setLogger()
+	// initConfig int config function
+	initConfig()
+}
