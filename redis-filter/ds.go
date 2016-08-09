@@ -113,6 +113,7 @@ func (ds *dataStore) Add(name string, req interface{}) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Add")
+		return
 	}
 
 	// marshal
@@ -178,6 +179,7 @@ func (ds *dataStore) Delete(name string) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Delete")
+		return
 	}
 	if _, err := ds.redis.Do("HDEL", hashName, name); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Delete")
@@ -189,6 +191,7 @@ func (ds *dataStore) DeleteAll() {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Delete")
+		return
 	}
 	if _, err := ds.redis.Do("DEL", hashName); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Delete")
@@ -215,7 +218,7 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 	var d psmb.MbtcpFilterStatus
 	if err := json.Unmarshal([]byte(ret), &d); err != nil {
 		log.WithFields(log.Fields{"err": ErrUnmarshal}).Debug("Get")
-		return nil, false
+		return err
 	}
 
 	// toggle
@@ -238,11 +241,7 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 
 // UpdateAllToggles toggle all request from filter map
 func (ds *dataStore) UpdateAllToggles(toggle bool) {
-	if name == "" {
-		return
-	}
 	defer ds.closeRedis()
-
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("UpdateAllToggles")
 		return

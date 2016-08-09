@@ -115,6 +115,7 @@ func (ds *dataStore) Add(tid, cmd string) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Add")
+		return
 	}
 
 	if _, err := ds.redis.Do("HSET", hashName, tid, cmd); err != nil {
