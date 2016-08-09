@@ -38,17 +38,17 @@ func (b *mConf) initConfig() {
 		log.Debug("Try to load 'remote' config file")
 		client, err := api.NewClient(&api.Config{Address: endpoint})
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Warn(": Fail to load 'remote' config file, not found!")
+			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
 			return
 		}
 		pair, _, err := client.KV().Get(filePath, nil)
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Warn(": Fail to load 'remote' config file, not found!")
+			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
 			return
 		}
 		// dump to file
 		if err := ioutil.WriteFile(defaultTempPath, pair.Value, 0644); err != nil {
-			log.WithFields(log.Fields{"err": err}).Warn(": Fail to load 'remote' config file, not found!")
+			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
 			return
 		}
 		filePath = defaultTempPath
@@ -75,7 +75,7 @@ func (b *mConf) setLogger() {
 	if b.conf.Log.ToFile {
 		f, err := os.OpenFile(b.conf.Log.Filename, os.O_WRONLY|os.O_CREATE, 0755)
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Debug(": Fail to create log file")
+			log.WithError(err).Warn("Fail to create log file")
 			f = os.Stdout
 		}
 		log.SetOutput(f)

@@ -43,7 +43,7 @@ func createScheduler(conf map[string]string) (cron.Scheduler, error) {
 			}
 		}
 		err := ErrCasting
-		log.WithFields(log.Fields{"err": err}).Error("Create scheduler")
+		log.WithError(err).Error("Create scheduler")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -61,7 +61,7 @@ func createFilterDS(conf map[string]string) (psmb.IFilterDataStore, error) {
 			}
 		}
 		err := ErrCasting
-		log.WithFields(log.Fields{"err": err}).Error("Create filter data store")
+		log.WithError(err).Error("Create filter data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -79,7 +79,7 @@ func createHistoryDS(conf map[string]string) (psmb.IHistoryDataStore, error) {
 			}
 		}
 		err := ErrCasting
-		log.WithFields(log.Fields{"err": err}).Error("Create history data store")
+		log.WithError(err).Error("Create history data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -97,7 +97,7 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 			}
 		}
 		err := ErrCasting
-		log.WithFields(log.Fields{"err": err}).Error("Create writer data store")
+		log.WithError(err).Error("Create writer data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -115,7 +115,7 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 			}
 		}
 		err := ErrCasting
-		log.WithFields(log.Fields{"err": err}).Error("Create reader data store")
+		log.WithError(err).Error("Create reader data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -125,12 +125,12 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 func Register(name string, factory interface{}) {
 	if factory == nil {
 		err := ErrPluginNotExist
-		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
+		log.WithError(err).Error("Register: " + name)
 	}
 	_, registered := factories[name]
 	if registered {
 		err := ErrPluginExist
-		log.WithFields(log.Fields{"Name": name}).Error(err.Error())
+		log.WithError(err).Error("Register: " + name)
 	}
 	factories[name] = factory
 }

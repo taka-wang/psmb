@@ -94,7 +94,7 @@ func (b *vConf) setLogger() {
 	if b.v.GetBool(keyLogToFile) {
 		f, err := os.OpenFile(b.v.GetString(keyLogFileName), os.O_WRONLY|os.O_CREATE, 0755)
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Debug(": Fail to create log file")
+			log.WithError(err).Debug("Fail to create log file")
 			f = os.Stdout
 		}
 		log.SetOutput(f)
@@ -128,11 +128,10 @@ func (b *vConf) initConfig() {
 		}
 	} else {
 		log.Debug("Try to load 'remote' config file")
-		//log.WithFields(log.Fields{"endpoint": endpoint, "path": confPath}).Debug("remote debug")
 		b.v.AddRemoteProvider(defaultBackendName, endpoint, path.Join(confPath, keyConfigName)+"."+keyConfigType)
 		err := b.v.ReadRemoteConfig() // read config from backend
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Warn(": Fail to load 'remote' config file, not found!")
+			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
 		} else {
 			log.Info("Read remote config file successfully")
 		}

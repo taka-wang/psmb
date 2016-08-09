@@ -94,48 +94,48 @@ func NewService(reader, writer, history, filter, sch string) (IProactiveService,
 	var err error
 	// factory methods
 	if readerPlugin, err = ReaderDataStoreCreator(reader); err != nil { // reader factory
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create reader data store")
+		log.WithError(err).Error("Fail to create reader data store")
 		return nil, err
 	}
 
 	if writerPlugin, err = WriterDataStoreCreator(writer); err != nil { // writer factory
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create writer data store")
+		log.WithError(err).Error("Fail to create writer data store")
 		return nil, err
 	}
 
 	if historyPlugin, err = HistoryDataStoreCreator(history); err != nil { // historian factory
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create history data store")
+		log.WithError(err).Error("Fail to create history data store")
 		return nil, err
 	}
 
 	if filterPlugin, err = FilterDataStoreCreator(filter); err != nil { // filter factory
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create filter data store")
+		log.WithError(err).Error("Fail to create filter data store")
 		return nil, err
 	}
 
 	if schedulerPlugin, err = SchedulerCreator(sch); err != nil { // scheduler factory
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create scheduler")
+		log.WithError(err).Error("Fail to create scheduler")
 		return nil, err
 	}
 
 	pubUpstream, err := zmq.NewSocket(zmq.PUB)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create upstream publisher")
+		log.WithError(err).Error("Fail to create upstream publisher")
 		return nil, err
 	}
 	pubDownstream, err := zmq.NewSocket(zmq.PUB)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create downstream publisher")
+		log.WithError(err).Error("Fail to create downstream publisher")
 		return nil, err
 	}
 	subUpstream, err := zmq.NewSocket(zmq.SUB)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create upstream subscriber")
+		log.WithError(err).Error("Fail to create upstream subscriber")
 		return nil, err
 	}
 	subDownstream, err := zmq.NewSocket(zmq.SUB)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Fail to create downstream subscriber")
+		log.WithError(err).Error("Fail to create downstream subscriber")
 		return nil, err
 	}
 
@@ -168,7 +168,8 @@ func marshal(r interface{}) (string, error) {
 
 // addToHistory helper function to add data to history map
 func (b *Service) addToHistory(taskName string, data interface{}) bool {
-	ret := b.applyFilter(taskName, data) // apply filter
+	// apply filter before logging
+	ret := b.applyFilter(taskName, data)
 	if err := b.historyMap.Add(taskName, data); err != nil {
 		log.WithFields(log.Fields{
 			"err":  err,
@@ -187,12 +188,14 @@ func (b *Service) addToHistory(taskName string, data interface{}) bool {
 
 // applyFilter apply filter, if no need to filter, return true.
 func (b *Service) applyFilter(name string, data interface{}) bool {
-	ret, ok := b.filterMap.Get(name) // check map
+	ret, ok := b.filterMap.Get(name) // get filter request from map
 	if !ok {
+		log.Debug(ErrFilterNotFound.Error())
 		return true // no filter
 	}
 	filter := ret.(MbtcpFilterStatus) // casting
 	if len(filter.Arg) == 0 {
+		log.Debug(ErrInvalidArgs.Error())
 		return true // no args
 	}
 
@@ -200,100 +203,108 @@ func (b *Service) applyFilter(name string, data interface{}) bool {
 	var err error
 	if filter.Type == Change {
 		if latest, err = b.historyMap.GetLatest(name); err != nil {
+			log.Debug(ErrNoLatestData.Error())
 			return true // no latest
 		}
 	}
 
+	// reflect data interface type
 	val := reflect.ValueOf(data)
 	switch val.Kind() {
 	case reflect.Array:
 		if val.Len() == 0 {
+			log.Debug(ErrNoData.Error())
 			return true // no data to filter
 		}
-		var v float32 // first element in data interface
+		var v float32 // first element container in data interface
 		switch val.Index(0).Kind() {
 		case reflect.Uint16, reflect.Uint32: //uint16, uint32:
 			v = float32(val.Index(0).Uint())
-		case reflect.Float32: //float32:
+		default: // reflect.Float32
 			v = float32(val.Index(0).Float())
-		default: // should not reach here
-			return true
 		}
 
 		switch filter.Type {
-		case GreaterEqual:
+		case GreaterEqual: // v >= desired value
 			if v >= filter.Arg[0] {
 				return true
 			}
 			return false
-		case Greater:
+		case Greater: // v > desired value
 			if v > filter.Arg[0] {
 				return true
 			}
 			return false
-		case Equal:
+		case Equal: // v == desired value
 			if v == filter.Arg[0] {
 				return true
 			}
 			return false
-		case Less:
+		case Less: //  v < desired value
 			if v < filter.Arg[0] {
 				return true
 			}
 			return false
-		case LessEqual:
+		case LessEqual: // v <= desired value
 			if v <= filter.Arg[0] {
 				return true
 			}
 			return false
-		case InsideRange:
+		case InsideRange: // desired 1 < v < desired 2; desired values are sorted.
 			if len(filter.Arg) < 2 {
-				return true // not enough args
+				log.Debug(ErrInvalidArgs.Error())
+				return true
 			}
 			if v > filter.Arg[0] && v < filter.Arg[1] {
 				return true
 			}
 			return false
-		case InsideIncRange:
+		case InsideIncRange: // desired 1 <= v <= desired 2; desired values are sorted.
 			if len(filter.Arg) < 2 {
-				return true // not enough args
+				log.Debug(ErrInvalidArgs.Error())
+				return true
 			}
 			if v >= filter.Arg[0] && v <= filter.Arg[1] {
 				return true
 			}
 			return false
-		case OutsideRange:
+		case OutsideRange: // v < desired 1 || v > desired 2; desired values are sorted.
 			if len(filter.Arg) < 2 {
-				return true // not enough args
+				log.Debug(ErrInvalidArgs.Error())
+				return true
 			}
 			if v < filter.Arg[0] || v > filter.Arg[1] {
 				return true
 			}
 			return false
 		case OutsideIncRange:
-			if len(filter.Arg) < 2 {
-				return true // not enough args
+			if len(filter.Arg) < 2 { // v <= desired 1 || v >= desired 2; desired values are sorted.
+				log.Debug(ErrInvalidArgs.Error())
+				return true
 			}
 			if v <= filter.Arg[0] || v >= filter.Arg[1] {
 				return true
 			}
 			return false
-		default: // change
-			// unmarshal
-			var d []float32
-			if err := json.Unmarshal([]byte(latest), &d); err != nil {
+		default: // change; compare with the latest history
+			// unmarshal latest data
+			var float32ArrData []float32
+			if err := json.Unmarshal([]byte(latest), &float32ArrData); err != nil {
+				log.Debug(ErrUnmarshal.Error())
 				return true // fail to unmarshal latest
 			}
-			if len(d) == 0 {
+
+			if len(float32ArrData) == 0 {
+				log.Debug(ErrNoLatestData.Error())
 				return true // empty history
 			}
-			if v == d[0] {
+			if v == float32ArrData[0] { // compare
 				return true
 			}
 			return false
 		}
 	case reflect.String:
-		/* not support filter
+		/* we do not intend to support filter on hex string
 		str := val.String()
 		if str == "" {
 			return true // no data to filter
@@ -305,11 +316,11 @@ func (b *Service) applyFilter(name string, data interface{}) bool {
 	}
 }
 
-// Task for cron scheduler
+// Task task for scheduler
 func (b *Service) Task(socket *zmq.Socket, req interface{}) {
 	str, err := marshal(req)
 	if err != nil {
-		// TODO: remove table
+		log.WithError(err).Error("Task")
 		return
 	}
 	log.WithFields(log.Fields{"JSON": str}).Debug("Send request to modbusd:")
@@ -347,7 +358,7 @@ func (b *Service) stopZMQ() {
 func (b *Service) naiveResponder(cmd string, resp interface{}) error {
 	respStr, err := marshal(resp)
 	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Error("Fail to marshal for naive responder!")
+		log.WithError(err).Error("Fail to marshal for naive responder!")
 		return err
 	}
 
@@ -852,7 +863,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		status := "ok"
 		if req.Name == "" {
 			err := ErrInvalidPollName
-			log.WithFields(log.Fields{"err": err}).Error(err.Error())
+			log.WithError(err).Error(mbCreateFilter)
 			status = err.Error() // set error status
 		}
 		if status == "ok" {
@@ -873,14 +884,14 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		status := "ok"
 		if req.Name == "" {
 			err := ErrInvalidPollName
-			log.WithFields(log.Fields{"err": err}).Error(err.Error())
+			log.WithError(err).Error(mbGetFilter)
 			status = err.Error() // set error status
 		}
 
 		ret, ok := b.filterMap.Get(req.Name) // no matter how, get it
 		if !ok {
 			err := ErrInvalidPollName
-			log.WithFields(log.Fields{"err": err}).Error(ErrFilterNotFound.Error())
+			log.WithError(err).Error(mbGetFilter)
 			status = err.Error() // set error status
 		}
 
@@ -907,7 +918,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		status := "ok"
 		if req.Name == "" {
 			err := ErrInvalidPollName
-			log.WithFields(log.Fields{"err": err}).Error(err.Error())
+			log.WithError(err).Error(mbDeleteFilter)
 			status = err.Error() // set error status
 		}
 		if status == "ok" {
@@ -921,12 +932,12 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		status := "ok"
 		if req.Name == "" {
 			err := ErrInvalidPollName
-			log.WithFields(log.Fields{"err": err}).Error(err.Error())
+			log.WithError(err).Error(mbToggleFilter)
 			status = err.Error() // set error status
 		}
 		if status == "ok" {
 			if err := b.filterMap.UpdateToggle(req.Name, req.Enabled); err != nil {
-				log.WithFields(log.Fields{"err": err}).Error("Fail to toggle filter")
+				log.WithError(err).Error(mbToggleFilter)
 				status = err.Error() // set error status
 			}
 		}
@@ -946,7 +957,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		}
 		// send error back
 		err := ErrFiltersNotFound
-		log.WithFields(log.Fields{"err": err}).Error(err.Error())
+		log.WithError(err).Error(mbGetFilters)
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 		return b.naiveResponder(cmd, resp)
 	case mbDeleteFilters:
@@ -966,7 +977,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		status := "ok"
 		if !ok {
 			err := ErrCasting
-			log.WithFields(log.Fields{"err": err}).Error("Fail to import filters")
+			log.WithError(err).Error(mbImportFilters)
 			status = err.Error() // set error status
 		}
 		if status == "ok" {
@@ -1060,7 +1071,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 		//
 		respStr, err := marshal(resp)
 		if err != nil {
-			log.WithFields(log.Fields{"error": err}).Error(err.Error())
+			log.WithError(err).Error("marshal")
 			return err
 		}
 
@@ -1156,7 +1167,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				// convert register to byte array
 				bytes, err := RegistersToBytes(res.Data)
 				if err != nil {
-					log.WithFields(log.Fields{"err": err}).Debug("handleResponse: RegistersToBytes failed")
+					log.WithError(err).Error("handleResponse: RegistersToBytes failed")
 					response = MbtcpReadRes{
 						Tid:    tid,
 						Type:   readReq.Type,

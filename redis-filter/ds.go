@@ -37,7 +37,7 @@ func setDefaults() {
 	// lookup redis server
 	host, err := net.LookupHost(defaultRedisDocker)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("local run")
+		log.WithError(err).Debug("local run")
 	} else {
 		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
 		conf.Set("redis.server", host[0]) // override default
@@ -59,7 +59,7 @@ func init() {
 		Dial: func() (redis.Conn, error) {
 			conn, err := redis.Dial("tcp", conf.GetString(keyRedisServer)+":"+conf.GetString(keyRedisPort))
 			if err != nil {
-				log.WithFields(log.Fields{"err": err}).Error("Redis pool dial error")
+				log.WithError(err).Error("Redis pool dial error")
 			}
 			return conn, err
 		},
@@ -103,7 +103,7 @@ func (ds *dataStore) closeRedis() {
 	if ds != nil && ds.redis != nil {
 		err := ds.redis.Close()
 		if err != nil {
-			log.WithFields(log.Fields{"err": err}).Error("Fail to close redis connection")
+			log.WithError(err).Error("Fail to close redis connection")
 		}
 		/*else {
 			log.Debug("Close redis connection")
@@ -116,19 +116,19 @@ func (ds *dataStore) closeRedis() {
 func (ds *dataStore) Add(name string, req interface{}) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Add")
+		log.WithError(err).Error("Add")
 		return
 	}
 
 	// marshal
 	bytes, err := json.Marshal(req)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("marshal")
+		log.WithError(err).Error("Marshal")
 		return
 	}
 
 	if _, err := ds.redis.Do("HSET", hashName, name, string(bytes)); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Add")
+		log.WithError(err).Error("Add")
 	}
 }
 
@@ -139,19 +139,19 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 	}
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("Get")
+		log.WithError(err).Error("Get")
 		return nil, false
 	}
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Get")
+		log.WithError(err).Error("Get")
 		return nil, false
 	}
 	// unmarshal
 	var d psmb.MbtcpFilterStatus
 	if err := json.Unmarshal([]byte(ret), &d); err != nil {
-		log.WithFields(log.Fields{"err": ErrUnmarshal}).Debug("Get")
+		log.WithError(ErrUnmarshal).Error("Get")
 		return nil, false
 	}
 	return d, true
@@ -161,13 +161,13 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 func (ds *dataStore) GetAll() interface{} {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
+		log.WithError(err).Error("GetAll")
 		return nil
 	}
 
 	ret, err := redis.StringMap(ds.redis.Do("HGETALL", hashName))
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("GetAll")
+		log.WithError(err).Debug("GetAll")
 		return nil
 	}
 	//log.WithFields(log.Fields{"data": ret}).Debug("GetAll")
@@ -181,7 +181,7 @@ func (ds *dataStore) GetAll() interface{} {
 	}
 	if len(arr) == 0 {
 		err := ErrNoData
-		log.WithFields(log.Fields{"err": err}).Error("GetAll")
+		log.WithError(err).Debug("GetAll")
 		return nil
 	}
 	return arr
@@ -190,16 +190,16 @@ func (ds *dataStore) GetAll() interface{} {
 // Delete remove request from filter map
 func (ds *dataStore) Delete(name string) {
 	if name == "" {
-		log.WithFields(log.Fields{"err": ErrInvalidName}).Error("Delete")
+		log.WithError(ErrInvalidName).Debug("Delete")
 		return
 	}
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Delete")
+		log.WithError(err).Error("Delete")
 		return
 	}
 	if _, err := ds.redis.Do("HDEL", hashName, name); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Delete")
+		log.WithError(err).Error("Delete")
 	}
 }
 
@@ -207,11 +207,11 @@ func (ds *dataStore) Delete(name string) {
 func (ds *dataStore) DeleteAll() {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Delete")
+		log.WithError(err).Error("DeleteAll")
 		return
 	}
 	if _, err := ds.redis.Do("DEL", hashName); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Delete")
+		log.WithError(err).Warn("DeleteAll")
 	}
 }
 
@@ -222,19 +222,19 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 	}
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("Get")
+		log.WithError(err).Error("Get")
 		return err
 	}
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Get")
+		log.WithError(err).Debug("Get")
 		return err
 	}
 	// unmarshal
 	var d psmb.MbtcpFilterStatus
 	if err := json.Unmarshal([]byte(ret), &d); err != nil {
-		log.WithFields(log.Fields{"err": ErrUnmarshal}).Debug("Get")
+		log.WithError(ErrUnmarshal).Error("Get")
 		return err
 	}
 
@@ -244,12 +244,12 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 	// marshal
 	bytes, err := json.Marshal(d)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("marshal")
+		log.WithError(err).Error("marshal")
 		return err
 	}
 
 	if _, err := ds.redis.Do("HSET", hashName, name, string(bytes)); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("Add")
+		log.WithError(err).Error("Add")
 		return err
 	}
 
@@ -260,13 +260,13 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 func (ds *dataStore) UpdateAllToggles(toggle bool) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("UpdateAllToggles")
+		log.WithError(err).Error("UpdateAllToggles")
 		return
 	}
 
 	ret, err := redis.StringMap(ds.redis.Do("HGETALL", hashName))
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("UpdateAllToggles")
+		log.WithError(err).Debug("UpdateAllToggles")
 		return
 	}
 	//log.WithFields(log.Fields{"data": ret}).Debug("UpdateAllToggles")
@@ -277,10 +277,10 @@ func (ds *dataStore) UpdateAllToggles(toggle bool) {
 			d.Enabled = toggle
 			bytes, err := json.Marshal(d) // marshal
 			if err != nil {
-				log.WithFields(log.Fields{"err": err}).Error("marshal")
+				log.WithError(err).Debug("marshal")
 			}
 			if _, err := ds.redis.Do("HSET", hashName, d.Name, string(bytes)); err != nil {
-				log.WithFields(log.Fields{"err": err}).Error("UpdateAllToggles")
+				log.WithError(err).Debug("UpdateAllToggles")
 			}
 		}
 	}

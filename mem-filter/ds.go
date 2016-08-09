@@ -53,7 +53,7 @@ func (ds *dataStore) GetAll() interface{} {
 
 	if len(arr) == 0 {
 		err := ErrNoData
-		log.WithFields(log.Fields{"err": err}).Error("GetAll")
+		log.WithError(err).Error("GetAll")
 		return nil
 	}
 	return arr

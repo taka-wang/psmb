@@ -49,4 +49,13 @@ var (
 
 	// ErrFilterNotFound is the error
 	ErrFilterNotFound = errors.New("Filter not found")
+
+	// ErrNoLatestData is the error when this latest history is nil
+	ErrNoLatestData = errors.New("No latest history")
+
+	// ErrInvalidArgs is the error when the length of args is invalid
+	ErrInvalidArgs = errors.New("Invalid filter args")
+
+	// ErrNoData is the error when the data is nil
+	ErrNoData = errors.New("No data")
 )
