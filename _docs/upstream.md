@@ -1400,8 +1400,7 @@ Command name: **mbtcp.filter.create**
 >| params       | description            | type          | range     | example     | required            |
 >|:-------------|:-----------------------|:--------------|:----------|:------------|:--------------------|
 >| from         | Service name           | string        | -         | "web"       | optional            |
->| **poll**     | poller name            | unique string | -         | "led_1"     | :heavy_check_mark:  |
->| **name**     | filter name            | unique string | -         | "filter_1"  | :heavy_check_mark:  |
+>| **name**     | poller name            | unique string | -         | "led_1"     | :heavy_check_mark:  |
 >| tid          | Transaction ID         | integer       | int64     | 12345       | :heavy_check_mark:  |
 >| type         | Comparison type        | category      | [0, 9]    |             | :heavy_check_mark:  |
 >| arg          | value                  | array         |           |             | optional            |
@@ -1416,8 +1415,7 @@ Command name: **mbtcp.filter.create**
     ```JavaScript
     {
         "from": "web",
-        "poll": "led_1",
-        "name": "filter_1",
+        "name": "led_1",
         "tid": 123456,
         "enabled": true,
         "type": 0
@@ -1429,8 +1427,7 @@ Command name: **mbtcp.filter.create**
     ```JavaScript
     {
         "from": "web",
-        "poll": "led_1",
-        "name": "filter",
+        "name": "led_1",
         "tid": 123456,
         "enabled": true,
         "type": 1,
@@ -1443,8 +1440,7 @@ Command name: **mbtcp.filter.create**
     ```JavaScript
     {
         "from": "web",
-        "poll": "led_1",
-        "name": "filter",
+        "name": "led_1",
         "tid": 123456,
         "enabled": true,
         "type": 6,
@@ -1483,8 +1479,7 @@ Command name: **mbtcp.filter.update**
     ```JavaScript
     {
         "from": "web",
-        "poll": "led_1",
-        "name": "filter_1",
+        "name": "led_1",
         "tid": 123456,
         "enabled": true,
         "type": 0
@@ -1496,8 +1491,7 @@ Command name: **mbtcp.filter.update**
     ```JavaScript
     {
         "from": "web",
-        "poll": "led_1",
-        "name": "filter",
+        "name": "led_1",
         "tid": 123456,
         "enabled": true,
         "type": 1,
@@ -1510,8 +1504,7 @@ Command name: **mbtcp.filter.update**
     ```JavaScript
     {
         "from": "web",
-        "poll": "led_1",
-        "name": "filter",
+        "name": "led_1",
         "tid": 123456,
         "enabled": true,
         "type": 6,
@@ -1560,8 +1553,7 @@ Command name: **mbtcp.filter.read**
     ```JavaScript
     {
         "from": "web",
-        "poll": "led_1",
-        "name": "filter_1",
+        "name": "led_1",
         "tid": 123456,
         "enabled": true,
         "type": 0,
@@ -1574,8 +1566,7 @@ Command name: **mbtcp.filter.read**
     ```JavaScript
     {
         "from": "web",
-        "poll": "led_1",
-        "name": "filter",
+        "name": "led_1",
         "tid": 123456,
         "enabled": true,
         "type": 1,
@@ -1589,8 +1580,7 @@ Command name: **mbtcp.filter.read**
     ```JavaScript
     {
         "from": "web",
-        "poll": "led_1",
-        "name": "filter",
+        "name": "led_1",
         "tid": 123456,
         "enabled": true,
         "type": 6,
@@ -1618,7 +1608,7 @@ Command name: **mbtcp.filter.delete**
 ```JavaScript
 {
     "from": "web",
-    "name": "filter_1",
+    "name": "led_1",
     "tid": 123456
 }
 ```
@@ -1641,7 +1631,7 @@ Command name: **mbtcp.filter.toggle**
 ```JavaScript
 {
     "from": "web",
-    "name": "f_1",
+    "name": "led_1",
     "tid": 123456,
     "enabled": true
 }
@@ -1680,8 +1670,7 @@ Command name: **mbtcp.filters.read**
         "filters": [
             {
                 "from": "web",
-                "poll": "led_1",
-                "name": "filter1",
+                "name": "led_1",
                 "tid": 123456,
                 "enabled": true,
                 "type": 6,
@@ -1689,8 +1678,7 @@ Command name: **mbtcp.filters.read**
             },
             {
                 "from": "web",
-                "poll": "led_2",
-                "name": "filter2",
+                "name": "led_2",
                 "tid": 123456,
                 "enabled": true,
                 "type": 6,
@@ -1765,8 +1753,7 @@ Command name: **mbtcp.filters.import**
     "filters": [
         {
             "from": "web",
-            "poll": "led_1",
-            "name": "filter1",
+            "name": "led_1",
             "tid": 123456,
             "enabled": true,
             "type": 6,
@@ -1774,8 +1761,7 @@ Command name: **mbtcp.filters.import**
         },
         {
             "from": "web",
-            "poll": "led_2",
-            "name": "filter2",
+            "name": "led_2",
             "tid": 123456,
             "enabled": true,
             "type": 6,
@@ -1818,8 +1804,7 @@ Command name: **mbtcp.filters.export**
         "filters": [
             {
                 "from": "web",
-                "poll": "led_1",
-                "name": "filter1",
+                "name": "led_1",
                 "tid": 123456,
                 "enabled": true,
                 "type": 6,
@@ -1827,8 +1812,7 @@ Command name: **mbtcp.filters.export**
             },
             {
                 "from": "web",
-                "poll": "led_2",
-                "name": "filter2",
+                "name": "led_2",
                 "tid": 123456,
                 "enabled": true,
                 "type": 6,

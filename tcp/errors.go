@@ -44,9 +44,9 @@ var (
 	// ErrInvalidPollName is the error when the poll name is empty.
 	ErrInvalidPollName = errors.New("Invalid poll name!")
 
-	// ErrInvalidFilterName is the error when the poll name is empty.
-	ErrInvalidFilterName = errors.New("Invalid filter name!")
-
 	// ErrFiltersNotFound is the error
-	ErrFiltersNotFound = errors.New("Fail to get all filters")
+	ErrFiltersNotFound = errors.New("Filters not found")
+
+	// ErrFilterNotFound is the error
+	ErrFilterNotFound = errors.New("Filter not found")
 )

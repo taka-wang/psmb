@@ -26,14 +26,12 @@ func TestFilter(t *testing.T) {
 		a := psmb.MbtcpFilterStatus{
 			Tid:     1234,
 			From:    "test",
-			Poll:    "A",
 			Name:    "B",
 			Enabled: true,
 		}
 		b := psmb.MbtcpFilterStatus{
 			Tid:     123456,
 			From:    "test",
-			Poll:    "A1",
 			Name:    "B1",
 			Enabled: true,
 		}

@@ -148,7 +148,6 @@ type (
 	MbtcpFilterStatus struct {
 		Tid     int64        `json:"tid"`
 		From    string       `json:"from,omitempty"`
-		Poll    string       `json:"poll"`
 		Name    string       `json:"name"`
 		Enabled bool         `json:"enabled"`
 		Type    RegValueType `json:"type,omitempty"`

@@ -728,8 +728,8 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		req := r.(MbtcpFilterStatus)
 		status := "ok"
 		if req.Name == "" {
-			err := ErrInvalidFilterName
-			log.WithFields(log.Fields{"err": err}).Error("No filter name")
+			err := ErrInvalidPollName
+			log.WithFields(log.Fields{"err": err}).Error(ErrFilterNotFound.Error())
 			status = err.Error() // set error status
 		}
 		if status == "ok" {
@@ -742,15 +742,15 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		req := r.(MbtcpFilterOpReq)
 		status := "ok"
 		if req.Name == "" {
-			err := ErrInvalidFilterName
-			log.WithFields(log.Fields{"err": err}).Error("No filter name")
+			err := ErrInvalidPollName
+			log.WithFields(log.Fields{"err": err}).Error(ErrFilterNotFound.Error())
 			status = err.Error() // set error status
 		}
 
 		ret, ok := b.filterMap.Get(req.Name) // no matter how, get it
 		if !ok {
-			err := ErrInvalidFilterName
-			log.WithFields(log.Fields{"err": err}).Error("Fail to get filter")
+			err := ErrInvalidPollName
+			log.WithFields(log.Fields{"err": err}).Error(ErrFilterNotFound.Error())
 			status = err.Error() // set error status
 		}
 
@@ -765,7 +765,6 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// send back
 		resp := MbtcpFilterStatus{
 			Tid:     req.Tid,
-			Poll:    request.Poll,
 			Name:    req.Name,
 			Enabled: request.Enabled,
 			Type:    request.Type,
@@ -777,8 +776,8 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		req := r.(MbtcpFilterOpReq)
 		status := "ok"
 		if req.Name == "" {
-			err := ErrInvalidFilterName
-			log.WithFields(log.Fields{"err": err}).Error("No filter name")
+			err := ErrInvalidPollName
+			log.WithFields(log.Fields{"err": err}).Error(ErrFilterNotFound.Error())
 			status = err.Error() // set error status
 		}
 		if status == "ok" {
@@ -791,8 +790,8 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		req := r.(MbtcpFilterOpReq)
 		status := "ok"
 		if req.Name == "" {
-			err := ErrInvalidFilterName
-			log.WithFields(log.Fields{"err": err}).Error("No filter name")
+			err := ErrInvalidPollName
+			log.WithFields(log.Fields{"err": err}).Error(ErrFilterNotFound.Error())
 			status = err.Error() // set error status
 		}
 		if status == "ok" {
@@ -817,7 +816,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		}
 		// send error back
 		err := ErrFiltersNotFound
-		log.WithFields(log.Fields{"err": err}).Error("Fail to get/export filters")
+		log.WithFields(log.Fields{"err": err}).Error(ErrFiltersNotFound.Error())
 		resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 		return b.naiveResponder(cmd, resp)
 	case mbDeleteFilters: // done
