@@ -1,14 +1,11 @@
 package filter
 
 import (
-	"errors"
 	"sync"
 
 	"github.com/taka-wang/psmb"
+	log "github.com/takawang/logrus"
 )
-
-// ErrInvalidFilterName is the error when the name is invalid
-var ErrInvalidFilterName = errors.New("Invalid Filter name")
 
 //@Implement IFilterDataStore implicitly
 
@@ -49,6 +46,12 @@ func (ds *dataStore) GetAll(name string) interface{} {
 		arr = append(arr, v.(psmb.MbtcpFilterStatus))
 	}
 	ds.RUnlock()
+
+	if len(arr) == 0 {
+		err := ErrNoData
+		log.WithFields(log.Fields{"err": err}).Error("GetAll")
+		return nil
+	}
 	return arr
 }
 
