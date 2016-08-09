@@ -167,7 +167,8 @@ func marshal(r interface{}) (string, error) {
 }
 
 // addToHistory helper function to add data to history map
-func (b *Service) addToHistory(taskName string, data interface{}) {
+func (b *Service) addToHistory(taskName string, data interface{}) bool {
+	ret := b.applyFilter(taskName, data) // apply filter
 	if err := b.historyMap.Add(taskName, data); err != nil {
 		log.WithFields(log.Fields{
 			"err":  err,
@@ -175,6 +176,7 @@ func (b *Service) addToHistory(taskName string, data interface{}) {
 			"data": data,
 		}).Error("Fail to add data to history data store")
 	}
+	return ret
 	/* debug
 	log.WithFields(log.Fields{
 		"name": taskName,
@@ -1079,24 +1081,22 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 		res := r.(DMbtcpRes)
 		tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 
-		var response interface{}
-		var task ReaderTask
-		var ok bool
-		var t interface{}
-
+		// feedback data or not flag
+		noFilter := true
 		// check read task table
-		if t, ok = b.readerMap.GetTaskByID(res.Tid); !ok {
+		t, ok := b.readerMap.GetTaskByID(res.Tid)
+		if !ok {
 			return ErrRequestNotFound
 		}
-		task = t.(ReaderTask) // type casting
 
-		// default response command string
-		respCmd := task.Cmd
+		task := t.(ReaderTask) // type casting
+		respCmd := task.Cmd    // default response command string
+		var response interface{}
+		var data interface{} // shared variable
 
 		switch MbCmdType(cmd) {
 		case fc1, fc2: // done: read bits
-			var data interface{} // shared variable
-			noFilter := true
+
 			switch task.Cmd {
 			case mbOnceRead: // one-off requests
 				if res.Status != "ok" {
@@ -1117,8 +1117,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					data = nil
 				} else {
 					data = res.Data
-					b.addToHistory(task.Name, data) // add to history; type: []uint16
-					noFilter = b.applyFilter(task.Name, data)
+					noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint16
 				}
 				response = MbtcpPollData{
 					TimeStamp: time.Now().UTC().UnixNano(),
@@ -1139,9 +1138,6 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 			}
 			return nil
 		case fc3, fc4: // read registers
-			// shared variables
-			var status string
-			var data interface{}
 
 			switch task.Cmd {
 			case mbOnceRead: // one-off requests
@@ -1174,6 +1170,8 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				}
 
 				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
+
+				var status string // shared variables
 
 				switch readReq.Type {
 				case HexString:
@@ -1296,13 +1294,11 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 
 				log.WithFields(log.Fields{"Type": readReq.Type}).Debug("Request type:")
 
-				noFilter := true
 				switch readReq.Type {
 				case HexString:
 					data = BytesToHexString(bytes) // convert byte to hex string
 					status = res.Status
-					b.addToHistory(task.Name, data) // add to history; type: string
-					noFilter = b.applyFilter(task.Name, data)
+					noFilter = b.addToHistory(task.Name, data) // add to history; type: string
 				case UInt16:
 					if ret, err := BytesToUInt16s(bytes, readReq.Order); err != nil {
 						data = nil
@@ -1310,8 +1306,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					} else {
 						data = ret
 						status = res.Status
-						b.addToHistory(task.Name, data) // add to history; type: []uint16
-						noFilter = b.applyFilter(task.Name, data)
+						noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint16
 					}
 				case Int16:
 					if ret, err := BytesToInt16s(bytes, readReq.Order); err != nil {
@@ -1320,8 +1315,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					} else {
 						data = ret
 						status = res.Status
-						b.addToHistory(task.Name, data) // add to history; type: []uint16
-						noFilter = b.applyFilter(task.Name, data)
+						noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint16
 					}
 				case Scale, UInt32, Int32, Float32: // 32-Bits
 					if readReq.Len%2 != 0 {
@@ -1343,8 +1337,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								b.addToHistory(task.Name, data) // add to history; type: []float32
-								noFilter = b.applyFilter(task.Name, data)
+								noFilter = b.addToHistory(task.Name, data) // add to history; type: []float32
 							}
 						case UInt32:
 							if ret, err := BytesToUInt32s(bytes, readReq.Order); err != nil {
@@ -1353,8 +1346,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								b.addToHistory(task.Name, data) // add to history; type: []uint32
-								noFilter = b.applyFilter(task.Name, data)
+								noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint32
 							}
 						case Int32:
 							if ret, err := BytesToInt32s(bytes, readReq.Order); err != nil {
@@ -1363,8 +1355,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 							} else {
 								data = ret
 								status = res.Status
-								b.addToHistory(task.Name, data) // add to history; type: []uint32
-								noFilter = b.applyFilter(task.Name, data)
+								noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint32
 							}
 						case Float32:
 							if ret, err := BytesToFloat32s(bytes, readReq.Order); err != nil {
@@ -1382,8 +1373,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 					data = res.Data
 					status = res.Status
 					// b.addToHistory(task.Name, HistoryData{Ts: time.Now().UTC().UnixNano(), Data: data})
-					b.addToHistory(task.Name, data) // add to history; type: []uint16
-					noFilter = b.applyFilter(task.Name, data)
+					noFilter = b.addToHistory(task.Name, data) // add to history; type: []uint16
 				}
 
 				// shared response
