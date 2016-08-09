@@ -1032,16 +1032,16 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 			res := r.(DMbtcpTimeout)
 			tid, _ := strconv.ParseInt(res.Tid, 10, 64)
 			TidStr = res.Tid
+			var int64Data int64
 
-			var data int64
 			if MbCmdType(cmd) == getMbTimeout {
-				data = res.Timeout
+				int64Data = res.Timeout
 			}
 
 			resp = MbtcpTimeoutRes{
 				Tid:    tid,
 				Status: res.Status,
-				Data:   data, // getMbTimeout only
+				Data:   int64Data, // getMbTimeout only
 			}
 		case fc5, fc6, fc15, fc16: // one-off write requests
 			res := r.(DMbtcpRes)
@@ -1087,6 +1087,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 
 		task := t.(ReaderTask) // type casting
 		respCmd := task.Cmd    // default response command string
+
 		var response interface{}
 		var data interface{} // shared variable
 		status := "ok"       // shared variables
