@@ -156,8 +156,8 @@ func NewService(reader, writer, history, filter, sch string) (IProactiveService,
 	}, nil
 }
 
-// Marshal helper function to marshal structure
-func Marshal(r interface{}) (string, error) {
+// marshal helper function to marshal structure
+func marshal(r interface{}) (string, error) {
 	bytes, err := json.Marshal(r) // marshal to json string
 	if err != nil {
 		return "", ErrMarshal
@@ -184,7 +184,7 @@ func (b *Service) addToHistory(taskName string, data interface{}) {
 
 // Task for cron scheduler
 func (b *Service) Task(socket *zmq.Socket, req interface{}) {
-	str, err := Marshal(req)
+	str, err := marshal(req)
 	if err != nil {
 		// TODO: remove table
 		return
@@ -222,7 +222,7 @@ func (b *Service) stopZMQ() {
 
 // naiveResponder naive responder to send message back to upstream.
 func (b *Service) naiveResponder(cmd string, resp interface{}) error {
-	respStr, err := Marshal(resp)
+	respStr, err := marshal(resp)
 	if err != nil {
 		log.WithFields(log.Fields{"error": err}).Error("Fail to marshal for naive responder!")
 		return err
@@ -418,6 +418,8 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 				req.Len = l
 			}
 			// we don't check max length, let modbusd do it.
+		default:
+			// do nothing
 		}
 
 		command := DMbtcpWriteReq{
@@ -922,7 +924,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 		//
 		// send back one-off task reponse and remove from write task map
 		//
-		respStr, err := Marshal(resp)
+		respStr, err := marshal(resp)
 		if err != nil {
 			log.WithFields(log.Fields{"error": err}).Error(err.Error())
 			return err
@@ -1267,7 +1269,6 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 	default: // should not reach here!!
 		return ErrResponseNotSupport
 	}
-	//return nil
 }
 
 // Start enable proactive service
