@@ -14,13 +14,13 @@ type confType struct {
 		Port        string        `default:"6379"`
 		MaxIdel     int           `default:"3"`
 		MaxActive   int           `default:"0"`
-		IdelTimeout time.Duration `default:"30"`
+		IdelTimeout time.Duration `default:"30s"`
 	}
 	Mongo struct {
 		Server            string        `default:"127.0.0.1"`
 		Port              string        `default:"27017"`
 		IsDrop            bool          `default:"true"`
-		ConnectionTimeout time.Duration `default:"60"`
+		ConnectionTimeout time.Duration `default:"60s"`
 		DbName            string        `default:"test"`
 		Authentication    bool          `default:"false"`
 		Username          string        `default:"username"`
