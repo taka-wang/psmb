@@ -806,7 +806,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbGetFilters, mbExportFilters: // done
 		req := r.(MbtcpFilterOpReq)
-		if reqs, ok := b.filterMap.GetAll().([]MbtcpFilterStatus); reqs != nil {
+		if reqs, ok := b.filterMap.GetAll().([]MbtcpFilterStatus); ok {
 			resp := MbtcpFiltersStatus{
 				Tid:     req.Tid,
 				Status:  "ok",
