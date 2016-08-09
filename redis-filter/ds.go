@@ -256,5 +256,5 @@ func (ds *dataStore) UpdateAllToggles(toggle bool) {
 
 	// unmarshal
 	// TODO!!
-	return nil
+	return
 }
