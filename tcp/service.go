@@ -1137,6 +1137,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 			if noFilter {
 				return b.naiveResponder(respCmd, response)
 			}
+			return nil
 		case fc3, fc4: // read registers
 			// shared variables
 			var status string
@@ -1397,6 +1398,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				if noFilter {
 					return b.naiveResponder(respCmd, response)
 				}
+				return nil
 			default: // should not reach here
 				err := ErrResponseNotSupport
 				log.WithFields(log.Fields{"cmd": task.Cmd}).Error(err.Error())
