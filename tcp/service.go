@@ -913,7 +913,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 	case mbGetFilter:
 		req := r.(MbtcpFilterOpReq)
 		status := "ok"
-		var filter string
+		var filter interface{}
 		var ok bool
 
 		if req.Name == "" {
