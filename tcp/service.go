@@ -185,7 +185,7 @@ func (b *Service) addToHistory(taskName string, data interface{}) {
 
 // applyFilter apply filter, if no need to filter, return true.
 func (b *Service) applyFilter(name string, data interface{}) bool {
-	ret, ok := b.filterMap.Get(req.Name) // check map
+	ret, ok := b.filterMap.Get(name) // check map
 	if !ok {
 		return true // no filter
 	}
@@ -210,9 +210,9 @@ func (b *Service) applyFilter(name string, data interface{}) bool {
 		}
 		var v float32
 		switch val.Index(0).Kind() {
-		case uint16, uint32:
+		case reflect.Uint16, reflect.Uint32: //uint16, uint32:
 			v = float32(val.Index(0).Uint())
-		case float32:
+		case reflect.Float32: //float32:
 			v = float32(val.Index(0).Float())
 		default: // should not reach here
 			return true
