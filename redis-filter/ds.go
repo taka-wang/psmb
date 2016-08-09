@@ -1,25 +1,22 @@
-// Package history an redis-based data store for history.
-//
-// By taka@cmwang.net
-//
-package history
+package filter
 
 import (
-	"encoding/json"
+	"errors"
 	"net"
+	"sync"
 	"time"
-
-	"github.com/garyburd/redigo/redis"
+    "github.com/garyburd/redigo/redis"
 	//conf "github.com/taka-wang/psmb/mini-conf"
 	conf "github.com/taka-wang/psmb/viper-conf"
 	log "github.com/takawang/logrus"
+	
+	"github.com/taka-wang/psmb"
 )
 
 var (
 	// RedisPool redis connection pool
-	RedisPool  *redis.Pool
-	hashName   string
-	zsetPrefix string
+	RedisPool *redis.Pool
+	hashName  string
 )
 
 func setDefaults() {
@@ -30,9 +27,8 @@ func setDefaults() {
 	conf.SetDefault(keyRedisMaxActive, defaultRedisMaxActive)
 	conf.SetDefault(keyRedisIdelTimeout, defaultRedisIdelTimeout)
 
-	// set default redis-history values
+	// set default redis-writer values
 	conf.SetDefault(keyHashName, defaultHashName)
-	conf.SetDefault(keySetPrefix, defaultSetPrefix)
 
 	// Note: for docker environment
 	// lookup redis server
@@ -40,8 +36,8 @@ func setDefaults() {
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("local run")
 	} else {
-		log.WithFields(log.Fields{"hostname": host[0]}).Info("docker run")
-		conf.Set(keyRedisServer, host[0]) // override default
+		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
+		conf.Set("redis.server", host[0]) // override default
 	}
 }
 
@@ -51,11 +47,10 @@ func init() {
 	setDefaults()                                           // set defaults
 
 	hashName = conf.GetString(keyHashName)
-	zsetPrefix = conf.GetString(keySetPrefix)
 
 	RedisPool = &redis.Pool{
 		MaxIdle: conf.GetInt(keyRedisMaxIdel),
-		// MaxActive: When zero, there is no limit on the number of connections in the pool.
+		// When zero, there is no limit on the number of connections in the pool.
 		MaxActive:   conf.GetInt(keyRedisMaxActive),
 		IdleTimeout: conf.GetDuration(keyRedisIdelTimeout) * time.Second,
 		Dial: func() (redis.Conn, error) {
@@ -68,14 +63,14 @@ func init() {
 	}
 }
 
-// @Implement IHistoryDataStore contract implicitly
+//@Implement IFilterDataStore implicitly
 
-// dataStore data store
+// dataStore filter map
 type dataStore struct {
 	redis redis.Conn
 }
 
-// NewDataStore instantiate data store
+// NewDataStore instantiate filter map
 func NewDataStore(conf map[string]string) (interface{}, error) {
 	// get connection from pool
 	conn := RedisPool.Get()
@@ -114,41 +109,28 @@ func (ds *dataStore) closeRedis() {
 	}
 }
 
-func (ds *dataStore) Add(name string, data interface{}) error {
+
+// Add add request to filter map
+func (ds *dataStore) Add(name string, req interface{}) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("Add")
+		log.WithFields(log.Fields{"err": err}).Error("Add")
 	}
 
-	// marshal
-	bytes, err := json.Marshal(data)
+    // marshal
+	bytes, err := json.Marshal(req)
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("marshal")
-		return err
+		return
 	}
 
-	//
-	// Time epoch: https://gobyexample.com/epoch
-	// nanos := now.UnixNano()
-	// fmt.Println(nanos) => 1351700038292387000
-	// fmt.Println(time.Unix(0, nanos)) => 2012-10-31 16:13:58.292387 +0000 UTC
-	//
-
-	// redis pipeline
-	ts := time.Now().UTC().UnixNano()
-	ds.redis.Send("MULTI")
-	ds.redis.Send("HSET", hashName, name, string(bytes))      // latest
-	ds.redis.Send("ZADD", zsetPrefix+name, ts, string(bytes)) // add to zset
-	if _, err := ds.redis.Do("EXEC"); err != nil {
+	if _, err := ds.redis.Do("HSET", hashName, name, string(bytes)); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Add")
-		return err
 	}
-	// TODO: remove debug
-	log.WithFields(log.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to redis")
-	return nil
 }
 
-func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
+// Get get request from filter map
+func (ds *dataStore) Get(name string) (interface{}, bool) {
 	if name == "" {
 		return nil, ErrInvalidName
 	}
@@ -156,54 +138,53 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("Get")
 	}
-	// zset limit is inclusive; zrevrange: from lateste to oldest
-	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, limit-1, "WITHSCORES"))
+
+    ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
-		return nil, err
+		return nil, false
 	}
-	if len(ret) == 0 {
-		err := ErrNoData
-		log.WithFields(log.Fields{"err": err}).Error("Get")
-		return nil, err
+    // unmarshal
+    var d MbtcpFilterStatus
+	if err := json.Unmarshal(ret, &d); err != nil {
+		return nil, ErrUnmarshal
 	}
-	return ret, nil
+	return d, true
 }
 
-func (ds *dataStore) GetAll(name string) (map[string]string, error) {
-	if name == "" {
-		return nil, ErrInvalidName
-	}
-	defer ds.closeRedis()
-	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
-	}
-	// zrevrange: from lateste to oldest
-	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, -1, "WITHSCORES"))
-	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("GetAll")
-		return nil, err
-	}
-	if len(ret) == 0 {
-		err := ErrNoData
-		log.WithFields(log.Fields{"err": err}).Error("GetAll")
-		return nil, err
-	}
-	// TODO: remove
-	log.WithFields(log.Fields{"data": ret}).Info("GetAll")
-	return ret, nil
+// GetAll get all requests from filter map
+func (ds *dataStore) GetAll(name string) interface{} {
+	return nil
 }
 
-func (ds *dataStore) GetLatest(name string) (string, error) {
+// Delete remove request from filter map
+func (ds *dataStore) Delete(name string) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Error("GetLatest")
+		log.WithFields(log.Fields{"err": err}).Error("Delete")
 	}
+	if _, err := ds.redis.Do("HDEL", hashName, name); err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Delete")
+	}
+}
 
-	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
-	if err != nil {
-		log.WithFields(log.Fields{"err": "Not Found"}).Error("GetLatest")
-		return "", err
+// DeleteAll delete all filters from filter map
+func (ds *dataStore) DeleteAll() {
+defer ds.closeRedis()
+	if err := ds.connectRedis(); err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Delete")
 	}
-	return ret, nil
+	if _, err := ds.redis.Do("DEL", hashName); err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Delete")
+	}
+}
+
+// Toggle toggle request from filter map
+func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
+	return nil
+}
+
+// UpdateAllToggles toggle all request from filter map
+func (ds *dataStore) UpdateAllToggles(toggle bool) {
+	return false
 }

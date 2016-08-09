@@ -41,7 +41,7 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 	return req, ok
 }
 
-// GetAll get request from filter map
+// GetAll get all requests from filter map
 func (ds *dataStore) GetAll(name string) interface{} {
 	arr := []psmb.MbtcpFilterStatus{}
 	ds.RLock()
@@ -59,7 +59,7 @@ func (ds *dataStore) Delete(name string) {
 	ds.Unlock()
 }
 
-// DeleteAll delete all filters
+// DeleteAll delete all filters from filter map
 func (ds *dataStore) DeleteAll() {
 	ds.Lock()
 	ds.m = make(map[string]interface{})

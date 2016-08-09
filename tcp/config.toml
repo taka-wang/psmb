@@ -34,6 +34,9 @@ zset_prefix         = "mbtcp:data:"     # redis zset key prefix
 [redis_writer]
 hash_name           = "mbtcp:writer"    # redis hash table name
 
+[redis_filter]
+hash_name           = "mbtcp:filter"    # redis hash table name
+
 [psmbtcp]
 default_port            = "502"         # modbus slave default port
 min_connection_timeout  = 200000        # minimal tcp connection timeout in ms
@@ -47,4 +50,4 @@ min_poll_interval       = 1             # minimal poll interval in second
     upstream   = "ipc:///tmp/to.psmb"       # from services
     downstream = "ipc:///tmp/from.modbus"   # from modbusd
 
-# TOML config end @20160806
+# TOML config end @20160809

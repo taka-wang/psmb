@@ -6,6 +6,7 @@ import (
 	mreader "github.com/taka-wang/psmb/mem-reader"
 	mwriter "github.com/taka-wang/psmb/mem-writer"
 	mgohistory "github.com/taka-wang/psmb/mgo-history"
+	rfilter "github.com/taka-wang/psmb/redis-filter"
 	history "github.com/taka-wang/psmb/redis-history"
 	rwriter "github.com/taka-wang/psmb/redis-writer"
 	mbtcp "github.com/taka-wang/psmb/tcp"
@@ -19,17 +20,18 @@ func init() {
 	mbtcp.Register("History", history.NewDataStore)
 	mbtcp.Register("MgoHistory", mgohistory.NewDataStore)
 	mbtcp.Register("MemFilter", mfilter.NewDataStore)
+	mbtcp.Register("RedisFilter", rfilter.NewDataStore)
 	mbtcp.Register("Cron", cron.NewScheduler)
 }
 
 func main() {
 	// dependency injection & factory pattern
 	if srv, _ := mbtcp.NewService(
-		"MemReader", // Reader Data Store
-		"MemWriter", // Writer Data Store
-		"History",   // History Data Store
-		"MemFilter", // Filter Data Store
-		"Cron",      // Scheduler
+		"MemReader",   // Reader Data Store
+		"MemWriter",   // Writer Data Store
+		"History",     // History Data Store
+		"RedisFilter", // Filter Data Store
+		"Cron",        // Scheduler
 	); srv != nil {
 		srv.Start()
 	}

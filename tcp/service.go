@@ -11,8 +11,8 @@ import (
 
 	. "github.com/taka-wang/psmb"
 	cron "github.com/taka-wang/psmb/cron"
-	conf "github.com/taka-wang/psmb/mini-conf"
-	//conf "github.com/taka-wang/psmb/viper-conf"
+	//conf "github.com/taka-wang/psmb/mini-conf"
+	conf "github.com/taka-wang/psmb/viper-conf"
 	log "github.com/takawang/logrus"
 	zmq "github.com/takawang/zmq3"
 )
