@@ -572,8 +572,8 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// send back
 		request := task.Req.(MbtcpPollStatus)
 		resp := MbtcpPollStatus{
-			Tid:      request.Tid,
-			Name:     request.Name,
+			Tid:      req.Tid,
+			Name:     req.Name,
 			Interval: request.Interval,
 			Enabled:  request.Enabled,
 			FC:       request.FC,
@@ -724,33 +724,132 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		}
 		resp.Data = ret
 		return b.naiveResponder(cmd, resp)
-	case mbCreateFilter, mbUpdateFilter:
-		//req := r.(MbtcpFilterStatus)
-		return ErrTodo
-	case mbGetFilter:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
-	case mbDeleteFilter:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
-	case mbToggleFilter:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
-	case mbGetFilters:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
-	case mbDeleteFilters:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
-	case mbToggleFilters:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
-	case mbImportFilters:
-		//request := r.(MbtcpFiltersStatus)
-		return ErrTodo
-	case mbExportFilters:
-		//req := r.(MbtcpFilterOpReq)
-		return ErrTodo
+	case mbCreateFilter, mbUpdateFilter: // done
+		req := r.(MbtcpFilterStatus)
+		status := "ok"
+		if req.Name == "" {
+			err := ErrInvalidFilterName
+			log.WithFields(log.Fields{"err": err}).Error("No filter name")
+			status = err.Error() // set error status
+		}
+		if status == "ok" {
+			b.filterMap.Add(req.Name, req) // add or update to filter map
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+		return b.naiveResponder(cmd, resp)
+	case mbGetFilter: // done
+		req := r.(MbtcpFilterOpReq)
+		status := "ok"
+		if req.Name == "" {
+			err := ErrInvalidFilterName
+			log.WithFields(log.Fields{"err": err}).Error("No filter name")
+			status = err.Error() // set error status
+		}
+
+		ret, ok := b.filterMap.Get(req.Name) // no matter how, get it
+		if !ok {
+			err := ErrInvalidFilterName
+			log.WithFields(log.Fields{"err": err}).Error("Fail to get filter")
+			status = err.Error() // set error status
+		}
+
+		// send error back
+		if status != "ok" {
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+			return b.naiveResponder(cmd, resp)
+		}
+
+		// type casting
+		request := ret.(MbtcpFilterStatus)
+		// send back
+		resp := MbtcpFilterStatus{
+			Tid:     req.Tid,
+			Poll:    request.Poll,
+			Name:    req.Name,
+			Enabled: request.Enabled,
+			Type:    request.Type,
+			Arg:     request.Arg,
+			Status:  "ok",
+		}
+		return b.naiveResponder(cmd, resp)
+	case mbDeleteFilter: // done
+		req := r.(MbtcpFilterOpReq)
+		status := "ok"
+		if req.Name == "" {
+			err := ErrInvalidFilterName
+			log.WithFields(log.Fields{"err": err}).Error("No filter name")
+			status = err.Error() // set error status
+		}
+		if status == "ok" {
+			b.filterMap.Delete(req.Name)
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+		return b.naiveResponder(cmd, resp)
+	case mbToggleFilter: // done
+		req := r.(MbtcpFilterOpReq)
+		status := "ok"
+		if req.Name == "" {
+			err := ErrInvalidFilterName
+			log.WithFields(log.Fields{"err": err}).Error("No filter name")
+			status = err.Error() // set error status
+		}
+		if status == "ok" {
+			if err := b.filterMap.UpdateToggle(req.Name, req.Enabled); err != nil {
+				log.WithFields(log.Fields{"err": err}).Error("Fail to toggle filter")
+				status = err.Error() // set error status
+			}
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+		return b.naiveResponder(cmd, resp)
+	case mbGetFilters, mbExportFilters: // done
+		req := r.(MbtcpFilterOpReq)
+		if reqs, ok := b.filterMap.GetAll().([]MbtcpFilterStatus); reqs != nil {
+			resp := MbtcpFiltersStatus{
+				Tid:     req.Tid,
+				Status:  "ok",
+				Filters: reqs,
+			}
+			// send back
+			return b.naiveResponder(cmd, resp)
+		}
+		// send error back
+		err := ErrFiltersNotFound
+		log.WithFields(log.Fields{"err": err}).Error("Fail to get/export filters")
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+		return b.naiveResponder(cmd, resp)
+	case mbDeleteFilters: // done
+		req := r.(MbtcpFilterOpReq)
+		b.filterMap.DeleteAll()
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		return b.naiveResponder(cmd, resp)
+	case mbToggleFilters: // done
+		req := r.(MbtcpFilterOpReq)
+		b.filterMap.UpdateAllToggles(req.Enabled)
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: "ok"}
+		return b.naiveResponder(cmd, resp)
+	case mbImportFilters: // done
+		requests, ok := r.(MbtcpFiltersStatus)
+		status := "ok"
+		if !ok {
+			err := ErrCasting
+			log.WithFields(log.Fields{"err": err}).Error("Fail to import filters")
+			status = err.Error() // set error status
+		}
+		if status == "ok" {
+			for _, v := range requests.Filters {
+				if v.Name != "" {
+					b.filterMap.Add(v.Name, v) // add or update to filter map
+				}
+			}
+		}
+		// send back
+		resp := MbtcpSimpleRes{Tid: req.Tid, Status: status}
+		return b.naiveResponder(cmd, resp)
 	default: // should not reach here!!
 		return ErrRequestNotSupport
 	}

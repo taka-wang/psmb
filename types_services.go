@@ -153,6 +153,7 @@ type (
 		Enabled bool         `json:"enabled"`
 		Type    RegValueType `json:"type,omitempty"`
 		Arg     []float32    `json:"arg,omitempty"`
+		Status  string       `json:"status,omitempty"`
 	}
 
 	// MbtcpFilterOpReq generic modbus tcp filter operation request

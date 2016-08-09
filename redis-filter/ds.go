@@ -189,6 +189,10 @@ func (ds *dataStore) GetAll() interface{} {
 
 // Delete remove request from filter map
 func (ds *dataStore) Delete(name string) {
+	if name == "" {
+		log.WithFields(log.Fields{"err": ErrInvalidName}).Error("Delete")
+		return
+	}
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Delete")
