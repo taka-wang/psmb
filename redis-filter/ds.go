@@ -7,6 +7,7 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	//conf "github.com/taka-wang/psmb/mini-conf"
+	"github.com/taka-wang/psmb"
 	conf "github.com/taka-wang/psmb/viper-conf"
 	log "github.com/takawang/logrus"
 )
@@ -129,7 +130,7 @@ func (ds *dataStore) Add(name string, req interface{}) {
 // Get get request from filter map
 func (ds *dataStore) Get(name string) (interface{}, bool) {
 	if name == "" {
-		return nil, ErrInvalidName
+		return nil, false
 	}
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
@@ -142,7 +143,7 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 		return nil, false
 	}
 	// unmarshal
-	var d MbtcpFilterStatus
+	var d psmb.MbtcpFilterStatus
 	if err := json.Unmarshal(ret, &d); err != nil {
 		return nil, ErrUnmarshal
 	}
@@ -183,5 +184,5 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 
 // UpdateAllToggles toggle all request from filter map
 func (ds *dataStore) UpdateAllToggles(toggle bool) {
-	return false
+
 }
