@@ -94,48 +94,48 @@ func NewService(reader, writer, history, filter, sch string) (IProactiveService,
 	var err error
 	// factory methods
 	if readerPlugin, err = ReaderDataStoreCreator(reader); err != nil { // reader factory
-		log.WithError(err).Error("Fail to create reader data store")
+		log.WithError(err).Panic("Fail to create reader data store")
 		return nil, err
 	}
 
 	if writerPlugin, err = WriterDataStoreCreator(writer); err != nil { // writer factory
-		log.WithError(err).Error("Fail to create writer data store")
+		log.WithError(err).Panic("Fail to create writer data store")
 		return nil, err
 	}
 
 	if historyPlugin, err = HistoryDataStoreCreator(history); err != nil { // historian factory
-		log.WithError(err).Error("Fail to create history data store")
+		log.WithError(err).Panic("Fail to create history data store")
 		return nil, err
 	}
 
 	if filterPlugin, err = FilterDataStoreCreator(filter); err != nil { // filter factory
-		log.WithError(err).Error("Fail to create filter data store")
+		log.WithError(err).Panic("Fail to create filter data store")
 		return nil, err
 	}
 
 	if schedulerPlugin, err = SchedulerCreator(sch); err != nil { // scheduler factory
-		log.WithError(err).Error("Fail to create scheduler")
+		log.WithError(err).Panic("Fail to create scheduler")
 		return nil, err
 	}
 
 	pubUpstream, err := zmq.NewSocket(zmq.PUB)
 	if err != nil {
-		log.WithError(err).Error("Fail to create upstream publisher")
+		log.WithError(err).Panic("Fail to create upstream publisher")
 		return nil, err
 	}
 	pubDownstream, err := zmq.NewSocket(zmq.PUB)
 	if err != nil {
-		log.WithError(err).Error("Fail to create downstream publisher")
+		log.WithError(err).Panic("Fail to create downstream publisher")
 		return nil, err
 	}
 	subUpstream, err := zmq.NewSocket(zmq.SUB)
 	if err != nil {
-		log.WithError(err).Error("Fail to create upstream subscriber")
+		log.WithError(err).Panic("Fail to create upstream subscriber")
 		return nil, err
 	}
 	subDownstream, err := zmq.NewSocket(zmq.SUB)
 	if err != nil {
-		log.WithError(err).Error("Fail to create downstream subscriber")
+		log.WithError(err).Panic("Fail to create downstream subscriber")
 		return nil, err
 	}
 
@@ -167,20 +167,21 @@ func marshal(r interface{}) (string, error) {
 }
 
 // addToHistory helper function to add data to history map
-func (b *Service) addToHistory(taskName string, data interface{}) bool {
+func (b *Service) addToHistory(name string, data interface{}) bool {
 	// apply filter before logging
-	ret := b.applyFilter(taskName, data)
-	if err := b.historyMap.Add(taskName, data); err != nil {
+	retBool := b.applyFilter(name, data)
+	if err := b.historyMap.Add(name, data); err != nil {
 		log.WithFields(log.Fields{
 			"err":  err,
-			"name": taskName,
+			"name": name,
 			"data": data,
 		}).Error("Fail to add data to history data store")
 	}
-	return ret
+	return retBool
+
 	/* debug
 	log.WithFields(log.Fields{
-		"name": taskName,
+		"name": name,
 		"data": data,
 	}).Debug("Add data to history data store")
 	*/
@@ -188,124 +189,125 @@ func (b *Service) addToHistory(taskName string, data interface{}) bool {
 
 // applyFilter apply filter, if no need to filter, return true.
 func (b *Service) applyFilter(name string, data interface{}) bool {
-	ret, ok := b.filterMap.Get(name) // get filter request from map
+	f, ok := b.filterMap.Get(name) // get filter request from map
 	if !ok {
 		log.Debug(ErrFilterNotFound.Error())
 		return true // no filter
 	}
-	filter := ret.(MbtcpFilterStatus) // casting
+	filter := f.(MbtcpFilterStatus) // casting
+
 	if len(filter.Arg) == 0 {
-		log.Debug(ErrInvalidArgs.Error())
+		log.WithError(ErrInvalidArgs).Debug("Apply filter")
 		return true // no args
 	}
 
-	var latest string // latest history marshalled string
+	var latestStr string // latest history marshalled string
 	var err error
 	if filter.Type == Change {
-		if latest, err = b.historyMap.GetLatest(name); err != nil {
-			log.Debug(ErrNoLatestData.Error())
+		if latestStr, err = b.historyMap.GetLatest(name); err != nil {
+			log.WithError(ErrNoLatestData).Debug("Apply filter")
 			return true // no latest
 		}
 	}
 
 	// reflect data interface type
-	val := reflect.ValueOf(data)
-	switch val.Kind() {
+	rVals := reflect.ValueOf(data)
+	switch rVals.Kind() {
 	case reflect.Array:
-		if val.Len() == 0 {
-			log.Debug(ErrNoData.Error())
+		if rVals.Len() == 0 {
+			log.WithError(ErrNoData).Debug("Apply filter")
 			return true // no data to filter
 		}
-		var v float32 // first element container in data interface
-		switch val.Index(0).Kind() {
+		var val float32 // first element container in data interface
+		switch rVals.Index(0).Kind() {
 		case reflect.Uint16, reflect.Uint32: //uint16, uint32:
-			v = float32(val.Index(0).Uint())
+			val = float32(rVals.Index(0).Uint())
 		default: // reflect.Float32
-			v = float32(val.Index(0).Float())
+			val = float32(rVals.Index(0).Float())
 		}
 
 		switch filter.Type {
-		case GreaterEqual: // v >= desired value
-			if v >= filter.Arg[0] {
+		case GreaterEqual: // val >= desired value
+			if val >= filter.Arg[0] {
 				return true
 			}
 			return false
-		case Greater: // v > desired value
-			if v > filter.Arg[0] {
+		case Greater: // val > desired value
+			if val > filter.Arg[0] {
 				return true
 			}
 			return false
-		case Equal: // v == desired value
-			if v == filter.Arg[0] {
+		case Equal: // val == desired value
+			if val == filter.Arg[0] {
 				return true
 			}
 			return false
-		case Less: //  v < desired value
-			if v < filter.Arg[0] {
+		case Less: //  val < desired value
+			if val < filter.Arg[0] {
 				return true
 			}
 			return false
-		case LessEqual: // v <= desired value
-			if v <= filter.Arg[0] {
+		case LessEqual: // val <= desired value
+			if val <= filter.Arg[0] {
 				return true
 			}
 			return false
-		case InsideRange: // desired 1 < v < desired 2; desired values are sorted.
+		case InsideRange: // desired 1 < val < desired 2; desired values are sorted.
 			if len(filter.Arg) < 2 {
-				log.Debug(ErrInvalidArgs.Error())
+				log.WithError(ErrInvalidArgs).Debug("Apply filter")
 				return true
 			}
-			if v > filter.Arg[0] && v < filter.Arg[1] {
-				return true
-			}
-			return false
-		case InsideIncRange: // desired 1 <= v <= desired 2; desired values are sorted.
-			if len(filter.Arg) < 2 {
-				log.Debug(ErrInvalidArgs.Error())
-				return true
-			}
-			if v >= filter.Arg[0] && v <= filter.Arg[1] {
+			if val > filter.Arg[0] && val < filter.Arg[1] {
 				return true
 			}
 			return false
-		case OutsideRange: // v < desired 1 || v > desired 2; desired values are sorted.
+		case InsideIncRange: // desired 1 <= val <= desired 2; desired values are sorted.
 			if len(filter.Arg) < 2 {
-				log.Debug(ErrInvalidArgs.Error())
+				log.WithError(ErrInvalidArgs).Debug("Apply filter")
 				return true
 			}
-			if v < filter.Arg[0] || v > filter.Arg[1] {
+			if val >= filter.Arg[0] && val <= filter.Arg[1] {
+				return true
+			}
+			return false
+		case OutsideRange: // val < desired 1 || val > desired 2; desired values are sorted.
+			if len(filter.Arg) < 2 {
+				log.WithError(ErrInvalidArgs).Debug("Apply filter")
+				return true
+			}
+			if val < filter.Arg[0] || val > filter.Arg[1] {
 				return true
 			}
 			return false
 		case OutsideIncRange:
-			if len(filter.Arg) < 2 { // v <= desired 1 || v >= desired 2; desired values are sorted.
-				log.Debug(ErrInvalidArgs.Error())
+			if len(filter.Arg) < 2 { // val <= desired 1 || val >= desired 2; desired values are sorted.
+				log.WithError(ErrInvalidArgs).Debug("Apply filter")
 				return true
 			}
-			if v <= filter.Arg[0] || v >= filter.Arg[1] {
+			if val <= filter.Arg[0] || val >= filter.Arg[1] {
 				return true
 			}
 			return false
 		default: // change; compare with the latest history
 			// unmarshal latest data
 			var float32ArrData []float32
-			if err := json.Unmarshal([]byte(latest), &float32ArrData); err != nil {
-				log.Debug(ErrUnmarshal.Error())
+			if err := json.Unmarshal([]byte(latestStr), &float32ArrData); err != nil {
+				log.WithError(ErrUnmarshal).Debug("Apply filter")
 				return true // fail to unmarshal latest
 			}
 
 			if len(float32ArrData) == 0 {
-				log.Debug(ErrNoLatestData.Error())
+				log.WithError(ErrNoLatestData).Debug("Apply filter")
 				return true // empty history
 			}
-			if v == float32ArrData[0] { // compare
+			if val == float32ArrData[0] { // compare
 				return true
 			}
 			return false
 		}
 	case reflect.String:
 		/* we do not intend to support filter on hex string
-		str := val.String()
+		str := rVals.String()
 		if str == "" {
 			return true // no data to filter
 		}
@@ -330,14 +332,29 @@ func (b *Service) Task(socket *zmq.Socket, req interface{}) {
 
 func (b *Service) startZMQ() {
 	log.Debug("Start ZMQ")
+
 	// publishers
-	b.pub.upstream.Bind(conf.GetString(keyZmqPubUpstream))
-	b.pub.downstream.Connect(conf.GetString(keyZmqPubDownstream))
+	if err := b.pub.upstream.Bind(conf.GetString(keyZmqPubUpstream)); err != nil {
+		log.WithError(err).Fatal("Fail to bind upstream publisher")
+	}
+	if err := b.pub.downstream.Connect(conf.GetString(keyZmqPubDownstream)); err != nil {
+		log.WithError(err).Fatal("Fail to connect to downstream publisher")
+	}
+
 	// subscribers
-	b.sub.upstream.Bind(conf.GetString(keyZmqSubUpstream))
-	b.sub.upstream.SetSubscribe("")
-	b.sub.downstream.Connect(conf.GetString(keyZmqSubDownstream))
-	b.sub.downstream.SetSubscribe("")
+	if err := b.sub.upstream.Bind(conf.GetString(keyZmqSubUpstream)); err != nil {
+		log.WithError(err).Fatal("Fail to bind upstream subscriber")
+	}
+	if err := b.sub.upstream.SetSubscribe(""); err != nil {
+		log.WithError(err).Fatal("Fail to set upstream subscriber's filter")
+	}
+	if err := b.sub.downstream.Connect(conf.GetString(keyZmqSubDownstream)); err != nil {
+		log.WithError(err).Fatal("Fail to connect to downstream subscriber")
+	}
+	if err := b.sub.downstream.SetSubscribe(""); err != nil {
+		log.WithError(err).Fatal("Fail to set downstream subscriber's filter")
+	}
+
 	// poller
 	b.poller = zmq.NewPoller() // new poller
 	b.poller.Add(b.sub.upstream, zmq.POLLIN)
@@ -346,12 +363,22 @@ func (b *Service) startZMQ() {
 
 func (b *Service) stopZMQ() {
 	log.Debug("Stop ZMQ")
+
 	// publishers
-	b.pub.upstream.Unbind(conf.GetString(keyZmqPubUpstream))
-	b.pub.downstream.Disconnect(conf.GetString(keyZmqPubDownstream))
+	if err := b.pub.upstream.Unbind(conf.GetString(keyZmqPubUpstream)); err != nil {
+		log.WithError(err).Debug("Fail to unbind upstream publisher")
+	}
+	if err := b.pub.downstream.Disconnect(conf.GetString(keyZmqPubDownstream)); err != nil {
+		log.WithError(err).Debug("Fail to disconnect from downstream publisher")
+	}
+
 	// subscribers
-	b.sub.upstream.Unbind(conf.GetString(keyZmqSubUpstream))
-	b.sub.downstream.Disconnect(conf.GetString(keyZmqSubDownstream))
+	if err := b.sub.upstream.Unbind(conf.GetString(keyZmqSubUpstream)); err != nil {
+		log.WithError(err).Debug("Fail to unbind upstream subscriber")
+	}
+	if err := b.sub.downstream.Disconnect(conf.GetString(keyZmqSubDownstream)); err != nil {
+		log.WithError(err).Debug("Fail to disconnect from downstream subscriber")
+	}
 }
 
 // naiveResponder naive responder to send message back to upstream.
