@@ -144,7 +144,7 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 	}
 	// unmarshal
 	var d psmb.MbtcpFilterStatus
-	if err := json.Unmarshal(ret, &d); err != nil {
+	if err := json.Unmarshal([]byte(ret), &d); err != nil {
 		return nil, ErrUnmarshal
 	}
 	return d, true
