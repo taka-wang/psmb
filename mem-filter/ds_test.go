@@ -42,14 +42,14 @@ func TestFilter(t *testing.T) {
 		filterMap.Add(b.Poll, b)
 
 		// GET
-		if r, err := filterMap.Get(a.Poll); err == nil {
+		if r, b := filterMap.Get(a.Poll); b != false {
 			log(r)
 		} else {
 			return false
 		}
 
 		// GETALL
-		if r, err := filterMap.GetAll(a.Poll); err == nil {
+		if r := filterMap.GetAll(a.Poll); r != nil {
 			log(r)
 		} else {
 			return false
@@ -58,7 +58,7 @@ func TestFilter(t *testing.T) {
 		filterMap.Delete(a.Poll)
 
 		// GETALL
-		if r, err := filterMap.GetAll(a.Poll); err == nil {
+		if r := filterMap.GetAll(a.Poll); r != nil {
 			log(r)
 		} else {
 			return false
