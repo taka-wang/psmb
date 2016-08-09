@@ -22,6 +22,7 @@ func TestFilter(t *testing.T) {
 		if err != nil {
 			return false
 		}
+
 		a := psmb.MbtcpFilterStatus{
 			Tid:     1234,
 			From:    "test",
@@ -38,10 +39,13 @@ func TestFilter(t *testing.T) {
 		}
 
 		// ADD
+		log("Add A item")
 		filterMap.Add(a.Poll, a)
+		log("Add B item")
 		filterMap.Add(b.Poll, b)
 
 		// GET
+		log("GET A item")
 		if r, b := filterMap.Get(a.Poll); b != false {
 			log(r)
 		} else {
@@ -49,15 +53,18 @@ func TestFilter(t *testing.T) {
 		}
 
 		// GETALL
+		log("Get all items")
 		if r := filterMap.GetAll(a.Poll); r != nil {
 			log(r)
 		} else {
 			return false
 		}
 		// DELETE
+		log("Remove A item")
 		filterMap.Delete(a.Poll)
 
 		// GETALL
+		log("Get all items")
 		if r := filterMap.GetAll(a.Poll); r != nil {
 			log(r)
 		} else {
