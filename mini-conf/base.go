@@ -1,10 +1,12 @@
 package conf
 
 import (
+	"io/ioutil"
 	"os"
 	"path"
 	"time"
 
+	"github.com/hashicorp/consul/api"
 	"github.com/koding/multiconfig"
 	log "github.com/takawang/logrus"
 )
@@ -23,7 +25,31 @@ func (b *mConf) initConfig() {
 	if confPath == "" {
 		confPath = defaultConfigPath
 	}
-	m := multiconfig.NewWithPath(path.Join(confPath, keyConfigName) + "." + keyConfigType)
+	filePath := path.Join(confPath, keyConfigName) + "." + keyConfigType
+	endpoint := os.Getenv(envBackendEndpoint) // backend endpoint, i.e., consul url
+
+	if endpoint == "" {
+		log.Debug("Try to load 'local' config file")
+	} else {
+		log.Debug("Try to load 'remote' config file")
+		client, err := api.NewClient(&api.Config{Address: endpoint})
+		if err != nil {
+			log.WithFields(log.Fields{"err": err}).Warn(": Fail to load 'remote' config file, not found!")
+			return
+		}
+		pair, _, err := client.KV().Get(filePath, nil)
+		if err != nil {
+			log.WithFields(log.Fields{"err": err}).Warn(": Fail to load 'remote' config file, not found!")
+			return
+		}
+		// dump to file
+		if err := ioutil.WriteFile(defaultTempPath, pair.Value, 0644); err != nil {
+			log.WithFields(log.Fields{"err": err}).Warn(": Fail to load 'remote' config file, not found!")
+			return
+		}
+		filePath = defaultTempPath
+	}
+	m := multiconfig.NewWithPath(filePath)
 	m.MustLoad(b.conf) // Populated the struct
 }
 

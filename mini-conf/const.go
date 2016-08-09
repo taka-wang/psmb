@@ -9,8 +9,9 @@ const (
 // config
 const (
 	defaultConfigPath = "/etc/psmbtcp" // environment variable backup
-	keyConfigName     = "config"       // config file name
-	keyConfigType     = "toml"         // config file extension
+	defaultTempPath   = "/tmp/conf"
+	keyConfigName     = "config" // config file name
+	keyConfigType     = "toml"   // config file extension
 )
 
 // mongo

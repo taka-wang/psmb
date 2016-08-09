@@ -10,7 +10,8 @@ import (
 	"time"
 
 	"github.com/garyburd/redigo/redis"
-	conf "github.com/taka-wang/psmb/viper-conf"
+	conf "github.com/taka-wang/psmb/mini-conf"
+	//conf "github.com/taka-wang/psmb/viper-conf"
 	log "github.com/takawang/logrus"
 )
 
