@@ -382,55 +382,51 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 			return nil, ErrUnmarshal
 		}
 
+		var uint16Data uint16
+		var uint16ArrData []uint16
+		var stringData string
+
 		// unmarshal data field
 		switch MbCmdType(strconv.Itoa(req.FC)) {
 		case fc5: // write single bit; uint16
-			var d uint16
-			if err := json.Unmarshal(data, &d); err != nil {
+			if err := json.Unmarshal(data, &uint16Data); err != nil {
 				return nil, ErrUnmarshal
 			}
-			req.Data = d // unmarshal to uint16
+			req.Data = uint16Data // unmarshal to uint16
 			return req, nil
 		case fc15: // write multiple bits; []uint16
-			var d []uint16
-			if err := json.Unmarshal(data, &d); err != nil {
+			if err := json.Unmarshal(data, &uint16ArrData); err != nil {
 				return nil, ErrUnmarshal
 			}
-			req.Data = d // unmarshal to uint16 array
+			req.Data = uint16ArrData // unmarshal to uint16 array
 			return req, nil
 		case fc6: // write single register in dec|hex
-			var d string
-			if err := json.Unmarshal(data, &d); err != nil { // unmarshal to string
+			if err := json.Unmarshal(data, &stringData); err != nil { // unmarshal to string
 				return nil, ErrUnmarshal
 			}
-			var dd []uint16
-			var err error
 			if req.Hex { // check dec or hex
-				dd, err = HexStringToRegisters(d)
+				uint16ArrData, err = HexStringToRegisters(stringData)
 			} else {
-				dd, err = DecimalStringToRegisters(d)
+				uint16ArrData, err = DecimalStringToRegisters(stringData)
 			}
 			if err != nil {
 				return nil, err
 			}
-			req.Data = dd[0] // retrieve only one register
+			req.Data = uint16ArrData[0] // retrieve only one register
 			return req, nil
 		case fc16: // write multiple register in dec/hex
-			var d string
-			if err := json.Unmarshal(data, &d); err != nil { // unmarshal to string
+			if err := json.Unmarshal(data, &stringData); err != nil { // unmarshal to string
 				return nil, ErrUnmarshal
 			}
-			var dd []uint16
-			var err error
 			if req.Hex { // check dec or hex
-				dd, err = HexStringToRegisters(d)
+				uint16ArrData, err = HexStringToRegisters(stringData)
 			} else {
-				dd, err = DecimalStringToRegisters(d)
+				uint16ArrData, err = DecimalStringToRegisters(stringData)
 			}
 			if err != nil {
 				return nil, err
 			}
-			req.Data = dd
+			req.Data = uint16ArrData
 			return req, nil
 		default: // should not reach here
 			return nil, ErrInvalidFunctionCode
