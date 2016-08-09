@@ -40,13 +40,13 @@ func TestFilter(t *testing.T) {
 
 		// ADD
 		log("Add A item")
-		filterMap.Add(a.Poll, a)
+		filterMap.Add(a.Name, a)
 		log("Add B item")
-		filterMap.Add(b.Poll, b)
+		filterMap.Add(b.Name, b)
 
 		// GET
 		log("GET A item")
-		if r, b := filterMap.Get(a.Poll); b != false {
+		if r, b := filterMap.Get(a.Name); b != false {
 			log(r)
 		} else {
 			return false
@@ -54,12 +54,12 @@ func TestFilter(t *testing.T) {
 
 		// TOGGLE A
 		log("Toggle A item")
-		if err := filterMap.UpdateToggle(a.Poll, false); err != nil {
+		if err := filterMap.UpdateToggle(a.Name, false); err != nil {
 			return false
 		}
 		// GET
 		log("GET A item")
-		if r, b := filterMap.Get(a.Poll); b != false {
+		if r, b := filterMap.Get(a.Name); b != false {
 			log(r)
 		} else {
 			return false
@@ -87,7 +87,7 @@ func TestFilter(t *testing.T) {
 
 		// DELETE
 		log("Remove A item")
-		filterMap.Delete(a.Poll)
+		filterMap.Delete(a.Name)
 
 		// GET ALL
 		log("Get all items")
