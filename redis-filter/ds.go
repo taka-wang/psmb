@@ -39,7 +39,7 @@ func setDefaults() {
 	if err != nil {
 		log.WithError(err).Debug("local run")
 	} else {
-		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
+		log.WithField("hostname", host[0]).Debug("docker run")
 		conf.Set("redis.server", host[0]) // override default
 	}
 }
@@ -170,7 +170,7 @@ func (ds *dataStore) GetAll() interface{} {
 		log.WithError(err).Debug("GetAll")
 		return nil
 	}
-	//log.WithFields(log.Fields{"data": ret}).Debug("GetAll")
+	//log.WithField("data", ret).Debug("GetAll")
 
 	arr := []psmb.MbtcpFilterStatus{}
 	for _, v := range ret {
@@ -269,7 +269,7 @@ func (ds *dataStore) UpdateAllToggles(toggle bool) {
 		log.WithError(err).Debug("UpdateAllToggles")
 		return
 	}
-	//log.WithFields(log.Fields{"data": ret}).Debug("UpdateAllToggles")
+	//log.WithField("data", ret).Debug("UpdateAllToggles")
 
 	for _, v := range ret {
 		var d psmb.MbtcpFilterStatus

@@ -37,7 +37,7 @@ func setDefaults() {
 	if err != nil {
 		log.WithError(err).Debug("local run")
 	} else {
-		log.WithFields(log.Fields{"hostname": host[0]}).Debug("docker run")
+		log.WithField("hostname", host[0]).Debug("docker run")
 		conf.Set("redis.server", host[0]) // override default
 	}
 }

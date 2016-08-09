@@ -40,7 +40,7 @@ func setDefaults() {
 	if err != nil {
 		log.WithError(err).Debug("local run")
 	} else {
-		log.WithFields(log.Fields{"hostname": host[0]}).Info("docker run")
+		log.WithField("hostname", host[0]).Debug("docker run")
 		conf.Set(keyRedisServer, host[0]) // override default
 	}
 }
@@ -193,7 +193,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 		return nil, err
 	}
 	// TODO: remove
-	log.WithFields(log.Fields{"data": ret}).Info("GetAll")
+	log.WithField("data", ret).Info("GetAll")
 	return ret, nil
 }
 
