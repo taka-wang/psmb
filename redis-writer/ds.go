@@ -127,6 +127,7 @@ func (ds *dataStore) Get(tid string) (string, bool) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
+		return "", false
 	}
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, tid))

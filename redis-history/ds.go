@@ -118,6 +118,7 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("Add")
+		return err
 	}
 
 	// marshal
@@ -155,6 +156,7 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("Get")
+		return nil, err
 	}
 	// zset limit is inclusive; zrevrange: from lateste to oldest
 	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, limit-1, "WITHSCORES"))
@@ -177,6 +179,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
+		return nil, err
 	}
 	// zrevrange: from lateste to oldest
 	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, -1, "WITHSCORES"))
@@ -198,6 +201,7 @@ func (ds *dataStore) GetLatest(name string) (string, error) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("GetLatest")
+		return "", err
 	}
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))

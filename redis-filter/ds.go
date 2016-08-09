@@ -135,6 +135,7 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Debug("Get")
+		return nil, false
 	}
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
@@ -158,7 +159,8 @@ func (ds *dataStore) GetAll(name string) interface{} {
 	}
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithFields(log.Fields{"err": err}).Debug("Get")
+		log.WithFields(log.Fields{"err": err}).Debug("GetAll")
+		return nil
 	}
 
 	ret, err := redis.StringMap(ds.redis.Do("HGETALL", hashName))
@@ -166,8 +168,8 @@ func (ds *dataStore) GetAll(name string) interface{} {
 		log.WithFields(log.Fields{"err": err}).Error("GetAll")
 		return nil
 	}
-	log.WithFields(log.Fields{"data": ret}).Debug("Get")
-	// TODO
+	log.WithFields(log.Fields{"data": ret}).Debug("GetAll")
+	// TODO!!
 	return nil
 }
 
@@ -195,10 +197,65 @@ func (ds *dataStore) DeleteAll() {
 
 // Toggle toggle request from filter map
 func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
+	if name == "" {
+		return ErrInvalidName
+	}
+	defer ds.closeRedis()
+	if err := ds.connectRedis(); err != nil {
+		log.WithFields(log.Fields{"err": err}).Debug("Get")
+		return err
+	}
+
+	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Get")
+		return err
+	}
+	// unmarshal
+	var d psmb.MbtcpFilterStatus
+	if err := json.Unmarshal([]byte(ret), &d); err != nil {
+		log.WithFields(log.Fields{"err": ErrUnmarshal}).Debug("Get")
+		return nil, false
+	}
+
+	// toggle
+	d.Enabled = toggle
+
+	// marshal
+	bytes, err := json.Marshal(d)
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("marshal")
+		return err
+	}
+
+	if _, err := ds.redis.Do("HSET", hashName, name, string(bytes)); err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("Add")
+		return err
+	}
+
 	return nil
 }
 
 // UpdateAllToggles toggle all request from filter map
 func (ds *dataStore) UpdateAllToggles(toggle bool) {
+	if name == "" {
+		return
+	}
+	defer ds.closeRedis()
 
+	if err := ds.connectRedis(); err != nil {
+		log.WithFields(log.Fields{"err": err}).Debug("UpdateAllToggles")
+		return
+	}
+
+	ret, err := redis.StringMap(ds.redis.Do("HGETALL", hashName))
+	if err != nil {
+		log.WithFields(log.Fields{"err": err}).Error("UpdateAllToggles")
+		return
+	}
+	log.WithFields(log.Fields{"data": ret}).Debug("UpdateAllToggles")
+
+	// unmarshal
+	// TODO!!
+	return nil
 }
