@@ -1,16 +1,14 @@
 package filter
 
 import (
-	"errors"
+	"encoding/json"
 	"net"
-	"sync"
 	"time"
-    "github.com/garyburd/redigo/redis"
+
+	"github.com/garyburd/redigo/redis"
 	//conf "github.com/taka-wang/psmb/mini-conf"
 	conf "github.com/taka-wang/psmb/viper-conf"
 	log "github.com/takawang/logrus"
-	
-	"github.com/taka-wang/psmb"
 )
 
 var (
@@ -109,7 +107,6 @@ func (ds *dataStore) closeRedis() {
 	}
 }
 
-
 // Add add request to filter map
 func (ds *dataStore) Add(name string, req interface{}) {
 	defer ds.closeRedis()
@@ -117,7 +114,7 @@ func (ds *dataStore) Add(name string, req interface{}) {
 		log.WithFields(log.Fields{"err": err}).Error("Add")
 	}
 
-    // marshal
+	// marshal
 	bytes, err := json.Marshal(req)
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("marshal")
@@ -139,13 +136,13 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 		log.WithFields(log.Fields{"err": err}).Debug("Get")
 	}
 
-    ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
+	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Get")
 		return nil, false
 	}
-    // unmarshal
-    var d MbtcpFilterStatus
+	// unmarshal
+	var d MbtcpFilterStatus
 	if err := json.Unmarshal(ret, &d); err != nil {
 		return nil, ErrUnmarshal
 	}
@@ -170,7 +167,7 @@ func (ds *dataStore) Delete(name string) {
 
 // DeleteAll delete all filters from filter map
 func (ds *dataStore) DeleteAll() {
-defer ds.closeRedis()
+	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithFields(log.Fields{"err": err}).Error("Delete")
 	}

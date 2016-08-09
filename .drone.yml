@@ -16,10 +16,6 @@ pipeline:
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
-
-
-
-
     test-redis-history:
         image: takawang/dind
         volumes:
@@ -34,9 +30,6 @@ pipeline:
             - docker-compose -f redis-history/docker-compose.yml rm -f -a
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
-
-
-
 
     test-mgo-history:
         image: takawang/dind
