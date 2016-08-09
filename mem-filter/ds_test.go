@@ -103,11 +103,12 @@ func TestFilter(t *testing.T) {
 
 		// GET ALL
 		log("Get all items")
-		if r := filterMap.GetAll(a.Poll); r != nil {
-			log(r)
+		if r := filterMap.GetAll(a.Poll); r == nil {
+			log("empty")
+			return true
 		}
 
-		return true
+		return false
 
 	})
 }
