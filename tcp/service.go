@@ -404,6 +404,7 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 			if err := json.Unmarshal(data, &stringData); err != nil { // unmarshal to string
 				return nil, ErrUnmarshal
 			}
+			var err error
 			if req.Hex { // check dec or hex
 				uint16ArrData, err = HexStringToRegisters(stringData)
 			} else {
@@ -418,6 +419,7 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 			if err := json.Unmarshal(data, &stringData); err != nil { // unmarshal to string
 				return nil, ErrUnmarshal
 			}
+			var err error
 			if req.Hex { // check dec or hex
 				uint16ArrData, err = HexStringToRegisters(stringData)
 			} else {
@@ -482,7 +484,7 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 }
 
 // HandleRequest handle requests from services
-// do error checking
+// 	do error checking
 func (b *Service) HandleRequest(cmd string, r interface{}) error {
 	log.WithFields(log.Fields{"cmd": cmd}).Debug("Handle request from upstream services")
 
