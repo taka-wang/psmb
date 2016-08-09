@@ -4,167 +4,170 @@ package psmb
 // services to psmb structures - upstream
 //
 
-// MbtcpReadReq read coil/register request (1.1).
-// Scale range field example:
-// 	Range: &ScaleRange{1,2,3,4},
-type MbtcpReadReq struct {
-	Tid   int64        `json:"tid"`
-	From  string       `json:"from,omitempty"`
-	FC    int          `json:"fc"`
-	IP    string       `json:"ip"`
-	Port  string       `json:"port,omitempty"`
-	Slave uint8        `json:"slave"`
-	Addr  uint16       `json:"addr"`
-	Len   uint16       `json:"len,omitempty"`
-	Type  RegValueType `json:"type,omitempty"`
-	Order Endian       `json:"order,omitempty"`
-	Range *ScaleRange  `json:"range,omitempty"` // point to struct can be omitted in json encode
-}
+type (
 
-// MbtcpReadRes read coil/register response (1.1).
-// `Data interface` supports:
-//	[]uint16, []int16, []uint32, []int32, []float32, string
-type MbtcpReadRes struct {
-	Tid    int64        `json:"tid"`
-	Status string       `json:"status"`
-	Type   RegValueType `json:"type,omitempty"`
-	// Bytes FC3, FC4 and Type 2~8 only
-	Bytes JSONableByteSlice `json:"bytes,omitempty"`
-	Data  interface{}       `json:"data,omitempty"` // universal data container
-}
+	// MbtcpReadReq read coil/register request (1.1).
+	// Scale range field example:
+	// 	Range: &ScaleRange{1,2,3,4},
+	MbtcpReadReq struct {
+		Tid   int64        `json:"tid"`
+		From  string       `json:"from,omitempty"`
+		FC    int          `json:"fc"`
+		IP    string       `json:"ip"`
+		Port  string       `json:"port,omitempty"`
+		Slave uint8        `json:"slave"`
+		Addr  uint16       `json:"addr"`
+		Len   uint16       `json:"len,omitempty"`
+		Type  RegValueType `json:"type,omitempty"`
+		Order Endian       `json:"order,omitempty"`
+		Range *ScaleRange  `json:"range,omitempty"` // point to struct can be omitted in json encode
+	}
 
-// MbtcpWriteReq write coil/register request
-type MbtcpWriteReq struct {
-	Tid   int64       `json:"tid"`
-	From  string      `json:"from,omitempty"`
-	FC    int         `json:"fc"`
-	IP    string      `json:"ip"`
-	Port  string      `json:"port,omitempty"`
-	Slave uint8       `json:"slave"`
-	Addr  uint16      `json:"addr"`
-	Len   uint16      `json:"len,omitempty"`
-	Hex   bool        `json:"hex,omitempty"`
-	Data  interface{} `json:"data"`
-}
+	// MbtcpReadRes read coil/register response (1.1).
+	// `Data interface` supports:
+	//	[]uint16, []int16, []uint32, []int32, []float32, string
+	MbtcpReadRes struct {
+		Tid    int64        `json:"tid"`
+		Status string       `json:"status"`
+		Type   RegValueType `json:"type,omitempty"`
+		// Bytes FC3, FC4 and Type 2~8 only
+		Bytes JSONableByteSlice `json:"bytes,omitempty"`
+		Data  interface{}       `json:"data,omitempty"` // universal data container
+	}
 
-// MbtcpWriteRes == MbtcpSimpleRes
+	// MbtcpWriteReq write coil/register request
+	MbtcpWriteReq struct {
+		Tid   int64       `json:"tid"`
+		From  string      `json:"from,omitempty"`
+		FC    int         `json:"fc"`
+		IP    string      `json:"ip"`
+		Port  string      `json:"port,omitempty"`
+		Slave uint8       `json:"slave"`
+		Addr  uint16      `json:"addr"`
+		Len   uint16      `json:"len,omitempty"`
+		Hex   bool        `json:"hex,omitempty"`
+		Data  interface{} `json:"data"`
+	}
 
-// MbtcpTimeoutReq set/get TCP connection timeout request (1.3, 1.4)
-type MbtcpTimeoutReq struct {
-	Tid  int64  `json:"tid"`
-	From string `json:"from,omitempty"`
-	Data int64  `json:"timeout,omitempty"`
-}
+	// MbtcpWriteRes == MbtcpSimpleRes
 
-// MbtcpTimeoutRes set/get TCP connection timeout response (1.3, 1.4)
-type MbtcpTimeoutRes struct {
-	Tid    int64  `json:"tid"`
-	Status string `json:"status"`
-	Data   int64  `json:"timeout,omitempty"`
-}
+	// MbtcpTimeoutReq set/get TCP connection timeout request (1.3, 1.4)
+	MbtcpTimeoutReq struct {
+		Tid  int64  `json:"tid"`
+		From string `json:"from,omitempty"`
+		Data int64  `json:"timeout,omitempty"`
+	}
 
-/*
-// MbtcpSimpleReq generic modbus tcp response
-type MbtcpSimpleReq struct {
-	Tid  int64  `json:"tid"`
-	From string `json:"from,omitempty"`
-}
-*/
+	// MbtcpTimeoutRes set/get TCP connection timeout response (1.3, 1.4)
+	MbtcpTimeoutRes struct {
+		Tid    int64  `json:"tid"`
+		Status string `json:"status"`
+		Data   int64  `json:"timeout,omitempty"`
+	}
 
-// MbtcpSimpleRes generic modbus tcp response
-type MbtcpSimpleRes struct {
-	Tid    int64  `json:"tid"`
-	Status string `json:"status"`
-}
+	/*
+	   // MbtcpSimpleReq generic modbus tcp response
+	    MbtcpSimpleReq struct {
+	   	Tid  int64  `json:"tid"`
+	   	From string `json:"from,omitempty"`
+	   }
+	*/
 
-// MbtcpPollStatus polling coil/register request;
-type MbtcpPollStatus struct {
-	Tid      int64        `json:"tid"`
-	From     string       `json:"from,omitempty"`
-	Name     string       `json:"name"`
-	Interval uint64       `json:"interval"`
-	Enabled  bool         `json:"enabled"`
-	FC       int          `json:"fc"`
-	IP       string       `json:"ip"`
-	Port     string       `json:"port,omitempty"`
-	Slave    uint8        `json:"slave"`
-	Addr     uint16       `json:"addr"`
-	Status   string       `json:"status,omitempty"` // 2.3.2 response only
-	Len      uint16       `json:"len,omitempty"`
-	Type     RegValueType `json:"type,omitempty"`
-	Order    Endian       `json:"order,omitempty"`
-	Range    *ScaleRange  `json:"range,omitempty"` // point to struct can be omitted in json encode
-}
+	// MbtcpSimpleRes generic modbus tcp response
+	MbtcpSimpleRes struct {
+		Tid    int64  `json:"tid"`
+		Status string `json:"status"`
+	}
 
-// MbtcpPollRes == MbtcpSimpleRes
+	// MbtcpPollStatus polling coil/register request;
+	MbtcpPollStatus struct {
+		Tid      int64        `json:"tid"`
+		From     string       `json:"from,omitempty"`
+		Name     string       `json:"name"`
+		Interval uint64       `json:"interval"`
+		Enabled  bool         `json:"enabled"`
+		FC       int          `json:"fc"`
+		IP       string       `json:"ip"`
+		Port     string       `json:"port,omitempty"`
+		Slave    uint8        `json:"slave"`
+		Addr     uint16       `json:"addr"`
+		Status   string       `json:"status,omitempty"` // 2.3.2 response only
+		Len      uint16       `json:"len,omitempty"`
+		Type     RegValueType `json:"type,omitempty"`
+		Order    Endian       `json:"order,omitempty"`
+		Range    *ScaleRange  `json:"range,omitempty"` // point to struct can be omitted in json encode
+	}
 
-// MbtcpPollData read coil/register response (1.1).
-// `Data interface` supports:
-// 	[]uint16, []int16, []uint32, []int32, []float32, string
-type MbtcpPollData struct {
-	TimeStamp int64        `json:"ts"`
-	Name      string       `json:"name"`
-	Status    string       `json:"status"`
-	Type      RegValueType `json:"type,omitempty"`
-	// Bytes FC3, FC4 and Type 2~8 only
-	Bytes JSONableByteSlice `json:"bytes,omitempty"`
-	Data  interface{}       `json:"data,omitempty"` // universal data container
-}
+	// MbtcpPollRes == MbtcpSimpleRes
 
-// MbtcpPollOpReq generic modbus tcp poll operation request
-type MbtcpPollOpReq struct {
-	Tid      int64  `json:"tid"`
-	From     string `json:"from,omitempty"`
-	Name     string `json:"name,omitempty"`
-	Interval uint64 `json:"interval,omitempty"`
-	Enabled  bool   `json:"enabled,omitempty"`
-}
+	// MbtcpPollData read coil/register response (1.1).
+	// `Data interface` supports:
+	// 	[]uint16, []int16, []uint32, []int32, []float32, string
+	MbtcpPollData struct {
+		TimeStamp int64        `json:"ts"`
+		Name      string       `json:"name"`
+		Status    string       `json:"status"`
+		Type      RegValueType `json:"type,omitempty"`
+		// Bytes FC3, FC4 and Type 2~8 only
+		Bytes JSONableByteSlice `json:"bytes,omitempty"`
+		Data  interface{}       `json:"data,omitempty"` // universal data container
+	}
 
-// MbtcpPollsStatus requests status
-type MbtcpPollsStatus struct {
-	Tid    int64             `json:"tid"`
-	From   string            `json:"from,omitempty"`
-	Status string            `json:"status,omitempty"`
-	Polls  []MbtcpPollStatus `json:"polls"`
-}
+	// MbtcpPollOpReq generic modbus tcp poll operation request
+	MbtcpPollOpReq struct {
+		Tid      int64  `json:"tid"`
+		From     string `json:"from,omitempty"`
+		Name     string `json:"name,omitempty"`
+		Interval uint64 `json:"interval,omitempty"`
+		Enabled  bool   `json:"enabled,omitempty"`
+	}
 
-// MbtcpHistoryData history data
-type MbtcpHistoryData struct {
-	Tid    int64       `json:"tid"`
-	Name   string      `json:"name"`
-	Status string      `json:"status"`
-	Data   interface{} `json:"history,omitempty"` // universal data container
-}
+	// MbtcpPollsStatus requests status
+	MbtcpPollsStatus struct {
+		Tid    int64             `json:"tid"`
+		From   string            `json:"from,omitempty"`
+		Status string            `json:"status,omitempty"`
+		Polls  []MbtcpPollStatus `json:"polls"`
+	}
 
-// HistoryData history data
-type HistoryData struct {
-	Ts   int64       `json:"ts,omitempty"`
-	Data interface{} `json:"data,omitempty"` // universal data container
-}
+	// MbtcpHistoryData history data
+	MbtcpHistoryData struct {
+		Tid    int64       `json:"tid"`
+		Name   string      `json:"name"`
+		Status string      `json:"status"`
+		Data   interface{} `json:"history,omitempty"` // universal data container
+	}
 
-// MbtcpFilterStatus filter status
-type MbtcpFilterStatus struct {
-	Tid     int64        `json:"tid"`
-	From    string       `json:"from,omitempty"`
-	Poll    string       `json:"poll"`
-	Name    string       `json:"name"`
-	Enabled bool         `json:"enabled"`
-	Type    RegValueType `json:"type,omitempty"`
-	Arg     []float32    `json:"arg,omitempty"`
-}
+	// HistoryData history data
+	HistoryData struct {
+		Ts   int64       `json:"ts,omitempty"`
+		Data interface{} `json:"data,omitempty"` // universal data container
+	}
 
-// MbtcpFilterOpReq generic modbus tcp filter operation request
-type MbtcpFilterOpReq struct {
-	Tid     int64  `json:"tid"`
-	From    string `json:"from,omitempty"`
-	Name    string `json:"name,omitempty"`
-	Enabled bool   `json:"enabled,omitempty"`
-}
+	// MbtcpFilterStatus filter status
+	MbtcpFilterStatus struct {
+		Tid     int64        `json:"tid"`
+		From    string       `json:"from,omitempty"`
+		Poll    string       `json:"poll"`
+		Name    string       `json:"name"`
+		Enabled bool         `json:"enabled"`
+		Type    RegValueType `json:"type,omitempty"`
+		Arg     []float32    `json:"arg,omitempty"`
+	}
 
-// MbtcpFiltersStatus requests status
-type MbtcpFiltersStatus struct {
-	Tid     int64               `json:"tid"`
-	From    string              `json:"from,omitempty"`
-	Status  string              `json:"status,omitempty"`
-	Filters []MbtcpFilterStatus `json:"filters"`
-}
+	// MbtcpFilterOpReq generic modbus tcp filter operation request
+	MbtcpFilterOpReq struct {
+		Tid     int64  `json:"tid"`
+		From    string `json:"from,omitempty"`
+		Name    string `json:"name,omitempty"`
+		Enabled bool   `json:"enabled,omitempty"`
+	}
+
+	// MbtcpFiltersStatus requests status
+	MbtcpFiltersStatus struct {
+		Tid     int64               `json:"tid"`
+		From    string              `json:"from,omitempty"`
+		Status  string              `json:"status,omitempty"`
+		Filters []MbtcpFilterStatus `json:"filters"`
+	}
+)

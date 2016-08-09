@@ -11,118 +11,121 @@ package psmb
 // Interfaces
 //
 
-// IProactiveService proactive service contracts,
-// all services should implement the following methods.
-type IProactiveService interface {
-	// Start enable proactive service
-	Start()
-	// Stop disable proactive service
-	Stop()
-	// ParseRequest parse requests from IT
-	ParseRequest(msg []string) (interface{}, error)
-	// HandleRequest handle requests from IT
-	HandleRequest(cmd string, r interface{}) error
-	// ParseResponse parse responses from OT
-	ParseResponse(msg []string) (interface{}, error)
-	// HandleResponse handle responses from OT
-	HandleResponse(cmd string, r interface{}) error
-}
+type (
 
-// IWriterTaskDataStore write task interface
-//	(Tid, Command) map
-type IWriterTaskDataStore interface {
-	// Add add request to write task map,
-	// params: TID, CMD strings.
-	Add(tid, cmd string)
+	// IProactiveService proactive service contracts,
+	// all services should implement the following methods.
+	IProactiveService interface {
+		// Start enable proactive service
+		Start()
+		// Stop disable proactive service
+		Stop()
+		// ParseRequest parse requests from IT
+		ParseRequest(msg []string) (interface{}, error)
+		// HandleRequest handle requests from IT
+		HandleRequest(cmd string, r interface{}) error
+		// ParseResponse parse responses from OT
+		ParseResponse(msg []string) (interface{}, error)
+		// HandleResponse handle responses from OT
+		HandleResponse(cmd string, r interface{}) error
+	}
 
-	// Get get request from write task map,
-	// params: TID string,
-	// return: cmd string, exist flag.
-	Get(tid string) (string, bool)
+	// IWriterTaskDataStore write task interface
+	//	(Tid, Command) map
+	IWriterTaskDataStore interface {
+		// Add add request to write task map,
+		// params: TID, CMD strings.
+		Add(tid, cmd string)
 
-	// Delete remove request from write task map
-	// params: TID string.
-	Delete(tid string)
-}
+		// Get get request from write task map,
+		// params: TID string,
+		// return: cmd string, exist flag.
+		Get(tid string) (string, bool)
 
-// ReaderTask read/poll task request
-type ReaderTask struct {
-	// Name task name
-	Name string
-	// Cmd zmq frame 1
-	Cmd string
-	// Req request structure
-	Req interface{}
-}
+		// Delete remove request from write task map
+		// params: TID string.
+		Delete(tid string)
+	}
 
-// IReaderTaskDataStore read task interface
-type IReaderTaskDataStore interface {
-	// Add add request to read/poll task map
-	Add(name, tid, cmd string, req interface{})
+	// ReaderTask read/poll task request
+	ReaderTask struct {
+		// Name task name
+		Name string
+		// Cmd zmq frame 1
+		Cmd string
+		// Req request structure
+		Req interface{}
+	}
 
-	// GetTaskByID get request via TID from read/poll task map
-	GetTaskByID(tid string) (interface{}, bool)
+	// IReaderTaskDataStore read task interface
+	IReaderTaskDataStore interface {
+		// Add add request to read/poll task map
+		Add(name, tid, cmd string, req interface{})
 
-	// GetTaskByName get request via poll name from read/poll task map
-	GetTaskByName(name string) (interface{}, bool)
+		// GetTaskByID get request via TID from read/poll task map
+		GetTaskByID(tid string) (interface{}, bool)
 
-	// GetAll get all requests from read/poll task map
-	//	ex: mbtcp: []MbtcpPollStatus
-	GetAll() interface{}
+		// GetTaskByName get request via poll name from read/poll task map
+		GetTaskByName(name string) (interface{}, bool)
 
-	// DeleteAll remove all requests from read/poll task map
-	DeleteAll()
+		// GetAll get all requests from read/poll task map
+		//	ex: mbtcp: []MbtcpPollStatus
+		GetAll() interface{}
 
-	// DeleteTaskByID remove request from via TID from read/poll task map
-	DeleteTaskByID(tid string)
+		// DeleteAll remove all requests from read/poll task map
+		DeleteAll()
 
-	// DeleteTaskByName remove request via poll name from read/poll task map
-	DeleteTaskByName(name string)
+		// DeleteTaskByID remove request from via TID from read/poll task map
+		DeleteTaskByID(tid string)
 
-	// UpdateIntervalByName update poll request interval
-	UpdateIntervalByName(name string, interval uint64) error
+		// DeleteTaskByName remove request via poll name from read/poll task map
+		DeleteTaskByName(name string)
 
-	// UpdateToggleByName update poll request enabled flag
-	UpdateToggleByName(name string, toggle bool) error
+		// UpdateIntervalByName update poll request interval
+		UpdateIntervalByName(name string, interval uint64) error
 
-	// UpdateAllToggles update all poll requests enabled flag
-	UpdateAllToggles(toggle bool)
-}
+		// UpdateToggleByName update poll request enabled flag
+		UpdateToggleByName(name string, toggle bool) error
 
-// IHistoryDataStore history interface
-type IHistoryDataStore interface {
-	// Add add history
-	Add(name string, data interface{}) error
-	// Get get history within range
-	Get(name string, limit int) (map[string]string, error)
-	// GetAll get all history
-	GetAll(name string) (map[string]string, error)
-	// GetLatest get latest history
-	GetLatest(name string) (string, error)
-}
+		// UpdateAllToggles update all poll requests enabled flag
+		UpdateAllToggles(toggle bool)
+	}
 
-// IFilterDataStore filter interface
-type IFilterDataStore interface {
-	// Add add request to filter map
-	Add(name string, req interface{})
-	// Get get request from filter map
-	Get(name string) (interface{}, bool)
-	// GetAll get all request from filter map
-	GetAll() interface{}
-	// Delete delete request from filter map
-	Delete(name string)
-	// DeleteAll delete all requests from filter map
-	DeleteAll()
-	// UpdateToggle update filter request enabled flag
-	UpdateToggle(name string, toggle bool) error
-	// UpdateAllToggles update all filter requests enabled flag
-	UpdateAllToggles(toggle bool)
-}
+	// IHistoryDataStore history interface
+	IHistoryDataStore interface {
+		// Add add history
+		Add(name string, data interface{}) error
+		// Get get history within range
+		Get(name string, limit int) (map[string]string, error)
+		// GetAll get all history
+		GetAll(name string) (map[string]string, error)
+		// GetLatest get latest history
+		GetLatest(name string) (string, error)
+	}
 
-// IConfig config interface
-type IConfig interface {
-	// setLogger init logger function
-	setLogger()
-	// initConfig int config function
-	initConfig()
-}
+	// IFilterDataStore filter interface
+	IFilterDataStore interface {
+		// Add add request to filter map
+		Add(name string, req interface{})
+		// Get get request from filter map
+		Get(name string) (interface{}, bool)
+		// GetAll get all request from filter map
+		GetAll() interface{}
+		// Delete delete request from filter map
+		Delete(name string)
+		// DeleteAll delete all requests from filter map
+		DeleteAll()
+		// UpdateToggle update filter request enabled flag
+		UpdateToggle(name string, toggle bool) error
+		// UpdateAllToggles update all filter requests enabled flag
+		UpdateAllToggles(toggle bool)
+	}
+
+	// IConfig config interface
+	IConfig interface {
+		// setLogger init logger function
+		setLogger()
+		// initConfig int config function
+		initConfig()
+	}
+)

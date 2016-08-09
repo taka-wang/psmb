@@ -48,36 +48,40 @@ func init() {
 	minPollInterval = uint64(conf.GetInt(keyPollInterval))
 }
 
-type zSockets struct {
-	// upstream subscriber from services
-	upstream *zmq.Socket
-	// downstream subscriber from modbusd
-	downstream *zmq.Socket
-}
-
 // @Implement IProactiveService contract implicitly
 
-// Service modbusd tcp proactive service type
-type Service struct {
-	// readerMap read/poll task map
-	readerMap IReaderTaskDataStore
-	// writerMap write task map
-	writerMap IWriterTaskDataStore
-	// historyMap history map
-	historyMap IHistoryDataStore
-	// filterMap filter map
-	filterMap IFilterDataStore
-	// scheduler cron scheduler
-	scheduler cron.Scheduler
-	// sub ZMQ subscriber endpoints
-	sub zSockets
-	// pub ZMQ publisher endpoints
-	pub zSockets
-	// poller ZMQ poller
-	poller *zmq.Poller
-	// enable poller flag
-	enable bool
-}
+type (
+
+	// zSockets zmq sockets
+	zSockets struct {
+		// upstream subscriber from services
+		upstream *zmq.Socket
+		// downstream subscriber from modbusd
+		downstream *zmq.Socket
+	}
+
+	// Service modbusd tcp proactive service type
+	Service struct {
+		// readerMap read/poll task map
+		readerMap IReaderTaskDataStore
+		// writerMap write task map
+		writerMap IWriterTaskDataStore
+		// historyMap history map
+		historyMap IHistoryDataStore
+		// filterMap filter map
+		filterMap IFilterDataStore
+		// scheduler cron scheduler
+		scheduler cron.Scheduler
+		// sub ZMQ subscriber endpoints
+		sub zSockets
+		// pub ZMQ publisher endpoints
+		pub zSockets
+		// poller ZMQ poller
+		poller *zmq.Poller
+		// enable poller flag
+		enable bool
+	}
+)
 
 // NewService modbus tcp proactive serivce constructor
 func NewService(reader, writer, history, filter, sch string) (IProactiveService, error) {

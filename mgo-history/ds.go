@@ -89,18 +89,21 @@ func marshal(r interface{}) (string, error) {
 
 // @Implement IHistoryDataStore contract implicitly
 
-// blob data object
-type blob struct {
-	ID        bson.ObjectId `bson:"_id,omitempty"`
-	Name      string        `bson:"name"`
-	Data      interface{}   `bson:"data"`
-	Timestamp int64         `bson:"timestamp"`
-}
+type (
 
-// dataStore data store structure
-type dataStore struct {
-	mongo *mgo.Session
-}
+	// blob data object
+	blob struct {
+		ID        bson.ObjectId `bson:"_id,omitempty"`
+		Name      string        `bson:"name"`
+		Data      interface{}   `bson:"data"`
+		Timestamp int64         `bson:"timestamp"`
+	}
+
+	// dataStore data store structure
+	dataStore struct {
+		mongo *mgo.Session
+	}
+)
 
 // NewDataStore instantiate data store
 func NewDataStore(c map[string]string) (interface{}, error) {
