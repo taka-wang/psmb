@@ -2,6 +2,14 @@
 
 pipeline:
 
+    test-mem-filter:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true mem-filter/.
+
+
     test-redis-filter:
         image: takawang/dind
         volumes:
@@ -17,12 +25,6 @@ pipeline:
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
-    test-mem-filter:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true mem-filter/.
 
     ci:
         image: takawang/dind
