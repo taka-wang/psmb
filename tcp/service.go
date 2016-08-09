@@ -1263,7 +1263,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 	default: // should not reach here!!
 		return ErrResponseNotSupport
 	}
-	return nil
+	//return nil
 }
 
 // Start enable proactive service
