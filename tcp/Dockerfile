@@ -17,4 +17,4 @@ ADD config.toml ${CONF_PSMBTCP}
 WORKDIR /go/src/github.com/taka-wang/psmb/tcp
 
 RUN go get -t ./... 
-RUN go test -v
+RUN go test 
