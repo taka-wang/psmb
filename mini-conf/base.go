@@ -184,9 +184,9 @@ func GetFloat64(key string) float64 {
 func GetDuration(key string) time.Duration {
 	switch key {
 	case keyMongoConnTimeout:
-		return base.conf.Mongo.ConnectionTimeout
+		return time.Duration(base.conf.Mongo.ConnectionTimeout)
 	case keyRedisIdelTimeout:
-		return base.conf.Redis.IdelTimeout
+		return time.Duration(base.conf.Redis.IdelTimeout)
 	}
 	return 0
 }

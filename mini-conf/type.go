@@ -1,7 +1,5 @@
 package conf
 
-import "time"
-
 type confType struct {
 	Log struct {
 		Debug    bool   `default:"true"`
@@ -10,21 +8,21 @@ type confType struct {
 		Filename string `default:"/var/log/psmbtcp.log"`
 	}
 	Redis struct {
-		Server      string        `default:"127.0.0.1"`
-		Port        string        `default:"6379"`
-		MaxIdel     int           `default:"3"`
-		MaxActive   int           `default:"0"`
-		IdelTimeout time.Duration `default:"30s"`
+		Server      string `default:"127.0.0.1"`
+		Port        string `default:"6379"`
+		MaxIdel     int    `default:"3"`
+		MaxActive   int    `default:"0"`
+		IdelTimeout int    `default:"30"`
 	}
 	Mongo struct {
-		Server            string        `default:"127.0.0.1"`
-		Port              string        `default:"27017"`
-		IsDrop            bool          `default:"true"`
-		ConnectionTimeout time.Duration `default:"60s"`
-		DbName            string        `default:"test"`
-		Authentication    bool          `default:"false"`
-		Username          string        `default:"username"`
-		Password          string        `default:"password"`
+		Server            string `default:"127.0.0.1"`
+		Port              string `default:"27017"`
+		IsDrop            bool   `default:"true"`
+		ConnectionTimeout int    `default:"60"`
+		DbName            string `default:"test"`
+		Authentication    bool   `default:"false"`
+		Username          string `default:"username"`
+		Password          string `default:"password"`
 	}
 	MgoHistory struct {
 		DbName         string `default:"test"`
