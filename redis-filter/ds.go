@@ -166,7 +166,7 @@ func (ds *dataStore) GetAll() interface{} {
 		log.WithFields(log.Fields{"err": err}).Error("GetAll")
 		return nil
 	}
-	log.WithFields(log.Fields{"data": ret}).Debug("GetAll")
+	//log.WithFields(log.Fields{"data": ret}).Debug("GetAll")
 
 	arr := []psmb.MbtcpFilterStatus{}
 	for _, v := range ret {
@@ -261,9 +261,19 @@ func (ds *dataStore) UpdateAllToggles(toggle bool) {
 		log.WithFields(log.Fields{"err": err}).Error("UpdateAllToggles")
 		return
 	}
-	log.WithFields(log.Fields{"data": ret}).Debug("UpdateAllToggles")
+	//log.WithFields(log.Fields{"data": ret}).Debug("UpdateAllToggles")
 
-	// unmarshal
-	// TODO!!
-	return
+	for _, v := range ret {
+		var d psmb.MbtcpFilterStatus
+		if err := json.Unmarshal([]byte(v), &d); err == nil { // unmarshal
+			d.Enabled = toggle
+			bytes, err := json.Marshal(d) // marshal
+			if err != nil {
+				log.WithFields(log.Fields{"err": err}).Error("marshal")
+			}
+			if _, err := ds.redis.Do("HSET", hashName, d.Name, string(bytes)); err != nil {
+				log.WithFields(log.Fields{"err": err}).Error("UpdateAllToggles")
+			}
+		}
+	}
 }
