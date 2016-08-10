@@ -16,16 +16,13 @@ import (
 	_ "github.com/spf13/viper/remote"
 )
 
-// Fields represents a map of entry level data used for structured logging.
-type Fields map[string]interface{}
-
-// Fields implements Fielder.
-func (f Fields) Fields() Fields {
-	return f
+type mLog struct {
+	log.Fielder
+	*log.Logger
 }
 
 // Log logger
-var Log *log.Logger
+var Log mLog
 var base vConf // config instance
 
 // vConf base structu with viper instance
@@ -93,7 +90,9 @@ func GetDuration(key string) time.Duration {
 
 // setLogger init logger function
 func (b *vConf) setLogger() {
-	Log = &log.Logger{}
+	//Log = &log.Logger{}
+
+	Log = mLog{Logger: &log.Logger{}}
 
 	writer := os.Stdout
 	if b.v.GetBool(keyLogToFile) {
