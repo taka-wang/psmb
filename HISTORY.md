@@ -46,15 +46,6 @@
 - [x] implement all poll request handlers (except mbtcp.poll.history)
 - [x] implement all polls request handlers
 
-## Backlog:
-
-- if scheduler is stop, trigger requests directly.
-- sqlite3 for history
-- task test cases
-- table size limit
-- fix handleResponse last return issue
-- add to log and filter
-
 
 ## TODO
 
