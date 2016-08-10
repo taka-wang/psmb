@@ -11,7 +11,9 @@ WORKDIR /go
 
 ## Load app files
 ADD . /go/src/github.com/taka-wang/psmb/viper-conf
-ADD config.toml ${CONF_PSMBTCP}
+# add config file
+RUN mkdir -p ${CONF_PSMBTCP} && \ 
+    cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${CONF_PSMBTCP}/
 
 WORKDIR /go/src/github.com/taka-wang/psmb/viper-conf
 
