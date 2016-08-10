@@ -29,8 +29,8 @@ func init() {
 	// before load config
 	log.SetHandler(text.New(os.Stdout))
 	log.SetLevel(log.DebugLevel)
+	// init singleton
 	base = vConf{v: viper.New()}
-
 	base.initConfig()
 	base.setLogger()
 }
@@ -109,7 +109,6 @@ func (b *vConf) setLogger() {
 	} else {
 		Log.Level = log.InfoLevel
 	}
-
 }
 
 // initConfig int config function

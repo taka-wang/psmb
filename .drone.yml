@@ -2,6 +2,13 @@
 
 pipeline:
 
+    test-mini-conf:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true mini-conf/.
+
     test-viper-conf:
         image: takawang/dind
         volumes:

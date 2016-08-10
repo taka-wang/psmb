@@ -1,4 +1,4 @@
-# viper-conf
+# mini-conf
 
 FROM takawang/gozmq:pull
 MAINTAINER Taka Wang <taka@cmwang.net>
@@ -13,12 +13,12 @@ RUN go get -u github.com/spf13/viper
 RUN go get -u github.com/apex/log
 
 ## Load app files
-ADD . /go/src/github.com/taka-wang/psmb/viper-conf
+ADD . /go/src/github.com/taka-wang/psmb/mini-conf
 # add config file
 RUN mkdir -p ${CONF_PSMBTCP} && \ 
     cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${CONF_PSMBTCP}/
 
-WORKDIR /go/src/github.com/taka-wang/psmb/viper-conf
+WORKDIR /go/src/github.com/taka-wang/psmb/mini-conf
 
 RUN go get -t ./... 
 RUN go test -v
