@@ -18,8 +18,9 @@ import (
 
 var (
 	// RedisPool redis connection pool
-	RedisPool *redis.Pool
-	hashName  string
+	RedisPool   *redis.Pool
+	hashName    string
+	maxCapacity int
 )
 
 func setDefaults() {
@@ -29,6 +30,7 @@ func setDefaults() {
 	conf.SetDefault(keyRedisMaxIdel, defaultRedisMaxIdel)
 	conf.SetDefault(keyRedisMaxActive, defaultRedisMaxActive)
 	conf.SetDefault(keyRedisIdelTimeout, defaultRedisIdelTimeout)
+	conf.SetDefault(keyMaxCapacity, defaultMaxCapacity)
 
 	// set default redis-writer values
 	conf.SetDefault(keyHashName, defaultHashName)
@@ -50,6 +52,7 @@ func init() {
 	setDefaults()                                           // set defaults
 
 	hashName = conf.GetString(keyHashName)
+	maxCapacity = conf.GetInt(keyMaxCapacity)
 
 	RedisPool = &redis.Pool{
 		MaxIdle: conf.GetInt(keyRedisMaxIdel),

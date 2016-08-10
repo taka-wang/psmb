@@ -15,8 +15,10 @@ const (
 	defaultRedisIdelTimeout = 30
 )
 
-// [redis_writer]
+// [redis_filter]
 const (
-	keyHashName     = "redis_filter.hash_name"
-	defaultHashName = "mbtcp:filter"
+	keyHashName        = "redis_filter.hash_name"
+	keyMaxCapacity     = "redis_filter.max_capacity"
+	defaultHashName    = "mbtcp:filter"
+	defaultMaxCapacity = 32
 )

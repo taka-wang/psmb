@@ -2,12 +2,26 @@
 
 pipeline:
 
+    test-mini-conf:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true mini-conf/.
+
     test-viper-conf:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true viper-conf/.
+
+    test-mem-filter:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true mem-filter/.
 
     ci:
         image: takawang/dind
@@ -23,14 +37,6 @@ pipeline:
             - docker-compose rm -f -a
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
-
-
-    test-mem-filter:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true mem-filter/.
 
     test-redis-filter:
         image: takawang/dind

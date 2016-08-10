@@ -32,6 +32,8 @@ func setDefaults() {
 	conf.SetDefault(keyTCPDefaultPort, defaultTCPDefaultPort)
 	conf.SetDefault(keyMinConnectionTimout, defaultMinConnectionTimout)
 	conf.SetDefault(keyPollInterval, defaultPollInterval)
+	conf.SetDefault(keyMaxWorker, defaultMaxWorker)
+	conf.SetDefault(keyMaxQueue, defaultMaxQueue)
 	// set default zmq values
 	conf.SetDefault(keyZmqPubUpstream, defaultZmqPubUpstream)
 	conf.SetDefault(keyZmqPubDownstream, defaultZmqPubDownstream)

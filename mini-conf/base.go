@@ -10,82 +10,28 @@ import (
 	"path"
 	"time"
 
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/json"
+	"github.com/apex/log/handlers/text"
 	"github.com/hashicorp/consul/api"
 	"github.com/koding/multiconfig"
-	log "github.com/takawang/logrus"
 )
 
+// Log logger
+var Log *log.Logger
 var base mConf // config instance
 
 // vConf base structu with viper instance
 type mConf struct {
-	conf *confType
-}
-
-// InitConfig int config function
-func (b *mConf) initConfig() {
-	// get environment variables
-	confPath := os.Getenv(envConfPSMBTCP) // config file location
-	if confPath == "" {
-		confPath = defaultConfigPath
-	}
-	filePath := path.Join(confPath, keyConfigName) + "." + keyConfigType
-	endpoint := os.Getenv(envBackendEndpoint) // backend endpoint, i.e., consul url
-
-	if endpoint == "" {
-		log.Debug("Try to load 'local' config file")
-	} else {
-		log.Debug("Try to load 'remote' config file")
-		client, err := api.NewClient(&api.Config{Address: endpoint})
-		if err != nil {
-			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
-			return
-		}
-		pair, _, err := client.KV().Get(filePath, nil)
-		if err != nil {
-			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
-			return
-		}
-		// dump to file
-		if err := ioutil.WriteFile(defaultTempPath, pair.Value, 0644); err != nil {
-			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
-			return
-		}
-		filePath = defaultTempPath
-	}
-	m := multiconfig.NewWithPath(filePath)
-	m.MustLoad(b.conf) // Populated the struct
-}
-
-// setLogger init logger function
-func (b *mConf) setLogger() {
-	// set debug level
-	if b.conf.Log.Debug {
-		log.SetLevel(log.DebugLevel)
-	} else {
-		log.SetLevel(log.InfoLevel)
-	}
-	// set log formatter, JSON or plain text
-	if b.conf.Log.JSON {
-		log.SetFormatter(&log.JSONFormatter{})
-	} else {
-		log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	}
-	// set log output
-	if b.conf.Log.ToFile {
-		f, err := os.OpenFile(b.conf.Log.Filename, os.O_WRONLY|os.O_CREATE, 0755)
-		if err != nil {
-			log.WithError(err).Warn("Fail to create log file")
-			f = os.Stdout
-		}
-		log.SetOutput(f)
-	} else {
-		log.SetOutput(os.Stdout)
-	}
+	m *confType
 }
 
 func init() {
-	base = mConf{conf: new(confType)}
+	// before load config
+	log.SetHandler(text.New(os.Stdout))
+	log.SetLevel(log.DebugLevel)
+	// init singleton
+	base = mConf{m: new(confType)}
 	base.initConfig()
 	base.setLogger()
 }
@@ -103,9 +49,9 @@ func SetDefault(key string, value interface{}) {
 func Set(key string, value interface{}) {
 	switch key {
 	case keyMongoServer:
-		base.conf.Mongo.Server = value.(string)
+		base.m.Mongo.Server = value.(string)
 	case keyRedisServer:
-		base.conf.Redis.Server = value.(string)
+		base.m.Redis.Server = value.(string)
 	}
 }
 
@@ -113,59 +59,69 @@ func Set(key string, value interface{}) {
 func GetInt(key string) int {
 	switch key {
 	case keyRedisMaxIdel:
-		return base.conf.Redis.MaxIdel
+		return base.m.Redis.MaxIdel
 	case keyRedisMaxActive:
-		return base.conf.Redis.MaxActive
+		return base.m.Redis.MaxActive
 	case keyPollInterval:
-		return base.conf.Psmbtcp.MinPollInterval
+		return base.m.Psmbtcp.MinPollInterval
+	case keyMaxWorker:
+		return base.m.Psmbtcp.MaxWorker
+	case keyMaxQueue:
+		return base.m.Psmbtcp.MaxQueue
+	case keyMemReaderMaxCapacity:
+		return base.m.MemReader.MaxCapacity
+	case keyMemFilterMaxCapacity:
+		return base.m.MemFilter.MaxCapacity
+	case keyRedisFilterMaxCapacity:
+		return base.m.RedisFilter.MaxCapacity
 	}
 	return 0
 }
 
 // GetInt64 returns the value associated with the key as an int64
 func GetInt64(key string) int64 {
-	return base.conf.Psmbtcp.MinConnectionTimeout
+	return base.m.Psmbtcp.MinConnectionTimeout
 }
 
 // GetString returns the value associated with the key as a string
 func GetString(key string) string {
 	switch key {
 	case keyDbName:
-		return base.conf.MgoHistory.DbName
+		return base.m.MgoHistory.DbName
 	case keyCollectionName:
-		return base.conf.MgoHistory.CollectionName
+		return base.m.MgoHistory.CollectionName
 	case keyMongoServer:
-		return base.conf.Mongo.Server
+		return base.m.Mongo.Server
 	case keyMongoPort:
-		return base.conf.Mongo.Port
+		return base.m.Mongo.Port
 	case keyMongoDbName:
-		return base.conf.Mongo.DbName
+		return base.m.Mongo.DbName
 	case keyMongoUserName:
-		return base.conf.Mongo.Username
+		return base.m.Mongo.Username
 	case keyMongoPassword:
-		return base.conf.Mongo.Password
+		return base.m.Mongo.Password
 	case keyHistoryHashName:
-		return base.conf.RedisHistory.HashName
+		return base.m.RedisHistory.HashName
 	case keySetPrefix:
-		return base.conf.RedisHistory.ZsetPrefix
+		return base.m.RedisHistory.ZsetPrefix
 	case keyRedisServer:
-		return base.conf.Redis.Server
+		return base.m.Redis.Server
 	case keyRedisPort:
-		return base.conf.Redis.Port
+		return base.m.Redis.Port
 	case keyWriterHashName:
-		return base.conf.RedisWriter.HashName
-	case keyFilterHashName:
-		return base.conf.RedisFilter.HashName
+		return base.m.RedisWriter.HashName
+	case keyRedisFilterHashName:
+		return base.m.RedisFilter.HashName
 	case keyTCPDefaultPort:
-		return base.conf.Psmbtcp.DefaultPort
+		return base.m.Psmbtcp.DefaultPort
 	case keyZmqPubUpstream:
-		return base.conf.Zmq.Pub.Upstream
+		return base.m.Zmq.Pub.Upstream
 	case keyZmqPubDownstream:
-		return base.conf.Zmq.Pub.Downstream
+		return base.m.Zmq.Pub.Downstream
 	case keyZmqSubUpstream:
-		return base.conf.Zmq.Sub.Upstream
+		return base.m.Zmq.Sub.Upstream
 	case keyZmqSubDownstream:
-		return base.conf.Zmq.Sub.Downstream
+		return base.m.Zmq.Sub.Downstream
 	}
 	return ""
 }
@@ -174,9 +130,9 @@ func GetString(key string) string {
 func GetBool(key string) bool {
 	switch key {
 	case keyMongoEnableAuth:
-		return base.conf.Mongo.Authentication
+		return base.m.Mongo.Authentication
 	case keyMongoIsDrop:
-		return base.conf.Mongo.IsDrop
+		return base.m.Mongo.IsDrop
 	}
 	return false
 }
@@ -190,9 +146,95 @@ func GetFloat64(key string) float64 {
 func GetDuration(key string) time.Duration {
 	switch key {
 	case keyMongoConnTimeout:
-		return time.Duration(base.conf.Mongo.ConnectionTimeout)
+		return time.Duration(base.m.Mongo.ConnectionTimeout)
 	case keyRedisIdelTimeout:
-		return time.Duration(base.conf.Redis.IdelTimeout)
+		return time.Duration(base.m.Redis.IdelTimeout)
 	}
 	return 0
+}
+
+//
+// Internal
+//
+
+// setLogger init logger function
+func (b *mConf) setLogger() {
+	Log = &log.Logger{}
+
+	writer := os.Stdout
+
+	if b.m.Log.ToFile {
+		if f, err := os.OpenFile(b.m.Log.Filename, os.O_WRONLY|os.O_CREATE, 0755); err != nil {
+			log.WithFields(log.Fields{
+				"err":       err,
+				"file name": b.m.Log.Filename,
+			}).Error("Fail to create log file")
+		} else {
+			writer = f // to file
+		}
+	}
+
+	// set log formatter, JSON or plain text
+
+	if b.m.Log.JSON {
+		Log.Handler = json.New(writer)
+	} else {
+		Log.Handler = text.New(writer)
+	}
+
+	// set debug level
+	if b.m.Log.Debug {
+		Log.Level = log.DebugLevel
+	} else {
+		Log.Level = log.InfoLevel
+	}
+}
+
+// InitConfig int config function
+func (b *mConf) initConfig() {
+	// get environment variables
+	confPath := os.Getenv(envConfPSMBTCP) // config file location
+	if confPath == "" {
+		confPath = defaultConfigPath
+	}
+	filePath := path.Join(confPath, keyConfigName) + "." + keyConfigType
+	endpoint := os.Getenv(envBackendEndpoint) // backend endpoint, i.e., consul url
+
+	if endpoint == "" {
+		log.WithField("file path", filePath).Debug("Try to load 'local' config file")
+	} else {
+		log.WithField("file path", filePath).Debug("Try to load 'remote' config file")
+		client, err := api.NewClient(&api.Config{Address: endpoint})
+		if err != nil {
+			log.WithFields(log.Fields{
+				"err":       err,
+				"file path": filePath,
+			}).Warn("Fail to load 'remote' config file, backend not found!")
+			return
+		}
+		pair, _, err := client.KV().Get(filePath, nil)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"err":       err,
+				"file path": filePath,
+			}).Warn("Fail to load 'remote' config file from backend, value not found!")
+			return
+		}
+		// dump to file
+		if err := ioutil.WriteFile(defaultTempPath, pair.Value, 0644); err != nil {
+			log.WithFields(log.Fields{
+				"err":       err,
+				"file path": defaultTempPath,
+			}).Warn("Fail to load 'remote' config file from backend, temp file not found!")
+			return
+		}
+		filePath = defaultTempPath
+	}
+	m := multiconfig.NewWithPath(filePath)
+	m.MustLoad(b.m) // Populated the struct
+	if endpoint == "" {
+		log.WithField("file", filePath).Info("Read 'local' config file successfully")
+	} else {
+		log.WithField("file", filePath).Info("Read 'remote' config file successfully")
+	}
 }

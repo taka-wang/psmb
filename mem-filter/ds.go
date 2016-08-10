@@ -8,8 +8,16 @@ import (
 	"sync"
 
 	"github.com/taka-wang/psmb"
+	conf "github.com/taka-wang/psmb/viper-conf"
 	log "github.com/takawang/logrus"
 )
+
+var maxCapacity int
+
+func init() {
+	conf.SetDefault(keyMaxCapacity, defaultMaxCapacity)
+	maxCapacity = conf.GetInt(keyMaxCapacity)
+}
 
 //@Implement IFilterDataStore implicitly
 

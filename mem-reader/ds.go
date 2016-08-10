@@ -9,10 +9,19 @@ import (
 	"sync"
 
 	psmb "github.com/taka-wang/psmb"
+	conf "github.com/taka-wang/psmb/viper-conf"
 )
 
-// ErrInvalidPollName is the error when the poll name is empty.
-var ErrInvalidPollName = errors.New("Invalid poll name!")
+var (
+	// ErrInvalidPollName is the error when the poll name is empty.
+	ErrInvalidPollName = errors.New("Invalid poll name!")
+	maxCapacity        int
+)
+
+func init() {
+	conf.SetDefault(keyMaxCapacity, defaultMaxCapacity)
+	maxCapacity = conf.GetInt(keyMaxCapacity)
+}
 
 // @Implement IReaderTaskDataStore contract implicitly
 

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	conf "github.com/taka-wang/psmb/viper-conf"
+	conf "github.com/taka-wang/psmb/mini-conf"
 	"github.com/takawang/sugar"
 )
 

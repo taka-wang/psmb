@@ -36,11 +36,20 @@ hash_name           = "mbtcp:writer"    # redis hash table name
 
 [redis_filter]
 hash_name           = "mbtcp:filter"    # redis hash table name
+max_capacity        = 32                # max capacity
+
+[mem_filter]
+max_capacity        = 32                # max capacity
+
+[mem_reader]
+max_capacity        = 32                # max capacity
 
 [psmbtcp]
 default_port            = "502"         # modbus slave default port
 min_connection_timeout  = 200000        # minimal tcp connection timeout in ms
 min_poll_interval       = 1             # minimal poll interval in second
+max_worker              = 6             # max # worker pool
+max_queue               = 100           # max # task queue
 
 [zmq]
 [zmq.pub]
@@ -50,4 +59,4 @@ min_poll_interval       = 1             # minimal poll interval in second
     upstream   = "ipc:///tmp/to.psmb"       # from services
     downstream = "ipc:///tmp/from.modbus"   # from modbusd
 
-# TOML config end @20160809
+# TOML config end @20160810
