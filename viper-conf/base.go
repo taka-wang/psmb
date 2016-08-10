@@ -16,6 +16,8 @@ import (
 	_ "github.com/spf13/viper/remote"
 )
 
+type Fields log.Fields
+
 /*
 // Fielder is an interface for providing fields to custom types.
 type Fielder interface {
@@ -47,7 +49,6 @@ func (f Fields) Fields() log.Fields {
 */
 
 type mLog struct {
-	log.Fields
 	*log.Logger
 }
 
@@ -122,7 +123,7 @@ func GetDuration(key string) time.Duration {
 func (b *vConf) setLogger() {
 	//Log = &log.Logger{}
 
-	Log = mLog{Fields: *new(log.Fields), Logger: &log.Logger{}}
+	Log = mLog{Logger: &log.Logger{}}
 
 	writer := os.Stdout
 	if b.v.GetBool(keyLogToFile) {
