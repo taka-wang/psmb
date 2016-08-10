@@ -125,4 +125,4 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ## UML
 
-![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZ13S0W2030LTe1Alz-EWjQewQ0HY2kttZFEviayZVxfAEQ3Rq19gvGcbMFhdccBfR5GkeCXXzU2wN0S2PWLCiJ4g4g3EKOTZ-u_G00)
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZB3O0W303GLNG0gMSlpb8gGI8KqazONtt7jnQcwbTogSjjDlG049mX5xizkYQXpfRO0lK6XWzk4pd3y5QXeLeIe8ggCBJ5yFUvVru0)
