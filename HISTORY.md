@@ -58,14 +58,14 @@
 
 ## TODO
 
+- [x] refactor log singleton in conf packages
+- [x] implement unit test for conf packages
 - routine Worker Thread-Pool
 - routine pool flow chart
 - scheduler concurrency
 - map max capacity
 - refine config for max capacity
-- refactor log singleton
 - refine log messages
-- https://github.com/apex/log
 - unit tests for filters
 - integration tests for filters
 - refactor test cases

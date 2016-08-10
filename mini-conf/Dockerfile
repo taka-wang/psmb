@@ -21,4 +21,4 @@ RUN mkdir -p ${CONF_PSMBTCP} && \
 WORKDIR /go/src/github.com/taka-wang/psmb/mini-conf
 
 RUN go get -t ./... 
-RUN go test -v
+RUN go test
