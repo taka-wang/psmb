@@ -92,7 +92,7 @@ func GetDuration(key string) time.Duration {
 func (b *vConf) setLogger() {
 	//Log = &log.Logger{}
 
-	Log = mLog{Fields: make(map[string]interface{}), Logger: &log.Logger{}}
+	Log = mLog{Fields: log.Fields{}, Logger: &log.Logger{}}
 
 	writer := os.Stdout
 	if b.v.GetBool(keyLogToFile) {
