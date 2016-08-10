@@ -17,7 +17,7 @@ import (
 )
 
 type mLog struct {
-	log.Fielder
+	log.Fields
 	*log.Logger
 }
 
@@ -92,7 +92,7 @@ func GetDuration(key string) time.Duration {
 func (b *vConf) setLogger() {
 	//Log = &log.Logger{}
 
-	Log = mLog{Logger: &log.Logger{}}
+	Log = mLog{Fields: make(map[string]interface{}), Logger: &log.Logger{}}
 
 	writer := os.Stdout
 	if b.v.GetBool(keyLogToFile) {
