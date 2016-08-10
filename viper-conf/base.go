@@ -16,7 +16,13 @@ import (
 	_ "github.com/spf13/viper/remote"
 )
 
+// Fields my field
 type Fields log.Fields
+
+// Fields implement
+func (f Fields) Fields() log.Fields {
+	return log.Fields(f)
+}
 
 /*
 // Fielder is an interface for providing fields to custom types.
