@@ -155,7 +155,10 @@ func (b *mConf) setLogger() {
 
 	if b.m.Log.ToFile {
 		if f, err := os.OpenFile(b.m.Log.Filename, os.O_WRONLY|os.O_CREATE, 0755); err != nil {
-			log.WithError(err).Debug("Fail to create log file")
+			log.WithFields(log.Fields{
+				"err":  err,
+				"file": b.m.Log.Filename,
+			}).Debug("Fail to create log file")
 		} else {
 			writer = f // to file
 		}
@@ -188,27 +191,36 @@ func (b *mConf) initConfig() {
 	endpoint := os.Getenv(envBackendEndpoint) // backend endpoint, i.e., consul url
 
 	if endpoint == "" {
-		log.Debug("Try to load 'local' config file")
+		log.WithField("file", filePath).Debug("Try to load 'local' config file")
 	} else {
-		log.Debug("Try to load 'remote' config file")
+		log.WithField("file", filePath).Debug("Try to load 'remote' config file")
 		client, err := api.NewClient(&api.Config{Address: endpoint})
 		if err != nil {
-			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
+			log.WithFields(log.Fields{
+				"err":  err,
+				"file": filePath,
+			}).Warn("Fail to load 'remote' config file, backend not found!")
 			return
 		}
 		pair, _, err := client.KV().Get(filePath, nil)
 		if err != nil {
-			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
+			log.WithFields(log.Fields{
+				"err":  err,
+				"file": filePath,
+			}).Warn("Fail to load 'remote' config file from backend, value not found!")
 			return
 		}
 		// dump to file
 		if err := ioutil.WriteFile(defaultTempPath, pair.Value, 0644); err != nil {
-			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
+			log.WithFields(log.Fields{
+				"err":       err,
+				"temp file": defaultTempPath,
+			}).Warn("Fail to load 'remote' config file from backend, temp file not found!")
 			return
 		}
 		filePath = defaultTempPath
 	}
 	m := multiconfig.NewWithPath(filePath)
 	m.MustLoad(b.m) // Populated the struct
-	log.Info("Read config file successfully")
+	log.WithField("file", filePath).Info("Read config file successfully")
 }

@@ -90,7 +90,11 @@ func (b *vConf) setLogger() {
 	writer := os.Stdout
 	if b.v.GetBool(keyLogToFile) {
 		if f, err := os.OpenFile(b.v.GetString(keyLogFileName), os.O_WRONLY|os.O_CREATE, 0755); err != nil {
-			log.WithError(err).Debug("Fail to create log file")
+			log.WithFields(log.Fields{
+				"err":  err,
+				"file": b.v.GetString(keyLogFileName),
+			}).Debug("Fail to create log file")
+
 		} else {
 			writer = f // to file
 		}
@@ -126,22 +130,38 @@ func (b *vConf) initConfig() {
 
 	// local or remote config
 	if endpoint == "" {
-		log.Debug("Try to load 'local' config file")
+		log.WithField("file", confPath).Debug("Try to load 'local' config file")
 		b.v.AddConfigPath(confPath)
 		err := b.v.ReadInConfig() // read config from file
 		if err != nil {
-			log.Warn("Fail to load 'local' config file, not found!")
+			log.WithField("file", confPath).Warn("Fail to load 'local' config file, not found!")
 		} else {
-			log.Info("Read 'local' config file successfully")
+			log.WithField("file", confPath).Info("Read 'local' config file successfully")
 		}
 	} else {
-		log.Debug("Try to load 'remote' config file")
+		log.WithFields(log.Fields{
+			"endpoint":    endpoint,
+			"config path": confPath,
+			"config name": keyConfigName,
+			"config type": keyConfigType,
+		}).Debug("Try to load 'remote' config file")
+
 		b.v.AddRemoteProvider(defaultBackendName, endpoint, path.Join(confPath, keyConfigName)+"."+keyConfigType)
 		err := b.v.ReadRemoteConfig() // read config from backend
 		if err != nil {
-			log.WithError(err).Warn("Fail to load 'remote' config file, not found!")
+			log.WithFields(log.Fields{
+				"endpoint":    endpoint,
+				"config path": confPath,
+				"config name": keyConfigName,
+				"config type": keyConfigType,
+			}).Error("Fail to load 'remote' config file, not found!")
 		} else {
-			log.Info("Read remote config file successfully")
+			log.WithFields(log.Fields{
+				"endpoint":    endpoint,
+				"config path": confPath,
+				"config name": keyConfigName,
+				"config type": keyConfigType,
+			}).Info("Read remote config file successfully")
 		}
 	}
 
