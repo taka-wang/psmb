@@ -105,7 +105,7 @@ type (
 	// IFilterDataStore filter interface
 	IFilterDataStore interface {
 		// Add add request to filter map
-		Add(name string, req interface{})
+		Add(name string, req interface{}) error
 		// Get get request from filter map
 		Get(name string) (interface{}, bool)
 		// GetAll get all request from filter map

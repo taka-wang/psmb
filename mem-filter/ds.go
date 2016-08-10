@@ -21,13 +21,6 @@ func init() {
 
 //@Implement IFilterDataStore implicitly
 
-// NewDataStore instantiate filter map
-func NewDataStore(conf map[string]string) (interface{}, error) {
-	return &dataStore{
-		m: make(map[string]interface{}),
-	}, nil
-}
-
 // dataStore filter map
 type dataStore struct {
 	sync.RWMutex
@@ -35,11 +28,26 @@ type dataStore struct {
 	m map[string]interface{}
 }
 
+// NewDataStore instantiate filter map
+func NewDataStore(conf map[string]string) (interface{}, error) {
+	return &dataStore{
+		m: make(map[string]interface{}),
+	}, nil
+}
+
 // Add add request to filter map
-func (ds *dataStore) Add(name string, req interface{}) {
+func (ds *dataStore) Add(name string, req interface{}) error {
+	ds.RLock()
+	b := len(ds.m)+1 > maxCapacity
+	ds.RUnlock()
+	if b {
+		return ErrOutOfCapacity
+	}
+
 	ds.Lock()
 	ds.m[name] = req
 	ds.Unlock()
+	return nil
 }
 
 // Get get request from filter map

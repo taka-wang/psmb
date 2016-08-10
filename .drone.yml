@@ -2,6 +2,13 @@
 
 pipeline:
 
+    test-mem-filter:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true mem-filter/.
+
     test-mem-reader:
         image: takawang/dind
         volumes:
@@ -38,12 +45,6 @@ pipeline:
         commands:
             - docker build --no-cache=true viper-conf/.
 
-    test-mem-filter:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true mem-filter/.
 
     test-redis-filter:
         image: takawang/dind

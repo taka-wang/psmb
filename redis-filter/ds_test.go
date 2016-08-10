@@ -1,6 +1,7 @@
 package filter_test
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/taka-wang/psmb"
@@ -93,6 +94,16 @@ func TestFilter(t *testing.T) {
 			log(r)
 		} else {
 			return false
+		}
+
+		// out of capacity test
+		for i := 0; i < 50; i++ {
+			s := strconv.Itoa(i)
+			if err := filterMap.Add(s, a); err != nil {
+				log(err, i)
+			} else {
+				log("ok", i)
+			}
 		}
 
 		// DELETe ALL

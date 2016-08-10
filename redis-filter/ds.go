@@ -116,23 +116,24 @@ func (ds *dataStore) closeRedis() {
 }
 
 // Add add request to filter map
-func (ds *dataStore) Add(name string, req interface{}) {
+func (ds *dataStore) Add(name string, req interface{}) error {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
 		log.WithError(err).Error("Add")
-		return
+		return err
 	}
 
 	// marshal
 	bytes, err := json.Marshal(req)
 	if err != nil {
 		log.WithError(err).Error("Marshal")
-		return
+		return err
 	}
 
 	if _, err := ds.redis.Do("HSET", hashName, name, string(bytes)); err != nil {
 		log.WithError(err).Error("Add")
 	}
+	return nil
 }
 
 // Get get request from filter map

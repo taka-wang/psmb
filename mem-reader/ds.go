@@ -23,8 +23,6 @@ func init() {
 // dataStore read/poll task map type
 type dataStore struct {
 	sync.RWMutex
-	// count store count
-	count int
 	// idName (tid, name)
 	idName map[string]string
 	// nameID (name, tid)
@@ -38,7 +36,6 @@ type dataStore struct {
 // NewDataStore instantiate mbtcp read task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
 	return &dataStore{
-		count:   0,
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
 		idMap:   make(map[string]psmb.ReaderTask),
@@ -52,7 +49,7 @@ func (ds *dataStore) Add(name, tid, cmd string, req interface{}) error {
 		name = tid
 	}
 	ds.RLock()
-	b := ds.count+1 > maxCapacity
+	b := len(ds.idName)+1 > maxCapacity
 	ds.RUnlock()
 	if b {
 		return ErrOutOfCapacity
@@ -63,7 +60,6 @@ func (ds *dataStore) Add(name, tid, cmd string, req interface{}) error {
 	ds.nameID[name] = tid
 	ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: cmd, Req: req}
 	ds.idMap[tid] = ds.nameMap[name]
-	ds.count = ds.count + 1
 	ds.Unlock()
 	return nil
 }
@@ -108,7 +104,6 @@ func (ds *dataStore) DeleteAll() {
 	ds.nameID = make(map[string]string)
 	ds.idMap = make(map[string]psmb.ReaderTask)
 	ds.nameMap = make(map[string]psmb.ReaderTask)
-	ds.count = 0 // reset count
 	ds.Unlock()
 }
 
@@ -125,7 +120,6 @@ func (ds *dataStore) DeleteTaskByID(tid string) {
 		delete(ds.nameID, name)
 		delete(ds.nameMap, name)
 	}
-	ds.count = ds.count - 1
 	ds.Unlock()
 }
 
@@ -142,7 +136,6 @@ func (ds *dataStore) DeleteTaskByName(name string) {
 	}
 	delete(ds.nameID, name)
 	delete(ds.nameMap, name)
-	ds.count = ds.count - 1
 	ds.Unlock()
 }
 

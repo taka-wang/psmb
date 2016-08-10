@@ -912,7 +912,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		return b.naiveResponder(cmd, resp)
 	case mbCreateFilter, mbUpdateFilter:
 		req := r.(MbtcpFilterStatus)
-		var status string
+		status := "ok"
 		if req.Name == "" {
 			err := ErrInvalidPollName
 			log.WithError(err).Warn(mbCreateFilter)
@@ -924,8 +924,12 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 				req.Arg[1] = req.Arg[0]
 				req.Arg[0] = tmp
 			}
-			b.filterMap.Add(req.Name, req) // add or update to filter map
-			status = "ok"
+
+			// add or update to filter map
+			if err := b.filterMap.Add(req.Name, req); err != nil {
+				log.WithError(err).Error(mbImportFilters)
+				status = err.Error() // set error status
+			}
 		}
 
 		// send back
@@ -1041,7 +1045,11 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 						v.Arg[0] = tmp
 					}
 					// add or update to filter map
-					b.filterMap.Add(v.Name, v)
+					if err := b.filterMap.Add(v.Name, v); err != nil {
+						log.WithError(err).Error(mbImportFilters)
+						status = err.Error() // set error status
+						break                // break the for loop
+					}
 				}
 			}
 		}
