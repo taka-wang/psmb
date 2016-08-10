@@ -635,8 +635,14 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			Len:   req.Len,
 		}
 
-		// add request to read/poll task map, read task instead of poll task, thus pass null name
-		b.readerMap.Add("", TidStr, cmd, req)
+		// add request to read/poll task map,
+		// since this is a read task instead of poll task, thus pass null name
+		if err := b.readerMap.Add("", TidStr, cmd, req); err != nil {
+			log.WithError(err).Warn(mbOnceRead) // maybe out of capacity
+			// send error back
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+			return b.naiveResponder(cmd, resp)
+		}
 		// add command to scheduler as emergency request
 		b.scheduler.Emergency().Do(b.Task, b.pub.downstream, command)
 		return nil
@@ -688,7 +694,13 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		}
 
 		// add task to read/poll task map
-		b.readerMap.Add(req.Name, TidStr, cmd, req)
+		if err := b.readerMap.Add(req.Name, TidStr, cmd, req); err != nil {
+			log.WithError(err).Warn(mbCreatePoll) // maybe out of capacity
+			// send error back
+			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
+			return b.naiveResponder(cmd, resp)
+		}
+
 		// add command to scheduler as regular request
 		b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.pub.downstream, command)
 
@@ -870,7 +882,14 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 				Len:   req.Len,
 			}
 
-			b.readerMap.Add(req.Name, TidStr, cmd, req)                                                       // Add task to read/poll task map
+			// Add task to read/poll task map
+			if err := b.readerMap.Add(req.Name, TidStr, cmd, req); err != nil {
+				log.WithError(err).Warn(mbImportPolls) // maybe out of capacity
+				// send error back
+				resp := MbtcpSimpleRes{Tid: request.Tid, Status: err.Error()}
+				return b.naiveResponder(cmd, resp)
+			}
+
 			b.scheduler.EveryWithName(req.Interval, req.Name).Seconds().Do(b.Task, b.pub.downstream, command) // add command to scheduler as regular request
 
 			if !req.Enabled { // if not enabled, pause the task

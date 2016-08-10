@@ -2,6 +2,28 @@
 
 pipeline:
 
+    test-mem-reader:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true mem-reader/.
+
+    ci:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
+        commands:
+            - docker-compose rm -f -a
+            - docker-compose pull
+            - docker-compose build --no-cache
+            - docker-compose up --abort-on-container-exit
+            - docker-compose stop
+            - docker-compose rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
+
     test-mini-conf:
         image: takawang/dind
         volumes:
@@ -22,21 +44,6 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true mem-filter/.
-
-    ci:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-            - /var/tmp:/var/tmp # for test
-        commands:
-            - docker-compose rm -f -a
-            - docker-compose pull
-            - docker-compose build --no-cache
-            - docker-compose up --abort-on-container-exit
-            - docker-compose stop
-            - docker-compose rm -f -a
-            - cat /var/tmp/success      # test
-            - rm -f /var/tmp/success    # cleanup
 
     test-redis-filter:
         image: takawang/dind
@@ -120,12 +127,6 @@ pipeline:
         commands:
             - docker build --no-cache=true cron/.
 
-    test-mem-reader:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true mem-reader/.
 
     test-mem-reader:
         image: takawang/dind

@@ -1,6 +1,7 @@
 package reader_test
 
 import (
+	"strconv"
 	"testing"
 
 	mreader "github.com/taka-wang/psmb/mem-reader"
@@ -16,11 +17,19 @@ func TestMbtcpReadTask(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("``add` task to map", func(log sugar.Log) bool {
-		_, err := psmbtcp.ReaderDataStoreCreator("Reader")
+		reader, err := psmbtcp.ReaderDataStoreCreator("Reader")
 		log(err)
 		if err != nil {
 			return false
 		}
+
+		for i := 0; i < 50; i++ {
+			s := strconv.Itoa(i)
+			if err := reader.Add(s, s, nil); err != nil {
+				log(err)
+			}
+		}
+
 		return true
 	})
 }

@@ -5,18 +5,13 @@
 package reader
 
 import (
-	"errors"
 	"sync"
 
 	psmb "github.com/taka-wang/psmb"
 	conf "github.com/taka-wang/psmb/viper-conf"
 )
 
-var (
-	// ErrInvalidPollName is the error when the poll name is empty.
-	ErrInvalidPollName = errors.New("Invalid poll name!")
-	maxCapacity        int
-)
+var maxCapacity int
 
 func init() {
 	conf.SetDefault(keyMaxCapacity, defaultMaxCapacity)
@@ -28,6 +23,8 @@ func init() {
 // dataStore read/poll task map type
 type dataStore struct {
 	sync.RWMutex
+	// count store count
+	count int
 	// idName (tid, name)
 	idName map[string]string
 	// nameID (name, tid)
@@ -41,6 +38,7 @@ type dataStore struct {
 // NewDataStore instantiate mbtcp read task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
 	return &dataStore{
+		count:   0,
 		idName:  make(map[string]string),
 		nameID:  make(map[string]string),
 		idMap:   make(map[string]psmb.ReaderTask),
@@ -49,9 +47,12 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 }
 
 // Add add request to read/poll task map
-func (ds *dataStore) Add(name, tid, cmd string, req interface{}) {
+func (ds *dataStore) Add(name, tid, cmd string, req interface{}) error {
 	if name == "" { // read task instead of poll task
 		name = tid
+	}
+	if ds.count+1 > maxCapacity {
+		return ErrOutOfCapacity
 	}
 
 	ds.Lock()
@@ -59,7 +60,9 @@ func (ds *dataStore) Add(name, tid, cmd string, req interface{}) {
 	ds.nameID[name] = tid
 	ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: cmd, Req: req}
 	ds.idMap[tid] = ds.nameMap[name]
+	ds.count = ds.count + 1
 	ds.Unlock()
+	return nil
 }
 
 // GetTaskByID get request via TID from read/poll task map
@@ -102,6 +105,7 @@ func (ds *dataStore) DeleteAll() {
 	ds.nameID = make(map[string]string)
 	ds.idMap = make(map[string]psmb.ReaderTask)
 	ds.nameMap = make(map[string]psmb.ReaderTask)
+	ds.count = 0 // reset count
 	ds.Unlock()
 }
 
@@ -118,6 +122,7 @@ func (ds *dataStore) DeleteTaskByID(tid string) {
 		delete(ds.nameID, name)
 		delete(ds.nameMap, name)
 	}
+	ds.count = ds.count - 1
 	ds.Unlock()
 }
 
@@ -134,6 +139,7 @@ func (ds *dataStore) DeleteTaskByName(name string) {
 	}
 	delete(ds.nameID, name)
 	delete(ds.nameMap, name)
+	ds.count = ds.count - 1
 	ds.Unlock()
 }
 
