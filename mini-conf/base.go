@@ -64,6 +64,16 @@ func GetInt(key string) int {
 		return base.m.Redis.MaxActive
 	case keyPollInterval:
 		return base.m.Psmbtcp.MinPollInterval
+	case keyMaxWorker:
+		return base.m.Psmbtcp.MaxWorker
+	case keyMaxQueue:
+		return base.m.Psmbtcp.MaxQueue
+	case keyMemReaderMaxCapacity:
+		return base.m.MemReader.MaxCapacity
+	case keyMemFilterMaxCapacity:
+		return base.m.MemFilter.MaxCapacity
+	case keyRedisFilterMaxCapacity:
+		return base.m.RedisFilter.MaxCapacity
 	}
 	return 0
 }
@@ -100,7 +110,7 @@ func GetString(key string) string {
 		return base.m.Redis.Port
 	case keyWriterHashName:
 		return base.m.RedisWriter.HashName
-	case keyFilterHashName:
+	case keyRedisFilterHashName:
 		return base.m.RedisFilter.HashName
 	case keyTCPDefaultPort:
 		return base.m.Psmbtcp.DefaultPort

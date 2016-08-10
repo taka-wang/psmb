@@ -36,12 +36,21 @@ type confType struct {
 		HashName string `default:"mbtcp:writer"`
 	}
 	RedisFilter struct {
-		HashName string `default:"mbtcp:filter"`
+		HashName    string `default:"mbtcp:filter"`
+		MaxCapacity int    `default:"32"`
+	}
+	MemFilter struct {
+		MaxCapacity int `default:"32"`
+	}
+	MemReader struct {
+		MaxCapacity int `default:"32"`
 	}
 	Psmbtcp struct {
 		DefaultPort          string `default:"502"`
 		MinConnectionTimeout int64  `default:"200000"`
 		MinPollInterval      int    `default:"1"`
+		MaxWorker            int    `default:"6"`
+		MaxQueue             int    `default:"100"`
 	}
 	Zmq struct {
 		Pub struct {

@@ -60,8 +60,9 @@
 
 - [x] refactor log singleton in conf packages
 - [x] implement unit test for conf packages
+- [x] draw worker pool diagram
+- [x] refactor configs for max capacity and worker pool
 - routine Worker Thread-Pool
-- routine pool flow chart
 - scheduler concurrency
 - map max capacity
 - refine config for max capacity

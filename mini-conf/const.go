@@ -54,7 +54,18 @@ const (
 
 // redis-filter
 const (
-	keyFilterHashName = "redis_filter.hash_name"
+	keyRedisFilterHashName    = "redis_filter.hash_name"
+	keyRedisFilterMaxCapacity = "redis_filter.max_capacity"
+)
+
+// mem-reader
+const (
+	keyMemReaderMaxCapacity = "mem_reader.max_capacity"
+)
+
+// mem-filter
+const (
+	keyMemFilterMaxCapacity = "mem_filter.max_capacity"
 )
 
 // tcp
@@ -62,6 +73,8 @@ const (
 	keyTCPDefaultPort      = "psmbtcp.default_port"
 	keyMinConnectionTimout = "psmbtcp.min_connection_timeout"
 	keyPollInterval        = "psmbtcp.min_poll_interval"
+	keyMaxWorker           = "psmbtcp.max_worker"
+	keyMaxQueue            = "psmbtcp.max_queue"
 	keyZmqPubUpstream      = "zmq.pub.upstream"
 	keyZmqPubDownstream    = "zmq.pub.downstream"
 	keyZmqSubUpstream      = "zmq.sub.upstream"
