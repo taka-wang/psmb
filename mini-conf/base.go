@@ -210,4 +210,5 @@ func (b *mConf) initConfig() {
 	}
 	m := multiconfig.NewWithPath(filePath)
 	m.MustLoad(b.m) // Populated the struct
+	log.Info("Read config file successfully")
 }
