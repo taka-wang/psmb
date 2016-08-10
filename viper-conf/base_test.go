@@ -3,7 +3,7 @@ package conf_test
 import (
 	"testing"
 
-	conf "github.com/taka-wang/psmb/viper-conf"
+	l "github.com/taka-wang/psmb/viper-conf/Log"
 	"github.com/takawang/sugar"
 )
 
@@ -15,7 +15,7 @@ func TestWriterMap(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("`add` task to map", func(log sugar.Log) bool {
-		conf.Log.Debug("hello")
+		l.Debug("hello")
 		return true
 	})
 }
