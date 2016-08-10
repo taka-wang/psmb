@@ -9,11 +9,15 @@ import (
 	"path"
 	"time"
 
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/json"
+	"github.com/apex/log/handlers/text"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
-	log "github.com/takawang/logrus"
 )
 
+// Log logger
+var Log *log.Logger
 var base vConf // config instance
 
 // vConf base structu with viper instance
@@ -22,7 +26,11 @@ type vConf struct {
 }
 
 func init() {
+	// before load config
+	log.SetHandler(text.New(os.Stdout))
+	log.SetLevel(log.DebugLevel)
 	base = vConf{v: viper.New()}
+
 	base.initConfig()
 	base.setLogger()
 }
@@ -77,30 +85,31 @@ func GetDuration(key string) time.Duration {
 
 // setLogger init logger function
 func (b *vConf) setLogger() {
+	Log = &log.Logger{}
+
+	writer := os.Stdout
+	if b.v.GetBool(keyLogToFile) {
+		if f, err := os.OpenFile(b.v.GetString(keyLogFileName), os.O_WRONLY|os.O_CREATE, 0755); err != nil {
+			log.WithError(err).Debug("Fail to create log file")
+		} else {
+			writer = f // to file
+		}
+	}
+
+	// set log formatter, JSON or plain text
+	if b.v.GetBool(keyLogToJSONFormat) {
+		Log.Handler = json.New(writer)
+	} else {
+		Log.Handler = text.New(writer)
+	}
 
 	// set debug level
 	if b.v.GetBool(keyLogEnableDebug) {
-		log.SetLevel(log.DebugLevel)
+		Log.Level = log.DebugLevel
 	} else {
-		log.SetLevel(log.InfoLevel)
+		Log.Level = log.InfoLevel
 	}
-	// set log formatter, JSON or plain text
-	if b.v.GetBool(keyLogToJSONFormat) {
-		log.SetFormatter(&log.JSONFormatter{})
-	} else {
-		log.SetFormatter(&log.TextFormatter{ForceColors: true})
-	}
-	// set log output
-	if b.v.GetBool(keyLogToFile) {
-		f, err := os.OpenFile(b.v.GetString(keyLogFileName), os.O_WRONLY|os.O_CREATE, 0755)
-		if err != nil {
-			log.WithError(err).Debug("Fail to create log file")
-			f = os.Stdout
-		}
-		log.SetOutput(f)
-	} else {
-		log.SetOutput(os.Stdout)
-	}
+
 }
 
 // initConfig int config function
