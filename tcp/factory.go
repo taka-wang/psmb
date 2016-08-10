@@ -3,8 +3,8 @@ package tcp
 import (
 	"github.com/taka-wang/psmb"
 	"github.com/taka-wang/psmb/cron"
-	//vc "github.com/taka-wang/psmb/mini-conf"
-	vc "github.com/taka-wang/psmb/viper-conf"
+	//cf "github.com/taka-wang/psmb/mini-conf"
+	cf "github.com/taka-wang/psmb/viper-conf"
 )
 
 //
@@ -44,7 +44,7 @@ func createScheduler(conf map[string]string) (cron.Scheduler, error) {
 			}
 		}
 		err := ErrCasting
-		vc.Log.WithError(err).Error("Create scheduler")
+		cf.Log.WithError(err).Error("Create scheduler")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -62,7 +62,7 @@ func createFilterDS(conf map[string]string) (psmb.IFilterDataStore, error) {
 			}
 		}
 		err := ErrCasting
-		vc.Log.WithError(err).Error("Create filter data store")
+		cf.Log.WithError(err).Error("Create filter data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -80,7 +80,7 @@ func createHistoryDS(conf map[string]string) (psmb.IHistoryDataStore, error) {
 			}
 		}
 		err := ErrCasting
-		vc.Log.WithError(err).Error("Create history data store")
+		cf.Log.WithError(err).Error("Create history data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -98,7 +98,7 @@ func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
 			}
 		}
 		err := ErrCasting
-		vc.Log.WithError(err).Error("Create writer data store")
+		cf.Log.WithError(err).Error("Create writer data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -116,7 +116,7 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 			}
 		}
 		err := ErrCasting
-		vc.Log.WithError(err).Error("Create reader data store")
+		cf.Log.WithError(err).Error("Create reader data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -126,12 +126,12 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 func Register(name string, factory interface{}) {
 	if factory == nil {
 		err := ErrPluginNotExist
-		vc.Log.WithError(err).Error("Register: " + name)
+		cf.Log.WithError(err).Error("Register: " + name)
 	}
 	_, registered := factories[name]
 	if registered {
 		err := ErrPluginExist
-		vc.Log.WithError(err).Error("Register: " + name)
+		cf.Log.WithError(err).Error("Register: " + name)
 	}
 	factories[name] = factory
 }

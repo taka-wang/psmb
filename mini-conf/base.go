@@ -17,6 +17,14 @@ import (
 	"github.com/koding/multiconfig"
 )
 
+// Fields log.Fields alias
+type Fields log.Fields
+
+// Fields implements log.Fielder.
+func (f Fields) Fields() log.Fields {
+	return log.Fields(f)
+}
+
 // Log logger
 var Log *log.Logger
 var base mConf // config instance
