@@ -18,10 +18,15 @@ func TestLogger(t *testing.T) {
 	s.Assert("Init logger", func(log sugar.Log) bool {
 		conf.Log.Debug("hello world")
 		conf.Log.WithError(ErrFilterNotFound).Error("World hello")
-		conf.Log.WithFields(conf.Log.Fields{
-				"err":       ErrFilterNotFound,
-				"file name": "Hello",
-			}).Error("Fail to create log file")
+
+		conf.Log.Fields()
+		log.Fields{"a": b}
+
+		conf.Log.Fields
+		conf.Log.WithFields(conf.Fields{
+			"err":       ErrFilterNotFound,
+			"file name": "Hello",
+		}).Error("Fail to create log file")
 
 		return true
 	})
