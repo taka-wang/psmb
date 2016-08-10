@@ -13,7 +13,7 @@ import (
 	. "github.com/taka-wang/psmb"
 	cron "github.com/taka-wang/psmb/cron"
 	//conf "github.com/taka-wang/psmb/mini-conf"
-	log "github.com/apex/log"
+
 	conf "github.com/taka-wang/psmb/viper-conf"
 	zmq "github.com/takawang/zmq3"
 )
@@ -172,7 +172,7 @@ func (b *Service) addToHistory(name string, data interface{}) bool {
 	retBool := b.applyFilter(name, data)
 	if err := b.historyMap.Add(name, data); err != nil {
 
-		conf.Log.WithFields(log.Fields{
+		conf.Log.WithFields(conf.Fields{
 			"err":  err,
 			"name": name,
 			"data": data,
@@ -181,7 +181,7 @@ func (b *Service) addToHistory(name string, data interface{}) bool {
 	return retBool
 
 	/* debug
-	conf.Log.WithFields(log.Fields{
+	conf.Log.WithFields(conf.Fields{
 		"name": name,
 		"data": data,
 	}).Debug("Add data to history data store")
@@ -1489,7 +1489,7 @@ func (b *Service) Start() {
 			case b.sub.upstream:
 				// receive from upstream
 				msg, _ := b.sub.upstream.RecvMessage(0)
-				conf.Log.WithFields(log.Fields{
+				conf.Log.WithFields(conf.Fields{
 					"cmd": msg[0],
 					"req": msg[1],
 				}).Debug("Receive request from upstream services")
@@ -1499,14 +1499,14 @@ func (b *Service) Start() {
 					// handle request
 					err := b.HandleRequest(msg[0], req)
 					if err != nil {
-						conf.Log.WithFields(log.Fields{
+						conf.Log.WithFields(conf.Fields{
 							"cmd": msg[0],
 							"err": err,
 						}).Error("Fail to handle request")
 						// no need to send back again!
 					}
 				} else {
-					conf.Log.WithFields(log.Fields{
+					conf.Log.WithFields(conf.Fields{
 						"cmd": msg[0],
 						"err": err,
 					}).Error("Fail to parse request")
@@ -1516,7 +1516,7 @@ func (b *Service) Start() {
 			case b.sub.downstream:
 				// receive from modbusd
 				msg, _ := b.sub.downstream.RecvMessage(0)
-				conf.Log.WithFields(log.Fields{
+				conf.Log.WithFields(conf.Fields{
 					"cmd":  msg[0],
 					"resp": msg[1],
 				}).Debug("Receive response from modbusd")
@@ -1526,14 +1526,14 @@ func (b *Service) Start() {
 					// handle response
 					err := b.HandleResponse(msg[0], res)
 					if err != nil {
-						conf.Log.WithFields(log.Fields{
+						conf.Log.WithFields(conf.Fields{
 							"cmd": msg[0],
 							"err": err,
 						}).Error("Fail to handle response")
 						// no need to send back again!
 					}
 				} else {
-					conf.Log.WithFields(log.Fields{
+					conf.Log.WithFields(conf.Fields{
 						"cmd": msg[0],
 						"err": err,
 					}).Error("Fail to parse response")

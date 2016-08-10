@@ -9,6 +9,12 @@ pipeline:
         commands:
             - docker build --no-cache=true viper-conf/.
 
+    test-mini-conf:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true mini-conf/.
 
     test-redis-filter:
         image: takawang/dind
@@ -38,29 +44,6 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true mem-reader/.
-
-    ci:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-            - /var/tmp:/var/tmp # for test
-        commands:
-            - docker-compose rm -f -a
-            - docker-compose pull
-            - docker-compose build --no-cache
-            - docker-compose up --abort-on-container-exit
-            - docker-compose stop
-            - docker-compose rm -f -a
-            - cat /var/tmp/success      # test
-            - rm -f /var/tmp/success    # cleanup
-
-    test-mini-conf:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true mini-conf/.
-
 
     test-redis-history:
         image: takawang/dind
@@ -107,7 +90,6 @@ pipeline:
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
-
     test-psmbtcp-srv:
         image: takawang/dind
         volumes:
@@ -122,14 +104,6 @@ pipeline:
         commands:
             - docker build --no-cache=true tcp/.
 
-    test-cron:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true cron/.
-
-
     test-mem-reader:
         image: takawang/dind
         volumes:
@@ -143,3 +117,25 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true .
+
+    ci:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
+        commands:
+            - docker-compose rm -f -a
+            - docker-compose pull
+            - docker-compose build --no-cache
+            - docker-compose up --abort-on-container-exit
+            - docker-compose stop
+            - docker-compose rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
+
+    test-cron:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true cron/.

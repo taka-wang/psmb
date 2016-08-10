@@ -142,7 +142,7 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 		return err
 	}
 	// TODO: remove debug
-	//conf.Log.WithFields(log.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to redis")
+	//conf.Log.WithFields(conf.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to redis")
 	return nil
 }
 

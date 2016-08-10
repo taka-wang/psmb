@@ -162,7 +162,7 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 		return err
 	}
 	// debug
-	//conf.Log.WithFields(log.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to mongo")
+	//conf.Log.WithFields(conf.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to mongo")
 	return nil
 }
 
