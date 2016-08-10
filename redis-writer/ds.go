@@ -34,9 +34,9 @@ func setDefaults() {
 	// lookup redis server
 	host, err := net.LookupHost(defaultRedisDocker)
 	if err != nil {
-		conf.Log.WithError(err).Debug("local run")
+		conf.Log.WithError(err).Debug("Local run")
 	} else {
-		conf.Log.WithField("hostname", host[0]).Debug("docker run")
+		conf.Log.WithField("hostname", host[0]).Info("Docker run")
 		conf.Set("redis.server", host[0]) // override default
 	}
 }
@@ -86,10 +86,8 @@ func (ds *dataStore) connectRedis() error {
 	conn := RedisPool.Get()
 	if nil == conn {
 		err := ErrConnection
-		conf.Log.Error(err)
 		return err
 	}
-	//conf.Log.Debug("connect to redis")
 	ds.redis = conn
 	return nil
 }
@@ -111,12 +109,12 @@ func (ds *dataStore) closeRedis() {
 func (ds *dataStore) Add(tid, cmd string) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		conf.Log.WithError(err).Error("Add")
+		conf.Log.WithError(err).Error("Fail to connect to redis server")
 		return
 	}
 
 	if _, err := ds.redis.Do("HSET", hashName, tid, cmd); err != nil {
-		conf.Log.WithError(err).Error("Add")
+		conf.Log.WithError(err).Error("Fail to add item to writer data store")
 	}
 }
 
@@ -124,13 +122,13 @@ func (ds *dataStore) Add(tid, cmd string) {
 func (ds *dataStore) Get(tid string) (string, bool) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		conf.Log.WithError(err).Error("Get")
+		conf.Log.WithError(err).Error("Fail to connect to redis server")
 		return "", false
 	}
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, tid))
 	if err != nil {
-		conf.Log.WithError(err).Error("Get")
+		conf.Log.WithError(err).Error("Fail to get item from writer data store")
 		return "", false
 	}
 	return ret, true
@@ -140,9 +138,9 @@ func (ds *dataStore) Get(tid string) (string, bool) {
 func (ds *dataStore) Delete(tid string) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		conf.Log.WithError(err).Error("Delete")
+		conf.Log.WithError(err).Error("Fail to connect to redis server")
 	}
 	if _, err := ds.redis.Do("HDEL", hashName, tid); err != nil {
-		conf.Log.WithError(err).Error("Delete")
+		conf.Log.WithError(err).Error("Fail to delete item from writer data store")
 	}
 }

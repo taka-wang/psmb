@@ -41,9 +41,9 @@ func setDefaults() {
 	// lookup mongo server
 	host, err := net.LookupHost(defaultMongoDocker)
 	if err != nil {
-		conf.Log.WithError(err).Debug("local run")
+		conf.Log.WithError(err).Debug("Local run")
 	} else {
-		conf.Log.WithField("hostname", host[0]).Debug("docker run")
+		conf.Log.WithField("hostname", host[0]).Info("Docker run")
 		conf.Set(keyMongoServer, host[0]) // override defaults
 	}
 }

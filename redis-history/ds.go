@@ -37,9 +37,9 @@ func setDefaults() {
 	// lookup redis server
 	host, err := net.LookupHost(defaultRedisDocker)
 	if err != nil {
-		conf.Log.WithError(err).Debug("local run")
+		conf.Log.WithError(err).Debug("Local run")
 	} else {
-		conf.Log.WithField("hostname", host[0]).Debug("docker run")
+		conf.Log.WithField("hostname", host[0]).Info("Docker run")
 		conf.Set(keyRedisServer, host[0]) // override default
 	}
 }
@@ -90,10 +90,8 @@ func (ds *dataStore) connectRedis() error {
 	conn := RedisPool.Get()
 	if nil == conn {
 		err := ErrConnection
-		//conf.Log.Error(err)
 		return err
 	}
-	//conf.Log.Debug("connect to redis")
 	ds.redis = conn
 	return nil
 }
