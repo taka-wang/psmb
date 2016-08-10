@@ -1,10 +1,10 @@
-package writer_test
+package writer
 
 import (
 	"testing"
 
-	rwriter "github.com/taka-wang/psmb/redis-writer"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
+	"github.com/taka-wang/psmb/viper-conf"
 	"github.com/takawang/sugar"
 )
 
@@ -13,7 +13,7 @@ var (
 )
 
 func init() {
-	psmbtcp.Register("Writer", rwriter.NewDataStore)
+	psmbtcp.Register("Writer", NewDataStore)
 }
 
 func TestWriterMap(t *testing.T) {
@@ -60,6 +60,33 @@ func TestWriterMap(t *testing.T) {
 		if b3 {
 			return false
 		}
+		return true
+	})
+
+	s.Assert("Test Redis pool", func(log sugar.Log) bool {
+		conf.Set(defaultRedisDocker, "hello")
+		setDefaults()
+
+		conf.Set(keyRedisServer, "hello")
+		setDefaults() // set defaults
+		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
+		log(err)
+
+		writerMap.Add("123", "123")
+		writerMap.Get("123")
+		writerMap.Delete("123")
+		return true
+	})
+
+	s.Assert("Test fail cases", func(log sugar.Log) bool {
+		conf.Set(keyRedisServer, "1.1.1.1")
+		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
+		log(err)
+		writerMap.Add("10", "10")
+		if _, b := writerMap.Get("10"); b == false {
+			log(b)
+		}
+		writerMap.Delete("10")
 		return true
 	})
 }

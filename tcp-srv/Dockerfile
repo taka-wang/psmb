@@ -6,22 +6,19 @@ MAINTAINER Taka Wang <taka@cmwang.net>
 ENV CONF_PSMBTCP "/etc/psmbtcp"
 ENV EP_BACKEND "consul.cmwang.net:8500"
 
-WORKDIR /go
+# add source code from root
+ADD . /go/src/github.com/taka-wang/psmb
 
-RUN go get github.com/taka-wang/psmb/viper-conf
-RUN go get -u github.com/taka-wang/psmb/tcp
-RUN go get github.com/takawang/logrus
-RUN go get gopkg.in/mgo.v2
-RUN go get gopkg.in/mgo.v2/bson
-RUN go get github.com/garyburd/redigo/redis
+# install deps
+WORKDIR /go/src/github.com/taka-wang/psmb/
+RUN glide install
 
-ADD . /go/src/github.com/taka-wang/psmb/tcp-srv
 # add config file
 RUN mkdir -p ${CONF_PSMBTCP} && \ 
     cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${CONF_PSMBTCP}/
 
+# build
 WORKDIR /go/src/github.com/taka-wang/psmb/tcp-srv
-#RUN go get -t ./... 
 RUN go build -o psmbtcp-srv 
 RUN cp psmbtcp-srv /usr/bin/ 
 

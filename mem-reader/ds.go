@@ -1,22 +1,19 @@
 // Package reader an in-memory data store for reader.
 //
+// Guideline: if error is one of the return, don't duplicately log to output.
+//
 // By taka@cmwang.net
 //
 package reader
 
 import (
-	"errors"
 	"sync"
 
 	psmb "github.com/taka-wang/psmb"
 	conf "github.com/taka-wang/psmb/viper-conf"
 )
 
-var (
-	// ErrInvalidPollName is the error when the poll name is empty.
-	ErrInvalidPollName = errors.New("Invalid poll name!")
-	maxCapacity        int
-)
+var maxCapacity int
 
 func init() {
 	conf.SetDefault(keyMaxCapacity, defaultMaxCapacity)
@@ -27,6 +24,7 @@ func init() {
 
 // dataStore read/poll task map type
 type dataStore struct {
+	// read writer mutex
 	sync.RWMutex
 	// idName (tid, name)
 	idName map[string]string
@@ -49,9 +47,17 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 }
 
 // Add add request to read/poll task map
-func (ds *dataStore) Add(name, tid, cmd string, req interface{}) {
+func (ds *dataStore) Add(name, tid, cmd string, req interface{}) error {
 	if name == "" { // read task instead of poll task
 		name = tid
+	}
+
+	// check capacity
+	ds.RLock()
+	boom := len(ds.idName)+1 > maxCapacity
+	ds.RUnlock()
+	if boom {
+		return ErrOutOfCapacity
 	}
 
 	ds.Lock()
@@ -60,6 +66,7 @@ func (ds *dataStore) Add(name, tid, cmd string, req interface{}) {
 	ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: cmd, Req: req}
 	ds.idMap[tid] = ds.nameMap[name]
 	ds.Unlock()
+	return nil
 }
 
 // GetTaskByID get request via TID from read/poll task map
@@ -81,9 +88,9 @@ func (ds *dataStore) GetTaskByName(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from read/poll task map
-//	interface{}: []psmb.MbtcpPollStatus
 func (ds *dataStore) GetAll() interface{} {
 	arr := []psmb.MbtcpPollStatus{}
+
 	ds.RLock()
 	for _, v := range ds.nameMap {
 		// type casting check!
@@ -92,6 +99,12 @@ func (ds *dataStore) GetAll() interface{} {
 		}
 	}
 	ds.RUnlock()
+
+	if len(arr) == 0 {
+		err := ErrNoData
+		conf.Log.WithError(err).Warn("Fail to get all items from reader data store")
+		return nil
+	}
 	return arr
 }
 
@@ -148,12 +161,13 @@ func (ds *dataStore) UpdateIntervalByName(name string, interval uint64) error {
 		return ErrInvalidPollName
 	}
 
-	req, ok2 := task.Req.(psmb.MbtcpPollStatus)
-	if !ok2 {
+	req, ok := task.Req.(psmb.MbtcpPollStatus)
+	if !ok {
 		return ErrInvalidPollName
 	}
 
 	req.Interval = interval // update interval
+
 	ds.Lock()
 	ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: task.Cmd, Req: req} // update nameMap table
 	ds.idMap[tid] = ds.nameMap[name]                                        // update idMap table
@@ -171,9 +185,9 @@ func (ds *dataStore) UpdateToggleByName(name string, toggle bool) error {
 	if !ok {
 		return ErrInvalidPollName
 	}
-	// type casting check!
-	req, ok2 := task.Req.(psmb.MbtcpPollStatus)
-	if !ok2 {
+
+	req, ok := task.Req.(psmb.MbtcpPollStatus)
+	if !ok {
 		return ErrInvalidPollName
 	}
 
@@ -189,7 +203,6 @@ func (ds *dataStore) UpdateToggleByName(name string, toggle bool) error {
 func (ds *dataStore) UpdateAllToggles(toggle bool) {
 	ds.Lock()
 	for name, task := range ds.nameMap {
-		// type casting check!
 		if req, ok := task.Req.(psmb.MbtcpPollStatus); ok {
 			req.Enabled = toggle                                                    // update flag
 			ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: task.Cmd, Req: req} // update nameMap table

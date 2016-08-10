@@ -1,10 +1,13 @@
-package history_test
+package history
 
 import (
 	"testing"
+	"time"
 
-	mgohistory "github.com/taka-wang/psmb/mgo-history"
+	"gopkg.in/mgo.v2"
+
 	psmbtcp "github.com/taka-wang/psmb/tcp"
+	"github.com/taka-wang/psmb/viper-conf"
 	"github.com/takawang/sugar"
 )
 
@@ -13,7 +16,7 @@ var (
 )
 
 func init() {
-	psmbtcp.Register("History", mgohistory.NewDataStore)
+	psmbtcp.Register("History", NewDataStore)
 }
 
 func TestHistoryMap(t *testing.T) {
@@ -86,6 +89,28 @@ func TestHistoryMap(t *testing.T) {
 			log(ret)
 		}
 
+		return true
+	})
+
+	s.Assert("Test fail cases", func(log sugar.Log) bool {
+		conf.Set(keyMongoEnableAuth, true)
+		setDefaults()
+		mongoDBDialInfo = &mgo.DialInfo{
+			// allow multiple connection string
+			Addrs:   []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
+			Timeout: conf.GetDuration(keyMongoConnTimeout) * time.Second,
+		}
+		a, err := NewDataStore(nil)
+		log(err)
+		b := a.(dataStore)
+		b.openSession()
+		return true
+	})
+
+	//marshal
+	s.Assert("Test fail to marshal", func(log sugar.Log) bool {
+		_, err := marshal("hello;world")
+		log(err)
 		return true
 	})
 }

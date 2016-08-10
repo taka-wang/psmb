@@ -6,19 +6,19 @@ MAINTAINER Taka Wang <taka@cmwang.net>
 ENV CONF_PSMBTCP "/etc/psmbtcp"
 ENV EP_BACKEND "consul.cmwang.net:8500"
 
-WORKDIR /go
+# add source code from root
+ADD . /go/src/github.com/taka-wang/psmb
 
-RUN go get -u github.com/taka-wang/psmb/tcp
-RUN go get -u github.com/spf13/viper
-RUN go get -u github.com/apex/log
+# install deps
+WORKDIR /go/src/github.com/taka-wang/psmb/
+RUN glide install
 
-## Load app files
-ADD . /go/src/github.com/taka-wang/psmb/mini-conf
 # add config file
 RUN mkdir -p ${CONF_PSMBTCP} && \ 
     cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${CONF_PSMBTCP}/
 
+# run test
 WORKDIR /go/src/github.com/taka-wang/psmb/mini-conf
 
-RUN go get -t ./... 
-RUN go test
+# do not pass flag -v
+CMD go test

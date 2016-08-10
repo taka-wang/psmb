@@ -1,26 +1,84 @@
-package reader_test
+package reader
 
 import (
+	"strconv"
 	"testing"
 
-	mreader "github.com/taka-wang/psmb/mem-reader"
+	"github.com/taka-wang/psmb"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
 func init() {
-	psmbtcp.Register("Reader", mreader.NewDataStore)
+	psmbtcp.Register("Reader", NewDataStore)
 }
 
 func TestMbtcpReadTask(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("``add` task to map", func(log sugar.Log) bool {
-		_, err := psmbtcp.ReaderDataStoreCreator("Reader")
+		reader, err := psmbtcp.ReaderDataStoreCreator("Reader")
 		log(err)
 		if err != nil {
 			return false
 		}
+
+		// add null
+		e1 := reader.Add("", "1000", "1000", nil)
+		log(e1)
+
+		req := psmb.MbtcpPollStatus{Tid: 12345, From: "web"}
+
+		for i := 0; i < 50; i++ {
+			s := strconv.Itoa(i)
+			if err := reader.Add(s, s, s, req); err != nil {
+				log(err, i)
+			} else {
+				log("ok", i)
+			}
+		}
+
+		if r := reader.GetAll(); r != nil {
+			log(r)
+		}
+
+		if _, b := reader.GetTaskByID("10"); b == false {
+			log(b)
+		}
+		if _, b := reader.GetTaskByName("10"); b == false {
+			log(b)
+		}
+
+		if r := reader.GetAll(); r != nil {
+			log(r)
+		}
+
+		if err := reader.Add("10000", "10000", "10000", nil); err != nil {
+			log(err)
+		}
+
+		if err := reader.UpdateIntervalByName("10000", 1); err != nil {
+			log(err)
+		}
+		if err := reader.UpdateIntervalByName("10", 1); err != nil {
+			log(err)
+		}
+		if err := reader.UpdateToggleByName("11", true); err != nil {
+			log(err)
+		}
+		reader.DeleteTaskByID("10")
+		reader.DeleteTaskByName("10")
+
+		if err := reader.UpdateToggleByName("10", true); err != nil {
+			log(err)
+		}
+
+		reader.UpdateAllToggles(true)
+		reader.DeleteAll()
+		if r2 := reader.GetAll(); r2 != nil {
+			log(r2)
+		}
+
 		return true
 	})
 }

@@ -51,7 +51,8 @@ type Job struct {
 // NewJob creates a new job
 func newJob(interval uint64) *Job {
 	if interval == 0 {
-		panic(ErrIntervalNotValid)
+		//panic(ErrIntervalNotValid)
+		return nil
 	}
 	return &Job{
 		interval: interval,
@@ -82,11 +83,11 @@ func (j *Job) shouldRun(now time.Time) bool {
 	if j.enabled {
 		// current time is after or equal to job's scheduled time
 		return now.After(j.nextRun) || now.Equal(j.nextRun)
-	} else {
-		// although we will pause the run, but we need to reset lastRun and nextRun
-		// this will prevent repeat runs after resuming
-		j.init(now)
 	}
+
+	// although we will pause the run, but we need to reset lastRun and nextRun
+	// this will prevent repeat runs after resuming
+	j.init(now)
 	return false
 }
 
@@ -121,7 +122,7 @@ func (j *Job) init(now time.Time) {
 			Add(time.Duration(j.weekDay-now.Weekday()) * Day).
 			Add(j.atTime)
 
-		// the lastRun occured last week. This way, if a job is scheduled to occur weekly for tomorrow, it will run tomorrow.
+		// the lastRun occurred last week. This way, if a job is scheduled to occur weekly for tomorrow, it will run tomorrow.
 		if j.lastRun.After(now) {
 			j.lastRun.Add(-1 * Week)
 		}
@@ -130,7 +131,7 @@ func (j *Job) init(now time.Time) {
 		j.lastRun = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, now.Second(), now.Nanosecond(), j.location).
 			Add(j.atTime)
 
-		// the lastRun occured yesterday. This way, if a job is scheduled to occur daily before the current time,
+		// the lastRun occurred yesterday. This way, if a job is scheduled to occur daily before the current time,
 		// then it will run today at that time
 		if j.lastRun.After(now) {
 			j.lastRun = j.lastRun.Add(-1 * Day)
@@ -159,12 +160,14 @@ func (j *Job) Do(task interface{}, params ...interface{}) *Job {
 		paramValues[i] = reflect.ValueOf(param)
 	}
 
+	/* disable panic
 	// panic if the task won't be able to be executed
 	if taskValue.Type().NumIn() != len(paramValues) {
 		panic(ErrMissmatchedTaskParams)
 	} else if taskValue.Kind() != reflect.Func {
 		panic(ErrTaskIsNotAFuncError)
 	}
+	*/
 
 	// add the task and its params to the job
 	j.tasks = append(j.tasks, taskValue)
@@ -188,7 +191,10 @@ func (j *Job) At(t string) *Job {
 	hour := int((t[0]-'0')*10 + (t[1] - '0'))
 	min := int((t[3]-'0')*10 + (t[4] - '0'))
 	if hour < 0 || hour > 23 || min < 0 || min > 59 {
-		panic(ErrIncorrectTimeFormat)
+		//panic(ErrIncorrectTimeFormat)
+		// set to zero
+		hour = 0
+		min = 0
 	}
 	j.atTime = time.Duration(hour) * time.Hour
 	j.atTime += time.Duration(min) * time.Minute
@@ -263,7 +269,7 @@ func (j *Job) Day() *Job {
 	return j.Days()
 }
 
-// Weekday sets the task to be performed on a certian day of the week
+// Weekday sets the task to be performed on a certain day of the week
 //
 // Example
 //

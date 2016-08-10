@@ -43,30 +43,19 @@
 - [x] Re-org test cases and integrate with drone.io
 - [x] Handle default port if not set
 - [x] implement GetTaskByID and GetTaskByName for ReadTaskType
-- [x] implement all poll request handlers (except mbtcp.poll.history)
+- [x] implement all poll request handlers
 - [x] implement all polls request handlers
-
-## Backlog:
-
-- if scheduler is stop, trigger requests directly.
-- sqlite3 for history
-- task test cases
-- table size limit
-- fix handleResponse last return issue
-- add to log and filter
-
-
-## TODO
-
 - [x] refactor log singleton in conf packages
 - [x] implement unit test for conf packages
 - [x] draw worker pool diagram
 - [x] refactor configs for max capacity and worker pool
+- [x] implement map max capacity for filter and reader data stores
+
+## TODO
+
 - routine Worker Thread-Pool
 - scheduler concurrency
-- map max capacity
-- refine config for max capacity
 - refine log messages
 - unit tests for filters
-- integration tests for filters
+- implement integration tests for filters
 - refactor test cases

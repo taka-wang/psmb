@@ -1,16 +1,16 @@
-package filter_test
+package filter
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/taka-wang/psmb"
-	mf "github.com/taka-wang/psmb/mem-filter"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
 func init() {
-	psmbtcp.Register("Filter", mf.NewDataStore)
+	psmbtcp.Register("Filter", NewDataStore)
 }
 
 func TestFilter(t *testing.T) {
@@ -41,6 +41,8 @@ func TestFilter(t *testing.T) {
 		filterMap.Add(a.Name, a)
 		log("Add B item")
 		filterMap.Add(b.Name, b)
+		log("Add null item")
+		filterMap.Add("", b)
 
 		// GET
 		log("GET A item")
@@ -55,6 +57,11 @@ func TestFilter(t *testing.T) {
 		if err := filterMap.UpdateToggle(a.Name, false); err != nil {
 			return false
 		}
+		log("Toggle NULL item")
+		if err := filterMap.UpdateToggle("D", false); err != nil {
+			log(err)
+		}
+
 		// GET
 		log("GET A item")
 		if r, b := filterMap.Get(a.Name); b != false {
@@ -93,6 +100,16 @@ func TestFilter(t *testing.T) {
 			log(r)
 		} else {
 			return false
+		}
+
+		// out of capacity test
+		for i := 0; i < 50; i++ {
+			s := strconv.Itoa(i)
+			if err := filterMap.Add(s, a); err != nil {
+				log(err, i)
+			} else {
+				log("ok", i)
+			}
 		}
 
 		// DELETe ALL

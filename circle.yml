@@ -1,15 +1,63 @@
+
 machine:
-  services:
-    - docker
+    timezone:
+        Asia/Taipei
+    services:
+        - docker
 
 dependencies:
-  override:
-    #- docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-    - sudo pip install --upgrade docker-compose==1.4.2
+    pre:
+        - sudo pip install docker-compose
 
 test:
-  pre:
-    - docker-compose pull
-    - docker-compose build
-  override:
-    - docker-compose up
+    pre:
+        # test psmb and do codecov
+        - mkdir shared
+        - echo "" > shared/coverage.txt
+        # @redis-writer
+        - docker-compose -f redis-writer/docker-compose.yml build --no-cache
+        - docker-compose -f redis-writer/docker-compose.yml up --abort-on-container-exit
+        - docker-compose -f redis-writer/docker-compose.yml stop
+        # @viper-conf
+        - docker build -t conf --no-cache=true -f viper-conf/Dockerfile .
+        - docker run -v "$PWD/shared:/shared" conf
+        # @psmb
+        - docker build -t psmb --no-cache=true . 
+        - docker run -v "$PWD/shared:/shared" psmb
+        # @cron
+        - docker build -t cron --no-cache=true -f cron/Dockerfile .
+        - docker run -v "$PWD/shared:/shared" cron
+        # @mem-filter
+        - docker build -t filter --no-cache=true -f mem-filter/Dockerfile .
+        - docker run -v "$PWD/shared:/shared" filter
+        # @mem-reader
+        - docker build -t reader --no-cache=true -f mem-reader/Dockerfile .
+        - docker run -v "$PWD/shared:/shared" reader
+        # @mem-writer
+        - docker build -t writer --no-cache=true -f mem-writer/Dockerfile .
+        - docker run -v "$PWD/shared:/shared" writer
+        # @mgo-history
+        - docker-compose -f mgo-history/docker-compose.yml build --no-cache
+        - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
+        - docker-compose -f mgo-history/docker-compose.yml stop
+        # @redis-filter
+        - docker-compose -f redis-filter/docker-compose.yml build --no-cache
+        - docker-compose -f redis-filter/docker-compose.yml up --abort-on-container-exit
+        - docker-compose -f redis-filter/docker-compose.yml stop
+        # @redis-history
+        - docker-compose -f redis-history/docker-compose.yml build --no-cache
+        - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
+        - docker-compose -f redis-history/docker-compose.yml stop
+
+        # codecov
+        - bash <(curl -s https://codecov.io/bash) -t 558aa53d-c58d-4df4-a1c1-a22a6e6d8572
+        # ci
+        - docker-compose rm -f -a
+        - docker-compose pull
+        - docker-compose build
+    override:
+        - docker-compose up --abort-on-container-exit
+    post:
+        - mv shared/coverage.txt ${CIRCLE_ARTIFACTS}/
+        - docker-compose stop
+        - docker-compose rm -f -a

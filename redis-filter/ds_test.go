@@ -1,16 +1,17 @@
-package filter_test
+package filter
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/taka-wang/psmb"
-	rf "github.com/taka-wang/psmb/redis-filter"
+	"github.com/taka-wang/psmb/mini-conf"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
 func init() {
-	psmbtcp.Register("Filter", rf.NewDataStore)
+	psmbtcp.Register("Filter", NewDataStore)
 }
 
 func TestFilter(t *testing.T) {
@@ -95,6 +96,16 @@ func TestFilter(t *testing.T) {
 			return false
 		}
 
+		// out of capacity test
+		for i := 0; i < 50; i++ {
+			s := strconv.Itoa(i)
+			if err := filterMap.Add(s, a); err != nil {
+				log(err, i)
+			} else {
+				log("ok", i)
+			}
+		}
+
 		// DELETe ALL
 		log("Delete all items")
 		filterMap.DeleteAll()
@@ -109,4 +120,21 @@ func TestFilter(t *testing.T) {
 		return false
 
 	})
+
+	s.Assert("Test Redis pool", func(log sugar.Log) bool {
+		conf.Set(defaultRedisDocker, "hello")
+		setDefaults()
+
+		conf.Set(keyRedisServer, "hello")
+		init()
+		filterMap, err := psmbtcp.FilterDataStoreCreator("Filter")
+		log(err)
+		filterMap.connectRedis()
+		filterMap.closeRedis()
+		filterMap.Add("123", "123")
+		filterMap.Get("123")
+		filterMap.Delete("123")
+		return true
+	})
+
 }

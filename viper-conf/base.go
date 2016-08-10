@@ -16,6 +16,14 @@ import (
 	_ "github.com/spf13/viper/remote"
 )
 
+// Fields log.Fields alias
+type Fields log.Fields
+
+// Fields implements log.Fielder.
+func (f Fields) Fields() log.Fields {
+	return log.Fields(f)
+}
+
 // Log logger
 var Log *log.Logger
 var base vConf // config instance
@@ -69,10 +77,12 @@ func GetBool(key string) bool {
 	return base.v.GetBool(key)
 }
 
+/*
 // GetFloat64 returns the value associated with the key as a float64
 func GetFloat64(key string) float64 {
 	return base.v.GetFloat64(key)
 }
+*/
 
 // GetDuration returns the value associated with the key as a duration
 func GetDuration(key string) time.Duration {

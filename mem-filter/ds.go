@@ -1,5 +1,7 @@
 // Package filter an in-memory data store for filter.
 //
+// Guideline: if error is one of the return, don't duplicately log to output.
+//
 // By taka@cmwang.net
 //
 package filter
@@ -8,8 +10,8 @@ import (
 	"sync"
 
 	"github.com/taka-wang/psmb"
+	//conf "github.com/taka-wang/psmb/mini-conf"
 	conf "github.com/taka-wang/psmb/viper-conf"
-	log "github.com/takawang/logrus"
 )
 
 var maxCapacity int
@@ -21,6 +23,14 @@ func init() {
 
 //@Implement IFilterDataStore implicitly
 
+// dataStore filter map
+type dataStore struct {
+	// read writer mutex
+	sync.RWMutex
+	// m key-value map: (name, psmb.MbtcpFilterStatus)
+	m map[string]interface{}
+}
+
 // NewDataStore instantiate filter map
 func NewDataStore(conf map[string]string) (interface{}, error) {
 	return &dataStore{
@@ -28,18 +38,23 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 	}, nil
 }
 
-// dataStore filter map
-type dataStore struct {
-	sync.RWMutex
-	// m key-value map: (name, psmb.MbtcpFilterStatus)
-	m map[string]interface{}
-}
-
 // Add add request to filter map
-func (ds *dataStore) Add(name string, req interface{}) {
+func (ds *dataStore) Add(name string, req interface{}) error {
+	if name == "" {
+		return ErrInvalidFilterName
+	}
+
+	ds.RLock()
+	boom := len(ds.m)+1 > maxCapacity
+	ds.RUnlock()
+	if boom {
+		return ErrOutOfCapacity
+	}
+
 	ds.Lock()
 	ds.m[name] = req
 	ds.Unlock()
+	return nil
 }
 
 // Get get request from filter map
@@ -61,7 +76,7 @@ func (ds *dataStore) GetAll() interface{} {
 
 	if len(arr) == 0 {
 		err := ErrNoData
-		log.WithError(err).Error("GetAll")
+		conf.Log.WithError(err).Warn("Fail to get all items from filter data store")
 		return nil
 	}
 	return arr

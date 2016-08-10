@@ -2,10 +2,12 @@ redis:
     image: redis
     ports:
         - "6379"
+
 redis-filter:
-    build: .
+    build: ../.
+    dockerfile: redis-filter/Dockerfile
     links:
         - redis
     volumes: # mount for test
         - /var/tmp:/var/tmp
-
+        - $PWD/shared:/shared

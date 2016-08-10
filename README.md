@@ -1,7 +1,10 @@
 # psmb
 
-[![Build Status](http://drone.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://drone.cmwang.net/taka-wang/psmb)
 [![GoDoc](https://godoc.org/github.com/taka-wang/psmb?status.svg)](http://godoc.org/github.com/taka-wang/psmb)
+[![Go Report Card](https://goreportcard.com/badge/github.com/taka-wang/psmb)](https://goreportcard.com/report/github.com/taka-wang/psmb)
+[![Build Status](http://drone.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://drone.cmwang.net/taka-wang/psmb)
+[![CircleCI](https://circleci.com/gh/taka-wang/psmb.svg?style=svg&circle-token=791a0bee85922cdfd4a0fe580953408febe3cabd)](https://circleci.com/gh/taka-wang/psmb)
+[![codecov](https://codecov.io/gh/taka-wang/psmb/branch/dev/graph/badge.svg?token=wsuDctUrJO)](https://codecov.io/gh/taka-wang/psmb)
 
 Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
@@ -9,17 +12,21 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ## Environment variables
 
-- CONF_PSMBTCP: config file location
-- EP_BACKEND: remote service discovery endpoint (optional)
+- CONF_PSMBTCP: config file path
+- EP_BACKEND: endpoint of remote service discovery server (optional)
 
 ## Contracts (Interfaces)
 
 - IProactiveService: proactive service
-- IReaderTaskDataStore:  read/poll task map
-- IWriterTaskDataStore: write task map
-- IHistoryDataStore: history map
-- IFilterDataStore: filter map
+- IReaderTaskDataStore:  read/poll task data store
+- IWriterTaskDataStore: write task data store
+- IHistoryDataStore: history data store
+- IFilterDataStore: filter data store
 - IConfig: config
+
+## Package management
+
+- I adopted [glide](https://glide.sh/) as package management system for this repository.
 
 ## Worker Pool
 
@@ -27,18 +34,50 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QUBJRIeqOAI5b3R4xTNttNf9h9x8jIx5h8y3G766V5dnqmTfR68a5c9ZCBnncoWPkdC5nc6aaAZNzl2NmFSKVde1)
 
-
 ### Response
 
 ![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QUBJRIeqOAI5b3R4xTNttNf9h9x8jIx5h8y3G766V5dnqmTfR68a5c9ZCBnncoWPkdC5nc6aaAZNzl2N8EqUVde1)
 
+---
 
-## Docker Compose
+## Up and Running
+
+### Docker Compose (prefer)
 
 ```bash
 docker-compose build --pull
 docker-compose up
 ```
+
+### Manually
+
+#### Install libzmq (3.2.5)
+
+```bash
+wget https://github.com/zeromq/zeromq3-x/releases/download/v3.2.5/zeromq-3.2.5.tar.gz
+tar xvzf zeromq-3.2.5.tar.gz
+cd zeromq-3.2.5
+./configure
+make
+sudo make install
+sudo ldconfig
+```
+
+#### Build
+
+```bash
+# install glide
+curl https://glide.sh/get | sh
+
+# install dependencies
+glide install
+
+# build
+cd tcp-srv
+go build -o psmbtcp-srv
+```
+
+---
 
 ## Continuous Integration
 
@@ -125,4 +164,4 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ## UML
 
-![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZ13S0W2030LTe1Alz-EWjQewQ0HY2kttZFEviayZVxfAEQ3Rq19gvGcbMFhdccBfR5GkeCXXzU2wN0S2PWLCiJ4g4g3EKOTZ-u_G00)
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZB3O0W303GLNG0gMSlpb8gGI8KqazONtt7jnQcwbTogSjjDlG049mX5xizkYQXpfRO0lK6XWzk4pd3y5QXeLeIe8ggCBJ5yFUvVru0)

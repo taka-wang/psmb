@@ -59,7 +59,7 @@ type (
 	// IReaderTaskDataStore read task interface
 	IReaderTaskDataStore interface {
 		// Add add request to read/poll task map
-		Add(name, tid, cmd string, req interface{})
+		Add(name, tid, cmd string, req interface{}) error
 
 		// GetTaskByID get request via TID from read/poll task map
 		GetTaskByID(tid string) (interface{}, bool)
@@ -105,7 +105,7 @@ type (
 	// IFilterDataStore filter interface
 	IFilterDataStore interface {
 		// Add add request to filter map
-		Add(name string, req interface{})
+		Add(name string, req interface{}) error
 		// Get get request from filter map
 		Get(name string) (interface{}, bool)
 		// GetAll get all request from filter map
