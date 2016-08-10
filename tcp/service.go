@@ -94,48 +94,48 @@ func NewService(reader, writer, history, filter, sch string) (IProactiveService,
 	var err error
 	// factory methods
 	if readerPlugin, err = ReaderDataStoreCreator(reader); err != nil { // reader factory
-		conf.Log.WithError(err).Panic("Fail to create reader data store")
+		conf.Log.WithError(err).Fatal("Fail to create reader data store")
 		return nil, err
 	}
 
 	if writerPlugin, err = WriterDataStoreCreator(writer); err != nil { // writer factory
-		conf.Log.WithError(err).Panic("Fail to create writer data store")
+		conf.Log.WithError(err).Fatal("Fail to create writer data store")
 		return nil, err
 	}
 
 	if historyPlugin, err = HistoryDataStoreCreator(history); err != nil { // historian factory
-		conf.Log.WithError(err).Panic("Fail to create history data store")
+		conf.Log.WithError(err).Fatal("Fail to create history data store")
 		return nil, err
 	}
 
 	if filterPlugin, err = FilterDataStoreCreator(filter); err != nil { // filter factory
-		conf.Log.WithError(err).Panic("Fail to create filter data store")
+		conf.Log.WithError(err).Fatal("Fail to create filter data store")
 		return nil, err
 	}
 
 	if schedulerPlugin, err = SchedulerCreator(sch); err != nil { // scheduler factory
-		conf.Log.WithError(err).Panic("Fail to create scheduler")
+		conf.Log.WithError(err).Fatal("Fail to create scheduler")
 		return nil, err
 	}
 
 	pubUpstream, err := zmq.NewSocket(zmq.PUB)
 	if err != nil {
-		conf.Log.WithError(err).Panic("Fail to create upstream publisher")
+		conf.Log.WithError(err).Fatal("Fail to create upstream publisher")
 		return nil, err
 	}
 	pubDownstream, err := zmq.NewSocket(zmq.PUB)
 	if err != nil {
-		conf.Log.WithError(err).Panic("Fail to create downstream publisher")
+		conf.Log.WithError(err).Fatal("Fail to create downstream publisher")
 		return nil, err
 	}
 	subUpstream, err := zmq.NewSocket(zmq.SUB)
 	if err != nil {
-		conf.Log.WithError(err).Panic("Fail to create upstream subscriber")
+		conf.Log.WithError(err).Fatal("Fail to create upstream subscriber")
 		return nil, err
 	}
 	subDownstream, err := zmq.NewSocket(zmq.SUB)
 	if err != nil {
-		conf.Log.WithError(err).Panic("Fail to create downstream subscriber")
+		conf.Log.WithError(err).Fatal("Fail to create downstream subscriber")
 		return nil, err
 	}
 
