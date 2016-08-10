@@ -11,7 +11,6 @@ import (
 
 	"github.com/taka-wang/psmb"
 	conf "github.com/taka-wang/psmb/viper-conf"
-	log "github.com/takawang/logrus"
 )
 
 var maxCapacity int
@@ -71,7 +70,7 @@ func (ds *dataStore) GetAll() interface{} {
 
 	if len(arr) == 0 {
 		err := ErrNoData
-		log.WithError(err).Error("GetAll")
+		conf.Log.WithError(err).Error("Fail to get all items from filter data store")
 		return nil
 	}
 	return arr

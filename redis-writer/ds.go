@@ -11,7 +11,6 @@ import (
 	"github.com/garyburd/redigo/redis"
 	//conf "github.com/taka-wang/psmb/mini-conf"
 	conf "github.com/taka-wang/psmb/viper-conf"
-	log "github.com/takawang/logrus"
 )
 
 var (
@@ -35,17 +34,15 @@ func setDefaults() {
 	// lookup redis server
 	host, err := net.LookupHost(defaultRedisDocker)
 	if err != nil {
-		log.WithError(err).Debug("local run")
+		conf.Log.WithError(err).Debug("local run")
 	} else {
-		log.WithField("hostname", host[0]).Debug("docker run")
+		conf.Log.WithField("hostname", host[0]).Debug("docker run")
 		conf.Set("redis.server", host[0]) // override default
 	}
 }
 
 func init() {
-	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
-	log.SetLevel(log.DebugLevel)                            // ...
-	setDefaults()                                           // set defaults
+	setDefaults() // set defaults
 
 	hashName = conf.GetString(keyHashName)
 
@@ -57,7 +54,7 @@ func init() {
 		Dial: func() (redis.Conn, error) {
 			conn, err := redis.Dial("tcp", conf.GetString(keyRedisServer)+":"+conf.GetString(keyRedisPort))
 			if err != nil {
-				log.WithError(err).Error("Redis pool dial error")
+				conf.Log.WithError(err).Error("Redis pool dial error")
 			}
 			return conn, err
 		},
@@ -89,10 +86,10 @@ func (ds *dataStore) connectRedis() error {
 	conn := RedisPool.Get()
 	if nil == conn {
 		err := ErrConnection
-		log.Error(err)
+		conf.Log.Error(err)
 		return err
 	}
-	//log.Debug("connect to redis")
+	//conf.Log.Debug("connect to redis")
 	ds.redis = conn
 	return nil
 }
@@ -101,10 +98,10 @@ func (ds *dataStore) closeRedis() {
 	if ds != nil && ds.redis != nil {
 		err := ds.redis.Close()
 		if err != nil {
-			log.WithError(err).Error("Fail to close redis connection")
+			conf.Log.WithError(err).Error("Fail to close redis connection")
 		}
 		/*else {
-			log.Debug("Close redis connection")
+			conf.Log.Debug("Close redis connection")
 		}
 		*/
 	}
@@ -114,12 +111,12 @@ func (ds *dataStore) closeRedis() {
 func (ds *dataStore) Add(tid, cmd string) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithError(err).Error("Add")
+		conf.Log.WithError(err).Error("Add")
 		return
 	}
 
 	if _, err := ds.redis.Do("HSET", hashName, tid, cmd); err != nil {
-		log.WithError(err).Error("Add")
+		conf.Log.WithError(err).Error("Add")
 	}
 }
 
@@ -127,13 +124,13 @@ func (ds *dataStore) Add(tid, cmd string) {
 func (ds *dataStore) Get(tid string) (string, bool) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithError(err).Error("Get")
+		conf.Log.WithError(err).Error("Get")
 		return "", false
 	}
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, tid))
 	if err != nil {
-		log.WithError(err).Error("Get")
+		conf.Log.WithError(err).Error("Get")
 		return "", false
 	}
 	return ret, true
@@ -143,9 +140,9 @@ func (ds *dataStore) Get(tid string) (string, bool) {
 func (ds *dataStore) Delete(tid string) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithError(err).Error("Delete")
+		conf.Log.WithError(err).Error("Delete")
 	}
 	if _, err := ds.redis.Do("HDEL", hashName, tid); err != nil {
-		log.WithError(err).Error("Delete")
+		conf.Log.WithError(err).Error("Delete")
 	}
 }

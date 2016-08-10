@@ -12,7 +12,6 @@ import (
 
 	//conf "github.com/taka-wang/psmb/mini-conf"
 	conf "github.com/taka-wang/psmb/viper-conf"
-	log "github.com/takawang/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -42,17 +41,15 @@ func setDefaults() {
 	// lookup mongo server
 	host, err := net.LookupHost(defaultMongoDocker)
 	if err != nil {
-		log.WithError(err).Debug("local run")
+		conf.Log.WithError(err).Debug("local run")
 	} else {
-		log.WithField("hostname", host[0]).Debug("docker run")
+		conf.Log.WithField("hostname", host[0]).Debug("docker run")
 		conf.Set(keyMongoServer, host[0]) // override defaults
 	}
 }
 
 func init() {
-	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
-	log.SetLevel(log.DebugLevel)                            // ...
-	setDefaults()                                           // set defaults
+	setDefaults() // set defaults
 
 	databaseName = conf.GetString(keyDbName)
 	collectionName = conf.GetString(keyCollectionName)
@@ -81,7 +78,7 @@ func init() {
 func marshal(r interface{}) (string, error) {
 	bytes, err := json.Marshal(r)
 	if err != nil {
-		log.WithError(err).Error("marshal")
+		//conf.Log.WithError(err).Error("Fail to marshal")
 		return "", ErrMarshal
 	}
 	return string(bytes), nil
@@ -110,7 +107,7 @@ func NewDataStore(c map[string]string) (interface{}, error) {
 	// Create a session which maintains a pool of socket connections
 	pool, err := mgo.DialWithInfo(mongoDBDialInfo)
 	if err != nil {
-		log.WithError(err).Error("Fail to instantiate data store")
+		//conf.Log.WithError(err).Error("Fail to instantiate data store")
 		return nil, err
 	}
 	//
@@ -121,7 +118,8 @@ func NewDataStore(c map[string]string) (interface{}, error) {
 		sessionCopy := pool.Copy()
 		err := sessionCopy.DB(databaseName).DropDatabase()
 		if err != nil {
-			log.WithError(err).Debug("Fail to drop database")
+			// we intend to log here
+			conf.Log.WithError(err).Debug("Fail to drop database")
 		}
 	}
 
@@ -150,7 +148,7 @@ func (ds *dataStore) closeSession(session *mgo.Session) {
 func (ds *dataStore) Add(name string, data interface{}) error {
 	session, err := ds.openSession()
 	if err != nil {
-		log.WithError(err).Warn("Add")
+		//conf.Log.WithError(err).Warn("Add")
 		return err
 	}
 	defer ds.closeSession(session)
@@ -160,18 +158,18 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	c := session.DB(databaseName).C(collectionName)
 	// update or insert by name and data
 	if _, err := c.Upsert(bson.M{"name": name, "data": data}, &blob{Name: name, Data: data, Timestamp: ts}); err != nil {
-		log.WithError(err).Warn("Fail to add to history collection")
+		//conf.Log.WithError(err).Warn("Fail to add to history collection")
 		return err
 	}
-	// TODO: remove debug
-	//log.WithFields(log.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to mongo")
+	// debug
+	//conf.Log.WithFields(log.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to mongo")
 	return nil
 }
 
 func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	session, err := ds.openSession()
 	if err != nil {
-		log.WithError(err).Warn("Get")
+		//conf.Log.WithError(err).Warn("Get")
 		return nil, err
 	}
 	defer ds.closeSession(session)
@@ -181,7 +179,7 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	var results []blob
 	// limit the response
 	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").Limit(limit).All(&results); err != nil {
-		log.WithError(err).Debug("Get")
+		//conf.Log.WithError(err).Debug("Get")
 		return nil, err
 	}
 
@@ -197,7 +195,7 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	// Check map length
 	if len(m) == 0 {
 		err := ErrNoData
-		log.WithError(err).Debug("Get")
+		conf.Log.WithError(err).Debug("Get")
 		return nil, err
 	}
 	return m, nil
@@ -206,7 +204,7 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	session, err := ds.openSession()
 	if err != nil {
-		log.WithError(err).Warn("GetAll")
+		conf.Log.WithError(err).Warn("GetAll")
 		return nil, err
 	}
 	defer ds.closeSession(session)
@@ -215,7 +213,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	c := session.DB(databaseName).C(collectionName)
 	var results []blob
 	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").All(&results); err != nil {
-		log.WithError(err).Debug("GetAll")
+		conf.Log.WithError(err).Debug("GetAll")
 		return nil, err
 	}
 
@@ -231,7 +229,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	// Check map length
 	if len(m) == 0 {
 		err := ErrNoData
-		log.WithError(err).Debug("GetAll")
+		conf.Log.WithError(err).Debug("GetAll")
 		return nil, err
 	}
 	return m, nil
@@ -240,7 +238,7 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 func (ds *dataStore) GetLatest(name string) (string, error) {
 	session, err := ds.openSession()
 	if err != nil {
-		log.WithError(err).Error("GetLatest")
+		conf.Log.WithError(err).Error("GetLatest")
 		return "", err
 	}
 	defer ds.closeSession(session)
@@ -251,7 +249,7 @@ func (ds *dataStore) GetLatest(name string) (string, error) {
 
 	// Query latest
 	if err := c.Find(bson.M{"name": name}).Sort("-timestamp").One(&result); err != nil {
-		log.WithError(err).Error("GetLatest not found")
+		conf.Log.WithError(err).Error("GetLatest not found")
 		return "", err
 	}
 

@@ -12,7 +12,6 @@ import (
 	"github.com/garyburd/redigo/redis"
 	//conf "github.com/taka-wang/psmb/mini-conf"
 	conf "github.com/taka-wang/psmb/viper-conf"
-	log "github.com/takawang/logrus"
 )
 
 var (
@@ -38,17 +37,15 @@ func setDefaults() {
 	// lookup redis server
 	host, err := net.LookupHost(defaultRedisDocker)
 	if err != nil {
-		log.WithError(err).Debug("local run")
+		conf.Log.WithError(err).Debug("local run")
 	} else {
-		log.WithField("hostname", host[0]).Debug("docker run")
+		conf.Log.WithField("hostname", host[0]).Debug("docker run")
 		conf.Set(keyRedisServer, host[0]) // override default
 	}
 }
 
 func init() {
-	log.SetFormatter(&log.TextFormatter{ForceColors: true}) // before init logger
-	log.SetLevel(log.DebugLevel)                            // ...
-	setDefaults()                                           // set defaults
+	setDefaults() // set defaults
 
 	hashName = conf.GetString(keyHashName)
 	zsetPrefix = conf.GetString(keySetPrefix)
@@ -61,7 +58,7 @@ func init() {
 		Dial: func() (redis.Conn, error) {
 			conn, err := redis.Dial("tcp", conf.GetString(keyRedisServer)+":"+conf.GetString(keyRedisPort))
 			if err != nil {
-				log.WithError(err).Error("Redis pool dial error")
+				conf.Log.WithError(err).Error("Redis pool dial error")
 			}
 			return conn, err
 		},
@@ -93,10 +90,10 @@ func (ds *dataStore) connectRedis() error {
 	conn := RedisPool.Get()
 	if nil == conn {
 		err := ErrConnection
-		log.Error(err)
+		//conf.Log.Error(err)
 		return err
 	}
-	//log.Debug("connect to redis")
+	//conf.Log.Debug("connect to redis")
 	ds.redis = conn
 	return nil
 }
@@ -105,10 +102,10 @@ func (ds *dataStore) closeRedis() {
 	if ds != nil && ds.redis != nil {
 		err := ds.redis.Close()
 		if err != nil {
-			log.WithError(err).Error("Fail to close redis connection")
+			conf.Log.WithError(err).Error("Fail to close redis connection")
 		}
 		/*else {
-			log.Debug("Close redis connection")
+			conf.Log.Debug("Close redis connection")
 		}
 		*/
 	}
@@ -117,14 +114,14 @@ func (ds *dataStore) closeRedis() {
 func (ds *dataStore) Add(name string, data interface{}) error {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithError(err).Error("Add")
+		//conf.Log.WithError(err).Error("Add")
 		return err
 	}
 
 	// marshal
 	bytes, err := json.Marshal(data)
 	if err != nil {
-		log.WithError(err).Error("marshal")
+		//conf.Log.WithError(err).Error("marshal")
 		return err
 	}
 
@@ -141,11 +138,11 @@ func (ds *dataStore) Add(name string, data interface{}) error {
 	ds.redis.Send("HSET", hashName, name, string(bytes))      // latest
 	ds.redis.Send("ZADD", zsetPrefix+name, ts, string(bytes)) // add to zset
 	if _, err := ds.redis.Do("EXEC"); err != nil {
-		log.WithError(err).Debug("Add")
+		//conf.Log.WithError(err).Debug("Add")
 		return err
 	}
 	// TODO: remove debug
-	log.WithFields(log.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to redis")
+	//conf.Log.WithFields(log.Fields{"Name": name, "Data": data, "TS": ts}).Debug("Add to redis")
 	return nil
 }
 
@@ -155,18 +152,18 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 	}
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithError(err).Error("Get")
+		//conf.Log.WithError(err).Error("Get")
 		return nil, err
 	}
 	// zset limit is inclusive; zrevrange: from lateste to oldest
 	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, limit-1, "WITHSCORES"))
 	if err != nil {
-		log.WithError(err).Error("Get")
+		//conf.Log.WithError(err).Error("Get")
 		return nil, err
 	}
 	if len(ret) == 0 {
 		err := ErrNoData
-		log.WithError(err).Debug("Get")
+		//conf.Log.WithError(err).Debug("Get")
 		return nil, err
 	}
 	return ret, nil
@@ -178,35 +175,35 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 	}
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithError(err).Error("GetAll")
+		//conf.Log.WithError(err).Error("GetAll")
 		return nil, err
 	}
 	// zrevrange: from lateste to oldest
 	ret, err := redis.StringMap(ds.redis.Do("ZREVRANGE", zsetPrefix+name, 0, -1, "WITHSCORES"))
 	if err != nil {
-		log.WithError(err).Debug("GetAll")
+		//conf.Log.WithError(err).Debug("GetAll")
 		return nil, err
 	}
 	if len(ret) == 0 {
 		err := ErrNoData
-		log.WithError(err).Debug("GetAll")
+		//conf.Log.WithError(err).Debug("GetAll")
 		return nil, err
 	}
-	// TODO: remove
-	log.WithField("data", ret).Info("GetAll")
+	// debug
+	//conf.Log.WithField("data", ret).Debug("GetAll")
 	return ret, nil
 }
 
 func (ds *dataStore) GetLatest(name string) (string, error) {
 	defer ds.closeRedis()
 	if err := ds.connectRedis(); err != nil {
-		log.WithError(err).Error("GetLatest")
+		//conf.Log.WithError(err).Error("GetLatest")
 		return "", err
 	}
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
 	if err != nil {
-		log.WithError(err).Error("GetLatest not found")
+		//conf.Log.WithError(err).Error("GetLatest not found")
 		return "", err
 	}
 	return ret, nil
