@@ -1,5 +1,7 @@
 // Package filter an in-memory data store for filter.
 //
+// Guideline: if error is one of the return, don't duplicately log to output.
+//
 // By taka@cmwang.net
 //
 package filter
@@ -38,9 +40,9 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 // Add add request to filter map
 func (ds *dataStore) Add(name string, req interface{}) error {
 	ds.RLock()
-	b := len(ds.m)+1 > maxCapacity
+	boom := len(ds.m)+1 > maxCapacity
 	ds.RUnlock()
-	if b {
+	if boom {
 		return ErrOutOfCapacity
 	}
 

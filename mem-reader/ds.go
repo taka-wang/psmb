@@ -1,5 +1,7 @@
 // Package reader an in-memory data store for reader.
 //
+// Guideline: if error is one of the return, don't duplicately log to output.
+//
 // By taka@cmwang.net
 //
 package reader
@@ -49,9 +51,9 @@ func (ds *dataStore) Add(name, tid, cmd string, req interface{}) error {
 		name = tid
 	}
 	ds.RLock()
-	b := len(ds.idName)+1 > maxCapacity
+	boom := len(ds.idName)+1 > maxCapacity
 	ds.RUnlock()
-	if b {
+	if boom {
 		return ErrOutOfCapacity
 	}
 

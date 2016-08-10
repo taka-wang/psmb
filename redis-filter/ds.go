@@ -1,5 +1,8 @@
 // Package filter an redis-based data store for filter.
 //
+// Guideline: if error is one of the return, don't duplicately log to output.
+//
+//
 // By taka@cmwang.net
 //
 package filter
@@ -163,7 +166,8 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
 	if err != nil {
-		log.WithError(err).Warn("Fail to get item from filter map")
+		// we intend to suppress this log
+		//log.WithError(err).Warn("Fail to get item from filter map")
 		return nil, false
 	}
 	// unmarshal
