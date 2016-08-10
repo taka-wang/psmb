@@ -91,9 +91,9 @@ func (b *vConf) setLogger() {
 	if b.v.GetBool(keyLogToFile) {
 		if f, err := os.OpenFile(b.v.GetString(keyLogFileName), os.O_WRONLY|os.O_CREATE, 0755); err != nil {
 			log.WithFields(log.Fields{
-				"err":  err,
-				"file": b.v.GetString(keyLogFileName),
-			}).Debug("Fail to create log file")
+				"err":       err,
+				"file name": b.v.GetString(keyLogFileName),
+			}).Error("Fail to create log file")
 
 		} else {
 			writer = f // to file
@@ -130,38 +130,39 @@ func (b *vConf) initConfig() {
 
 	// local or remote config
 	if endpoint == "" {
-		log.WithField("file", confPath).Debug("Try to load 'local' config file")
+		log.WithField("file path", confPath).Debug("Try to load 'local' config file")
 		b.v.AddConfigPath(confPath)
 		err := b.v.ReadInConfig() // read config from file
 		if err != nil {
-			log.WithField("file", confPath).Warn("Fail to load 'local' config file, not found!")
+			log.WithField("file path", confPath).Warn("Fail to load 'local' config file, not found!")
 		} else {
-			log.WithField("file", confPath).Info("Read 'local' config file successfully")
+			log.WithField("file path", confPath).Info("Read 'local' config file successfully")
 		}
 	} else {
 		log.WithFields(log.Fields{
-			"endpoint":    endpoint,
-			"config path": confPath,
-			"config name": keyConfigName,
-			"config type": keyConfigType,
+			"endpoint":  endpoint,
+			"file path": confPath,
+			"file name": keyConfigName,
+			"file type": keyConfigType,
 		}).Debug("Try to load 'remote' config file")
 
 		b.v.AddRemoteProvider(defaultBackendName, endpoint, path.Join(confPath, keyConfigName)+"."+keyConfigType)
 		err := b.v.ReadRemoteConfig() // read config from backend
 		if err != nil {
 			log.WithFields(log.Fields{
-				"endpoint":    endpoint,
-				"config path": confPath,
-				"config name": keyConfigName,
-				"config type": keyConfigType,
+				"err":       err,
+				"endpoint":  endpoint,
+				"file path": confPath,
+				"file name": keyConfigName,
+				"file type": keyConfigType,
 			}).Error("Fail to load 'remote' config file, not found!")
 		} else {
 			log.WithFields(log.Fields{
-				"endpoint":    endpoint,
-				"config path": confPath,
-				"config name": keyConfigName,
-				"config type": keyConfigType,
-			}).Info("Read remote config file successfully")
+				"endpoint":  endpoint,
+				"file path": confPath,
+				"file name": keyConfigName,
+				"file type": keyConfigType,
+			}).Info("Read 'remote' config file successfully")
 		}
 	}
 
