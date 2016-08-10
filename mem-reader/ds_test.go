@@ -26,7 +26,9 @@ func TestMbtcpReadTask(t *testing.T) {
 		for i := 0; i < 50; i++ {
 			s := strconv.Itoa(i)
 			if err := reader.Add(s, s, s, nil); err != nil {
-				log(err)
+				log(err, i)
+			} else {
+				log("ok", i)
 			}
 		}
 

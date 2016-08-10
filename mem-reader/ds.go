@@ -51,7 +51,10 @@ func (ds *dataStore) Add(name, tid, cmd string, req interface{}) error {
 	if name == "" { // read task instead of poll task
 		name = tid
 	}
-	if ds.count+1 > maxCapacity {
+	ds.RLock()
+	b := ds.count+1 > maxCapacity
+	ds.RUnlock()
+	if b {
 		return ErrOutOfCapacity
 	}
 
