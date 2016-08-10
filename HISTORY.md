@@ -62,10 +62,9 @@
 - [x] implement unit test for conf packages
 - [x] draw worker pool diagram
 - [x] refactor configs for max capacity and worker pool
+- [x] implement map max capacity for filter and reader data stores
 - routine Worker Thread-Pool
 - scheduler concurrency
-- map max capacity
-- refine config for max capacity
 - refine log messages
 - unit tests for filters
 - integration tests for filters
