@@ -8,6 +8,9 @@ ENV EP_BACKEND "consul.cmwang.net:8500"
 
 WORKDIR /go
 
+RUN go get -u github.com/taka-wang/psmb/tcp
+RUN go get -u github.com/spf13/viper
+RUN go get -u github.com/apex/log
 
 ## Load app files
 ADD . /go/src/github.com/taka-wang/psmb/viper-conf
