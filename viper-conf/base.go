@@ -16,8 +16,16 @@ import (
 	_ "github.com/spf13/viper/remote"
 )
 
+// Fields represents a map of entry level data used for structured logging.
+type Fields map[string]interface{}
+
+// Fields implements Fielder.
+func (f Fields) Fields() Fields {
+	return f
+}
+
 type mLog struct {
-	log.Fields
+	Fields
 	*log.Logger
 }
 
