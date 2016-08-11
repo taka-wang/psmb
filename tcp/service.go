@@ -685,7 +685,10 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// function code checker
 		if req.FC < 1 || req.FC > 4 {
 			err := ErrInvalidFunctionCode // invalid read function code
-			conf.Log.WithFields(conf.Fields{"err": err, "FC", req.FC}).Warn(mbCreatePoll)
+			conf.Log.WithFields(conf.Fields{
+				"err": err,
+				"FC", req.FC,
+			}).Warn(mbCreatePoll)
 			// send error back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -694,7 +697,10 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// protect null poll name
 		if req.Name == "" {
 			err := ErrInvalidPollName
-			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbCreatePoll)
+			conf.Log.WithFields(conf.Fields{
+				"err": err,
+				"Name", req.Name,
+			}).Warn(mbCreatePoll)
 			// send back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -754,14 +760,20 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// update task interval
 		if ok := b.scheduler.UpdateIntervalWithName(req.Name, req.Interval); !ok {
 			err := ErrInvalidPollName // not in scheduler
-			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbUpdatePoll)
+			conf.Log.WithFields(conf.Fields{
+				"err": err,
+				"Name", req.Name,
+			}).Warn(mbUpdatePoll)
 			status = err.Error() // set error status
 		}
 
 		// update read/poll task map
 		if status == "ok" {
 			if err := b.readerMap.UpdateIntervalByName(req.Name, req.Interval); err != nil {
-				conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbUpdatePoll)
+				conf.Log.WithFields(conf.Fields{
+					"err": err,
+					"Name", req.Name,
+				}).Warn(mbUpdatePoll)
 				status = err.Error() // set error status
 			}
 		}
@@ -774,7 +786,10 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		task := t.(ReaderTask) // type casting
 		if !ok {
 			err := ErrInvalidPollName // not in read/poll task map
-			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbGetPoll)
+			conf.Log.WithFields(conf.Fields{
+				"err": err,
+				"Name", req.Name,
+			}).Warn(mbGetPoll)
 			// send error back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -805,7 +820,10 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// remove task from scheduler
 		if ok := b.scheduler.RemoveWithName(req.Name); !ok {
 			err := ErrInvalidPollName // not in scheduler
-			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbDeletePoll)
+			conf.Log.WithFields(conf.Fields{
+				"err": err,
+				"Name", req.Name,
+			}).Warn(mbDeletePoll)
 			status = err.Error() // set error status
 		}
 		// remove task from read/poll map
@@ -827,12 +845,18 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		if !ok {
 			// not in scheduler
 			err := ErrInvalidPollName
-			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbTogglePoll)
+			conf.Log.WithFields(conf.Fields{
+				"err": err,
+				"Name", req.Name,
+			}).Warn(mbTogglePoll)
 			status = err.Error() // set error status
 		} else {
 			// update read/poll task map
 			if err := b.readerMap.UpdateToggleByName(req.Name, req.Enabled); err != nil {
-				conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbTogglePoll)
+				conf.Log.WithFields(conf.Fields{
+					"err": err,
+					"Name", req.Name,
+				}).Warn(mbTogglePoll)
 				status = err.Error() // set error status
 			}
 		}
@@ -876,14 +900,20 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			// function code checker
 			if req.FC < 1 || req.FC > 4 {
 				err := ErrInvalidFunctionCode // invalid read function code
-				conf.Log.WithFields(conf.Fields{"err": err, "FC", req.FC}).Warn(mbImportPolls)
+				conf.Log.WithFields(conf.Fields{
+					"err": err,
+					"FC", req.FC,
+				}).Warn(mbImportPolls)
 				continue // bypass
 			}
 
 			// protect null poll name
 			if req.Name == "" {
 				err := ErrInvalidPollName
-				conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbImportPolls)
+				conf.Log.WithFields(conf.Fields{
+					"err": err,
+					"Name", req.Name,
+				}).Warn(mbImportPolls)
 				continue // bypass
 			}
 
@@ -916,7 +946,10 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			// Add task to read/poll task map
 			if err := b.readerMap.Add(req.Name, TidStr, cmd, req); err != nil {
 				// maybe out of capacity
-				conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbImportPolls)
+				conf.Log.WithFields(conf.Fields{
+					"err": err,
+					"Name", req.Name,
+				}).Warn(mbImportPolls)
 				// send error back
 				resp := MbtcpSimpleRes{Tid: request.Tid, Status: err.Error()}
 				return b.naiveResponder(cmd, resp)
@@ -936,7 +969,10 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		resp := MbtcpHistoryData{Tid: req.Tid, Name: req.Name, Status: "ok"}
 		ret, err := b.historyMap.GetAll(req.Name)
 		if err != nil {
-			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbGetPollHistory)
+			conf.Log.WithFields(conf.Fields{
+				"err": err,
+				"Name", req.Name,
+			}).Warn(mbGetPollHistory)
 			resp.Status = err.Error()
 			return b.naiveResponder(cmd, resp)
 		}
