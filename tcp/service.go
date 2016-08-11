@@ -437,7 +437,7 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 		return nil, ErrInvalidMessageLength
 	}
 
-	conf.Log.WithField("cmd", msg[0]).Debug("Parse request from upstream services")
+	//conf.Log.WithField("cmd", msg[0]).Debug("Parse request from upstream services")
 
 	switch msg[0] {
 	case mbGetTimeout, mbSetTimeout:
@@ -562,7 +562,7 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 // HandleRequest handle requests from services
 // 	do error checking
 func (b *Service) HandleRequest(cmd string, r interface{}) error {
-	conf.Log.WithField("cmd", cmd).Debug("Handle request from upstream services")
+	//conf.Log.WithField("cmd", cmd).Debug("Handle request from upstream services")
 
 	switch cmd {
 	case mbGetTimeout:
@@ -1101,7 +1101,7 @@ func (b *Service) ParseResponse(msg []string) (interface{}, error) {
 		return nil, ErrInvalidMessageLength
 	}
 
-	conf.Log.WithField("cmd", msg[0]).Debug("Parse response from modbusd")
+	//conf.Log.WithField("cmd", msg[0]).Debug("Parse response from modbusd")
 
 	switch MbCmdType(msg[0]) {
 	case setMbTimeout, getMbTimeout:
@@ -1123,7 +1123,7 @@ func (b *Service) ParseResponse(msg []string) (interface{}, error) {
 
 // HandleResponse handle responses from modbusd
 func (b *Service) HandleResponse(cmd string, r interface{}) error {
-	conf.Log.WithField("cmd", cmd).Debug("Handle response from modbusd")
+	//conf.Log.WithField("cmd", cmd).Debug("Handle response from modbusd")
 
 	switch MbCmdType(cmd) {
 	case fc5, fc6, fc15, fc16, setMbTimeout, getMbTimeout: // done: one-off requests
