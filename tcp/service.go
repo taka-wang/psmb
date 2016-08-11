@@ -55,9 +55,32 @@ func init() {
 	maxQueueSize = conf.GetInt(keyMaxQueue)
 }
 
+const (
+	_ ZmqSource = iota
+	// Upstream from services
+	Upstream
+	// Downstream from modbusd
+	Downstream
+)
+
 // @Implement IProactiveService contract implicitly
 
 type (
+
+	// ZmqSource zmq source
+	ZmqSource int
+
+	// job in worker pool
+	job struct {
+		source ZmqSource
+		msg    []string
+	}
+
+	// worker in worker pool
+	worker struct {
+		id      int
+		service *Service
+	}
 
 	// zSockets zmq sockets
 	zSockets struct {
@@ -1481,83 +1504,6 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 	}
 }
 
-// ZmqSource zmq source
-type ZmqSource int
-
-const (
-	_ ZmqSource = iota
-	// Upstream from services
-	Upstream
-	// Downstream from modbusd
-	Downstream
-)
-
-type job struct {
-	source ZmqSource
-	msg    []string
-}
-
-type worker struct {
-	id      int
-	service *Service
-}
-
-func (w worker) process(j job) {
-	conf.Log.WithField("id", w.id).Debug("Worker started")
-
-	switch j.source {
-	case Upstream:
-		// parse request
-		if req, err := w.service.ParseRequest(j.msg); req != nil {
-			// handle request
-			err := w.service.HandleRequest(j.msg[0], req)
-			if err != nil {
-				conf.Log.WithFields(conf.Fields{
-					"cmd": j.msg[0],
-					"err": err,
-				}).Error("Fail to handle request")
-				// no need to send back again!
-			}
-		} else {
-			conf.Log.WithFields(conf.Fields{
-				"cmd": j.msg[0],
-				"err": err,
-			}).Error("Fail to parse request")
-			// send error back
-			w.service.naiveResponder(j.msg[0], MbtcpSimpleRes{Status: err.Error()})
-		}
-	default: // Downstream
-		// parse response
-		if res, err := w.service.ParseResponse(j.msg); res != nil {
-			// handle response
-			err := w.service.HandleResponse(j.msg[0], res)
-			if err != nil {
-				conf.Log.WithFields(conf.Fields{
-					"cmd": j.msg[0],
-					"err": err,
-				}).Error("Fail to handle response")
-				// no need to send back again!
-			}
-		} else {
-			conf.Log.WithFields(conf.Fields{
-				"cmd": j.msg[0],
-				"err": err,
-			}).Error("Fail to parse response")
-			// no need to send back, we don't know the sender
-		}
-	}
-	conf.Log.WithField("id", w.id).Debug("Worker completed")
-}
-
-func (b *Service) dispatch(source ZmqSource, msg []string) {
-	// Create Job and push the work to the channel
-	job := job{source, msg}
-	go func() {
-		conf.Log.Debug("Add job")
-		b.jobChan <- job
-	}()
-}
-
 // Start enable proactive service
 func (b *Service) Start() {
 
@@ -1615,4 +1561,61 @@ func (b *Service) Stop() {
 	b.stopZMQ()
 	// close job channel and wait for workers to complete
 	close(b.jobChan)
+}
+
+// dispatch create job and push it to the job channel
+func (b *Service) dispatch(source ZmqSource, msg []string) {
+	job := job{source, msg}
+	go func() {
+		conf.Log.WithField("msg", msg).Debug("Add job")
+		b.jobChan <- job
+	}()
+}
+
+// process handle request and response
+func (w worker) process(j job) {
+	conf.Log.WithFields(conf.Fields{"id", w.id, "msg": j.msg}).Debug("Worker started")
+
+	switch j.source {
+	case Upstream:
+		// parse request
+		if req, err := w.service.ParseRequest(j.msg); req != nil {
+			// handle request
+			err := w.service.HandleRequest(j.msg[0], req)
+			if err != nil {
+				conf.Log.WithFields(conf.Fields{
+					"cmd": j.msg[0],
+					"err": err,
+				}).Error("Fail to handle request")
+				// no need to send back again!
+			}
+		} else {
+			conf.Log.WithFields(conf.Fields{
+				"cmd": j.msg[0],
+				"err": err,
+			}).Error("Fail to parse request")
+			// send error back
+			w.service.naiveResponder(j.msg[0], MbtcpSimpleRes{Status: err.Error()})
+		}
+	default: // Downstream
+		// parse response
+		if res, err := w.service.ParseResponse(j.msg); res != nil {
+			// handle response
+			err := w.service.HandleResponse(j.msg[0], res)
+			if err != nil {
+				conf.Log.WithFields(conf.Fields{
+					"cmd": j.msg[0],
+					"err": err,
+				}).Error("Fail to handle response")
+				// no need to send back again!
+			}
+		} else {
+			conf.Log.WithFields(conf.Fields{
+				"cmd": j.msg[0],
+				"err": err,
+			}).Error("Fail to parse response")
+			// no need to send back, we don't know the sender
+		}
+	}
+	conf.Log.WithFields(conf.Fields{"id", w.id, "msg": j.msg}).Debug("Worker completed")
 }
