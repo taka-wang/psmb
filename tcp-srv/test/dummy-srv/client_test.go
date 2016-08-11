@@ -63,10 +63,16 @@ func longSubscriber() {
 	filter := ""
 	receiver.SetSubscribe(filter) // filter frame 1
 	for longRun {
-		msg, _ := receiver.RecvMessage(0)
-		t := time.Now()
-		fmt.Println("Res:", t.Format("2006-01-02 15:04:05.000"))
-		fmt.Println(msg[0], msg[1])
+		if msg, err := receiver.RecvMessage(0); err == nil {
+			t := time.Now()
+			fmt.Println("Res:", t.Format("2006-01-02 15:04:05.000"))
+			if len(msg) == 2 {
+				fmt.Println(msg[0], msg[1])
+			} else {
+				fmt.Println("strange response")
+				fmt.Println(msg)
+			}
+		}
 	}
 }
 
@@ -4087,7 +4093,7 @@ func TestPollRequestSingle(t *testing.T) {
 			return false
 		}
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		historyReq := psmb.MbtcpPollOpReq{
@@ -4100,7 +4106,7 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.history"
 		go publisher(cmd, string(historyReqStr))
 
-		log("sleep 5")
+		fmt.Println("sleep 5")
 		time.Sleep(5 * time.Second)
 
 		// delete poller
@@ -4114,11 +4120,11 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.delete"
 		go publisher(cmd, string(delReqStr))
 
-		log("sleep 5")
+		fmt.Println("sleep 5")
 		time.Sleep(5 * time.Second)
 
 		longRun = false
-		log("sleep 1")
+		fmt.Println("sleep 1")
 		time.Sleep(1 * time.Second)
 
 		return true
@@ -4201,7 +4207,7 @@ func TestPollRequestSingle(t *testing.T) {
 			return false
 		}
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// update request
@@ -4215,7 +4221,7 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.update"
 		go publisher(cmd, string(updateReqStr))
 
-		log("sleep 3")
+		fmt.Println("sleep 3")
 		time.Sleep(3 * time.Second)
 
 		// delete poller
@@ -4229,11 +4235,11 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.delete"
 		go publisher(cmd, string(delReqStr))
 
-		log("sleep 5")
+		fmt.Println("sleep 5")
 		time.Sleep(5 * time.Second)
 
 		longRun = false // bad
-		log("sleep 1")
+		fmt.Println("sleep 1")
 		time.Sleep(1 * time.Second)
 
 		return true
@@ -4277,7 +4283,7 @@ func TestPollRequestSingle(t *testing.T) {
 			return false
 		}
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// update request
@@ -4291,7 +4297,7 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.update"
 		go publisher(cmd, string(updateReqStr))
 
-		log("sleep 20")
+		fmt.Println("sleep 20")
 		time.Sleep(20 * time.Second)
 
 		// delete poller
@@ -4305,11 +4311,11 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.delete"
 		go publisher(cmd, string(delReqStr))
 
-		log("sleep 5")
+		fmt.Println("sleep 5")
 		time.Sleep(5 * time.Second)
 
 		longRun = false // bad
-		log("sleep 1")
+		fmt.Println("sleep 1")
 		time.Sleep(1 * time.Second)
 
 		return true
@@ -4353,7 +4359,7 @@ func TestPollRequestSingle(t *testing.T) {
 			return false
 		}
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// update request
@@ -4366,7 +4372,7 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.read"
 		go publisher(cmd, string(updateReqStr))
 
-		log("sleep 3")
+		fmt.Println("sleep 3")
 		time.Sleep(3 * time.Second)
 
 		// delete poller
@@ -4380,11 +4386,11 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.delete"
 		go publisher(cmd, string(delReqStr))
 
-		log("sleep 5")
+		fmt.Println("sleep 5")
 		time.Sleep(5 * time.Second)
 
 		longRun = false // bad
-		log("sleep 1")
+		fmt.Println("sleep 1")
 		time.Sleep(1 * time.Second)
 
 		return true
@@ -4428,7 +4434,7 @@ func TestPollRequestSingle(t *testing.T) {
 			return false
 		}
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// update request
@@ -4441,7 +4447,7 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.read"
 		go publisher(cmd, string(updateReqStr))
 
-		log("sleep 3")
+		fmt.Println("sleep 3")
 		time.Sleep(3 * time.Second)
 
 		// delete poller
@@ -4455,11 +4461,11 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.delete"
 		go publisher(cmd, string(delReqStr))
 
-		log("sleep 5")
+		fmt.Println("sleep 5")
 		time.Sleep(5 * time.Second)
 
 		longRun = false // bad
-		log("sleep 1")
+		fmt.Println("sleep 1")
 		time.Sleep(1 * time.Second)
 
 		return true
@@ -4502,7 +4508,7 @@ func TestPollRequestSingle(t *testing.T) {
 
 		go longSubscriber()
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// update request
@@ -4516,7 +4522,7 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.toggle"
 		go publisher(cmd, string(updateReqStr))
 
-		log("sleep 3")
+		fmt.Println("sleep 3")
 		time.Sleep(3 * time.Second)
 
 		// read request
@@ -4529,7 +4535,7 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.read"
 		go publisher(cmd, string(updateReqStr2))
 
-		log("sleep 3")
+		fmt.Println("sleep 3")
 		time.Sleep(3 * time.Second)
 
 		// delete poller
@@ -4543,11 +4549,11 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.delete"
 		go publisher(cmd, string(delReqStr))
 
-		log("sleep 5")
+		fmt.Println("sleep 5")
 		time.Sleep(5 * time.Second)
 
 		longRun = false // bad
-		log("sleep 1")
+		fmt.Println("sleep 1")
 		time.Sleep(1 * time.Second)
 
 		return true
@@ -4591,7 +4597,7 @@ func TestPollRequestSingle(t *testing.T) {
 			return false
 		}
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// enable poller
@@ -4606,7 +4612,7 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.toggle"
 		go publisher(cmd, string(enableReqStr))
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// delete poller
@@ -4620,11 +4626,11 @@ func TestPollRequestSingle(t *testing.T) {
 		cmd = "mbtcp.poll.delete"
 		go publisher(cmd, string(delReqStr))
 
-		log("sleep 2")
+		fmt.Println("sleep 2")
 		time.Sleep(2 * time.Second)
 
 		longRun = false
-		log("sleep 1")
+		fmt.Println("sleep 1")
 		time.Sleep(1 * time.Second)
 
 		return true
@@ -4701,7 +4707,7 @@ func TestPollsRequest(t *testing.T) {
 
 		go longSubscriber()
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// readReq poller
@@ -4714,11 +4720,11 @@ func TestPollsRequest(t *testing.T) {
 		cmd = "mbtcp.polls.read"
 		go publisher(cmd, string(readReqStr))
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		longRun = false
-		log("sleep 1")
+		fmt.Println("sleep 1")
 		time.Sleep(1 * time.Second)
 
 		return true
@@ -4756,7 +4762,7 @@ func TestPollsRequest(t *testing.T) {
 
 		go longSubscriber()
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// readReq poller
@@ -4769,7 +4775,7 @@ func TestPollsRequest(t *testing.T) {
 		cmd := "mbtcp.polls.read"
 		go publisher(cmd, string(readReqStr))
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// delete poller
@@ -4782,11 +4788,11 @@ func TestPollsRequest(t *testing.T) {
 		cmd = "mbtcp.polls.delete"
 		go publisher(cmd, string(delReqStr))
 
-		log("sleep 5")
+		fmt.Println("sleep 5")
 		time.Sleep(5 * time.Second)
 
 		longRun = false
-		log("sleep 1")
+		fmt.Println("sleep 1")
 		time.Sleep(1 * time.Second)
 
 		return true
@@ -4823,7 +4829,7 @@ func TestPollsRequest(t *testing.T) {
 
 		go longSubscriber()
 
-		log("sleep 10")
+		fmt.Println("sleep 10")
 		time.Sleep(10 * time.Second)
 
 		// toggle poller
@@ -4837,7 +4843,7 @@ func TestPollsRequest(t *testing.T) {
 		cmd := "mbtcp.polls.toggle"
 		go publisher(cmd, string(readReqStr))
 
-		log("sleep 5")
+		fmt.Println("sleep 5")
 		time.Sleep(5 * time.Second)
 
 		// delete poller
@@ -4850,11 +4856,11 @@ func TestPollsRequest(t *testing.T) {
 		cmd = "mbtcp.polls.delete"
 		go publisher(cmd, string(delReqStr))
 
-		log("sleep 5")
+		fmt.Println("sleep 5")
 		time.Sleep(5 * time.Second)
 
 		longRun = false
-		log("sleep 1")
+		fmt.Println("sleep 1")
 		time.Sleep(1 * time.Second)
 
 		return true
