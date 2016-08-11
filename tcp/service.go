@@ -25,6 +25,10 @@ var (
 	minConnTimeout int64
 	// minPollInterval minimal modbus tcp poll interval
 	minPollInterval uint64
+	// maxQueueSize the size of job queue
+	maxQueueSize int
+	// max_workers the number of workers to start
+	maxWorkers int
 )
 
 func setDefaults() {
@@ -47,6 +51,8 @@ func init() {
 	defaultMbPort = conf.GetString(keyTCPDefaultPort)
 	minConnTimeout = conf.GetInt64(keyMinConnectionTimout)
 	minPollInterval = uint64(conf.GetInt(keyPollInterval))
+	maxWorkers = conf.GetInt(keyMaxWorker)
+	maxQueueSize = conf.GetInt(keyMaxQueue)
 }
 
 // @Implement IProactiveService contract implicitly
@@ -81,6 +87,8 @@ type (
 		poller *zmq.Poller
 		// enable poller flag
 		enable bool
+		// jobChan job channel
+		jobChan chan job
 	}
 )
 
@@ -1473,6 +1481,83 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 	}
 }
 
+type job struct {
+	source ZmqSource
+	msg    []string
+}
+
+type worker struct {
+	id      int
+	service *Service
+}
+
+// ZmqSource zmq source
+type ZmqSource int
+
+const (
+	_ ZmqSource = iota
+	// Upstream from services
+	Upstream
+	// Downstream from modbusd
+	Downstream
+)
+
+func (w worker) process(j job) {
+	conf.Log.WithField("id", w.id).Debug("Worker started")
+
+	switch j.source {
+	case Upstream:
+		// parse request
+		if req, err := w.service.ParseRequest(j.msg); req != nil {
+			// handle request
+			err := w.service.HandleRequest(j.msg[0], req)
+			if err != nil {
+				conf.Log.WithFields(conf.Fields{
+					"cmd": j.msg[0],
+					"err": err,
+				}).Error("Fail to handle request")
+				// no need to send back again!
+			}
+		} else {
+			conf.Log.WithFields(conf.Fields{
+				"cmd": j.msg[0],
+				"err": err,
+			}).Error("Fail to parse request")
+			// send error back
+			w.service.naiveResponder(j.msg[0], MbtcpSimpleRes{Status: err.Error()})
+		}
+	default: // Downstream
+		// parse response
+		if res, err := w.service.ParseResponse(j.msg); res != nil {
+			// handle response
+			err := w.service.HandleResponse(j.msg[0], res)
+			if err != nil {
+				conf.Log.WithFields(conf.Fields{
+					"cmd": j.msg[0],
+					"err": err,
+				}).Error("Fail to handle response")
+				// no need to send back again!
+			}
+		} else {
+			conf.Log.WithFields(conf.Fields{
+				"cmd": j.msg[0],
+				"err": err,
+			}).Error("Fail to parse response")
+			// no need to send back, we don't know the sender
+		}
+	}
+	conf.Log.WithField("id", w.id).Debug("Worker completed")
+}
+
+func (b *Service) dispatch(source ZmqSource, msg []string) {
+	// Create Job and push the work to the channel
+	job := job{source, msg}
+	go func() {
+		conf.Log.Debug("Add job")
+		jobCh <- job
+	}()
+}
+
 // Start enable proactive service
 func (b *Service) Start() {
 
@@ -1480,6 +1565,19 @@ func (b *Service) Start() {
 	b.scheduler.Start()
 	b.enable = true
 	b.startZMQ()
+
+	// init the job channel
+	b.jobChan = make(chan job, *maxQueueSize)
+
+	// create workers
+	for i := 0; i < *maxWorkers; i++ {
+		w := worker{i, b}
+		go func(w worker) {
+			for j := range b.jobChan {
+				w.process(j)
+			}
+		}(w)
+	}
 
 	// process messages from both subscriber sockets
 	for b.enable {
@@ -1494,25 +1592,7 @@ func (b *Service) Start() {
 					"req": msg[1],
 				}).Debug("Receive request from upstream services")
 
-				// parse request
-				if req, err := b.ParseRequest(msg); req != nil {
-					// handle request
-					err := b.HandleRequest(msg[0], req)
-					if err != nil {
-						conf.Log.WithFields(conf.Fields{
-							"cmd": msg[0],
-							"err": err,
-						}).Error("Fail to handle request")
-						// no need to send back again!
-					}
-				} else {
-					conf.Log.WithFields(conf.Fields{
-						"cmd": msg[0],
-						"err": err,
-					}).Error("Fail to parse request")
-					// send error back
-					b.naiveResponder(msg[0], MbtcpSimpleRes{Status: err.Error()})
-				}
+				b.dispatch(Upstream, msg)
 			case b.sub.downstream:
 				// receive from modbusd
 				msg, _ := b.sub.downstream.RecvMessage(0)
@@ -1521,24 +1601,7 @@ func (b *Service) Start() {
 					"resp": msg[1],
 				}).Debug("Receive response from modbusd")
 
-				// parse response
-				if res, err := b.ParseResponse(msg); res != nil {
-					// handle response
-					err := b.HandleResponse(msg[0], res)
-					if err != nil {
-						conf.Log.WithFields(conf.Fields{
-							"cmd": msg[0],
-							"err": err,
-						}).Error("Fail to handle response")
-						// no need to send back again!
-					}
-				} else {
-					conf.Log.WithFields(conf.Fields{
-						"cmd": msg[0],
-						"err": err,
-					}).Error("Fail to parse response")
-					// no need to send back, we don't know the sender
-				}
+				b.dispatch(Downstream, msg)
 			}
 		}
 	}
@@ -1550,4 +1613,6 @@ func (b *Service) Stop() {
 	b.scheduler.Stop()
 	b.enable = false
 	b.stopZMQ()
+	// close job channel and wait for workers to complete
+	close(b.jobChan)
 }
