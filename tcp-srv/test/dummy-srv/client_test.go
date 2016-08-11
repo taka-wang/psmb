@@ -4877,6 +4877,7 @@ func TestPollsRequest(t *testing.T) {
 	*/
 }
 
+/*
 func TestPSMB(t *testing.T) {
 	s := sugar.New(t)
 
@@ -4922,3 +4923,4 @@ func TestPSMB(t *testing.T) {
 	})
 
 }
+*/
