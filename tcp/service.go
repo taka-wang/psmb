@@ -1522,6 +1522,8 @@ func (b *Service) Start() {
 			for j := range b.jobChan {
 				w.process(j)
 			}
+			// debug
+			conf.Log.WithField("id", w.id).Fatal("Worker die!")
 		}(w)
 	}
 

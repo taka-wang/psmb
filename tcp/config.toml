@@ -59,4 +59,4 @@ max_queue               = 500           # max # task queue
     upstream   = "ipc:///tmp/to.psmb"       # from services
     downstream = "ipc:///tmp/from.modbus"   # from modbusd
 
-# TOML config end @20160810
+# TOML config end @20160811
