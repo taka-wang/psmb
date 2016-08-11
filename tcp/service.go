@@ -685,7 +685,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// function code checker
 		if req.FC < 1 || req.FC > 4 {
 			err := ErrInvalidFunctionCode // invalid read function code
-			conf.Log.WithField("FC", req.FC).Warn(err)
+			conf.Log.WithError(err).Warn(mbCreatePoll)
 			// send error back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -754,7 +754,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// update task interval
 		if ok := b.scheduler.UpdateIntervalWithName(req.Name, req.Interval); !ok {
 			err := ErrInvalidPollName // not in scheduler
-			conf.Log.Error(err).Warn(mbUpdatePoll)
+			conf.Log.WithError(err).Warn(mbUpdatePoll)
 			status = err.Error() // set error status
 		}
 
