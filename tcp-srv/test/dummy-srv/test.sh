@@ -14,6 +14,7 @@ then
   #echo "<<<Test PASS>>>"
   echo -e "${COLOR_RED}<<<Test PASS>>>${COLOR_REST}"
   touch /var/tmp/success # symbol
+  docker-compose stop
   exit 0
 else
   #echo "<<<TEST FAIL>>>" >&2
