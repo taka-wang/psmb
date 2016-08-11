@@ -359,7 +359,7 @@ func (b *Service) Task(socket *zmq.Socket, req interface{}) {
 		conf.Log.WithError(err).Error("Task")
 		return
 	}
-	conf.Log.WithField("cmd", str).Debug("Send request to modbusd:")
+	conf.Log.WithField("cmd", str).Debug("Send request to modbusd")
 	socket.Send("tcp", zmq.SNDMORE) // frame 1
 	socket.Send(str, 0)             // convert to string; frame 2
 }
@@ -423,7 +423,7 @@ func (b *Service) naiveResponder(cmd string, resp interface{}) error {
 		return err
 	}
 
-	conf.Log.WithField("response", respStr).Debug("Send message to services")
+	conf.Log.WithField("msg", respStr).Debug("Send response to services")
 	b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
 	b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 	return nil
@@ -1169,7 +1169,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 
 		// check write task map
 		if cmd, ok := b.writerMap.Get(TidStr); ok {
-			conf.Log.WithField("JSON", respStr).Debug("Send message to services")
+			conf.Log.WithField("JSON", respStr).Debug("Send response to services")
 			b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
 			b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 			// remove from write task map!
