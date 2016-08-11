@@ -1548,7 +1548,7 @@ func (b *Service) Start() {
 				conf.Log.WithFields(conf.Fields{
 					"cmd":  msg[0],
 					"resp": msg[1],
-				}).Debug("Receive response from modbusd")
+				}).Debug("Receive response from downstream modbusd")
 
 				b.dispatch(Downstream, msg)
 			}
