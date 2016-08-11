@@ -24,6 +24,7 @@ func init() {
 
 // dataStore read/poll task map type
 type dataStore struct {
+	// read writer mutex
 	sync.RWMutex
 	// idName (tid, name)
 	idName map[string]string
@@ -50,6 +51,8 @@ func (ds *dataStore) Add(name, tid, cmd string, req interface{}) error {
 	if name == "" { // read task instead of poll task
 		name = tid
 	}
+
+	// check capacity
 	ds.RLock()
 	boom := len(ds.idName)+1 > maxCapacity
 	ds.RUnlock()
@@ -85,9 +88,9 @@ func (ds *dataStore) GetTaskByName(name string) (interface{}, bool) {
 }
 
 // GetAll get all requests from read/poll task map
-//	interface{}: []psmb.MbtcpPollStatus
 func (ds *dataStore) GetAll() interface{} {
 	arr := []psmb.MbtcpPollStatus{}
+
 	ds.RLock()
 	for _, v := range ds.nameMap {
 		// type casting check!
@@ -96,6 +99,12 @@ func (ds *dataStore) GetAll() interface{} {
 		}
 	}
 	ds.RUnlock()
+
+	if len(arr) == 0 {
+		err := ErrNoData
+		conf.Log.WithError(err).Warn("Fail to get all items from reader data store")
+		return nil
+	}
 	return arr
 }
 
@@ -152,12 +161,13 @@ func (ds *dataStore) UpdateIntervalByName(name string, interval uint64) error {
 		return ErrInvalidPollName
 	}
 
-	req, ok2 := task.Req.(psmb.MbtcpPollStatus)
-	if !ok2 {
+	req, ok := task.Req.(psmb.MbtcpPollStatus)
+	if !ok {
 		return ErrInvalidPollName
 	}
 
 	req.Interval = interval // update interval
+
 	ds.Lock()
 	ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: task.Cmd, Req: req} // update nameMap table
 	ds.idMap[tid] = ds.nameMap[name]                                        // update idMap table
@@ -175,9 +185,9 @@ func (ds *dataStore) UpdateToggleByName(name string, toggle bool) error {
 	if !ok {
 		return ErrInvalidPollName
 	}
-	// type casting check!
-	req, ok2 := task.Req.(psmb.MbtcpPollStatus)
-	if !ok2 {
+
+	req, ok := task.Req.(psmb.MbtcpPollStatus)
+	if !ok {
 		return ErrInvalidPollName
 	}
 
@@ -193,7 +203,6 @@ func (ds *dataStore) UpdateToggleByName(name string, toggle bool) error {
 func (ds *dataStore) UpdateAllToggles(toggle bool) {
 	ds.Lock()
 	for name, task := range ds.nameMap {
-		// type casting check!
 		if req, ok := task.Req.(psmb.MbtcpPollStatus); ok {
 			req.Enabled = toggle                                                    // update flag
 			ds.nameMap[name] = psmb.ReaderTask{Name: name, Cmd: task.Cmd, Req: req} // update nameMap table

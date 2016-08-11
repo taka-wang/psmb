@@ -8,7 +8,6 @@ import (
 	mgohistory "github.com/taka-wang/psmb/mgo-history"
 	rfilter "github.com/taka-wang/psmb/redis-filter"
 	history "github.com/taka-wang/psmb/redis-history"
-	rwriter "github.com/taka-wang/psmb/redis-writer"
 	mbtcp "github.com/taka-wang/psmb/tcp"
 )
 

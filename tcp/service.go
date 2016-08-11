@@ -123,6 +123,7 @@ func NewService(reader, writer, history, filter, sch string) (IProactiveService,
 	var filterPlugin IFilterDataStore
 	var schedulerPlugin cron.Scheduler
 	var err error
+
 	// factory methods
 	if readerPlugin, err = ReaderDataStoreCreator(reader); err != nil { // reader factory
 		conf.Log.WithError(err).Fatal("Fail to create reader data store")
@@ -223,6 +224,7 @@ func (b *Service) addToHistory(name string, data interface{}) bool {
 func (b *Service) applyFilter(name string, data interface{}) bool {
 	f, ok := b.filterMap.Get(name) // get filter request from map
 	if !ok {
+		// we intend to depress this log
 		//log.Debug(ErrFilterNotFound.Error())
 		return true // no filter
 	}
@@ -683,7 +685,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// function code checker
 		if req.FC < 1 || req.FC > 4 {
 			err := ErrInvalidFunctionCode // invalid read function code
-			conf.Log.WithField("FC", req.FC).Warn(err.Error())
+			conf.Log.WithFields(conf.Fields{"err": err, "FC", req.FC}).Warn(mbCreatePoll)
 			// send error back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -692,7 +694,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// protect null poll name
 		if req.Name == "" {
 			err := ErrInvalidPollName
-			conf.Log.WithField("Name", req.Name).Warn(err.Error())
+			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbCreatePoll)
 			// send back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -752,14 +754,14 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// update task interval
 		if ok := b.scheduler.UpdateIntervalWithName(req.Name, req.Interval); !ok {
 			err := ErrInvalidPollName // not in scheduler
-			conf.Log.WithField("Name", req.Name).Warn(err.Error())
+			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbUpdatePoll)
 			status = err.Error() // set error status
 		}
 
 		// update read/poll task map
 		if status == "ok" {
 			if err := b.readerMap.UpdateIntervalByName(req.Name, req.Interval); err != nil {
-				conf.Log.WithField("Name", req.Name).Warn(err.Error())
+				conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbUpdatePoll)
 				status = err.Error() // set error status
 			}
 		}
@@ -772,7 +774,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		task := t.(ReaderTask) // type casting
 		if !ok {
 			err := ErrInvalidPollName // not in read/poll task map
-			conf.Log.WithField("Name", req.Name).Warn(err.Error())
+			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbGetPoll)
 			// send error back
 			resp := MbtcpSimpleRes{Tid: req.Tid, Status: err.Error()}
 			return b.naiveResponder(cmd, resp)
@@ -803,7 +805,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		// remove task from scheduler
 		if ok := b.scheduler.RemoveWithName(req.Name); !ok {
 			err := ErrInvalidPollName // not in scheduler
-			conf.Log.WithField("Name", req.Name).Warn(err.Error())
+			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbDeletePoll)
 			status = err.Error() // set error status
 		}
 		// remove task from read/poll map
@@ -825,12 +827,12 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		if !ok {
 			// not in scheduler
 			err := ErrInvalidPollName
-			conf.Log.WithField("Name", req.Name).Warn(err.Error())
+			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbTogglePoll)
 			status = err.Error() // set error status
 		} else {
 			// update read/poll task map
 			if err := b.readerMap.UpdateToggleByName(req.Name, req.Enabled); err != nil {
-				conf.Log.WithField("Name", req.Name).Warn(err.Error())
+				conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbTogglePoll)
 				status = err.Error() // set error status
 			}
 		}
@@ -840,7 +842,6 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 	case mbGetPolls, mbExportPolls:
 		req := r.(MbtcpPollOpReq)
 		reqs := b.readerMap.GetAll().([]MbtcpPollStatus) // type casting
-		//conf.Log.WithField("reqs", reqs).Debug("after GetAll")
 
 		// send back
 		resp := MbtcpPollsStatus{
@@ -875,14 +876,14 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 			// function code checker
 			if req.FC < 1 || req.FC > 4 {
 				err := ErrInvalidFunctionCode // invalid read function code
-				conf.Log.WithField("FC", req.FC).Warn(err.Error())
+				conf.Log.WithFields(conf.Fields{"err": err, "FC", req.FC}).Warn(mbImportPolls)
 				continue // bypass
 			}
 
 			// protect null poll name
 			if req.Name == "" {
 				err := ErrInvalidPollName
-				conf.Log.WithField("Name", req.Name).Warn(err.Error())
+				conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbImportPolls)
 				continue // bypass
 			}
 
@@ -914,7 +915,8 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 
 			// Add task to read/poll task map
 			if err := b.readerMap.Add(req.Name, TidStr, cmd, req); err != nil {
-				conf.Log.WithError(err).Warn(mbImportPolls) // maybe out of capacity
+				// maybe out of capacity
+				conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbImportPolls)
 				// send error back
 				resp := MbtcpSimpleRes{Tid: request.Tid, Status: err.Error()}
 				return b.naiveResponder(cmd, resp)
@@ -934,7 +936,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 		resp := MbtcpHistoryData{Tid: req.Tid, Name: req.Name, Status: "ok"}
 		ret, err := b.historyMap.GetAll(req.Name)
 		if err != nil {
-			conf.Log.WithField("Name", req.Name).Warn(err.Error())
+			conf.Log.WithFields(conf.Fields{"err": err, "Name", req.Name}).Warn(mbGetPollHistory)
 			resp.Status = err.Error()
 			return b.naiveResponder(cmd, resp)
 		}
@@ -957,7 +959,7 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 
 			// add or update to filter map
 			if err := b.filterMap.Add(req.Name, req); err != nil {
-				conf.Log.WithError(err).Error(mbImportFilters)
+				conf.Log.WithError(err).Error(mbCreateFilter)
 				status = err.Error() // set error status
 			}
 		}
