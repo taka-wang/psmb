@@ -1481,16 +1481,6 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 	}
 }
 
-type job struct {
-	source ZmqSource
-	msg    []string
-}
-
-type worker struct {
-	id      int
-	service *Service
-}
-
 // ZmqSource zmq source
 type ZmqSource int
 
@@ -1501,6 +1491,16 @@ const (
 	// Downstream from modbusd
 	Downstream
 )
+
+type job struct {
+	source ZmqSource
+	msg    []string
+}
+
+type worker struct {
+	id      int
+	service *Service
+}
 
 func (w worker) process(j job) {
 	conf.Log.WithField("id", w.id).Debug("Worker started")
@@ -1554,7 +1554,7 @@ func (b *Service) dispatch(source ZmqSource, msg []string) {
 	job := job{source, msg}
 	go func() {
 		conf.Log.Debug("Add job")
-		jobCh <- job
+		b.jobChan <- job
 	}()
 }
 
@@ -1567,10 +1567,10 @@ func (b *Service) Start() {
 	b.startZMQ()
 
 	// init the job channel
-	b.jobChan = make(chan job, *maxQueueSize)
+	b.jobChan = make(chan job, maxQueueSize)
 
 	// create workers
-	for i := 0; i < *maxWorkers; i++ {
+	for i := 0; i < maxWorkers; i++ {
 		w := worker{i, b}
 		go func(w worker) {
 			for j := range b.jobChan {
