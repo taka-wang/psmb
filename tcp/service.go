@@ -1621,6 +1621,6 @@ func (w worker) process(j job) {
 	}
 	conf.Log.WithFields(conf.Fields{
 		"id", w.id,
-		"msg": j.msg[1],
+		"msg": j.msg,
 	}).Debug("Worker completed")
 }
