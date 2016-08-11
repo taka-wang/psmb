@@ -1574,8 +1574,7 @@ func (b *Service) dispatch(source ZmqSource, msg []string) {
 
 // process handle request and response
 func (w worker) process(j job) {
-	conf.Log.WithFields(conf.Fields{"id", w.id, "msg": j.msg}).Debug("Worker started")
-
+	conf.Log.WithFields(conf.Fields{"id", w.id, "msg": j.msg[1]}).Debug("Worker started")
 	switch j.source {
 	case Upstream:
 		// parse request
@@ -1617,5 +1616,5 @@ func (w worker) process(j job) {
 			// no need to send back, we don't know the sender
 		}
 	}
-	conf.Log.WithFields(conf.Fields{"id", w.id, "msg": j.msg}).Debug("Worker completed")
+	conf.Log.WithFields(conf.Fields{"id", w.id, "msg": j.msg[1]}).Debug("Worker completed")
 }
