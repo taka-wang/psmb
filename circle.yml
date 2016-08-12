@@ -1,14 +1,17 @@
 machine:
-  services:
-    - docker
+    services:
+        - docker
 
 dependencies:
-  pre:
-    - sudo pip install docker-compose
+    pre:
+        - sudo pip install docker-compose
 
 test:
-  pre:
-    - docker-compose pull
-    - docker-compose build
-  override:
-    - docker-compose up
+    pre:
+        - docker-compose rm
+        - docker-compose pull
+        - docker-compose build
+    override:
+        - docker-compose up --abort-on-container-exit
+        - docker-compose stop
+        - docker-compose rm -f -a
