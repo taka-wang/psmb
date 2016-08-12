@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/taka-wang/psmb"
+	//conf "github.com/taka-wang/psmb/mini-conf"
 	conf "github.com/taka-wang/psmb/viper-conf"
 )
 
@@ -24,6 +25,7 @@ func init() {
 
 // dataStore filter map
 type dataStore struct {
+	// read writer mutex
 	sync.RWMutex
 	// m key-value map: (name, psmb.MbtcpFilterStatus)
 	m map[string]interface{}
@@ -38,6 +40,10 @@ func NewDataStore(conf map[string]string) (interface{}, error) {
 
 // Add add request to filter map
 func (ds *dataStore) Add(name string, req interface{}) error {
+	if name == "" {
+		return ErrInvalidFilterName
+	}
+
 	ds.RLock()
 	boom := len(ds.m)+1 > maxCapacity
 	ds.RUnlock()
@@ -70,7 +76,7 @@ func (ds *dataStore) GetAll() interface{} {
 
 	if len(arr) == 0 {
 		err := ErrNoData
-		conf.Log.WithError(err).Error("Fail to get all items from filter data store")
+		conf.Log.WithError(err).Warn("Fail to get all items from filter data store")
 		return nil
 	}
 	return arr

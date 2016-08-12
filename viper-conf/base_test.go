@@ -19,6 +19,8 @@ func TestLogger(t *testing.T) {
 		conf.Log.Debug("hello world")
 		conf.Log.WithError(ErrFilterNotFound).Error("World hello")
 
+		conf.Log.WithFields(conf.Fields{"err": ErrFilterNotFound, "file name": "Hello"}).Error("Fail to create log file")
+
 		conf.Log.WithFields(conf.Fields{
 			"err":       ErrFilterNotFound,
 			"file name": "Hello",

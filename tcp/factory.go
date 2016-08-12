@@ -125,13 +125,11 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 // Register register factory methods
 func Register(name string, factory interface{}) {
 	if factory == nil {
-		err := ErrPluginNotExist
-		cf.Log.WithError(err).Error("Register: " + name)
+		cf.Log.WithError(ErrPluginNotExist).Error("Register: " + name)
 	}
 	_, registered := factories[name]
 	if registered {
-		err := ErrPluginExist
-		cf.Log.WithError(err).Error("Register: " + name)
+		cf.Log.WithError(ErrPluginExist).Error("Register: " + name)
 	}
 	factories[name] = factory
 }

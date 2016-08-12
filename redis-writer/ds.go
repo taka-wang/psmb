@@ -37,7 +37,7 @@ func setDefaults() {
 		conf.Log.WithError(err).Debug("Local run")
 	} else {
 		conf.Log.WithField("hostname", host[0]).Info("Docker run")
-		conf.Set("redis.server", host[0]) // override default
+		conf.Set(keyRedisServer, host[0]) // override default
 	}
 }
 
@@ -70,33 +70,26 @@ type dataStore struct {
 
 // NewDataStore instantiate mbtcp write task map
 func NewDataStore(conf map[string]string) (interface{}, error) {
-	// get connection from pool
-	conn := RedisPool.Get()
-	if nil == conn {
-		return nil, ErrConnection
+	if conn := RedisPool.Get(); conn != nil {
+		return &dataStore{
+			redis: conn,
+		}, nil
 	}
-
-	return &dataStore{
-		redis: conn,
-	}, nil
+	return nil, ErrConnection
 }
 
 func (ds *dataStore) connectRedis() error {
-	// get connection from pool
-	conn := RedisPool.Get()
-	if nil == conn {
-		err := ErrConnection
-		return err
+	if conn := RedisPool.Get(); conn != nil {
+		ds.redis = conn
+		return nil
 	}
-	ds.redis = conn
-	return nil
+	return ErrConnection
 }
 
 func (ds *dataStore) closeRedis() {
 	if ds != nil && ds.redis != nil {
-		err := ds.redis.Close()
-		if err != nil {
-			conf.Log.WithError(err).Error("Fail to close redis connection")
+		if err := ds.redis.Close(); err != nil {
+			conf.Log.WithError(err).Warn("Fail to close redis connection")
 		}
 		/*else {
 			conf.Log.Debug("Close redis connection")
@@ -114,7 +107,7 @@ func (ds *dataStore) Add(tid, cmd string) {
 	}
 
 	if _, err := ds.redis.Do("HSET", hashName, tid, cmd); err != nil {
-		conf.Log.WithError(err).Error("Fail to add item to writer data store")
+		conf.Log.WithError(err).Warn("Fail to add item to writer data store")
 	}
 }
 
@@ -128,7 +121,7 @@ func (ds *dataStore) Get(tid string) (string, bool) {
 
 	ret, err := redis.String(ds.redis.Do("HGET", hashName, tid))
 	if err != nil {
-		conf.Log.WithError(err).Error("Fail to get item from writer data store")
+		conf.Log.WithError(err).Warn("Fail to get item from writer data store")
 		return "", false
 	}
 	return ret, true
@@ -140,6 +133,7 @@ func (ds *dataStore) Delete(tid string) {
 	if err := ds.connectRedis(); err != nil {
 		conf.Log.WithError(err).Error("Fail to connect to redis server")
 	}
+
 	if _, err := ds.redis.Do("HDEL", hashName, tid); err != nil {
 		conf.Log.WithError(err).Error("Fail to delete item from writer data store")
 	}
