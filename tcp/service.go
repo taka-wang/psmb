@@ -1523,8 +1523,6 @@ func (b *Service) Start() {
 			for j := range b.jobChan {
 				w.process(j)
 			}
-			// debug
-			conf.Log.WithField("id", w.id).Fatal("Worker die!")
 		}(w)
 	}
 
@@ -1570,15 +1568,15 @@ func (b *Service) Stop() {
 func (b *Service) dispatch(source ZmqSource, msg []string) {
 	job := job{source, msg}
 	go func() {
-		conf.Log.WithField("msg", msg).Debug("Add job")
+		//conf.Log.WithField("msg", msg).Debug("Add job")
 		b.jobChan <- job
 	}()
 }
 
 // process handle request and response
 func (w worker) process(j job) {
-	conf.Log.WithField("msg", j.msg).Debug("Worker started")
-	conf.Log.WithField("id", w.id).Debug("Worker started")
+	//conf.Log.WithField("msg", j.msg).Debug("Worker started")
+	//conf.Log.WithField("id", w.id).Debug("Worker started")
 	switch j.source {
 	case Upstream:
 		// parse request
@@ -1620,7 +1618,7 @@ func (w worker) process(j job) {
 			// no need to send back, we don't know the sender
 		}
 	}
-	conf.Log.WithField("msg", j.msg).Debug("Worker completed")
-	conf.Log.WithField("id", w.id).Debug("Worker completed")
+	//conf.Log.WithField("msg", j.msg).Debug("Worker completed")
+	//conf.Log.WithField("id", w.id).Debug("Worker completed")
 
 }
