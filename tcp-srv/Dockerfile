@@ -8,9 +8,9 @@ ENV EP_BACKEND "consul.cmwang.net:8500"
 
 # add source code
 ADD . /go/src/github.com/taka-wang/psmb
+RUN ls
 
 # install deps
-WORKDIR /go/src/github.com/taka-wang/psmb/tcp-srv
 RUN go get github.com/Masterminds/glide
 RUN go build github.com/Masterminds/glide
 WORKDIR /go/src/github.com/taka-wang/psmb/
