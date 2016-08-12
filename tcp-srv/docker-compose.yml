@@ -9,7 +9,8 @@ modbusd:
         - slave
 
 psmbtcpsrv:
-    build: .
+    build: ../.
+    dockerfile: Dockerfile
     volumes_from:
         - modbusd
 

@@ -7,7 +7,7 @@ ENV CONF_PSMBTCP "/etc/psmbtcp"
 ENV EP_BACKEND "consul.cmwang.net:8500"
 
 # add source code
-ADD . /go/src/github.com/taka-wang/psmb/tcp-srv
+ADD . /go/src/github.com/taka-wang/psmb
 
 # install deps
 WORKDIR /go/src/github.com/taka-wang/psmb/tcp-srv
