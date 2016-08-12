@@ -8,6 +8,7 @@ ENV EP_BACKEND "consul.cmwang.net:8500"
 
 # add source code
 ADD . /go/src/github.com/taka-wang/psmb
+WORKDIR /go/src/github.com/taka-wang/psmb
 RUN ls
 
 # install deps
