@@ -18,12 +18,14 @@ modbusd:
         - slave
 
 psmbtcpsrv:
-    build: tcp-srv/.
+    build: .
+    dockerfile: tcp-srv/Dockerfile
     volumes_from:
         - modbusd
     links:
         - redis
         - mongodb
+
 dummysrv:
     build: tcp-srv/test/dummy-srv/.
     volumes_from:
