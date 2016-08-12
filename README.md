@@ -33,13 +33,46 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QUBJRIeqOAI5b3R4xTNttNf9h9x8jIx5h8y3G766V5dnqmTfR68a5c9ZCBnncoWPkdC5nc6aaAZNzl2N8EqUVde1)
 
+---
 
-## Docker Compose
+## Up and Running
+
+### Docker Compose (prefer)
 
 ```bash
 docker-compose build --pull
 docker-compose up
 ```
+
+### Step by step
+
+#### Install libzmq (3.2.5)
+
+```bash
+wget https://github.com/zeromq/zeromq3-x/releases/download/v3.2.5/zeromq-3.2.5.tar.gz
+tar xvzf zeromq-3.2.5.tar.gz
+cd zeromq-3.2.5
+./configure
+make
+sudo make install
+sudo ldconfig
+```
+
+#### Build
+
+```bash
+# install glide
+curl https://glide.sh/get | sh
+
+# install dependencies
+glide install
+
+# build
+cd tcp-srv
+go build -o psmbtcp-srv
+```
+
+---
 
 ## Continuous Integration
 
