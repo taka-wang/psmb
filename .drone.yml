@@ -2,14 +2,28 @@
 
 pipeline:
 
-    test-psmbtcp-srv:
+    test-viper-conf: # glide ready
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true -f viper-conf/Dockerfile .
+
+    test-mini-conf: # glide ready
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true -f mini-conf/Dockerfile .
+
+    test-psmbtcp-srv: # glide ready
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true -f tcp-srv/Dockerfile .
 
-    ci:
+    ci:  # glide ready
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -23,21 +37,6 @@ pipeline:
             - docker-compose rm -f -a
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
-
-
-    test-viper-conf:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true viper-conf/.
-
-    test-mini-conf:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true mini-conf/.
 
     test-redis-filter:
         image: takawang/dind
