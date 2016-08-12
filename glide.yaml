@@ -17,7 +17,6 @@ import:
   subpackages:
   - remote
 - package: github.com/taka-wang/psmb
-  version: ~0.8.0
   subpackages:
   - cron
   - mem-filter
