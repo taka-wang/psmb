@@ -1,6 +1,7 @@
 # psmb
 
 [![Build Status](http://drone.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://drone.cmwang.net/taka-wang/psmb)
+[![CircleCI](https://circleci.com/gh/taka-wang/psmb.svg?style=svg&circle-token=791a0bee85922cdfd4a0fe580953408febe3cabd)](https://circleci.com/gh/taka-wang/psmb)
 [![GoDoc](https://godoc.org/github.com/taka-wang/psmb?status.svg)](http://godoc.org/github.com/taka-wang/psmb)
 
 Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
