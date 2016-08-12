@@ -10,6 +10,7 @@ ADD . /go/src/github.com/taka-wang/psmb
 # install deps
 WORKDIR /go/src/github.com/taka-wang/psmb/
 RUN glide install
+RUN apt-get update && apt-get install curl -y
 
 # set work dir
 WORKDIR /go/src/github.com/taka-wang/psmb/tcp-srv/test/dummy-srv
