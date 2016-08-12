@@ -1537,7 +1537,7 @@ func (b *Service) Start() {
 				conf.Log.WithFields(conf.Fields{
 					"cmd": msg[0],
 					"req": msg[1],
-				}).Debug("Receive request")
+				}).Debug("Recv request")
 
 				b.dispatch(Upstream, msg)
 			case b.sub.downstream:
@@ -1546,7 +1546,7 @@ func (b *Service) Start() {
 				conf.Log.WithFields(conf.Fields{
 					"cmd":  msg[0],
 					"resp": msg[1],
-				}).Debug("Receive response")
+				}).Debug("Recv response")
 
 				b.dispatch(Downstream, msg)
 			}
