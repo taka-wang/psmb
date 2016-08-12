@@ -6,14 +6,10 @@ MAINTAINER Taka Wang <taka@cmwang.net>
 ENV CONF_PSMBTCP "/etc/psmbtcp"
 ENV EP_BACKEND "consul.cmwang.net:8500"
 
-# add source code
+# add source code from root
 ADD . /go/src/github.com/taka-wang/psmb
-WORKDIR /go/src/github.com/taka-wang/psmb
-RUN ls
 
 # install deps
-RUN go get github.com/Masterminds/glide
-RUN go build github.com/Masterminds/glide
 WORKDIR /go/src/github.com/taka-wang/psmb/
 RUN glide install
 
