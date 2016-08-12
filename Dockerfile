@@ -7,6 +7,7 @@ ADD . /go/src/github.com/taka-wang/psmb
 # add deps
 WORKDIR /go/src/github.com/taka-wang/psmb
 RUN glide install
+RUN apt-get update && apt-get install curl -y
 
 # run test
 RUN go test -v
