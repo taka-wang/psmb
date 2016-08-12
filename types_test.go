@@ -1,11 +1,10 @@
-package psmb_test
+package psmb
 
 import (
 	"encoding/json"
 	"strconv"
 	"testing"
 
-	. "github.com/taka-wang/psmb"
 	"github.com/takawang/sugar"
 )
 

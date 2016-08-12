@@ -1,10 +1,9 @@
-package psmb_test
+package psmb
 
 import (
 	"strings"
 	"testing"
 
-	. "github.com/taka-wang/psmb"
 	"github.com/takawang/sugar"
 )
 
