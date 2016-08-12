@@ -5,7 +5,8 @@ mongodb:
 
 mgo-history:
     build: ../.
-    links: mgo-history/Dockerfile
+    dockerfile: mgo-history/Dockerfile
+    links: 
         - mongodb
     volumes: # mount for test
         - /var/tmp:/var/tmp
