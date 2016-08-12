@@ -13,5 +13,6 @@ test:
         - docker-compose build
     override:
         - docker-compose up --abort-on-container-exit
+    post:
         - docker-compose stop
         - docker-compose rm -f -a
