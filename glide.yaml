@@ -1,0 +1,37 @@
+package: .
+import:
+- package: github.com/apex/log
+  subpackages:
+  - handlers/json
+  - handlers/text
+- package: github.com/garyburd/redigo
+  version: ~1.0.0
+  subpackages:
+  - redis
+- package: github.com/hashicorp/consul
+  version: ~0.7.0-test3
+  subpackages:
+  - api
+- package: github.com/koding/multiconfig
+- package: github.com/spf13/viper
+  subpackages:
+  - remote
+- package: github.com/taka-wang/psmb
+  version: ~0.8.0
+  subpackages:
+  - cron
+  - mem-filter
+  - mem-reader
+  - mem-writer
+  - mgo-history
+  - redis-filter
+  - redis-history
+  - redis-writer
+  - tcp
+  - viper-conf
+- package: github.com/takawang/zmq3
+- package: gopkg.in/mgo.v2
+  subpackages:
+  - bson
+testImport:
+- package: github.com/takawang/sugar
