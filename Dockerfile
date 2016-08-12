@@ -1,4 +1,4 @@
-FROM takawang/gozmq:x86
+FROM takawang/gozmq:pull
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 # add source code
