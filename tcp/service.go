@@ -359,7 +359,7 @@ func (b *Service) Task(socket *zmq.Socket, req interface{}) {
 		conf.Log.WithError(err).Error("Task")
 		return
 	}
-	conf.Log.WithField("cmd", str).Debug("Send request to modbusd")
+	conf.Log.WithField("msg", str).Debug("Send request")
 	socket.Send("tcp", zmq.SNDMORE) // frame 1
 	socket.Send(str, 0)             // convert to string; frame 2
 }
@@ -423,7 +423,7 @@ func (b *Service) naiveResponder(cmd string, resp interface{}) error {
 		return err
 	}
 
-	conf.Log.WithField("msg", respStr).Debug("Send response to services")
+	conf.Log.WithField("msg", respStr).Debug("Send response")
 	b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
 	b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 	return nil
@@ -437,7 +437,7 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 		return nil, ErrInvalidMessageLength
 	}
 
-	//conf.Log.WithField("cmd", msg[0]).Debug("Parse request from upstream services")
+	//conf.Log.WithField("msg", msg[0]).Debug("Parse request from upstream services")
 
 	switch msg[0] {
 	case mbGetTimeout, mbSetTimeout:
@@ -562,7 +562,7 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 // HandleRequest handle requests from services
 // 	do error checking
 func (b *Service) HandleRequest(cmd string, r interface{}) error {
-	//conf.Log.WithField("cmd", cmd).Debug("Handle request from upstream services")
+	//conf.Log.WithField("msg", cmd).Debug("Handle request from upstream services")
 
 	switch cmd {
 	case mbGetTimeout:
@@ -1101,7 +1101,7 @@ func (b *Service) ParseResponse(msg []string) (interface{}, error) {
 		return nil, ErrInvalidMessageLength
 	}
 
-	//conf.Log.WithField("cmd", msg[0]).Debug("Parse response from modbusd")
+	//conf.Log.WithField("msg", msg[0]).Debug("Parse response from modbusd")
 
 	switch MbCmdType(msg[0]) {
 	case setMbTimeout, getMbTimeout:
@@ -1123,7 +1123,7 @@ func (b *Service) ParseResponse(msg []string) (interface{}, error) {
 
 // HandleResponse handle responses from modbusd
 func (b *Service) HandleResponse(cmd string, r interface{}) error {
-	//conf.Log.WithField("cmd", cmd).Debug("Handle response from modbusd")
+	//conf.Log.WithField("msg", cmd).Debug("Handle response from modbusd")
 
 	switch MbCmdType(cmd) {
 	case fc5, fc6, fc15, fc16, setMbTimeout, getMbTimeout: // done: one-off requests
@@ -1169,7 +1169,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 
 		// check write task map
 		if cmd, ok := b.writerMap.Get(TidStr); ok {
-			conf.Log.WithField("JSON", respStr).Debug("Send response to services")
+			conf.Log.WithField("msg", respStr).Debug("Send response")
 			b.pub.upstream.Send(cmd, zmq.SNDMORE) // task command
 			b.pub.upstream.Send(respStr, 0)       // convert to string; frame 2
 			// remove from write task map!
@@ -1229,7 +1229,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				}
 			default: // should not reach here
 				err := ErrResponseNotSupport
-				conf.Log.WithField("cmd", cmd).Error(err.Error())
+				conf.Log.WithField("msg", cmd).Error(err.Error())
 				response = MbtcpSimpleRes{
 					Tid:    tid,
 					Status: err.Error(),
@@ -1490,7 +1490,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 				return nil
 			default: // should not reach here
 				err := ErrResponseNotSupport
-				conf.Log.WithField("cmd", task.Cmd).Error(err.Error())
+				conf.Log.WithField("msg", task.Cmd).Error(err.Error())
 				response = MbtcpSimpleRes{
 					Tid:    tid,
 					Status: err.Error(),
@@ -1537,7 +1537,7 @@ func (b *Service) Start() {
 				conf.Log.WithFields(conf.Fields{
 					"cmd": msg[0],
 					"req": msg[1],
-				}).Debug("Receive request from upstream services")
+				}).Debug("Receive request")
 
 				b.dispatch(Upstream, msg)
 			case b.sub.downstream:
@@ -1546,7 +1546,7 @@ func (b *Service) Start() {
 				conf.Log.WithFields(conf.Fields{
 					"cmd":  msg[0],
 					"resp": msg[1],
-				}).Debug("Receive response from downstream modbusd")
+				}).Debug("Receive response")
 
 				b.dispatch(Downstream, msg)
 			}
