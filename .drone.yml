@@ -7,8 +7,7 @@ pipeline:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true tcp-srv/.
-
+            - docker build --no-cache=true -f tcp-srv/Dockerfile .
 
     ci:
         image: takawang/dind
