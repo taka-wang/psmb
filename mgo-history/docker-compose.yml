@@ -2,9 +2,10 @@ mongodb:
     image: mongo
     ports:
         - "27017"
+
 mgo-history:
-    build: .
-    links:
+    build: ../.
+    links: mgo-history/Dockerfile
         - mongodb
     volumes: # mount for test
         - /var/tmp:/var/tmp

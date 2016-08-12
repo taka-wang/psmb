@@ -2,8 +2,10 @@ redis:
     image: redis
     ports:
         - "6379"
+
 redis-history:
-    build: .
+    build: ../.
+    dockerfile: redis-history/Dockerfile
     links:
         - redis
     volumes: # mount for test

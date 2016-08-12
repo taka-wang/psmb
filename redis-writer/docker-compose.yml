@@ -3,7 +3,8 @@ redis:
     ports:
         - "6379"
 redis-writer:
-    build: .
+    build: ../.
+    dockerfile: redis-writer/Dockerfile
     links:
         - redis
     volumes: # mount for test
