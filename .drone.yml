@@ -2,8 +2,21 @@
 
 pipeline:
 
+    test-mem-filter: # glide ready
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true -f mem-filter/Dockerfile .
 
-    test-redis-filter:
+    test-mem-reader: # glide ready
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true -f mem-reader/Dockerfile .
+
+    test-redis-filter: # glide ready
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -17,7 +30,6 @@ pipeline:
             - docker-compose -f redis-filter/docker-compose.yml rm -f -a
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
-
 
     test-viper-conf: # glide ready
         image: takawang/dind
@@ -54,20 +66,6 @@ pipeline:
             - docker-compose rm -f -a
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
-
-    test-mem-filter:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true mem-filter/.
-
-    test-mem-reader:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true mem-reader/.
 
     test-redis-history:
         image: takawang/dind
