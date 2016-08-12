@@ -2,14 +2,35 @@
 
 pipeline:
 
-    test-psmb-tcp: # glide ready
+    test-mem-writer:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true -f mem-writer/Dockerfile .
+
+    test-psmb:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true .
+
+    test-cron:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build --no-cache=true -f cron/Dockerfile .
+
+    test-psmb-tcp:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true -f tcp/Dockerfile .
 
-    test-redis-writer: # glide ready
+    test-redis-writer:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -24,7 +45,7 @@ pipeline:
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
-    test-mgo-history: # glide ready
+    test-mgo-history:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -39,7 +60,7 @@ pipeline:
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
-    test-redis-history: # glide ready
+    test-redis-history:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -55,21 +76,21 @@ pipeline:
             - rm -f /var/tmp/success    # cleanup
 
 
-    test-mem-filter: # glide ready
+    test-mem-filter:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true -f mem-filter/Dockerfile .
 
-    test-mem-reader: # glide ready
+    test-mem-reader:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true -f mem-reader/Dockerfile .
 
-    test-redis-filter: # glide ready
+    test-redis-filter:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -84,28 +105,28 @@ pipeline:
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
-    test-viper-conf: # glide ready
+    test-viper-conf:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true -f viper-conf/Dockerfile .
 
-    test-mini-conf: # glide ready
+    test-mini-conf:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true -f mini-conf/Dockerfile .
 
-    test-psmbtcp-srv: # glide ready
+    test-psmbtcp-srv:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build --no-cache=true -f tcp-srv/Dockerfile .
 
-    ci:  # glide ready
+    ci:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
@@ -124,23 +145,3 @@ pipeline:
 
 
 
-    test-mem-reader:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true mem-writer/.
-
-    test-psmb:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true .
-
-    test-cron:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true cron/.
