@@ -9,6 +9,9 @@ dependencies:
 
 test:
     pre:
+        # test psmb
+        - docker build --no-cache=true . 
+        # ci
         - docker-compose rm
         - docker-compose pull
         - docker-compose build
@@ -16,4 +19,4 @@ test:
         - docker-compose up --abort-on-container-exit
     post:
         - docker-compose stop
-        - docker-compose rm -f -a
+        - docker-compose rm
