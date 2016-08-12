@@ -27,7 +27,8 @@ psmbtcpsrv:
         - mongodb
 
 dummysrv:
-    build: tcp-srv/test/dummy-srv/.
+    build: .
+    dockerfile: tcp-srv/test/dummy-srv/Dockerfile
     volumes_from:
         - modbusd
     links:
