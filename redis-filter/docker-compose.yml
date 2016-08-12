@@ -3,7 +3,8 @@ redis:
     ports:
         - "6379"
 redis-filter:
-    build: .
+    build: ../.
+    dockerfile: Dockerfile
     links:
         - redis
     volumes: # mount for test

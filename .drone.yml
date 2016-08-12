@@ -2,6 +2,23 @@
 
 pipeline:
 
+
+    test-redis-filter:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
+        commands:
+            - docker-compose -f redis-filter/docker-compose.yml rm -f -a
+            - docker-compose -f redis-filter/docker-compose.yml pull
+            - docker-compose -f redis-filter/docker-compose.yml build --no-cache
+            - docker-compose -f redis-filter/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f redis-filter/docker-compose.yml stop
+            - docker-compose -f redis-filter/docker-compose.yml rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
+
+
     test-viper-conf: # glide ready
         image: takawang/dind
         volumes:
@@ -35,21 +52,6 @@ pipeline:
             - docker-compose up --abort-on-container-exit
             - docker-compose stop
             - docker-compose rm -f -a
-            - cat /var/tmp/success      # test
-            - rm -f /var/tmp/success    # cleanup
-
-    test-redis-filter:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-            - /var/tmp:/var/tmp # for test
-        commands:
-            - docker-compose -f redis-filter/docker-compose.yml rm -f -a
-            - docker-compose -f redis-filter/docker-compose.yml pull
-            - docker-compose -f redis-filter/docker-compose.yml build --no-cache
-            - docker-compose -f redis-filter/docker-compose.yml up --abort-on-container-exit
-            - docker-compose -f redis-filter/docker-compose.yml stop
-            - docker-compose -f redis-filter/docker-compose.yml rm -f -a
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
