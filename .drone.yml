@@ -8,10 +8,9 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build -t psmb --no-cache=true .
-            - ci_env=`bash <(curl -s https://codecov.io/env)`
-            - docker run $ci_env
+            - docker run -e CODECOV_ENV -e CODECOV_TOKEN -e CODECOV_URL -e CODECOV_SLUG -e DRONE -e CI -e DRONE_BRANCH -e DRONE_BUILD_NUMBER -e DRONE_BUILD_URL -it psmb
             #- docker run -it psmb
-            #- docker rmi -f psmb
+            - docker rmi -f psmb
 
     ci:
         image: takawang/dind
