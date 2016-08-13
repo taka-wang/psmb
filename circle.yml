@@ -20,8 +20,9 @@ test:
         # test psmb
         - docker build -t psmb --no-cache=true . 
         - ci_env=`bash <(curl -s https://codecov.io/env)`
+        - echo $ci_env
         - docker run $ci_env psmb
-        - docker rmi -f psmb
+        #- docker rmi -f psmb
         # ci
         - docker-compose rm -f -a
         - docker-compose pull
