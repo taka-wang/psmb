@@ -2,6 +2,17 @@
 
 pipeline:
 
+    test-psmb:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t psmb --no-cache=true .
+            - ci_env=`bash <(curl -s https://codecov.io/env)`
+            - docker run $ci_env
+            #- docker run -it psmb
+            #- docker rmi -f psmb
+
     ci:
         image: takawang/dind
         volumes:
@@ -24,12 +35,7 @@ pipeline:
         commands:
             - docker build --no-cache=true -f mem-writer/Dockerfile .
 
-    test-psmb:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build --no-cache=true .
+
 
     test-cron:
         image: takawang/dind
