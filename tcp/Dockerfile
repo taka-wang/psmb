@@ -20,4 +20,4 @@ RUN mkdir -p ${CONF_PSMBTCP} && \
 
 WORKDIR /go/src/github.com/taka-wang/psmb/tcp
 
-RUN go test -v
+CMD go test -v

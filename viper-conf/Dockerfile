@@ -19,4 +19,5 @@ RUN mkdir -p ${CONF_PSMBTCP} && \
 
 # run test
 WORKDIR /go/src/github.com/taka-wang/psmb/viper-conf
-RUN go test -v
+
+CMD go test -v

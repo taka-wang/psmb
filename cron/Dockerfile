@@ -18,4 +18,5 @@ RUN mkdir -p ${CONF_PSMBTCP} && \
     cp /go/src/github.com/taka-wang/psmb/tcp/config.toml ${CONF_PSMBTCP}/
 
 WORKDIR /go/src/github.com/taka-wang/psmb/cron
-RUN go test -v
+
+CMD go test -v

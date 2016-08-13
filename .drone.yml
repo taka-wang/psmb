@@ -31,23 +31,27 @@ pipeline:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true -f mem-writer/Dockerfile .
-
-
+            - docker build -t writer --no-cache=true -f mem-writer/Dockerfile .
+            - docker run writer
+            - docker rmi -f writer
 
     test-cron:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true -f cron/Dockerfile .
+            - docker build -t cron --no-cache=true -f cron/Dockerfile .
+            - docker run cron
+            - docker rmi -f cron
 
     test-psmb-tcp:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true -f tcp/Dockerfile .
+            - docker build -t tcp --no-cache=true -f tcp/Dockerfile .
+            - docker run tcp
+            - docker rmi -f tcp
 
     test-redis-writer:
         image: takawang/dind
@@ -94,20 +98,23 @@ pipeline:
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
-
     test-mem-filter:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true -f mem-filter/Dockerfile .
+            - docker build -t filter --no-cache=true -f mem-filter/Dockerfile .
+            - docker run filter
+            - docker rmi -f filter
 
     test-mem-reader:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true -f mem-reader/Dockerfile .
+            - docker build -t reader --no-cache=true -f mem-reader/Dockerfile .
+            - docker run reader
+            - docker rmi -f reader
 
     test-redis-filter:
         image: takawang/dind
@@ -129,21 +136,27 @@ pipeline:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true -f viper-conf/Dockerfile .
+            - docker build -t conf --no-cache=true -f viper-conf/Dockerfile .
+            - docker run conf
+            - docker rmi -f conf
 
     test-mini-conf:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true -f mini-conf/Dockerfile .
+            - docker build -t conf --no-cache=true -f mini-conf/Dockerfile .
+            - docker run conf
+            - docker rmi -f conf
 
     test-psmbtcp-srv:
         image: takawang/dind
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build --no-cache=true -f tcp-srv/Dockerfile .
+            - docker build -t tcpsrv --no-cache=true -f tcp-srv/Dockerfile .
+            - docker run tcpsrv
+            - docker rmi -f tcpsrv
 
 
 
