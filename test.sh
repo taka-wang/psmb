@@ -10,6 +10,7 @@ COLOR_RED='\e[1;31m';
 #go test -v
 go test -v -coverprofile=coverage.txt -covermode=count
 bash <(curl -s https://codecov.io/bash) -t 558aa53d-c58d-4df4-a1c1-a22a6e6d8572
+mv coverage.txt shared && ls
 
 if [ $? -eq 0 ]
 then
