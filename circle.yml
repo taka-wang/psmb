@@ -10,12 +10,14 @@ dependencies:
         # './...' is a relative pattern which means all subdirectories
         - go get -t -d -v ./...
         - go build -v
+    post: # clean cache
+        - rm -r ~/.gradle
 
 test:
     pre:
         # psmb coverage
         - ls
-        - go test -v -coverprofile=coverage.txt -covermode=atomic 
+        - go test -v -coverprofile=coverage.txt -covermode=count 
         - bash <(curl -s https://codecov.io/bash) -t 558aa53d-c58d-4df4-a1c1-a22a6e6d8572
         # test psmb
         - docker build --no-cache=true . 
