@@ -8,7 +8,7 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build -t psmb --no-cache=true .
-            - docker run -e CODECOV_ENV -e CODECOV_TOKEN -e CODECOV_URL -e CODECOV_SLUG -e DRONE -e CI -e DRONE_BRANCH -e DRONE_BUILD_NUMBER -e DRONE_BUILD_URL psmb
+            - docker run -e CODECOV_ENV -e CODECOV_TOKEN -e CODECOV_URL -e CODECOV_SLUG -e DRONE=true -e CI=true -e DRONE_BRANCH -e DRONE_BUILD_NUMBER -e DRONE_BUILD_URL psmb
             #- docker run -it psmb
             - docker rmi -f psmb
 
