@@ -7,8 +7,9 @@ COLOR_RED='\e[1;31m';
 
 
 # test command -------------
-go test -v -coverprofile=coverage.txt -covermode=atomic
-bash <(curl -s https://codecov.io/bash) -t 558aa53d-c58d-4df4-a1c1-a22a6e6d8572
+go test -v
+#go test -v -coverprofile=coverage.txt -covermode=atomic
+#bash <(curl -s https://codecov.io/bash) -t 558aa53d-c58d-4df4-a1c1-a22a6e6d8572
 
 if [ $? -eq 0 ]
 then
