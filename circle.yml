@@ -15,8 +15,13 @@ test:
     pre:
         # test psmb and do codecov
         - mkdir shared
+        # psmb
         - docker build -t psmb --no-cache=true . 
         - docker run -v "$PWD/shared:/shared" psmb
+        # viper-conf
+        - docker build -t conf --no-cache=true -f viper-conf/Dockerfile .
+        - docker run -v "$PWD/shared:/shared" conf
+        # codecov
         - bash <(curl -s https://codecov.io/bash) -t 558aa53d-c58d-4df4-a1c1-a22a6e6d8572
         # ci
         - docker-compose rm -f -a

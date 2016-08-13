@@ -9,5 +9,4 @@ WORKDIR /go/src/github.com/taka-wang/psmb
 RUN glide install
 
 # run test
-#RUN ./test.sh
 CMD ./test.sh
