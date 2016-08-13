@@ -8,8 +8,7 @@ pipeline:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             - docker build -t psmb --no-cache=true .
-            - docker run -e DRONE=true -e CI=true psmb
-            #- docker run -it psmb
+            - docker run psmb
             - docker rmi -f psmb
 
     ci:
