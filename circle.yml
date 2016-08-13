@@ -15,6 +15,7 @@ test:
     pre:
         # test psmb and do codecov
         - mkdir shared
+        - echo "" > shared/coverage.txt
         # psmb
         - docker build -t psmb --no-cache=true . 
         - docker run -v "$PWD/shared:/shared" psmb
