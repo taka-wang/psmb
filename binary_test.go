@@ -295,6 +295,15 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
+	s.Assert("`BitStringToUInt8s` test - wrong input", func(log sugar.Log) bool {
+		input := ",a,0,1,1,0,1,"
+		if _, err := BitStringToUInt8s(input); err != nil {
+			log(err)
+			return true
+		}
+		return false
+	})
+
 	s.Assert("`RegistersToBytes` test", func(log sugar.Log) bool {
 		desire := []byte{0x11, 0x2C, 0x00, 0x4F, 0x12, 0x34, 0x56, 0x78}
 		result, _ := RegistersToBytes(arr)
