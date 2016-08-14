@@ -17,7 +17,7 @@ test:
         - docker run -v "$PWD/shared:/shared" psmb
         # @mem-filter
         - docker build -t filter --no-cache=true -f mem-filter/Dockerfile .
-        - docker run filter
+        - docker run -v "$PWD/shared:/shared" filter
         # @viper-conf
         - docker build -t conf --no-cache=true -f viper-conf/Dockerfile .
         - docker run -v "$PWD/shared:/shared" conf
