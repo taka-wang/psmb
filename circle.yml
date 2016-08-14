@@ -12,10 +12,13 @@ test:
         # test psmb and do codecov
         - mkdir shared
         - echo "" > shared/coverage.txt
-        # psmb
+        # @psmb
         - docker build -t psmb --no-cache=true . 
         - docker run -v "$PWD/shared:/shared" psmb
-        # viper-conf
+        # @mem-filter
+        - docker build -t filter --no-cache=true -f mem-filter/Dockerfile .
+        - docker run filter
+        # @viper-conf
         - docker build -t conf --no-cache=true -f viper-conf/Dockerfile .
         - docker run -v "$PWD/shared:/shared" conf
         # codecov
