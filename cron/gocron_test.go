@@ -291,6 +291,8 @@ func TestScheduler(t *testing.T) {
 		s.RunPending()
 		s.NextRun()
 		NewScheduler(map[string]string{"hello": "driver"})
+		i := newJob(0)
+		log(i)
 		j := newJob(10)
 		j.pause()
 		j.resume()
@@ -304,6 +306,7 @@ func TestScheduler(t *testing.T) {
 		j = j.Days()
 		j = j.Weekday(time.Sunday)
 		j = j.Sunday()
+		j.init(time.Now())
 		j = j.Monday()
 		j = j.Tuesday()
 		j = j.Wednesday()
@@ -311,13 +314,16 @@ func TestScheduler(t *testing.T) {
 		j = j.Friday()
 		j = j.Saturday()
 		j = j.Week()
+		j.init(time.Now())
 		j = j.Weeks()
 		j.updateInterval(100)
 		j = j.At("10:30")
+
 		b := j.isInit()
 		log(b)
 		j.init(time.Now())
 		j.run()
+		j = j.At("24:30")
 		return true
 	})
 

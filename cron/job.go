@@ -159,12 +159,14 @@ func (j *Job) Do(task interface{}, params ...interface{}) *Job {
 		paramValues[i] = reflect.ValueOf(param)
 	}
 
+	/* disable panic
 	// panic if the task won't be able to be executed
 	if taskValue.Type().NumIn() != len(paramValues) {
 		panic(ErrMissmatchedTaskParams)
 	} else if taskValue.Kind() != reflect.Func {
 		panic(ErrTaskIsNotAFuncError)
 	}
+	*/
 
 	// add the task and its params to the job
 	j.tasks = append(j.tasks, taskValue)
@@ -188,7 +190,10 @@ func (j *Job) At(t string) *Job {
 	hour := int((t[0]-'0')*10 + (t[1] - '0'))
 	min := int((t[3]-'0')*10 + (t[4] - '0'))
 	if hour < 0 || hour > 23 || min < 0 || min > 59 {
-		panic(ErrIncorrectTimeFormat)
+		//panic(ErrIncorrectTimeFormat)
+		// set to zero
+		hour = 0
+		min = 0
 	}
 	j.atTime = time.Duration(hour) * time.Hour
 	j.atTime += time.Duration(min) * time.Minute
