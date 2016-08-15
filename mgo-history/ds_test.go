@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	psmbtcp "github.com/taka-wang/psmb/tcp"
+	"github.com/taka-wang/psmb/viper-conf"
 	"github.com/takawang/sugar"
 )
 
@@ -85,6 +86,23 @@ func TestHistoryMap(t *testing.T) {
 			log(ret)
 		}
 
+		return true
+	})
+
+	s.Assert("Test fail cases", func(log sugar.Log) bool {
+		conf.Set(keyMongoEnableAuth, true)
+		init()
+		a, err := NewDataStore(nil)
+		log(err)
+		b := a.(dataStore)
+		b.openSession()
+		return true
+	})
+
+	//marshal
+	s.Assert("Test fail to marshal", func(log sugar.Log) bool {
+		_, err := marshal("hello;world")
+		log(err)
 		return true
 	})
 }

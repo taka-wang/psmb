@@ -35,6 +35,9 @@ func TestMbtcpReadTask(t *testing.T) {
 			}
 		}
 
+		r := reader.GetAll()
+		log(r)
+
 		_, b1 := reader.GetTaskByID("10")
 		log(b1)
 		_, b2 := reader.GetTaskByName("10")
@@ -42,7 +45,17 @@ func TestMbtcpReadTask(t *testing.T) {
 		r := reader.GetAll()
 		log(r)
 
+		reader.DeleteTaskByID("10")
+		reader.DeleteTaskByName("10")
+		reader.UpdateIntervalByName("10")
+
+		err := reader.UpdateToggleByName("10", true)
+		log(err)
+
+		reader.UpdateAllToggles(true)
 		reader.DeleteAll()
+		r2 := reader.GetAll()
+		log(r2)
 
 		return true
 	})
