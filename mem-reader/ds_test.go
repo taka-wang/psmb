@@ -23,8 +23,8 @@ func TestMbtcpReadTask(t *testing.T) {
 		}
 
 		// add null
-		err := reader.Add("", "10", "10", nil)
-		log(err)
+		e1 := reader.Add("", "10", "10", nil)
+		log(e1)
 
 		for i := 0; i < 50; i++ {
 			s := strconv.Itoa(i)
@@ -35,10 +35,10 @@ func TestMbtcpReadTask(t *testing.T) {
 			}
 		}
 
-		_, b := reader.GetTaskByID("10")
-		log(b)
-		_, b := reader.GetTaskByName("10")
-		log(b)
+		_, b1 := reader.GetTaskByID("10")
+		log(b1)
+		_, b2 := reader.GetTaskByName("10")
+		log(b2)
 		r := reader.GetAll()
 		log(r)
 
