@@ -44,7 +44,7 @@ docker-compose build --pull
 docker-compose up
 ```
 
-### Step by step
+### Manually
 
 #### Install libzmq (3.2.5)
 

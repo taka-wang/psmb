@@ -5,13 +5,14 @@ COLOR_REST='\e[0m'
 COLOR_GREEN='\e[1;32m';
 COLOR_RED='\e[1;31m';
 
+
 # test command -------------
 if [ -f "/shared/coverage.txt" ]
 then
-  go test -v -coverprofile=coverage.txt -covermode=count
+  go test -coverprofile=coverage.txt -covermode=count
   cat coverage.txt >> /shared/coverage.txt
 else
-  go test -v
+  go test
 fi
 
 if [ $? -eq 0 ]

@@ -21,4 +21,4 @@ RUN mkdir -p ${CONF_PSMBTCP} && \
 WORKDIR /go/src/github.com/taka-wang/psmb/mini-conf
 
 # do not pass flag -v
-CMD go test
+CMD ./test.sh
