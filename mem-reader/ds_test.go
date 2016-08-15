@@ -39,10 +39,10 @@ func TestMbtcpReadTask(t *testing.T) {
 			log(r)
 		}
 
-		if _, b := reader.GetTaskByID("10"); b != nil {
+		if _, b := reader.GetTaskByID("10"); b == false {
 			log(b)
 		}
-		if _, b := reader.GetTaskByName("10"); b != nil {
+		if _, b := reader.GetTaskByName("10"); b == false {
 			log(b)
 		}
 
@@ -52,7 +52,7 @@ func TestMbtcpReadTask(t *testing.T) {
 
 		reader.DeleteTaskByID("10")
 		reader.DeleteTaskByName("10")
-		reader.UpdateIntervalByName("10")
+		reader.UpdateIntervalByName("10", 1)
 
 		if err := reader.UpdateToggleByName("10", true); err != nil {
 			log(err)
