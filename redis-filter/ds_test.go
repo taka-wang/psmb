@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/taka-wang/psmb"
+	"github.com/taka-wang/psmb/mini-conf"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
@@ -119,4 +120,21 @@ func TestFilter(t *testing.T) {
 		return false
 
 	})
+
+	s.Assert("Test Redis pool", func(log sugar.Log) bool {
+		conf.Set(defaultRedisDocker, "hello")
+		setDefaults()
+
+		conf.Set(keyRedisServer, "hello")
+		init()
+		filterMap, err := psmbtcp.FilterDataStoreCreator("Filter")
+		log(err)
+		filterMap.connectRedis()
+		filterMap.closeRedis()
+		filterMap.Add("123", "123")
+		filterMap.Get("123")
+		filterMap.Delete("123")
+		return true
+	})
+
 }

@@ -70,6 +70,7 @@ func TestWriterMap(t *testing.T) {
 		conf.Set(keyRedisServer, "hello")
 		init()
 		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
+		log(err)
 
 		writerMap.connectRedis()
 		writerMap.closeRedis()

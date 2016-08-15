@@ -61,6 +61,11 @@ func TestLogger(t *testing.T) {
 		os.Setenv(envConfPSMBTCP, "")
 		os.Setenv(envBackendEndpoint, "")
 		base.initConfig()
+		os.Setenv(envConfPSMBTCP, "a")
+		base.initConfig()
+		os.Setenv(envConfPSMBTCP, "a")
+		os.Setenv(envBackendEndpoint, "b")
+		base.initConfig()
 		return true
 	})
 }
