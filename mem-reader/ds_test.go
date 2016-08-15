@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/taka-wang/psmb"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
@@ -26,9 +27,11 @@ func TestMbtcpReadTask(t *testing.T) {
 		e1 := reader.Add("", "10", "10", nil)
 		log(e1)
 
+		req := psmb.MbtcpPollStatus{Tid: 12345, From: "web"}
+
 		for i := 0; i < 50; i++ {
 			s := strconv.Itoa(i)
-			if err := reader.Add(s, s, s, nil); err != nil {
+			if err := reader.Add(s, s, s, req); err != nil {
 				log(err, i)
 			} else {
 				log("ok", i)
