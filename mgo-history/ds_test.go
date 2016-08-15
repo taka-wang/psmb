@@ -2,6 +2,9 @@ package history
 
 import (
 	"testing"
+	"time"
+
+	"gopkg.in/mgo.v2"
 
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/taka-wang/psmb/viper-conf"
@@ -91,7 +94,12 @@ func TestHistoryMap(t *testing.T) {
 
 	s.Assert("Test fail cases", func(log sugar.Log) bool {
 		conf.Set(keyMongoEnableAuth, true)
-		init()
+		setDefaults()
+		mongoDBDialInfo = &mgo.DialInfo{
+			// allow multiple connection string
+			Addrs:   []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
+			Timeout: conf.GetDuration(keyMongoConnTimeout) * time.Second,
+		}
 		a, err := NewDataStore(nil)
 		log(err)
 		b := a.(dataStore)
