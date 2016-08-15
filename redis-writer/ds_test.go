@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	psmbtcp "github.com/taka-wang/psmb/tcp"
+	"github.com/taka-wang/psmb/viper-conf"
 	"github.com/takawang/sugar"
 )
 
@@ -61,4 +62,22 @@ func TestWriterMap(t *testing.T) {
 		}
 		return true
 	})
+
+	s.Assert("Test Redis pool", func(log sugar.Log) bool {
+		conf.Set(defaultRedisDocker, "hello")
+		setDefaults()
+
+		conf.Set(keyRedisServer, "hello")
+		init()
+		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
+
+		writerMap.connectRedis()
+		writerMap.closeRedis()
+		writerMap.Add("123", "123")
+		writerMap.Get("123")
+		writerMap.Delete("123")
+		return true
+	})
+
+	//keyRedisServer
 }
