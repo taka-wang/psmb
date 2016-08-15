@@ -1,9 +1,8 @@
-package writer_test
+package writer
 
 import (
 	"testing"
 
-	rwriter "github.com/taka-wang/psmb/redis-writer"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
@@ -13,7 +12,7 @@ var (
 )
 
 func init() {
-	psmbtcp.Register("Writer", rwriter.NewDataStore)
+	psmbtcp.Register("Writer", NewDataStore)
 }
 
 func TestWriterMap(t *testing.T) {

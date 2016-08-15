@@ -1,9 +1,8 @@
-package history_test
+package history
 
 import (
 	"testing"
 
-	mgohistory "github.com/taka-wang/psmb/mgo-history"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
@@ -13,7 +12,7 @@ var (
 )
 
 func init() {
-	psmbtcp.Register("History", mgohistory.NewDataStore)
+	psmbtcp.Register("History", NewDataStore)
 }
 
 func TestHistoryMap(t *testing.T) {

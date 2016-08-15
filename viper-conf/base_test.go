@@ -25,8 +25,6 @@ func TestLogger(t *testing.T) {
 			"file name": "Hello",
 		}).Error("Fail to create log file")
 
-		SetDefault(keyLogEnableDebug, defaultLogEnableDebug)
-		Set(keyLogEnableDebug, defaultLogEnableDebug)
 		i := GetInt("psmbtcp.max_worker")
 		log(i)
 		j := GetInt64("psmbtcp.min_connection_timeout")
@@ -35,10 +33,10 @@ func TestLogger(t *testing.T) {
 		log(s)
 		b := GetBool(keyLogToFile)
 		log(b)
-
 		d := GetDuration("redis.idel_timeout")
 		log(d)
 
+		SetDefault(keyLogEnableDebug, defaultLogEnableDebug)
 		Set(keyLogToFile, true)
 		Set(keyLogToJSONFormat, true)
 		Set(keyLogEnableDebug, false)

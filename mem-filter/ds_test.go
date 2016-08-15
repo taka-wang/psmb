@@ -1,17 +1,16 @@
-package filter_test
+package filter
 
 import (
 	"strconv"
 	"testing"
 
 	"github.com/taka-wang/psmb"
-	mf "github.com/taka-wang/psmb/mem-filter"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
 func init() {
-	psmbtcp.Register("Filter", mf.NewDataStore)
+	psmbtcp.Register("Filter", NewDataStore)
 }
 
 func TestFilter(t *testing.T) {

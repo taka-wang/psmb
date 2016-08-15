@@ -1,15 +1,14 @@
-package writer_test
+package writer
 
 import (
 	"testing"
 
-	mwriter "github.com/taka-wang/psmb/mem-writer"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
 func init() {
-	psmbtcp.Register("Writer", mwriter.NewDataStore)
+	psmbtcp.Register("Writer", NewDataStore)
 }
 
 func TestWriterMap(t *testing.T) {

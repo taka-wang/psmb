@@ -1,16 +1,15 @@
-package reader_test
+package reader
 
 import (
 	"strconv"
 	"testing"
 
-	mreader "github.com/taka-wang/psmb/mem-reader"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/takawang/sugar"
 )
 
 func init() {
-	psmbtcp.Register("Reader", mreader.NewDataStore)
+	psmbtcp.Register("Reader", NewDataStore)
 }
 
 func TestMbtcpReadTask(t *testing.T) {
