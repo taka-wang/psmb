@@ -24,7 +24,7 @@ func TestMbtcpReadTask(t *testing.T) {
 		}
 
 		// add null
-		e1 := reader.Add("", "10", "10", nil)
+		e1 := reader.Add("", "1000", "1000", nil)
 		log(e1)
 
 		req := psmb.MbtcpPollStatus{Tid: 12345, From: "web"}
@@ -53,9 +53,21 @@ func TestMbtcpReadTask(t *testing.T) {
 			log(r)
 		}
 
+		if err := reader.Add("10000", "10000", "10000", nil); err != nil {
+			log(err)
+		}
+
+		if err := reader.UpdateIntervalByName("10000", 1); err != nil {
+			log(err)
+		}
+		if err := reader.UpdateIntervalByName("10", 1); err != nil {
+			log(err)
+		}
+		if err := reader.UpdateToggleByName("11", true); err != nil {
+			log(err)
+		}
 		reader.DeleteTaskByID("10")
 		reader.DeleteTaskByName("10")
-		reader.UpdateIntervalByName("10", 1)
 
 		if err := reader.UpdateToggleByName("10", true); err != nil {
 			log(err)
