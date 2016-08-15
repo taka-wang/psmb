@@ -36,7 +36,6 @@ test:
         - docker-compose -f mgo-history/docker-compose.yml build --no-cache
         - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
         - docker-compose -f mgo-history/docker-compose.yml stop
-        
         # @redis-filter
         - docker-compose -f redis-filter/docker-compose.yml build --no-cache
         - docker-compose -f redis-filter/docker-compose.yml up --abort-on-container-exit
@@ -49,7 +48,6 @@ test:
         - docker-compose -f redis-writer/docker-compose.yml build --no-cache
         - docker-compose -f redis-writer/docker-compose.yml up --abort-on-container-exit
         - docker-compose -f redis-writer/docker-compose.yml stop
-
         # codecov
         - bash <(curl -s https://codecov.io/bash) -t 558aa53d-c58d-4df4-a1c1-a22a6e6d8572
         # ci
