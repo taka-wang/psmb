@@ -67,9 +67,9 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`BytesToInt16s` wrong input", func(log sugar.Log) bool {
+	s.Assert("`BytesToUInt16s` wrong input", func(log sugar.Log) bool {
 		bytes := []byte{}
-		_, err := BytesToInt16s(bytes, LittleEndian)
+		_, err := BytesToUInt16s(bytes, LittleEndian)
 		log(err)
 		return true
 	})
