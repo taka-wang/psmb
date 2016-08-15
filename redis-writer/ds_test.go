@@ -72,11 +72,6 @@ func TestWriterMap(t *testing.T) {
 		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
 		log(err)
 
-		ds := writerMap.(dataStore)
-		if err := ds.connectRedis(); err != nil {
-			log(err)
-		}
-		ds.closeRedis()
 		writerMap.Add("123", "123")
 		writerMap.Get("123")
 		writerMap.Delete("123")
