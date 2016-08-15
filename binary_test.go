@@ -41,10 +41,10 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`BytesToInt16s` in big endian order - (3/4)", func(log sugar.Log) bool {
-		desire := []int16{4396, 79, 4660, 22136}
+	s.Assert("`BytesToUInt16s` in big endian order - (3/4)", func(log sugar.Log) bool {
+		desire := []uint16{4396, 79, 4660, 22136}
 		bytes, _ := RegistersToBytes(arr)
-		result, _ := BytesToInt16s(bytes, BigEndian)
+		result, _ := BytesToUInt16s(bytes, BigEndian)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
@@ -54,16 +54,23 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`BytesToInt16s` in little endian order - (4/4)", func(log sugar.Log) bool {
-		desire := []int16{11281, 20224, 13330, 30806}
+	s.Assert("`BytesToUInt16s` in little endian order - (4/4)", func(log sugar.Log) bool {
+		desire := []uint16{11281, 20224, 13330, 30806}
 		bytes, _ := RegistersToBytes(arr)
-		result, _ := BytesToInt16s(bytes, LittleEndian)
+		result, _ := BytesToUInt16s(bytes, LittleEndian)
 		for idx := 0; idx < len(result); idx++ {
 			log("desire:%d, result:%d", desire[idx], result[idx])
 			if result[idx] != desire[idx] {
 				return false
 			}
 		}
+		return true
+	})
+
+	s.Assert("`BytesToInt16s` wrong input", func(log sugar.Log) bool {
+		bytes := []byte{}
+		_, err := BytesToInt16s(bytes, LittleEndian)
+		log(err)
 		return true
 	})
 
@@ -122,6 +129,13 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
+	s.Assert("`BytesToUInt32s` wrong input", func(log sugar.Log) bool {
+		bytes := []byte{}
+		_, err := BytesToUInt32s(bytes, CDAB)
+		log(err)
+		return true
+	})
+
 	s.Assert("`BytesToInt32s` in (ABCD) Big Endian order - (1/4)", func(log sugar.Log) bool {
 		desire := []int32{288096335, 305419896}
 		bytes, _ := RegistersToBytes(arr)
@@ -171,6 +185,14 @@ func TestBinaryOps(t *testing.T) {
 				return false
 			}
 		}
+		return true
+	})
+
+	s.Assert("`BytesToInt32s` wrong input", func(log sugar.Log) bool {
+		bytes := []byte{}
+		_, err := BytesToInt32s(bytes, CDAB)
+		log(err)
+
 		return true
 	})
 
@@ -227,6 +249,13 @@ func TestBinaryOps(t *testing.T) {
 				return false
 			}
 		}
+		return true
+	})
+
+	s.Assert("`BytesToFloat32s` wrong input", func(log sugar.Log) bool {
+		bytes := []byte{}
+		_, err := BytesToFloat32s(bytes, CDAB)
+		log(err)
 		return true
 	})
 
@@ -379,6 +408,13 @@ func TestBinaryOps(t *testing.T) {
 				return false
 			}
 		}
+		return true
+	})
+
+	s.Assert("`DecimalStringToRegisters` test - wrong input", func(log sugar.Log) bool {
+		input := ",a,79,4660,22136,"
+		_, err := DecimalStringToRegisters(input)
+		log(err)
 		return true
 	})
 

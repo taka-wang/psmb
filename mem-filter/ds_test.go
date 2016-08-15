@@ -41,6 +41,8 @@ func TestFilter(t *testing.T) {
 		filterMap.Add(a.Name, a)
 		log("Add B item")
 		filterMap.Add(b.Name, b)
+		log("Add null item")
+		filterMap.Add("", b)
 
 		// GET
 		log("GET A item")
@@ -55,6 +57,11 @@ func TestFilter(t *testing.T) {
 		if err := filterMap.UpdateToggle(a.Name, false); err != nil {
 			return false
 		}
+		log("Toggle NULL item")
+		if err := filterMap.UpdateToggle("D", false); err != nil {
+			log(err)
+		}
+
 		// GET
 		log("GET A item")
 		if r, b := filterMap.Get(a.Name); b != false {

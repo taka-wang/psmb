@@ -47,7 +47,7 @@ func TestLogger(t *testing.T) {
 		Set(keyLogToJSONFormat, true)
 		Set(keyLogEnableDebug, false)
 		base.setLogger()
-		Set(keyLogFileName, "abc")
+		Set(keyLogFileName, "/tmp/abc")
 		Set(keyLogToFile, true)
 		base.setLogger()
 		return true
