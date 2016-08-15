@@ -43,10 +43,6 @@ func TestLogger(t *testing.T) {
 	s.Assert("Test setLogger", func(log sugar.Log) bool {
 		os.Setenv(envBackendEndpoint, "123")
 		base.initConfig()
-		return true
-	})
-
-	s.Assert("Test setLogger", func(log sugar.Log) bool {
 		SetDefault(keyLogEnableDebug, defaultLogEnableDebug)
 		Set(keyLogToJSONFormat, true)
 		Set(keyLogEnableDebug, false)
@@ -65,6 +61,9 @@ func TestLogger(t *testing.T) {
 		base.initConfig()
 		os.Setenv(envConfPSMBTCP, "a")
 		os.Setenv(envBackendEndpoint, "b")
+		base.initConfig()
+		os.Setenv(envConfPSMBTCP, "a")
+		os.Setenv(envBackendEndpoint, "")
 		base.initConfig()
 		return true
 	})
