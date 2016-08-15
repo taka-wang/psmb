@@ -49,6 +49,8 @@ func TestScheduler(t *testing.T) {
 		fmt.Println(len(s.jobs))
 
 		s.Start()
+		b := s.IsRunning()
+		log(b)
 		time.Sleep(3 * time.Second)
 		fmt.Println("RemoveWithName")
 		s.RemoveWithName("world")
@@ -254,6 +256,16 @@ func TestScheduler(t *testing.T) {
 		// remove one job
 		s.Remove(item)
 
+		// remove nil
+		bb := s.Remove(nil)
+		log(bb)
+		bbb := s.RemoveWithName("hello world")
+		log(bbb)
+		bbbb := s.PauseWithName("hello world")
+		log(bbbb)
+		bbbbb := s.ResumeWithName("hello world")
+		log(bbbbb)
+
 		// debug
 		for _, job := range s.jobs {
 			log("@interval: %d", job.interval)
@@ -264,6 +276,21 @@ func TestScheduler(t *testing.T) {
 			return true
 		}
 		s.Stop()
+		return false
+	})
+
+	s.Assert("Only start the sch if not started", func(log sugar.Log) bool {
+		s := scheduler{
+			isStopped: make(chan bool),
+			location:  time.Local,
+		}
+		s.isRunning = true
+		s.Start()
+		s.Clear()
+		s.Location(time.Local)
+		s.RunPending()
+		s.NextRun()
+		NewScheduler(map[string]string{"hello": "driver"})
 		return false
 	})
 

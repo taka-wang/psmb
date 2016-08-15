@@ -34,10 +34,10 @@ func TestMbtcpReadTask(t *testing.T) {
 			}
 		}
 
-		_, err := reader.GetTaskByID("10")
-		log(err)
-		_, err := reader.GetTaskByName("10")
-		log(err)
+		_, b := reader.GetTaskByID("10")
+		log(b)
+		_, b := reader.GetTaskByName("10")
+		log(b)
 		r := reader.GetAll()
 		log(r)
 
