@@ -291,7 +291,7 @@ func TestScheduler(t *testing.T) {
 		s.RunPending()
 		s.NextRun()
 		NewScheduler(map[string]string{"hello": "driver"})
-		return false
+		return true
 	})
 
 }
