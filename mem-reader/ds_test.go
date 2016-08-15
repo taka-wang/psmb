@@ -23,7 +23,8 @@ func TestMbtcpReadTask(t *testing.T) {
 		}
 
 		// add null
-		reader.Add("", s, s, nil)
+		err := reader.Add("", s, s, nil)
+		log(err)
 
 		for i := 0; i < 50; i++ {
 			s := strconv.Itoa(i)
