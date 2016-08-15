@@ -78,5 +78,15 @@ func TestWriterMap(t *testing.T) {
 		return true
 	})
 
-	//keyRedisServer
+	s.Assert("Test fail cases", func(log sugar.Log) bool {
+		conf.Set(keyRedisServer, "1.1.1.1")
+		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
+		log(err)
+		writerMap.Add("10", "10")
+		if _, b := writerMap.Get("10"); b == false {
+			log(b)
+		}
+		writerMap.Delete("10")
+		return true
+	})
 }
