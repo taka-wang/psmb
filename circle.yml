@@ -15,9 +15,18 @@ test:
         # @psmb
         - docker build -t psmb --no-cache=true . 
         - docker run -v "$PWD/shared:/shared" psmb
+        # @cron
+        - docker build -t cron --no-cache=true -f cron/Dockerfile .
+        - docker run -v "$PWD/shared:/shared" cron
         # @mem-filter
         - docker build -t filter --no-cache=true -f mem-filter/Dockerfile .
         - docker run -v "$PWD/shared:/shared" filter
+        # @mem-reader
+        - docker build -t reader --no-cache=true -f mem-reader/Dockerfile .
+        - docker run -v "$PWD/shared:/shared" reader
+        # @mem-writer
+        - docker build -t writer --no-cache=true -f mem-writer/Dockerfile .
+        - docker run -v "$PWD/shared:/shared" writer
         # @viper-conf
         - docker build -t conf --no-cache=true -f viper-conf/Dockerfile .
         - docker run -v "$PWD/shared:/shared" conf

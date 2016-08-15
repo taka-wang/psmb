@@ -20,4 +20,5 @@ RUN mkdir -p ${CONF_PSMBTCP} && \
 # run test
 WORKDIR /go/src/github.com/taka-wang/psmb/mem-reader
 
-CMD go test -v
+# cmd
+CMD ./test.sh

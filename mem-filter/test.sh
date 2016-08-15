@@ -7,12 +7,12 @@ COLOR_RED='\e[1;31m';
 
 
 # test command -------------
-#go test -v
-go test -v -coverprofile=coverage.txt -covermode=count
-
 if [ -f "/shared/coverage.txt" ]
 then
+  go test -v -coverprofile=coverage.txt -covermode=count
   cat coverage.txt >> /shared/coverage.txt
+else
+  go test -v
 fi
 
 if [ $? -eq 0 ]

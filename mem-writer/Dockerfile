@@ -19,4 +19,5 @@ RUN mkdir -p ${CONF_PSMBTCP} && \
 
 WORKDIR /go/src/github.com/taka-wang/psmb/mem-writer
 
-CMD go test -v
+# cmd
+CMD ./test.sh
