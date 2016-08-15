@@ -1159,7 +1159,7 @@ func (b *Service) HandleResponse(cmd string, r interface{}) error {
 		}
 
 		//
-		// send back one-off task reponse and remove from write task map
+		// send back one-off task response and remove from write task map
 		//
 		respStr, err := marshal(resp)
 		if err != nil {

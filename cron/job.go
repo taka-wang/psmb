@@ -122,7 +122,7 @@ func (j *Job) init(now time.Time) {
 			Add(time.Duration(j.weekDay-now.Weekday()) * Day).
 			Add(j.atTime)
 
-		// the lastRun occured last week. This way, if a job is scheduled to occur weekly for tomorrow, it will run tomorrow.
+		// the lastRun occurred last week. This way, if a job is scheduled to occur weekly for tomorrow, it will run tomorrow.
 		if j.lastRun.After(now) {
 			j.lastRun.Add(-1 * Week)
 		}
@@ -131,7 +131,7 @@ func (j *Job) init(now time.Time) {
 		j.lastRun = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, now.Second(), now.Nanosecond(), j.location).
 			Add(j.atTime)
 
-		// the lastRun occured yesterday. This way, if a job is scheduled to occur daily before the current time,
+		// the lastRun occurred yesterday. This way, if a job is scheduled to occur daily before the current time,
 		// then it will run today at that time
 		if j.lastRun.After(now) {
 			j.lastRun = j.lastRun.Add(-1 * Day)
@@ -269,7 +269,7 @@ func (j *Job) Day() *Job {
 	return j.Days()
 }
 
-// Weekday sets the task to be performed on a certian day of the week
+// Weekday sets the task to be performed on a certain day of the week
 //
 // Example
 //
