@@ -318,7 +318,6 @@ func TestScheduler(t *testing.T) {
 		j = j.Weeks()
 		j.updateInterval(100)
 		j = j.At("10:30")
-
 		b := j.isInit()
 		log(b)
 		j.init(time.Now())
