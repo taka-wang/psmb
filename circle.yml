@@ -57,5 +57,6 @@ test:
     override:
         - docker-compose up --abort-on-container-exit
     post:
+        - mv shared/coverage.txt ${CIRCLE_ARTIFACTS}/
         - docker-compose stop
         - docker-compose rm -f -a
