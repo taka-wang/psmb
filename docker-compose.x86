@@ -1,24 +1,24 @@
 redis:
-    image: takawang/redis:armhf
+    image: takawang/redis:x86
     ports:
         - "6379"
 
 mongodb:
-    image: takawang/mongo:armhf
+    image: mongo:3.2
     ports:
         - "27017"
 slave:
-    image: edgepro/c-modbus-slave:armhf
+    image: edgepro/c-modbus-slave:x86
 
 modbusd:
-    image: edgepro/modbusd:armhf
+    image: edgepro/modbusd:x86
     volumes:
         - /tmp:/tmp
     links:
         - slave
 
 psmbtcpsrv:
-    image: edgepro/psmb-srv:armhf
+    image: edgepro/psmb-srv:x86
     volumes_from:
         - modbusd
     links:
@@ -27,7 +27,7 @@ psmbtcpsrv:
 
 dummysrv:
     build: .
-    dockerfile: tcp-srv/test/dummy-srv/Dockerfile.armhf
+    dockerfile: tcp-srv/test/dummy-srv/Dockerfile
     volumes_from:
         - modbusd
     links:

@@ -15,9 +15,9 @@ func init() {
 func TestCron(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("``add` task to map", func(log sugar.Log) bool {
+	s.Assert("``add` task to map", func(logf sugar.Log) bool {
 		_, err := psmbtcp.SchedulerCreator("Cron")
-		log(err)
+		logf(err)
 		if err != nil {
 			return false
 		}

@@ -1,16 +1,29 @@
 # psmb
 
+[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://hub.docker.com/r/edgepro/psmb)
 [![GoDoc](https://godoc.org/github.com/taka-wang/psmb?status.svg)](http://godoc.org/github.com/taka-wang/psmb)
 [![Go Report Card](https://goreportcard.com/badge/github.com/taka-wang/psmb)](https://goreportcard.com/report/github.com/taka-wang/psmb)
-[![Build Status](http://drone.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://drone.cmwang.net/taka-wang/psmb)
-[![CircleCI](https://circleci.com/gh/taka-wang/psmb.svg?style=svg&circle-token=791a0bee85922cdfd4a0fe580953408febe3cabd)](https://circleci.com/gh/taka-wang/psmb)
-[![codecov](https://codecov.io/gh/taka-wang/psmb/branch/dev/graph/badge.svg?token=wsuDctUrJO)](https://codecov.io/gh/taka-wang/psmb)
+[![codecov](https://codecov.io/gh/taka-wang/psmb/branch/master/graph/badge.svg)](https://codecov.io/gh/taka-wang/psmb)
 
 Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ---
 
+
+## Continuous Integration
+
+I do continuous integration and deploy docker images after git push by self-hosted drone.io server, [circleci](https://circleci.com/) service, [codecov](https://codecov.io/) service and [dockerhub]((https://hub.docker.com/r/edgepro/psmb/)) service.
+
+| CI Server| Target    | Status                                                                                                                        |
+|----------|-----------|-------------------------------------------------------------------------------------------------------------------------------|
+| CircleCI | x86       | [![CircleCI](https://circleci.com/gh/taka-wang/psmb.svg?style=shield)](https://circleci.com/gh/taka-wang/psmb)                |
+| Drone    | armhf     | [![Drone](http://armdrone.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://armdrone.cmwang.net/taka-wang/psmb) |
+
+---
+
 ## Environment variables
+
+> Why environment variable? Refer to the [12 factors](http://12factor.net/)
 
 - CONF_PSMBTCP: config file path
 - EP_BACKEND: endpoint of remote service discovery server (optional)
@@ -22,27 +35,27 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 - IWriterTaskDataStore: write task data store
 - IHistoryDataStore: history data store
 - IFilterDataStore: filter data store
-- IConfig: config
+- IConfig: config management
 
-## Package management
+## Golang package management
 
 - I adopted [glide](https://glide.sh/) as package management system for this repository.
 
-## Worker Pool
+## Worker Pool Model
 
-### Request
+### Request from upstream
 
-![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QUBJRIeqOAI5b3R4xTNttNf9h9x8jIx5h8y3G766V5dnqmTfR68a5c9ZCBnncoWPkdC5nc6aaAZNzl2NmFSKVde1)
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QSBJZxDKQ908XPGsnEtLzzsQEHIBP5AMIxMF7K1mkfJrijC6IMYinEf2gw1uupQH4tIh1IeE9O58lRIdVWdCH_VJuLy0)
 
-### Response
+### Response from downstream
 
-![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QUBJRIeqOAI5b3R4xTNttNf9h9x8jIx5h8y3G766V5dnqmTfR68a5c9ZCBnncoWPkdC5nc6aaAZNzl2N8EqUVde1)
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QVJfnragD4AaG4eRulRg-svEnMSBP9AdgDhw3Y0ut9KqsccTnDUYLDJvog1uupAmND2CCp1s9O50BTU7lmHXC_VJiRu0)
 
 ---
 
 ## Up and Running
 
-### Docker Compose (prefer)
+### Docker Compose
 
 ```bash
 docker-compose build --pull
@@ -70,7 +83,7 @@ sudo ldconfig
 curl https://glide.sh/get | sh
 
 # install dependencies
-glide install
+glide up
 
 # build
 cd tcp-srv
@@ -78,10 +91,6 @@ go build -o psmbtcp-srv
 ```
 
 ---
-
-## Continuous Integration
-
-I do continuous integration and build docker images after git push by self-hosted drone.io server and [dockerhub]((https://hub.docker.com/r/takawang/c-modbus-slave/)) service.
 
 ## Deployment Diagram
 
@@ -164,4 +173,10 @@ I do continuous integration and build docker images after git push by self-hoste
 
 ## UML
 
-![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZB3O0W303GLNG0gMSlpb8gGI8KqazONtt7jnQcwbTogSjjDlG049mX5xizkYQXpfRO0lK6XWzk4pd3y5QXeLeIe8ggCBJ5yFUvVru0)
+![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZ13O0W3030LNG0QVpwSPPI2H1R8BGDwnllUNjjnFuadxmLiw4NmCGLShNYqJLDwirIiq1TmF35Os7BC5mO1DNI169KXQ4ImzytdXy0)
+
+---
+
+## License
+
+MIT

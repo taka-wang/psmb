@@ -2,9 +2,6 @@ package history
 
 import (
 	"testing"
-	"time"
-
-	"gopkg.in/mgo.v2"
 
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/taka-wang/psmb/viper-conf"
@@ -22,10 +19,10 @@ func init() {
 func TestHistoryMap(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`add` task to history", func(log sugar.Log) bool {
+	s.Assert("`add` task to history", func(logf sugar.Log) bool {
 		historyMap, err := psmbtcp.HistoryDataStoreCreator("History")
 
-		log(err)
+		logf(err)
 		if err != nil {
 			return false
 		}
@@ -54,63 +51,62 @@ func TestHistoryMap(t *testing.T) {
 		}
 
 		if ret, err := historyMap.GetLatest("hello"); err != nil {
-			log("err:", err)
+			logf(err)
 			return false
-		} else {
-			log(ret)
 		}
+		logf(ret)
 
 		if ret, err := historyMap.GetLatest("hello1"); err != nil {
-			log("err:", err)
+			logf(err)
 		} else {
-			log(ret)
+			logf(ret)
 		}
 
 		if ret, err := historyMap.GetAll("hello"); err != nil {
-			log("err:", err)
+			logf(err)
 			return false
 		} else {
-			log(ret)
+			logf(ret)
 			for k, v := range ret {
-				log(k, v)
+				logf(k, v)
 			}
 		}
 
 		if ret, err := historyMap.GetAll("hello1"); err != nil {
-			log(err)
+			logf(err)
 		} else {
-			log(ret)
+			logf(ret)
 		}
 
 		if ret, err := historyMap.Get("hello", 2); err != nil {
-			log(err)
+			logf(err)
 			return false
-		} else {
-			log(ret)
 		}
+		logf(ret)
 
 		return true
 	})
 
-	s.Assert("Test fail cases", func(log sugar.Log) bool {
-		conf.Set(keyMongoEnableAuth, true)
+	s.Assert("Test fail cases", func(logf sugar.Log) bool {
 		setDefaults()
-		mongoDBDialInfo = &mgo.DialInfo{
-			// allow multiple connection string
-			Addrs:   []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
-			Timeout: conf.GetDuration(keyMongoConnTimeout) * time.Second,
+		conf.Set(keyMongoEnableAuth, true)
+		if _, err := psmbtcp.HistoryDataStoreCreator("History"); err != nil {
+			logf(err)
 		}
-		a, err := NewDataStore(nil)
-		log(err)
-		b := a.(dataStore)
-		b.openSession()
-		return true
-	})
 
-	//marshal
-	s.Assert("Test fail to marshal", func(log sugar.Log) bool {
-		_, err := marshal("hello;world")
-		log(err)
+		conf.Set(defaultMongoDocker, "hello")
+		setDefaults()
+		if a, err := psmbtcp.HistoryDataStoreCreator("History"); err != nil {
+			logf(err)
+		} else {
+			a.Get("1", 1)
+			a.Add("2", "2")
+			a.GetAll("23")
+			a.GetLatest("12")
+		}
+
+		_, err := marshal(func() {})
+		logf(err)
 		return true
 	})
 }

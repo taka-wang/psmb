@@ -13,7 +13,7 @@ func TestDownstreamStruct(t *testing.T) {
 
 	s.Title("modbus tcp downstreamstruct tests")
 
-	s.Assert("`read` request test", func(log sugar.Log) bool {
+	s.Assert("`read` request test", func(logf sugar.Log) bool {
 		req := DMbtcpReadReq{
 			Tid:   "123456",
 			Cmd:   1,
@@ -27,12 +27,12 @@ func TestDownstreamStruct(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(reqStr))
+		logf(string(reqStr))
 
 		return true
 	})
 
-	s.Assert("`single read` response test", func(log sugar.Log) bool {
+	s.Assert("`single read` response test", func(logf sugar.Log) bool {
 		input :=
 			`{
                 "tid": "1",
@@ -41,14 +41,14 @@ func TestDownstreamStruct(t *testing.T) {
             }`
 		var r1 DMbtcpRes
 		if err := json.Unmarshal([]byte(input), &r1); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
-		log(r1)
+		logf(r1)
 		return true
 	})
 
-	s.Assert("`multiple read` response test", func(log sugar.Log) bool {
+	s.Assert("`multiple read` response test", func(logf sugar.Log) bool {
 		input :=
 			`{
                 "tid": "1",
@@ -57,14 +57,14 @@ func TestDownstreamStruct(t *testing.T) {
             }`
 		var r1 DMbtcpRes
 		if err := json.Unmarshal([]byte(input), &r1); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
-		log(r1)
+		logf(r1)
 		return true
 	})
 
-	s.Assert("`single write` request test", func(log sugar.Log) bool {
+	s.Assert("`single write` request test", func(logf sugar.Log) bool {
 		req := DMbtcpWriteReq{
 			Tid:   "123456",
 			Cmd:   6,
@@ -78,12 +78,12 @@ func TestDownstreamStruct(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(reqStr))
+		logf(string(reqStr))
 
 		return true
 	})
 
-	s.Assert("`multiple write` request test", func(log sugar.Log) bool {
+	s.Assert("`multiple write` request test", func(logf sugar.Log) bool {
 		req := DMbtcpWriteReq{
 			Tid:   "123456",
 			Cmd:   6,
@@ -98,12 +98,12 @@ func TestDownstreamStruct(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(reqStr))
+		logf(string(reqStr))
 
 		return true
 	})
 
-	s.Assert("`set timeout` request test", func(log sugar.Log) bool {
+	s.Assert("`set timeout` request test", func(logf sugar.Log) bool {
 		req := DMbtcpTimeout{
 			Tid:     "22222",
 			Cmd:     50,
@@ -113,12 +113,12 @@ func TestDownstreamStruct(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(reqStr))
+		logf(string(reqStr))
 
 		return true
 	})
 
-	s.Assert("`get timeout` response test", func(log sugar.Log) bool {
+	s.Assert("`get timeout` response test", func(logf sugar.Log) bool {
 		input :=
 			`{
                 "tid": "22222",
@@ -127,10 +127,10 @@ func TestDownstreamStruct(t *testing.T) {
             }`
 		var r1 DMbtcpTimeout
 		if err := json.Unmarshal([]byte(input), &r1); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
-		log(r1)
+		logf(r1)
 		return true
 	})
 }

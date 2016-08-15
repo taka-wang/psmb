@@ -31,7 +31,7 @@ func TestScheduler(t *testing.T) {
 
 	s.Title("Job order test")
 
-	s.Assert("`RemoveWithName()` should not raise a deadlock", func(log sugar.Log) bool {
+	s.Assert("`RemoveWithName()` should not raise a deadlock", func(logf sugar.Log) bool {
 		s := scheduler{
 			jobMap:    make(map[string]*Job),
 			isStopped: make(chan bool),
@@ -50,7 +50,7 @@ func TestScheduler(t *testing.T) {
 
 		s.Start()
 		b := s.IsRunning()
-		log(b)
+		logf(b)
 		time.Sleep(3 * time.Second)
 		fmt.Println("RemoveWithName")
 		s.RemoveWithName("world")
@@ -68,7 +68,7 @@ func TestScheduler(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`EveryWithName()` should update interval", func(log sugar.Log) bool {
+	s.Assert("`EveryWithName()` should update interval", func(logf sugar.Log) bool {
 		s := scheduler{
 			jobMap:    make(map[string]*Job),
 			isStopped: make(chan bool),
@@ -110,7 +110,7 @@ func TestScheduler(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`Pause()` and `Resume()` should work", func(log sugar.Log) bool {
+	s.Assert("`Pause()` and `Resume()` should work", func(logf sugar.Log) bool {
 		s := scheduler{
 			jobMap:    make(map[string]*Job),
 			isStopped: make(chan bool),
@@ -147,7 +147,7 @@ func TestScheduler(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`PauseAll()` and `ResumeAll()` should work", func(log sugar.Log) bool {
+	s.Assert("`PauseAll()` and `ResumeAll()` should work", func(logf sugar.Log) bool {
 		s := scheduler{
 			jobMap:    make(map[string]*Job),
 			isStopped: make(chan bool),
@@ -184,7 +184,7 @@ func TestScheduler(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`Every()` should append job with order", func(log sugar.Log) bool {
+	s.Assert("`Every()` should append job with order", func(logf sugar.Log) bool {
 
 		s := scheduler{
 			jobMap:    make(map[string]*Job),
@@ -201,7 +201,7 @@ func TestScheduler(t *testing.T) {
 
 		s.Every(10).Seconds().Do(taskWithParams, 7, "10s")
 		for _, job := range s.jobs {
-			log("@interval: %d, param: %s", job.interval, job.tasksParams[0])
+			logf("@interval: %d, param: %s", job.interval, job.tasksParams[0])
 		}
 
 		for i, v := range s.jobMap {
@@ -215,7 +215,7 @@ func TestScheduler(t *testing.T) {
 
 		time.Sleep(5 * time.Second)
 		for _, job := range s.jobs {
-			log("@@interval: %d, param: %s", job.interval, job.tasksParams[0])
+			logf("@@interval: %d, param: %s", job.interval, job.tasksParams[0])
 		}
 
 		fmt.Println("add emergency job 9", time.Now().Format("2006-01-02 15:04:05.000"))
@@ -226,7 +226,7 @@ func TestScheduler(t *testing.T) {
 
 		// debug
 		for _, job := range s.jobs {
-			log("interval: %d, param: %s", job.interval, job.tasksParams[0])
+			logf("interval: %d, param: %s", job.interval, job.tasksParams[0])
 		}
 
 		if s.jobs[1].interval == 1 {
@@ -237,7 +237,7 @@ func TestScheduler(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`Remove()` should delete desired job", func(log sugar.Log) bool {
+	s.Assert("`Remove()` should delete desired job", func(logf sugar.Log) bool {
 		s := scheduler{
 			isStopped: make(chan bool),
 			location:  time.Local,
@@ -250,7 +250,7 @@ func TestScheduler(t *testing.T) {
 
 		// debug
 		for _, job := range s.jobs {
-			log("interval: %d", job.interval)
+			logf("interval: %d", job.interval)
 		}
 
 		// remove one job
@@ -258,17 +258,17 @@ func TestScheduler(t *testing.T) {
 
 		// remove nil
 		bb := s.Remove(nil)
-		log(bb)
+		logf(bb)
 		bbb := s.RemoveWithName("hello world")
-		log(bbb)
+		logf(bbb)
 		bbbb := s.PauseWithName("hello world")
-		log(bbbb)
+		logf(bbbb)
 		bbbbb := s.ResumeWithName("hello world")
-		log(bbbbb)
+		logf(bbbbb)
 
 		// debug
 		for _, job := range s.jobs {
-			log("@interval: %d", job.interval)
+			logf("@interval: %d", job.interval)
 		}
 
 		if s.Len() == 2 {
@@ -279,7 +279,7 @@ func TestScheduler(t *testing.T) {
 		return false
 	})
 
-	s.Assert("Only start the sch if not started", func(log sugar.Log) bool {
+	s.Assert("Only start the sch if not started", func(logf sugar.Log) bool {
 		s := scheduler{
 			isStopped: make(chan bool),
 			location:  time.Local,
@@ -319,12 +319,12 @@ func TestScheduler(t *testing.T) {
 		j.updateInterval(100)
 		j = j.At("10:30")
 		b := j.isInit()
-		log(b)
+		logf(b)
 		j.init(time.Now())
 		j.run()
 		j = j.At("24:30")
 		i := newJob(0)
-		log(i)
+		logf(i)
 		return true
 	})
 

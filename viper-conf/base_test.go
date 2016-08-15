@@ -15,7 +15,7 @@ var (
 func TestLogger(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("Init logger", func(log sugar.Log) bool {
+	s.Assert("Init logger", func(logf sugar.Log) bool {
 		Log.Debug("hello world")
 		Log.WithError(ErrFilterNotFound).Error("World hello")
 
@@ -27,20 +27,20 @@ func TestLogger(t *testing.T) {
 		}).Error("Fail to create log file")
 
 		i := GetInt("psmbtcp.max_worker")
-		log(i)
+		logf(i)
 		j := GetInt64("psmbtcp.min_connection_timeout")
-		log(j)
+		logf(j)
 		s := GetString(keyLogFileName)
-		log(s)
+		logf(s)
 		b := GetBool(keyLogToFile)
-		log(b)
+		logf(b)
 		d := GetDuration("redis.idel_timeout")
-		log(d)
+		logf(d)
 
 		return true
 	})
 
-	s.Assert("Test setLogger", func(log sugar.Log) bool {
+	s.Assert("Test setLogger", func(_ sugar.Log) bool {
 		os.Setenv(envBackendEndpoint, "123")
 		base.initConfig()
 		SetDefault(keyLogEnableDebug, defaultLogEnableDebug)
@@ -53,7 +53,7 @@ func TestLogger(t *testing.T) {
 		return true
 	})
 
-	s.Assert("Test Init logger", func(log sugar.Log) bool {
+	s.Assert("Test Init logger", func(_ sugar.Log) bool {
 		os.Setenv(envConfPSMBTCP, "")
 		os.Setenv(envBackendEndpoint, "")
 		base.initConfig()
@@ -65,6 +65,19 @@ func TestLogger(t *testing.T) {
 		os.Setenv(envConfPSMBTCP, "a")
 		os.Setenv(envBackendEndpoint, "")
 		base.initConfig()
+		return true
+	})
+
+	s.Assert("Test Fail cases", func(_ sugar.Log) bool {
+		os.Setenv(envBackendEndpoint, "123")
+		base.initConfig()
+		SetDefault(keyLogEnableDebug, defaultLogEnableDebug)
+		Set(keyLogToJSONFormat, true)
+		Set(keyLogEnableDebug, false)
+		base.setLogger()
+		Set(keyLogFileName, "/proc/111")
+		Set(keyLogToFile, true)
+		base.setLogger()
 		return true
 	})
 }

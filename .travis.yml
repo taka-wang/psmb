@@ -7,16 +7,28 @@ env:
   DOCKER_COMPOSE_VERSION: 1.4.2
 
 before_install:
+  - export TZ=Asia/Taipei
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
 script:
-    - docker-compose pull
-    - docker-compose build
-    - docker-compose up
-    - docker-compose stop
+    # build cache
+    - docker build -t golang:x86-cache -f release/Dockerfile.x86-cache .
+    # build builder
+    - docker build -t builder:x86 --no-cache=true -f release/Dockerfile.x86-build .
+    - docker run -itd --name=builder builder:x86
+    # copy binary to release folder
+    - docker cp builder:/psmb-srv release/
+    # build release image
+    - docker build -t edgepro/psmb-srv:x86 --no-cache=true -f release/Dockerfile.x86-pack release/.
+    # CI --------------
+    #- docker-compose -f docker-compose.x86 rm -f -a
+    - docker-compose -f docker-compose.x86 build --no-cache
+    - docker-compose -f docker-compose.x86 up
+    - cat /var/tmp/success      # test
+    - rm -f /var/tmp/success    # cleanup
 
 notifications:
     email: false

@@ -1,4 +1,4 @@
-FROM takawang/gozmq:pull
+FROM takawang/gozmq:x86
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 ENV CONF_PSMBTCP "/etc/psmbtcp"
@@ -9,7 +9,7 @@ ADD . /go/src/github.com/taka-wang/psmb
 
 # install deps
 WORKDIR /go/src/github.com/taka-wang/psmb/
-RUN glide install
+RUN glide up
 
 # set work dir
 WORKDIR /go/src/github.com/taka-wang/psmb/tcp-srv/test/dummy-srv

@@ -21,6 +21,9 @@ test:
         # @viper-conf
         - docker build -t conf --no-cache=true -f viper-conf/Dockerfile .
         - docker run -v "$PWD/shared:/shared" conf
+        # @mini-conf
+        - docker build -t conf --no-cache=true -f mini-conf/Dockerfile .
+        - docker run conf
         # @psmb
         - docker build -t psmb --no-cache=true . 
         - docker run -v "$PWD/shared:/shared" psmb
@@ -48,16 +51,34 @@ test:
         - docker-compose -f redis-history/docker-compose.yml build --no-cache
         - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
         - docker-compose -f redis-history/docker-compose.yml stop
-
         # codecov
-        - bash <(curl -s https://codecov.io/bash) -t 558aa53d-c58d-4df4-a1c1-a22a6e6d8572
-        # ci
-        - docker-compose rm -f -a
-        - docker-compose pull
-        - docker-compose build
+        - bash <(curl -s https://codecov.io/bash)
     override:
-        - docker-compose up --abort-on-container-exit
+        # build cache
+        - docker build -t golang:x86-cache -f release/Dockerfile.x86-cache .
+        # build builder
+        - docker build -t builder:x86 --no-cache=true -f release/Dockerfile.x86-build .
+        - docker run -itd --name=builder builder:x86
+        # copy binary to release folder
+        - docker cp builder:/psmb-srv release/
+        # build release image
+        - docker build -t edgepro/psmb-srv:x86 --no-cache=true -f release/Dockerfile.x86-pack release/.
+        # ci
+        - docker-compose -f docker-compose.circle rm -f -a
+        #- docker-compose -f docker-compose.circle pull
+        - docker-compose -f docker-compose.circle build
+        - docker-compose -f docker-compose.circle up --abort-on-container-exit
     post:
         - mv shared/coverage.txt ${CIRCLE_ARTIFACTS}/
-        - docker-compose stop
-        - docker-compose rm -f -a
+        - docker-compose -f docker-compose.circle stop
+        - docker-compose -f docker-compose.circle rm -f -a
+
+# publish to dockerhub
+deployment:
+    hub:
+        branch: dev
+        commands:
+            - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+            - docker tag edgepro/psmb-srv:x86 edgepro/psmb-srv:latest
+            - docker push edgepro/psmb-srv:latest
+            - docker push edgepro/psmb-srv:x86

@@ -16,9 +16,9 @@ func init() {
 func TestFilter(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("``add` task to map", func(log sugar.Log) bool {
+	s.Assert("``add` task to map", func(logf sugar.Log) bool {
 		filterMap, err := psmbtcp.FilterDataStoreCreator("Filter")
-		log(err)
+		logf(err)
 		if err != nil {
 			return false
 		}
@@ -37,67 +37,67 @@ func TestFilter(t *testing.T) {
 		}
 
 		// ADD
-		log("Add A item")
+		logf("Add A item")
 		filterMap.Add(a.Name, a)
-		log("Add B item")
+		logf("Add B item")
 		filterMap.Add(b.Name, b)
-		log("Add null item")
+		logf("Add null item")
 		filterMap.Add("", b)
 
 		// GET
-		log("GET A item")
+		logf("GET A item")
 		if r, b := filterMap.Get(a.Name); b != false {
-			log(r)
+			logf(r)
 		} else {
 			return false
 		}
 
 		// TOGGLE A
-		log("Toggle A item")
+		logf("Toggle A item")
 		if err := filterMap.UpdateToggle(a.Name, false); err != nil {
 			return false
 		}
-		log("Toggle NULL item")
+		logf("Toggle NULL item")
 		if err := filterMap.UpdateToggle("D", false); err != nil {
-			log(err)
+			logf(err)
 		}
 
 		// GET
-		log("GET A item")
+		logf("GET A item")
 		if r, b := filterMap.Get(a.Name); b != false {
-			log(r)
+			logf(r)
 		} else {
 			return false
 		}
 
 		// GET ALL
-		log("Get all items")
+		logf("Get all items")
 		if r := filterMap.GetAll(); r != nil {
-			log(r)
+			logf(r)
 		} else {
 			return false
 		}
 
 		// Toggle all
-		log("Toggle all items")
+		logf("Toggle all items")
 		filterMap.UpdateAllToggles(false)
 
 		// GET ALL
-		log("Get all items")
+		logf("Get all items")
 		if r := filterMap.GetAll(); r != nil {
-			log(r)
+			logf(r)
 		} else {
 			return false
 		}
 
 		// DELETE
-		log("Remove A item")
+		logf("Remove A item")
 		filterMap.Delete(a.Name)
 
 		// GET ALL
-		log("Get all items")
+		logf("Get all items")
 		if r := filterMap.GetAll(); r != nil {
-			log(r)
+			logf(r)
 		} else {
 			return false
 		}
@@ -106,20 +106,20 @@ func TestFilter(t *testing.T) {
 		for i := 0; i < 50; i++ {
 			s := strconv.Itoa(i)
 			if err := filterMap.Add(s, a); err != nil {
-				log(err, i)
+				logf(err, i)
 			} else {
-				log("ok", i)
+				logf("ok", i)
 			}
 		}
 
 		// DELETe ALL
-		log("Delete all items")
+		logf("Delete all items")
 		filterMap.DeleteAll()
 
 		// GET ALL
-		log("Get all items")
+		logf("Get all items")
 		if r := filterMap.GetAll(); r == nil {
-			log("empty")
+			logf("empty")
 			return true
 		}
 

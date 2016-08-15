@@ -3,8 +3,8 @@ package history
 import (
 	"testing"
 
-	"github.com/taka-wang/psmb/mini-conf"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
+	"github.com/taka-wang/psmb/viper-conf"
 	"github.com/takawang/sugar"
 )
 
@@ -19,10 +19,10 @@ func init() {
 func TestHistoryMap(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`add` task to history", func(log sugar.Log) bool {
+	s.Assert("`add` task to history", func(logf sugar.Log) bool {
 		historyMap, err := psmbtcp.HistoryDataStoreCreator("History")
 
-		log(err)
+		logf(err)
 		if err != nil {
 			return false
 		}
@@ -52,58 +52,62 @@ func TestHistoryMap(t *testing.T) {
 		}
 
 		if ret, err := historyMap.GetLatest("hello"); err != nil {
-			log(err)
+			logf(err)
 			return false
 		} else {
-			log(ret)
+			logf(ret)
 		}
 
 		if ret, err := historyMap.GetLatest("hello1"); err != nil {
-			log(err)
+			logf(err)
 		} else {
-			log(ret)
+			logf(ret)
 		}
 
 		if ret, err := historyMap.GetAll("hello"); err != nil {
-			log(err)
+			logf(err)
 			return false
 		} else {
-			log(ret)
+			logf(ret)
 			for k, v := range ret {
-				log(k, v)
+				logf(k, v)
 			}
 		}
 
 		if ret, err := historyMap.GetAll("hello1"); err != nil {
-			log(err)
+			logf(err)
 		} else {
-			log(ret)
+			logf(ret)
 		}
 
 		if ret, err := historyMap.Get("hello", 2); err != nil {
-			log(err)
+			logf(err)
 			return false
 		} else {
-			log(ret)
+			logf(ret)
 		}
 
 		return true
 	})
 
-	s.Assert("Test Redis pool", func(log sugar.Log) bool {
+	s.Assert("Test Fail cases", func(logf sugar.Log) bool {
 		conf.Set(defaultRedisDocker, "hello")
 		setDefaults()
 
 		conf.Set(keyRedisServer, "hello")
-		init()
+		setDefaults()
 
 		historyMap, err := psmbtcp.HistoryDataStoreCreator("History")
-		log(err)
+		logf(err)
 
-		historyMap.connectRedis()
-		historyMap.closeRedis()
 		historyMap.Add("123", "123")
 		historyMap.Get("123", 1)
+		if _, err := historyMap.Get("", 1); err != nil {
+			logf(err)
+		}
+		if _, err := historyMap.GetAll(""); err != nil {
+			logf(err)
+		}
 		historyMap.GetAll("123")
 		historyMap.GetLatest("123")
 		return true

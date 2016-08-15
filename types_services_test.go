@@ -14,7 +14,7 @@ func TestUpstreamStructTest(t *testing.T) {
 
 	s.Title("One-off modbus tcp struct tests")
 
-	s.Assert("`mbtcp.once.read` request test", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.read` request test", func(logf sugar.Log) bool {
 		input :=
 			`{
                 "from": "web",
@@ -28,10 +28,10 @@ func TestUpstreamStructTest(t *testing.T) {
             }`
 		var r1 MbtcpReadReq
 		if err := json.Unmarshal([]byte(input), &r1); err != nil {
-			log("json err:", err)
+			logf("json err:", err)
 			return false
 		}
-		log(r1)
+		logf(r1)
 
 		input2 :=
 			`{
@@ -47,10 +47,10 @@ func TestUpstreamStructTest(t *testing.T) {
             }`
 		var r2 MbtcpReadReq
 		if err := json.Unmarshal([]byte(input2), &r2); err != nil {
-			log("json err:", err)
+			logf("json err:", err)
 			return false
 		}
-		log(r2)
+		logf(r2)
 
 		input3 :=
 			`{
@@ -73,10 +73,10 @@ func TestUpstreamStructTest(t *testing.T) {
             }`
 		var r3 MbtcpReadReq
 		if err := json.Unmarshal([]byte(input3), &r3); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
-		log(r3)
+		logf(r3)
 
 		input4 :=
 			`{
@@ -93,10 +93,10 @@ func TestUpstreamStructTest(t *testing.T) {
             }`
 		var r4 MbtcpReadReq
 		if err := json.Unmarshal([]byte(input4), &r4); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
-		log(r4)
+		logf(r4)
 
 		input5 :=
 			`{
@@ -113,14 +113,14 @@ func TestUpstreamStructTest(t *testing.T) {
             }`
 		var r5 MbtcpReadReq
 		if err := json.Unmarshal([]byte(input5), &r5); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
-		log(r5)
+		logf(r5)
 		return true
 	})
 
-	s.Assert("`mbtcp.once.read` response test", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.read` response test", func(logf sugar.Log) bool {
 
 		// res1
 		res1 := MbtcpReadRes{
@@ -131,7 +131,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(writeReqStr1))
+		logf(string(writeReqStr1))
 
 		// res2
 		res2 := MbtcpReadRes{
@@ -141,7 +141,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(writeReqStr2))
+		logf(string(writeReqStr2))
 
 		// res3
 		res3 := MbtcpReadRes{
@@ -152,7 +152,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(writeReqStr3))
+		logf(string(writeReqStr3))
 
 		// res4
 		res4 := MbtcpReadRes{
@@ -164,7 +164,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(writeReqStr4))
+		logf(string(writeReqStr4))
 
 		// res5
 		res5 := MbtcpReadRes{
@@ -176,7 +176,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(writeReqStr5))
+		logf(string(writeReqStr5))
 
 		// res6
 		res6 := MbtcpReadRes{
@@ -187,7 +187,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(writeReqStr6))
+		logf(string(writeReqStr6))
 
 		// res7
 		res7 := MbtcpReadRes{
@@ -199,7 +199,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		if err != nil {
 			return false
 		}
-		log(string(writeReqStr7))
+		logf(string(writeReqStr7))
 
 		return true
 
@@ -207,7 +207,7 @@ func TestUpstreamStructTest(t *testing.T) {
 
 	s.Title("get/set modbus tcp timeout struct tests")
 
-	s.Assert("`mbtcp.timeout.read` request test", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.read` request test", func(logf sugar.Log) bool {
 		input :=
 			`{
                 "from": "web",
@@ -215,30 +215,30 @@ func TestUpstreamStructTest(t *testing.T) {
             }`
 		var r1 MbtcpTimeoutReq
 		if err := json.Unmarshal([]byte(input), &r1); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
 		return true
 	})
 
-	s.Assert("`mbtcp.timeout.read` response test", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.read` response test", func(logf sugar.Log) bool {
 		res1 := MbtcpTimeoutRes{Tid: 123456, Status: "ok"}
 		writeReqStr1, err := json.Marshal(res1)
 		if err != nil {
 			return false
 		}
-		log(string(writeReqStr1))
+		logf(string(writeReqStr1))
 
 		res2 := MbtcpTimeoutRes{Tid: 123456, Status: "ok", Data: 210000}
 		writeReqStr2, err := json.Marshal(res2)
 		if err != nil {
 			return false
 		}
-		log(string(writeReqStr2))
+		logf(string(writeReqStr2))
 		return true
 	})
 
-	s.Assert("`mbtcp.timeout.update` request test", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.update` request test", func(logf sugar.Log) bool {
 		input :=
 			`{
                 "from": "web",
@@ -247,23 +247,23 @@ func TestUpstreamStructTest(t *testing.T) {
             }`
 		var r1 MbtcpTimeoutReq
 		if err := json.Unmarshal([]byte(input), &r1); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
 		return true
 	})
 
-	s.Assert("`mbtcp.timeout.update` response test", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.update` response test", func(logf sugar.Log) bool {
 		res1 := MbtcpTimeoutRes{Tid: 123456, Status: "ok"}
 		writeReqStr1, err := json.Marshal(res1)
 		if err != nil {
 			return false
 		}
-		log(string(writeReqStr1))
+		logf(string(writeReqStr1))
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write` request test", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write` request test", func(logf sugar.Log) bool {
 		input :=
 			`{
 				"from": "web",
@@ -278,17 +278,15 @@ func TestUpstreamStructTest(t *testing.T) {
 		var data json.RawMessage
 		r1 := MbtcpWriteReq{Data: &data}
 
-		log("port is null", r1.Port == "")
-
 		if err := json.Unmarshal([]byte(input), &r1); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
 		switch r1.FC {
 		case 5:
 			var d uint16
 			if err := json.Unmarshal(data, &d); err != nil {
-				log("json err:", err)
+				logf(err)
 				return false
 			}
 			r1.Data = d
@@ -296,7 +294,7 @@ func TestUpstreamStructTest(t *testing.T) {
 			//
 		}
 
-		log(r1)
+		logf(r1)
 
 		input2 :=
 			`{
@@ -313,7 +311,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		var data2 json.RawMessage
 		r2 := MbtcpWriteReq{Data: &data2}
 		if err := json.Unmarshal([]byte(input2), &r2); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
 		switch r2.FC {
@@ -322,29 +320,29 @@ func TestUpstreamStructTest(t *testing.T) {
 		case 6:
 			var d string
 			if err := json.Unmarshal(data2, &d); err != nil {
-				log("json err:", err)
+				logf(err)
 				return false
 			}
 
 			if r2.Hex {
 				dd, err := HexStringToRegisters(d)
 				if err != nil {
-					log("json err:", err)
+					logf(err)
 					return false
 				}
-				log("length:", len(dd))
+				logf(len(dd))
 				r2.Data = dd[0]
 			} else {
 				dd, err := strconv.Atoi(d)
 				if err != nil {
-					log("json err:", err)
+					logf(err)
 					return false
 				}
 				r2.Data = dd
 			}
 		}
 
-		log(r2)
+		logf(r2)
 
 		input3 :=
 			`{
@@ -362,7 +360,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		var data3 json.RawMessage
 		r3 := MbtcpWriteReq{Data: &data3}
 		if err := json.Unmarshal([]byte(input3), &r3); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
 		switch r3.FC {
@@ -371,29 +369,29 @@ func TestUpstreamStructTest(t *testing.T) {
 		case 6:
 			var d string
 			if err := json.Unmarshal(data3, &d); err != nil {
-				log("json err:", err)
+				logf(err)
 				return false
 			}
 
 			if r3.Hex {
 				dd, err := HexStringToRegisters(d)
 				if err != nil {
-					log("json err:", err)
+					logf(err)
 					return false
 				}
-				log("length:", len(dd))
+				logf(len(dd))
 				r3.Data = dd[0]
 			} else {
 				dd, _ := strconv.Atoi(d)
 				if err := json.Unmarshal(data3, &d); err != nil {
-					log("json err:", err)
+					logf(err)
 					return false
 				}
 				r3.Data = dd
 			}
 
 		}
-		log(r3)
+		logf(r3)
 
 		input4 :=
 			`{
@@ -410,7 +408,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		var data4 json.RawMessage
 		r4 := MbtcpWriteReq{Data: &data4}
 		if err := json.Unmarshal([]byte(input4), &r4); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
 		switch r4.FC {
@@ -421,12 +419,12 @@ func TestUpstreamStructTest(t *testing.T) {
 		case 15:
 			var d []uint16
 			if err := json.Unmarshal(data4, &d); err != nil {
-				log("json err:", err)
+				logf(err)
 				return false
 			}
 			r4.Data = d
 		}
-		log(r4)
+		logf(r4)
 
 		input5 :=
 			`{
@@ -445,7 +443,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		var data5 json.RawMessage
 		r5 := MbtcpWriteReq{Data: &data5}
 		if err := json.Unmarshal([]byte(input5), &r5); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
 		switch r5.FC {
@@ -458,26 +456,26 @@ func TestUpstreamStructTest(t *testing.T) {
 		case 16:
 			var d string
 			if err := json.Unmarshal(data5, &d); err != nil {
-				log("json err:", err)
+				logf(err)
 				return false
 			}
 			if r5.Hex {
 				dd, err := HexStringToRegisters(d)
 				if err != nil {
-					log("json err:", err)
+					logf(err)
 					return false
 				}
 				r5.Data = dd
 			} else {
 				dd, err := DecimalStringToRegisters(d)
 				if err != nil {
-					log("json err:", err)
+					logf(err)
 					return false
 				}
 				r5.Data = dd
 			}
 		}
-		log(r5)
+		logf(r5)
 
 		input6 :=
 			`{
@@ -495,7 +493,7 @@ func TestUpstreamStructTest(t *testing.T) {
 		var data6 json.RawMessage
 		r6 := MbtcpWriteReq{Data: &data6}
 		if err := json.Unmarshal([]byte(input6), &r6); err != nil {
-			log("json err:", err)
+			logf(err)
 			return false
 		}
 		switch r6.FC {
@@ -508,31 +506,27 @@ func TestUpstreamStructTest(t *testing.T) {
 		case 16:
 			var d string
 			if err := json.Unmarshal(data6, &d); err != nil {
-				log("json err:", err)
+				logf(err)
 				return false
 			}
 			if r6.Hex {
 				dd, err := HexStringToRegisters(d)
 				if err != nil {
-					log("json err:", err)
+					logf(err)
 					return false
 				}
 				r6.Data = dd
 			} else {
 				dd, err := DecimalStringToRegisters(d)
 				if err != nil {
-					log("json err:", err)
+					logf(err)
 					return false
 				}
 				r6.Data = dd
 			}
 		}
-		log(r6)
+		logf(r6)
 
-		return true
-	})
-
-	s.Assert("`mbtcp.once.write` response test", func(log sugar.Log) bool {
 		return true
 	})
 
