@@ -1,13 +1,17 @@
-FROM takawang/gozmq:pull #TODO
+FROM takawang/gozmq:armhf
 MAINTAINER Taka Wang <taka@cmwang.net>
 
-WORKDIR /go
-RUN go get -u github.com/taka-wang/psmb
+ENV CONF_PSMBTCP "/etc/psmbtcp"
+ENV EP_BACKEND "consul.cmwang.net:8500"
 
-## Load app files
-ADD . /go/src/github.com/taka-wang/psmb/tcp-srv/test/dummy-srv
+# add source code from root
+ADD . /go/src/github.com/taka-wang/psmb
+
+# install deps
+WORKDIR /go/src/github.com/taka-wang/psmb/
+RUN glide install
+
+# set work dir
 WORKDIR /go/src/github.com/taka-wang/psmb/tcp-srv/test/dummy-srv
-RUN go get -t ./...
 
-## Default command
-CMD ["go", "test", "-v"]
+CMD ./test.sh

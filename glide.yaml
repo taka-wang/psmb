@@ -16,22 +16,9 @@ import:
 - package: github.com/spf13/viper
   subpackages:
   - remote
-- package: github.com/taka-wang/psmb
-  subpackages:
-  - cron
-  - mem-filter
-  - mem-reader
-  - mem-writer
-  - mgo-history
-  - redis-filter
-  - redis-history
-  - redis-writer
-  - tcp
-  - viper-conf
 - package: github.com/takawang/zmq3
 - package: gopkg.in/mgo.v2
   subpackages:
   - bson
 testImport:
 - package: github.com/takawang/sugar
-

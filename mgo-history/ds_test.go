@@ -2,9 +2,6 @@ package history
 
 import (
 	"testing"
-	"time"
-
-	"gopkg.in/mgo.v2"
 
 	psmbtcp "github.com/taka-wang/psmb/tcp"
 	"github.com/taka-wang/psmb/viper-conf"
@@ -93,23 +90,24 @@ func TestHistoryMap(t *testing.T) {
 	})
 
 	s.Assert("Test fail cases", func(log sugar.Log) bool {
-		conf.Set(keyMongoEnableAuth, true)
 		setDefaults()
-		mongoDBDialInfo = &mgo.DialInfo{
-			// allow multiple connection string
-			Addrs:   []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
-			Timeout: conf.GetDuration(keyMongoConnTimeout) * time.Second,
+		conf.Set(keyMongoEnableAuth, true)
+		if _, err := psmbtcp.HistoryDataStoreCreator("History"); err != nil {
+			log(err)
 		}
-		a, err := NewDataStore(nil)
-		log(err)
-		b := a.(dataStore)
-		b.openSession()
-		return true
-	})
 
-	//marshal
-	s.Assert("Test fail to marshal", func(log sugar.Log) bool {
-		_, err := marshal("hello;world")
+		conf.Set(defaultMongoDocker, "hello")
+		setDefaults()
+		if a, err := psmbtcp.HistoryDataStoreCreator("History"); err != nil {
+			log(err)
+		} else {
+			a.Get("1", 1)
+			a.Add("2", "2")
+			a.GetAll("23")
+			a.GetLatest("12")
+		}
+
+		_, err := marshal(func() {})
 		log(err)
 		return true
 	})

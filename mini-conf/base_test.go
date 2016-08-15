@@ -1,10 +1,9 @@
-package conf_test
+package conf
 
 import (
 	"errors"
 	"testing"
 
-	conf "github.com/taka-wang/psmb/mini-conf"
 	"github.com/takawang/sugar"
 )
 
@@ -16,10 +15,10 @@ func TestLogger(t *testing.T) {
 	s := sugar.New(t)
 
 	s.Assert("Init logger", func(log sugar.Log) bool {
-		conf.Log.Debug("hello world")
-		conf.Log.WithError(ErrFilterNotFound).Error("World hello")
+		Log.Debug("hello world")
+		Log.WithError(ErrFilterNotFound).Error("World hello")
 
-		conf.Log.WithFields(conf.Fields{
+		Log.WithFields(Fields{
 			"err":       ErrFilterNotFound,
 			"file name": "Hello",
 		}).Error("Fail to create log file")

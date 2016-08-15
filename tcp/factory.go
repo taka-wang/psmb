@@ -3,8 +3,8 @@ package tcp
 import (
 	"github.com/taka-wang/psmb"
 	"github.com/taka-wang/psmb/cron"
-	//cf "github.com/taka-wang/psmb/mini-conf"
-	cf "github.com/taka-wang/psmb/viper-conf"
+	//"github.com/taka-wang/psmb/mini-conf"
+	"github.com/taka-wang/psmb/viper-conf"
 )
 
 //
@@ -15,9 +15,9 @@ import (
 var factories = make(map[string]interface{})
 
 // createPlugin real factory method
-func createPlugin(conf map[string]string, key string) (interface{}, error) {
+func createPlugin(cnf map[string]string, key string) (interface{}, error) {
 	defaultKey := ""
-	if got, ok := conf[key]; ok {
+	if got, ok := cnf[key]; ok {
 		defaultKey = got
 	}
 
@@ -33,90 +33,90 @@ func createPlugin(conf map[string]string, key string) (interface{}, error) {
 }
 
 // createScheduler real factory method
-func createScheduler(conf map[string]string) (cron.Scheduler, error) {
-	ef, _ := createPlugin(conf, schedulerPluginName)
+func createScheduler(cnf map[string]string) (cron.Scheduler, error) {
+	ef, _ := createPlugin(cnf, schedulerPluginName)
 
 	if ef != nil {
 		//fmt.Println(reflect.TypeOf(ef)) // debug
 		if fn, ok := ef.(func(map[string]string) (cron.Scheduler, error)); ok {
-			if ds, _ := fn(conf); ds != nil { // casting
+			if ds, _ := fn(cnf); ds != nil { // casting
 				return ds.(cron.Scheduler), nil
 			}
 		}
 		err := ErrCasting
-		cf.Log.WithError(err).Error("Create scheduler")
+		conf.Log.WithError(err).Error("Create scheduler")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
 }
 
 // createFilterDS real factory method
-func createFilterDS(conf map[string]string) (psmb.IFilterDataStore, error) {
-	ef, _ := createPlugin(conf, filterPluginName)
+func createFilterDS(cnf map[string]string) (psmb.IFilterDataStore, error) {
+	ef, _ := createPlugin(cnf, filterPluginName)
 
 	if ef != nil {
 		//fmt.Println(reflect.TypeOf(ef)) // debug
 		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
-			if ds, _ := fn(conf); ds != nil { // casting
+			if ds, _ := fn(cnf); ds != nil { // casting
 				return ds.(psmb.IFilterDataStore), nil
 			}
 		}
 		err := ErrCasting
-		cf.Log.WithError(err).Error("Create filter data store")
+		conf.Log.WithError(err).Error("Create filter data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
 }
 
 // createWriterDS real factory method
-func createHistoryDS(conf map[string]string) (psmb.IHistoryDataStore, error) {
-	ef, _ := createPlugin(conf, historyPluginName)
+func createHistoryDS(cnf map[string]string) (psmb.IHistoryDataStore, error) {
+	ef, _ := createPlugin(cnf, historyPluginName)
 
 	if ef != nil {
 		//fmt.Println(reflect.TypeOf(ef)) // debug
 		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
-			if ds, _ := fn(conf); ds != nil { // casting
+			if ds, _ := fn(cnf); ds != nil { // casting
 				return ds.(psmb.IHistoryDataStore), nil
 			}
 		}
 		err := ErrCasting
-		cf.Log.WithError(err).Error("Create history data store")
+		conf.Log.WithError(err).Error("Create history data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
 }
 
 // createWriterDS real factory method
-func createWriterDS(conf map[string]string) (psmb.IWriterTaskDataStore, error) {
-	ef, _ := createPlugin(conf, writerPluginName)
+func createWriterDS(cnf map[string]string) (psmb.IWriterTaskDataStore, error) {
+	ef, _ := createPlugin(cnf, writerPluginName)
 
 	if ef != nil {
 		//fmt.Println(reflect.TypeOf(ef)) // debug
 		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
-			if ds, _ := fn(conf); ds != nil { // casting
+			if ds, _ := fn(cnf); ds != nil { // casting
 				return ds.(psmb.IWriterTaskDataStore), nil
 			}
 		}
 		err := ErrCasting
-		cf.Log.WithError(err).Error("Create writer data store")
+		conf.Log.WithError(err).Error("Create writer data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
 }
 
 // createReaderDS real factory method
-func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
-	ef, _ := createPlugin(conf, readerPluginName)
+func createReaderDS(cnf map[string]string) (psmb.IReaderTaskDataStore, error) {
+	ef, _ := createPlugin(cnf, readerPluginName)
 
 	if ef != nil {
 		//fmt.Println(reflect.TypeOf(ef)) // debug
 		if fn, ok := ef.(func(map[string]string) (interface{}, error)); ok {
-			if ds, _ := fn(conf); ds != nil { // casting
+			if ds, _ := fn(cnf); ds != nil { // casting
 				return ds.(psmb.IReaderTaskDataStore), nil
 			}
 		}
 		err := ErrCasting
-		cf.Log.WithError(err).Error("Create reader data store")
+		conf.Log.WithError(err).Error("Create reader data store")
 		return nil, err
 	}
 	return nil, ErrInvalidPluginName
@@ -125,11 +125,11 @@ func createReaderDS(conf map[string]string) (psmb.IReaderTaskDataStore, error) {
 // Register register factory methods
 func Register(name string, factory interface{}) {
 	if factory == nil {
-		cf.Log.WithError(ErrPluginNotExist).Error("Register: " + name)
+		conf.Log.WithError(ErrPluginNotExist).Error("Register: " + name)
 	}
 	_, registered := factories[name]
 	if registered {
-		cf.Log.WithError(ErrPluginExist).Error("Register: " + name)
+		conf.Log.WithError(ErrPluginExist).Error("Register: " + name)
 	}
 	factories[name] = factory
 }

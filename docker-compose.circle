@@ -1,25 +1,24 @@
 redis:
-    image: redis
+    image: redis:3.2.3-alpine
     ports:
         - "6379"
 
 mongodb:
-    image: mongo
+    image: mongo:3.2
     ports:
         - "27017"
 slave:
-    image: takawang/c-modbus-slave:x86
+    image: edgepro/c-modbus-slave:x86
 
 modbusd:
-    image: edgepro/modbusd:nolog
+    image: edgepro/modbusd:x86
     volumes:
         - /tmp:/tmp
     links:
         - slave
 
 psmbtcpsrv:
-    build: .
-    dockerfile: tcp-srv/Dockerfile
+    image: edgepro/psmb-srv:x86
     volumes_from:
         - modbusd
     links:

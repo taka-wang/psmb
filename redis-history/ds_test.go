@@ -3,8 +3,8 @@ package history
 import (
 	"testing"
 
-	"github.com/taka-wang/psmb/mini-conf"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
+	"github.com/taka-wang/psmb/viper-conf"
 	"github.com/takawang/sugar"
 )
 
@@ -90,20 +90,24 @@ func TestHistoryMap(t *testing.T) {
 		return true
 	})
 
-	s.Assert("Test Redis pool", func(log sugar.Log) bool {
+	s.Assert("Test Fail cases", func(log sugar.Log) bool {
 		conf.Set(defaultRedisDocker, "hello")
 		setDefaults()
 
 		conf.Set(keyRedisServer, "hello")
-		init()
+		setDefaults()
 
 		historyMap, err := psmbtcp.HistoryDataStoreCreator("History")
 		log(err)
 
-		historyMap.connectRedis()
-		historyMap.closeRedis()
 		historyMap.Add("123", "123")
 		historyMap.Get("123", 1)
+		if _, err := historyMap.Get("", 1); err != nil {
+			log(err)
+		}
+		if _, err := historyMap.GetAll(""); err != nil {
+			log(err)
+		}
 		historyMap.GetAll("123")
 		historyMap.GetLatest("123")
 		return true

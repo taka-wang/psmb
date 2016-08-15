@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/taka-wang/psmb"
-	"github.com/taka-wang/psmb/mini-conf"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
+	"github.com/taka-wang/psmb/viper-conf"
 	"github.com/takawang/sugar"
 )
 
@@ -121,18 +121,48 @@ func TestFilter(t *testing.T) {
 
 	})
 
+	s.Assert("Test Fail cases", func(log sugar.Log) bool {
+		filterMap, _ := psmbtcp.FilterDataStoreCreator("Filter")
+
+		a := psmb.MbtcpFilterStatus{
+			Tid:     1234,
+			From:    "test",
+			Name:    "B",
+			Enabled: true,
+		}
+
+		log("Add A item")
+		filterMap.Add(a.Name, a)
+
+		b := psmb.MbtcpFiltersStatus{
+			Tid: 123456,
+		}
+
+		log("Add B item")
+		filterMap.Add("h", b)
+
+		log("Del null item")
+		filterMap.Delete("")
+
+		log("update toggle")
+		filterMap.UpdateToggle("", true)
+		filterMap.UpdateAllToggles(true)
+		filterMap.GetAll()
+
+		return true
+	})
+
 	s.Assert("Test Redis pool", func(log sugar.Log) bool {
 		conf.Set(defaultRedisDocker, "hello")
 		setDefaults()
 
 		conf.Set(keyRedisServer, "hello")
-		init()
+		setDefaults()
 		filterMap, err := psmbtcp.FilterDataStoreCreator("Filter")
 		log(err)
-		filterMap.connectRedis()
-		filterMap.closeRedis()
 		filterMap.Add("123", "123")
 		filterMap.Get("123")
+		filterMap.Get("")
 		filterMap.Delete("123")
 		return true
 	})

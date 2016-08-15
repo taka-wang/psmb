@@ -67,4 +67,17 @@ func TestLogger(t *testing.T) {
 		base.initConfig()
 		return true
 	})
+
+	s.Assert("Test Fail cases", func(log sugar.Log) bool {
+		os.Setenv(envBackendEndpoint, "123")
+		base.initConfig()
+		SetDefault(keyLogEnableDebug, defaultLogEnableDebug)
+		Set(keyLogToJSONFormat, true)
+		Set(keyLogEnableDebug, false)
+		base.setLogger()
+		Set(keyLogFileName, "/proc/111")
+		Set(keyLogToFile, true)
+		base.setLogger()
+		return true
+	})
 }

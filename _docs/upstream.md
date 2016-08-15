@@ -329,6 +329,7 @@ Command name: **mbtcp.once.read**
     {
         "tid": 123456,
         "status": "ok",
+        "type": 4,
         "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
         "data": [255, 1234, 789]
     }
@@ -339,6 +340,7 @@ Command name: **mbtcp.once.read**
     ```JavaScript
     {
         "tid": 123456,
+        "type": 4,
         "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
         "status": "conversion fail"
     }
@@ -349,6 +351,7 @@ Command name: **mbtcp.once.read**
     ```JavaScript
     {
         "tid": 123456,
+        "type": 4,
         "bytes": null,
         "status": "timeout"
     }
@@ -362,6 +365,7 @@ Command name: **mbtcp.once.read**
     {
         "tid": 123456,
         "status": "ok",
+        "type": 6,
         "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
         "data": [255, 1234, 789]
     }
@@ -373,6 +377,7 @@ Command name: **mbtcp.once.read**
     {
         "tid": 123456,
         "status": "ok",
+        "type": 8,
         "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
         "data": [22.34, 33.12, 44.56]
     }
@@ -383,6 +388,7 @@ Command name: **mbtcp.once.read**
     ```JavaScript
     {
         "tid": 123456,
+        "type": 8,
         "bytes": [0XAB, 0X12, 0XCD, 0XED, 0X12, 0X34],
         "status": "conversion fail"
     }
@@ -393,6 +399,8 @@ Command name: **mbtcp.once.read**
     ```JavaScript
     {
         "tid": 123456,
+        "type": 8,
+        "bytes": null,
         "status": "timeout"
     }
     ```
@@ -949,7 +957,7 @@ Command name: **mbtcp.poll.create**
         "name": "led_1",
         "ts": 123456789,
         "status": "timeout",
-        "type": 3,
+        "type": 4,
         "bytes": null
     }
     ```

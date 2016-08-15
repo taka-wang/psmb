@@ -1,6 +1,6 @@
 # mbtcp
 
-FROM takawang/gozmq:pull
+FROM takawang/gozmq:x86
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 ENV CONF_PSMBTCP "/etc/psmbtcp"

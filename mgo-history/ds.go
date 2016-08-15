@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	//conf "github.com/taka-wang/psmb/mini-conf"
-	conf "github.com/taka-wang/psmb/viper-conf"
+	// "github.com/taka-wang/psmb/mini-conf"
+	"github.com/taka-wang/psmb/viper-conf"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -53,25 +53,6 @@ func init() {
 
 	databaseName = conf.GetString(keyDbName)
 	collectionName = conf.GetString(keyCollectionName)
-
-	if conf.GetBool(keyMongoEnableAuth) {
-		// We need this object to establish a session to our MongoDB.
-		mongoDBDialInfo = &mgo.DialInfo{
-			// allow multiple connection string
-			Addrs:    []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
-			Timeout:  conf.GetDuration(keyMongoConnTimeout) * time.Second,
-			Database: conf.GetString(keyMongoDbName),
-			Username: conf.GetString(keyMongoUserName),
-			Password: conf.GetString(keyMongoPassword),
-		}
-	} else {
-		// We need this object to establish a session to our MongoDB.
-		mongoDBDialInfo = &mgo.DialInfo{
-			// allow multiple connection string
-			Addrs:   []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
-			Timeout: conf.GetDuration(keyMongoConnTimeout) * time.Second,
-		}
-	}
 }
 
 // marshal helper function
@@ -103,6 +84,25 @@ type (
 
 // NewDataStore instantiate data store
 func NewDataStore(c map[string]string) (interface{}, error) {
+	if conf.GetBool(keyMongoEnableAuth) {
+		// We need this object to establish a session to our MongoDB.
+		mongoDBDialInfo = &mgo.DialInfo{
+			// allow multiple connection string
+			Addrs:    []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
+			Timeout:  conf.GetDuration(keyMongoConnTimeout) * time.Second,
+			Database: conf.GetString(keyMongoDbName),
+			Username: conf.GetString(keyMongoUserName),
+			Password: conf.GetString(keyMongoPassword),
+		}
+	} else {
+		// We need this object to establish a session to our MongoDB.
+		mongoDBDialInfo = &mgo.DialInfo{
+			// allow multiple connection string
+			Addrs:   []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
+			Timeout: conf.GetDuration(keyMongoConnTimeout) * time.Second,
+		}
+	}
+
 	// Create a session which maintains a pool of socket connections
 	pool, err := mgo.DialWithInfo(mongoDBDialInfo)
 	if err != nil {
