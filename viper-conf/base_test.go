@@ -2,6 +2,7 @@ package conf
 
 import (
 	"errors"
+	"os"
 	"testing"
 
 	"github.com/takawang/sugar"
@@ -36,12 +37,30 @@ func TestLogger(t *testing.T) {
 		d := GetDuration("redis.idel_timeout")
 		log(d)
 
+		return true
+	})
+
+	s.Assert("Test setLogger", func(log sugar.Log) bool {
+		os.Setenv(envBackendEndpoint, "123")
+		base.initConfig()
+		return true
+	})
+
+	s.Assert("Test setLogger", func(log sugar.Log) bool {
 		SetDefault(keyLogEnableDebug, defaultLogEnableDebug)
-		Set(keyLogToFile, true)
 		Set(keyLogToJSONFormat, true)
 		Set(keyLogEnableDebug, false)
 		base.setLogger()
+		Set(keyLogFileName, "abc")
+		Set(keyLogToFile, true)
+		base.setLogger()
+		return true
+	})
 
+	s.Assert("Test Init logger", func(log sugar.Log) bool {
+		os.Setenv(envConfPSMBTCP, "")
+		os.Setenv(envBackendEndpoint, "")
+		base.initConfig()
 		return true
 	})
 }

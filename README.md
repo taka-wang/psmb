@@ -10,17 +10,21 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ## Environment variables
 
-- CONF_PSMBTCP: config file location
-- EP_BACKEND: remote service discovery endpoint (optional)
+- CONF_PSMBTCP: config file path
+- EP_BACKEND: endpoint of remote service discovery server (optional)
 
 ## Contracts (Interfaces)
 
 - IProactiveService: proactive service
-- IReaderTaskDataStore:  read/poll task map
-- IWriterTaskDataStore: write task map
-- IHistoryDataStore: history map
-- IFilterDataStore: filter map
+- IReaderTaskDataStore:  read/poll task data store
+- IWriterTaskDataStore: write task data store
+- IHistoryDataStore: history data store
+- IFilterDataStore: filter data store
 - IConfig: config
+
+## Package management
+
+- I adopted [glide](https://glide.sh/) as package management system for this repository.
 
 ## Worker Pool
 
