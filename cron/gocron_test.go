@@ -291,8 +291,7 @@ func TestScheduler(t *testing.T) {
 		s.RunPending()
 		s.NextRun()
 		NewScheduler(map[string]string{"hello": "driver"})
-		i := newJob(0)
-		log(i)
+
 		j := newJob(10)
 		j.pause()
 		j.resume()
@@ -323,6 +322,8 @@ func TestScheduler(t *testing.T) {
 		j.init(time.Now())
 		j.run()
 		j = j.At("24:30")
+		i := newJob(0)
+		log(i)
 		return true
 	})
 
