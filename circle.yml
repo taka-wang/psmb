@@ -32,13 +32,24 @@ test:
         # @mem-writer
         - docker build -t writer --no-cache=true -f mem-writer/Dockerfile .
         - docker run -v "$PWD/shared:/shared" writer
-        # @mini-conf
-        - docker build -t conf --no-cache=true -f mini-conf/Dockerfile .
-        - docker run -v "$PWD/shared:/shared" conf
         # @mgo-history
         - docker-compose -f mgo-history/docker-compose.yml build --no-cache
         - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
         - docker-compose -f mgo-history/docker-compose.yml stop
+        
+        # @redis-filter
+        - docker-compose -f redis-filter/docker-compose.yml build --no-cache
+        - docker-compose -f redis-filter/docker-compose.yml up --abort-on-container-exit
+        - docker-compose -f redis-filter/docker-compose.yml stop
+        # @redis-history
+        - docker-compose -f redis-history/docker-compose.yml build --no-cache
+        - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
+        - docker-compose -f redis-history/docker-compose.yml stop
+        # @redis-writer
+        - docker-compose -f redis-writer/docker-compose.yml build --no-cache
+        - docker-compose -f redis-writer/docker-compose.yml up --abort-on-container-exit
+        - docker-compose -f redis-writer/docker-compose.yml stop
+
         # codecov
         - bash <(curl -s https://codecov.io/bash) -t 558aa53d-c58d-4df4-a1c1-a22a6e6d8572
         # ci
