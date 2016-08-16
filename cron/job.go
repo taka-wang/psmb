@@ -83,11 +83,11 @@ func (j *Job) shouldRun(now time.Time) bool {
 	if j.enabled {
 		// current time is after or equal to job's scheduled time
 		return now.After(j.nextRun) || now.Equal(j.nextRun)
-	} else {
-		// although we will pause the run, but we need to reset lastRun and nextRun
-		// this will prevent repeat runs after resuming
-		j.init(now)
 	}
+
+	// although we will pause the run, but we need to reset lastRun and nextRun
+	// this will prevent repeat runs after resuming
+	j.init(now)
 	return false
 }
 

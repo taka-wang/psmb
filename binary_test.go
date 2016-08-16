@@ -74,6 +74,19 @@ func TestBinaryOps(t *testing.T) {
 		return true
 	})
 
+	s.Assert("`BytesToInt16s` in big endian order - (3/4)", func(log sugar.Log) bool {
+		desire := []int16{4396, 79, 4660, 22136}
+		bytes, _ := RegistersToBytes(arr)
+		result, _ := BytesToInt16s(bytes, BigEndian)
+		for idx := 0; idx < len(result); idx++ {
+			log("desire:%d, result:%d", desire[idx], result[idx])
+			if result[idx] != desire[idx] {
+				return false
+			}
+		}
+		return true
+	})
+
 	// --------------------------------------------//
 	s.Title("Bytes to 32-bit integer array tests")
 

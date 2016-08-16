@@ -303,6 +303,7 @@ func TestScheduler(t *testing.T) {
 		j = j.Hours()
 		j = j.Day()
 		j = j.Days()
+		j.init(time.Now())
 		j = j.Weekday(time.Sunday)
 		j = j.Sunday()
 		j.init(time.Now())
