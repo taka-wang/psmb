@@ -100,8 +100,6 @@ func TestHistoryMap(t *testing.T) {
 		historyMap, err := psmbtcp.HistoryDataStoreCreator("History")
 		log(err)
 
-		historyMap.connectRedis()
-		historyMap.closeRedis()
 		historyMap.Add("123", "123")
 		historyMap.Get("123", 1)
 		historyMap.GetAll("123")

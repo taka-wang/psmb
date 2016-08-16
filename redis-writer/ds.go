@@ -73,6 +73,7 @@ func NewDataStore(c map[string]string) (interface{}, error) {
 func (ds *dataStore) Add(tid, cmd string) {
 	conn := ds.pool.Get()
 	defer conn.Close()
+
 	if _, err := conn.Do("HSET", hashName, tid, cmd); err != nil {
 		conf.Log.WithError(err).Warn("Fail to add item to writer data store")
 	}

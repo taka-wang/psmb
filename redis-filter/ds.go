@@ -19,8 +19,6 @@ import (
 )
 
 var (
-	// RedisPool redis connection pool
-	RedisPool   *redis.Pool
 	hashName    string
 	maxCapacity int
 )
@@ -53,20 +51,6 @@ func init() {
 
 	hashName = conf.GetString(keyHashName)
 	maxCapacity = conf.GetInt(keyMaxCapacity)
-
-	RedisPool = &redis.Pool{
-		MaxIdle: conf.GetInt(keyRedisMaxIdel),
-		// When zero, there is no limit on the number of connections in the pool.
-		MaxActive:   conf.GetInt(keyRedisMaxActive),
-		IdleTimeout: conf.GetDuration(keyRedisIdelTimeout) * time.Second,
-		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", conf.GetString(keyRedisServer)+":"+conf.GetString(keyRedisPort))
-			if err != nil {
-				conf.Log.WithError(err).Error("Redis pool dial error")
-			}
-			return conn, err
-		},
-	}
 }
 
 //@Implement IFilterDataStore implicitly
@@ -74,38 +58,27 @@ func init() {
 // dataStore filter map
 type dataStore struct {
 	count int
-	redis redis.Conn
+	// pool redis connection pool
+	pool *redis.Pool
 }
 
 // NewDataStore instantiate filter map
-func NewDataStore(conf map[string]string) (interface{}, error) {
-	if conn := RedisPool.Get(); conn != nil {
-		return &dataStore{
-			count: 0,
-			redis: conn,
-		}, nil
-	}
-	return nil, ErrConnection
-}
-
-func (ds *dataStore) connectRedis() error {
-	if conn := RedisPool.Get(); conn != nil {
-		ds.redis = conn
-		return nil
-	}
-	return ErrConnection
-}
-
-func (ds *dataStore) closeRedis() {
-	if ds != nil && ds.redis != nil {
-		if err := ds.redis.Close(); err != nil {
-			conf.Log.WithError(err).Error("Fail to close redis connection")
-		}
-		/*else {
-			conf.Log.Debug("Close redis connection")
-		}
-		*/
-	}
+func NewDataStore(c map[string]string) (interface{}, error) {
+	return &dataStore{
+		pool: &redis.Pool{
+			MaxIdle: conf.GetInt(keyRedisMaxIdel),
+			// When zero, there is no limit on the number of connections in the pool.
+			MaxActive:   conf.GetInt(keyRedisMaxActive),
+			IdleTimeout: conf.GetDuration(keyRedisIdelTimeout) * time.Second,
+			Dial: func() (redis.Conn, error) {
+				conn, err := redis.Dial("tcp", conf.GetString(keyRedisServer)+":"+conf.GetString(keyRedisPort))
+				if err != nil {
+					conf.Log.WithError(err).Error("Redis pool dial error")
+				}
+				return conn, err
+			},
+		},
+	}, nil
 }
 
 // Add add request to filter map
@@ -114,10 +87,8 @@ func (ds *dataStore) Add(name string, req interface{}) error {
 		return ErrOutOfCapacity
 	}
 
-	defer ds.closeRedis()
-	if err := ds.connectRedis(); err != nil {
-		return err
-	}
+	conn := ds.pool.Get()
+	defer conn.Close()
 
 	// marshal
 	bytes, err := json.Marshal(req)
@@ -125,11 +96,11 @@ func (ds *dataStore) Add(name string, req interface{}) error {
 		return err
 	}
 
-	if _, err := ds.redis.Do("HSET", hashName, name, string(bytes)); err != nil {
+	if _, err := conn.Do("HSET", hashName, name, string(bytes)); err != nil {
 		return err
 	}
 
-	ret, err := redis.Int(ds.redis.Do("HLEN", hashName))
+	ret, err := redis.Int(conn.Do("HLEN", hashName))
 	if err != nil {
 		return err
 	}
@@ -144,13 +115,10 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 		return nil, false
 	}
 
-	defer ds.closeRedis()
-	if err := ds.connectRedis(); err != nil {
-		conf.Log.WithError(err).Error("Fail to connect to redis server")
-		return nil, false
-	}
+	conn := ds.pool.Get()
+	defer conn.Close()
 
-	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
+	ret, err := redis.String(conn.Do("HGET", hashName, name))
 	if err != nil {
 		// we intend to suppress this log
 		//conf.Log.WithError(err).Warn("Fail to get item from filter map")
@@ -167,13 +135,10 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 
 // GetAll get all requests from filter map
 func (ds *dataStore) GetAll() interface{} {
-	defer ds.closeRedis()
-	if err := ds.connectRedis(); err != nil {
-		conf.Log.WithError(err).Error("Fail to connect to redis server")
-		return nil
-	}
+	conn := ds.pool.Get()
+	defer conn.Close()
 
-	ret, err := redis.StringMap(ds.redis.Do("HGETALL", hashName))
+	ret, err := redis.StringMap(conn.Do("HGETALL", hashName))
 	if err != nil {
 		conf.Log.WithError(err).Warn("Fail to get all items from filter map")
 		return nil
@@ -201,19 +166,16 @@ func (ds *dataStore) Delete(name string) {
 		return
 	}
 
-	defer ds.closeRedis()
-	if err := ds.connectRedis(); err != nil {
-		conf.Log.WithError(err).Error("Fail to connect to redis server")
-		return
-	}
+	conn := ds.pool.Get()
+	defer conn.Close()
 
 	// delete item
-	if _, err := ds.redis.Do("HDEL", hashName, name); err != nil {
+	if _, err := conn.Do("HDEL", hashName, name); err != nil {
 		conf.Log.WithError(err).Warn("Fail to delete item from filter map")
 		return
 	}
 	// get length
-	ret, err := redis.Int(ds.redis.Do("HLEN", hashName))
+	ret, err := redis.Int(conn.Do("HLEN", hashName))
 	if err != nil {
 		conf.Log.WithError(err).Warn("Fail to get length from filter map")
 		return
@@ -223,12 +185,10 @@ func (ds *dataStore) Delete(name string) {
 
 // DeleteAll delete all filters from filter map
 func (ds *dataStore) DeleteAll() {
-	defer ds.closeRedis()
-	if err := ds.connectRedis(); err != nil {
-		conf.Log.WithError(err).Error("Fail to connect to redis server")
-		return
-	}
-	if _, err := ds.redis.Do("DEL", hashName); err != nil {
+	conn := ds.pool.Get()
+	defer conn.Close()
+
+	if _, err := conn.Do("DEL", hashName); err != nil {
 		conf.Log.WithError(err).Warn("Fail to delete all items from filter map")
 		return
 	}
@@ -241,12 +201,10 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 		return ErrInvalidName
 	}
 
-	defer ds.closeRedis()
-	if err := ds.connectRedis(); err != nil {
-		return err
-	}
+	conn := ds.pool.Get()
+	defer conn.Close()
 
-	ret, err := redis.String(ds.redis.Do("HGET", hashName, name))
+	ret, err := redis.String(conn.Do("HGET", hashName, name))
 	if err != nil {
 		return err
 	}
@@ -265,7 +223,7 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 		return err
 	}
 
-	if _, err := ds.redis.Do("HSET", hashName, name, string(bytes)); err != nil {
+	if _, err := conn.Do("HSET", hashName, name, string(bytes)); err != nil {
 		return err
 	}
 
@@ -274,13 +232,10 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 
 // UpdateAllToggles toggle all request from filter map
 func (ds *dataStore) UpdateAllToggles(toggle bool) {
-	defer ds.closeRedis()
-	if err := ds.connectRedis(); err != nil {
-		conf.Log.WithError(err).Error("Fail to connect to redis server")
-		return
-	}
+	conn := ds.pool.Get()
+	defer conn.Close()
 
-	ret, err := redis.StringMap(ds.redis.Do("HGETALL", hashName))
+	ret, err := redis.StringMap(conn.Do("HGETALL", hashName))
 	if err != nil {
 		conf.Log.WithError(err).Warn("Fail to get all items from filter map")
 		return
@@ -295,7 +250,7 @@ func (ds *dataStore) UpdateAllToggles(toggle bool) {
 			if err != nil {
 				conf.Log.WithError(err).Warn("Fail to marshal items from filter map")
 			} else {
-				if _, err := ds.redis.Do("HSET", hashName, d.Name, string(bytes)); err != nil {
+				if _, err := conn.Do("HSET", hashName, d.Name, string(bytes)); err != nil {
 					conf.Log.WithError(err).Warn("Fail to update toggle to filter map")
 				}
 			}

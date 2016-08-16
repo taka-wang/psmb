@@ -129,8 +129,6 @@ func TestFilter(t *testing.T) {
 		init()
 		filterMap, err := psmbtcp.FilterDataStoreCreator("Filter")
 		log(err)
-		filterMap.connectRedis()
-		filterMap.closeRedis()
 		filterMap.Add("123", "123")
 		filterMap.Get("123")
 		filterMap.Delete("123")
