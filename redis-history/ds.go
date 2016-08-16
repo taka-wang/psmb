@@ -12,7 +12,7 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	//conf "github.com/taka-wang/psmb/mini-conf"
-	conf "github.com/taka-wang/psmb/viper-conf"
+	"github.com/taka-wang/psmb/viper-conf"
 )
 
 var (
@@ -45,7 +45,6 @@ func setDefaults() {
 
 func init() {
 	setDefaults() // set defaults
-
 	hashName = conf.GetString(keyHashName)
 	zsetPrefix = conf.GetString(keySetPrefix)
 }
@@ -55,8 +54,7 @@ func init() {
 // dataStore data store
 type dataStore struct {
 	mutex sync.Mutex
-	// pool redis connection pool
-	pool *redis.Pool
+	pool  *redis.Pool
 }
 
 // NewDataStore instantiate data store
@@ -79,10 +77,10 @@ func NewDataStore(c map[string]string) (interface{}, error) {
 }
 
 func (ds *dataStore) Add(name string, data interface{}) error {
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
+	defer ds.mutex.Unlock() // unlock
 
 	// marshal
 	bytes, err := json.Marshal(data)
@@ -115,13 +113,13 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 		return nil, ErrInvalidName
 	}
 
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
 
 	// zset limit is inclusive; zrevrange: from lateste to oldest
 	ret, err := redis.StringMap(conn.Do("ZREVRANGE", zsetPrefix+name, 0, limit-1, "WITHSCORES"))
+	ds.mutex.Unlock() // unlock
 	if err != nil {
 		return nil, err
 	}
@@ -138,13 +136,13 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 		return nil, ErrInvalidName
 	}
 
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
 
 	// zrevrange: from lateste to oldest
 	ret, err := redis.StringMap(conn.Do("ZREVRANGE", zsetPrefix+name, 0, -1, "WITHSCORES"))
+	ds.mutex.Unlock() // unlock
 	if err != nil {
 		return nil, err
 	}
@@ -157,12 +155,13 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 }
 
 func (ds *dataStore) GetLatest(name string) (string, error) {
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
 	defer ds.mutex.Unlock()
 
 	ret, err := redis.String(conn.Do("HGET", hashName, name))
+	ds.mutex.Unlock() // unlock
 	if err != nil {
 		return "", err
 	}

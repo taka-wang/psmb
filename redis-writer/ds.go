@@ -48,8 +48,7 @@ func init() {
 // dataStore write task map type
 type dataStore struct {
 	mutex sync.Mutex
-	// pool redis connection pool
-	pool *redis.Pool
+	pool  *redis.Pool
 }
 
 // NewDataStore instantiate mbtcp write task map
@@ -73,10 +72,10 @@ func NewDataStore(c map[string]string) (interface{}, error) {
 
 // Add add request to write task map
 func (ds *dataStore) Add(tid, cmd string) {
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
+	defer ds.mutex.Unlock() // unlock
 
 	if _, err := conn.Do("HSET", hashName, tid, cmd); err != nil {
 		conf.Log.WithError(err).Warn("Fail to add item to writer data store")
@@ -85,12 +84,12 @@ func (ds *dataStore) Add(tid, cmd string) {
 
 // Get get request from write task map
 func (ds *dataStore) Get(tid string) (string, bool) {
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
 
 	ret, err := redis.String(conn.Do("HGET", hashName, tid))
+	ds.mutex.Unlock() // unlock
 	if err != nil {
 		conf.Log.WithError(err).Warn("Fail to get item from writer data store")
 		return "", false
@@ -100,10 +99,10 @@ func (ds *dataStore) Get(tid string) (string, bool) {
 
 // Delete remove request from write task map
 func (ds *dataStore) Delete(tid string) {
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
+	defer ds.mutex.Unlock() // unlock
 
 	if _, err := conn.Do("HDEL", hashName, tid); err != nil {
 		conf.Log.WithError(err).Error("Fail to delete item from writer data store")

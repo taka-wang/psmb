@@ -16,7 +16,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/taka-wang/psmb"
 	//conf "github.com/taka-wang/psmb/mini-conf"
-	conf "github.com/taka-wang/psmb/viper-conf"
+	"github.com/taka-wang/psmb/viper-conf"
 )
 
 var (
@@ -49,7 +49,6 @@ func setDefaults() {
 
 func init() {
 	setDefaults() // set defaults
-
 	hashName = conf.GetString(keyHashName)
 	maxCapacity = conf.GetInt(keyMaxCapacity)
 }
@@ -60,8 +59,7 @@ func init() {
 type dataStore struct {
 	mutex sync.Mutex
 	count int
-	// pool redis connection pool
-	pool *redis.Pool
+	pool  *redis.Pool
 }
 
 // NewDataStore instantiate filter map
@@ -89,10 +87,10 @@ func (ds *dataStore) Add(name string, req interface{}) error {
 		return ErrOutOfCapacity
 	}
 
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
+	defer ds.mutex.Unlock() // unlock
 
 	// marshal
 	bytes, err := json.Marshal(req)
@@ -119,12 +117,12 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 		return nil, false
 	}
 
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
 
 	ret, err := redis.String(conn.Do("HGET", hashName, name))
+	ds.mutex.Unlock() // unlock
 	if err != nil {
 		// we intend to suppress this log
 		//conf.Log.WithError(err).Warn("Fail to get item from filter map")
@@ -141,12 +139,12 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 
 // GetAll get all requests from filter map
 func (ds *dataStore) GetAll() interface{} {
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
 
 	ret, err := redis.StringMap(conn.Do("HGETALL", hashName))
+	ds.mutex.Unlock() // unlock
 	if err != nil {
 		conf.Log.WithError(err).Warn("Fail to get all items from filter map")
 		return nil
@@ -174,10 +172,10 @@ func (ds *dataStore) Delete(name string) {
 		return
 	}
 
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
+	defer ds.mutex.Unlock() // unlock
 
 	// delete item
 	if _, err := conn.Do("HDEL", hashName, name); err != nil {
@@ -195,10 +193,10 @@ func (ds *dataStore) Delete(name string) {
 
 // DeleteAll delete all filters from filter map
 func (ds *dataStore) DeleteAll() {
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
+	defer ds.mutex.Unlock() // unlock
 
 	if _, err := conn.Do("DEL", hashName); err != nil {
 		conf.Log.WithError(err).Warn("Fail to delete all items from filter map")
@@ -249,9 +247,10 @@ func (ds *dataStore) UpdateAllToggles(toggle bool) {
 	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
 
 	ret, err := redis.StringMap(conn.Do("HGETALL", hashName))
+	ds.mutex.Unlock()
+
 	if err != nil {
 		conf.Log.WithError(err).Warn("Fail to get all items from filter map")
 		return
