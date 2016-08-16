@@ -12,7 +12,7 @@ const (
 	defaultRedisPort        = "6379"
 	defaultRedisMaxIdel     = 5
 	defaultRedisMaxActive   = 0
-	defaultRedisIdelTimeout = 0
+	defaultRedisIdelTimeout = 30
 )
 
 // [redis_filter]

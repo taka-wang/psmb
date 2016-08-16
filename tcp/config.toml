@@ -11,7 +11,7 @@ server              = "127.0.0.1"       # redis server ip
 port                = "6379"            # redis server port
 max_idel            = 5                 # maximum number of idle connections in the pool.
 max_active          = 0                 # maximum number of connections allocated by the pool at a given time. When zero, there is no limit on the number of connections in the pool.
-idel_timeout        = 0                 # close connections after remaining idle for this duration. If the value is zero, then idle connections are not closed.
+idel_timeout        = 30                # close connections after remaining idle for this duration. If the value is zero, then idle connections are not closed.
 
 [mongo]
 server              = "127.0.0.1"       # mongo server ip
