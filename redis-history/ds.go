@@ -7,6 +7,7 @@ package history
 import (
 	"encoding/json"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
@@ -53,6 +54,7 @@ func init() {
 
 // dataStore data store
 type dataStore struct {
+	mutex sync.Mutex
 	// pool redis connection pool
 	pool *redis.Pool
 }
@@ -77,8 +79,10 @@ func NewDataStore(c map[string]string) (interface{}, error) {
 }
 
 func (ds *dataStore) Add(name string, data interface{}) error {
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	// marshal
 	bytes, err := json.Marshal(data)
@@ -111,8 +115,10 @@ func (ds *dataStore) Get(name string, limit int) (map[string]string, error) {
 		return nil, ErrInvalidName
 	}
 
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	// zset limit is inclusive; zrevrange: from lateste to oldest
 	ret, err := redis.StringMap(conn.Do("ZREVRANGE", zsetPrefix+name, 0, limit-1, "WITHSCORES"))
@@ -132,8 +138,10 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 		return nil, ErrInvalidName
 	}
 
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	// zrevrange: from lateste to oldest
 	ret, err := redis.StringMap(conn.Do("ZREVRANGE", zsetPrefix+name, 0, -1, "WITHSCORES"))
@@ -149,8 +157,10 @@ func (ds *dataStore) GetAll(name string) (map[string]string, error) {
 }
 
 func (ds *dataStore) GetLatest(name string) (string, error) {
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	ret, err := redis.String(conn.Do("HGET", hashName, name))
 	if err != nil {

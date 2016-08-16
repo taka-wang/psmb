@@ -10,6 +10,7 @@ package filter
 import (
 	"encoding/json"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
@@ -57,6 +58,7 @@ func init() {
 
 // dataStore filter map
 type dataStore struct {
+	mutex sync.Mutex
 	count int
 	// pool redis connection pool
 	pool *redis.Pool
@@ -87,8 +89,10 @@ func (ds *dataStore) Add(name string, req interface{}) error {
 		return ErrOutOfCapacity
 	}
 
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	// marshal
 	bytes, err := json.Marshal(req)
@@ -115,8 +119,10 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 		return nil, false
 	}
 
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	ret, err := redis.String(conn.Do("HGET", hashName, name))
 	if err != nil {
@@ -135,8 +141,10 @@ func (ds *dataStore) Get(name string) (interface{}, bool) {
 
 // GetAll get all requests from filter map
 func (ds *dataStore) GetAll() interface{} {
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	ret, err := redis.StringMap(conn.Do("HGETALL", hashName))
 	if err != nil {
@@ -166,8 +174,10 @@ func (ds *dataStore) Delete(name string) {
 		return
 	}
 
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	// delete item
 	if _, err := conn.Do("HDEL", hashName, name); err != nil {
@@ -185,8 +195,10 @@ func (ds *dataStore) Delete(name string) {
 
 // DeleteAll delete all filters from filter map
 func (ds *dataStore) DeleteAll() {
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	if _, err := conn.Do("DEL", hashName); err != nil {
 		conf.Log.WithError(err).Warn("Fail to delete all items from filter map")
@@ -201,8 +213,10 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 		return ErrInvalidName
 	}
 
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	ret, err := redis.String(conn.Do("HGET", hashName, name))
 	if err != nil {
@@ -232,8 +246,10 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 
 // UpdateAllToggles toggle all request from filter map
 func (ds *dataStore) UpdateAllToggles(toggle bool) {
+	ds.mutex.Lock()
 	conn := ds.pool.Get()
 	defer conn.Close()
+	defer ds.mutex.Unlock()
 
 	ret, err := redis.StringMap(conn.Do("HGETALL", hashName))
 	if err != nil {
