@@ -10,8 +10,8 @@ import (
 	"sync"
 
 	"github.com/taka-wang/psmb"
-	//conf "github.com/taka-wang/psmb/mini-conf"
-	conf "github.com/taka-wang/psmb/viper-conf"
+	//"github.com/taka-wang/psmb/mini-conf"
+	"github.com/taka-wang/psmb/viper-conf"
 )
 
 var maxCapacity int

@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/taka-wang/psmb"
-	"github.com/taka-wang/psmb/mini-conf"
 	psmbtcp "github.com/taka-wang/psmb/tcp"
+	"github.com/taka-wang/psmb/viper-conf"
 	"github.com/takawang/sugar"
 )
 

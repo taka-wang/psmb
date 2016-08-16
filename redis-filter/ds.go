@@ -15,7 +15,7 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/taka-wang/psmb"
-	//conf "github.com/taka-wang/psmb/mini-conf"
+	//"github.com/taka-wang/psmb/mini-conf"
 	"github.com/taka-wang/psmb/viper-conf"
 )
 

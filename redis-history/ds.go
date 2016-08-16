@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/garyburd/redigo/redis"
-	//conf "github.com/taka-wang/psmb/mini-conf"
+	//"github.com/taka-wang/psmb/mini-conf"
 	"github.com/taka-wang/psmb/viper-conf"
 )
 

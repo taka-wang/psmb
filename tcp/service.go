@@ -12,9 +12,9 @@ import (
 
 	. "github.com/taka-wang/psmb"
 	cron "github.com/taka-wang/psmb/cron"
-	//conf "github.com/taka-wang/psmb/mini-conf"
+	//"github.com/taka-wang/psmb/mini-conf"
 
-	conf "github.com/taka-wang/psmb/viper-conf"
+	"github.com/taka-wang/psmb/viper-conf"
 	zmq "github.com/takawang/zmq3"
 )
 

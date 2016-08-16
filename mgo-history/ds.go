@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	//conf "github.com/taka-wang/psmb/mini-conf"
-	conf "github.com/taka-wang/psmb/viper-conf"
+	// "github.com/taka-wang/psmb/mini-conf"
+	"github.com/taka-wang/psmb/viper-conf"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
