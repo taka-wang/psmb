@@ -100,10 +100,9 @@ func TestHistoryMap(t *testing.T) {
 			Addrs:   []string{conf.GetString(keyMongoServer) + ":" + conf.GetString(keyMongoPort)},
 			Timeout: conf.GetDuration(keyMongoConnTimeout) * time.Second,
 		}
-		a, err := NewDataStore(nil)
+		historyMap, err := psmbtcp.HistoryDataStoreCreator("History")
 		log(err)
-		b := a.(*dataStore)
-		*b.openSession()
+		historyMap.Add("hello", []uint16{2, 3, 4, 5, 6})
 		return true
 	})
 
