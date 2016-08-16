@@ -1,5 +1,5 @@
 hash: 0ca755d5a61da9476d4c63a167348cb29f5e86ca5ec2a460b4fb1e3a05f37758
-updated: 2016-08-16T19:17:29.59154038+08:00
+updated: 2016-08-16T22:12:40.738700318+08:00
 imports:
 - name: github.com/apex/log
   version: 8eba30e442954605fd2e1a542912d5b5e16cab13
@@ -74,7 +74,7 @@ imports:
   subpackages:
   - remote
 - name: github.com/taka-wang/psmb
-  version: b96c26f06de9d5c98b6653704e9e73be755a0248
+  version: cf5945467e23a1a917a3e3dd25c5b3137714b0a6
   subpackages:
   - cron
   - mem-filter

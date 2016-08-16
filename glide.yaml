@@ -34,4 +34,3 @@ import:
   - bson
 testImport:
 - package: github.com/takawang/sugar
-

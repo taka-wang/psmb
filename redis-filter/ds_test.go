@@ -126,7 +126,7 @@ func TestFilter(t *testing.T) {
 		setDefaults()
 
 		conf.Set(keyRedisServer, "hello")
-		init()
+		setDefaults()
 		filterMap, err := psmbtcp.FilterDataStoreCreator("Filter")
 		log(err)
 		filterMap.Add("123", "123")
