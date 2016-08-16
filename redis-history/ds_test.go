@@ -95,7 +95,7 @@ func TestHistoryMap(t *testing.T) {
 		setDefaults()
 
 		conf.Set(keyRedisServer, "hello")
-		init()
+		setDefaults()
 
 		historyMap, err := psmbtcp.HistoryDataStoreCreator("History")
 		log(err)
