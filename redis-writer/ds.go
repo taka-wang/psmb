@@ -71,30 +71,31 @@ func NewDataStore(c map[string]string) (interface{}, error) {
 
 // Add add request to write task map
 func (ds *dataStore) Add(tid, cmd string) {
-
-	if _, err := ds.pool.Get().Do("HSET", hashName, tid, cmd); err != nil {
+	conn := ds.pool.Get()
+	defer conn.Close()
+	if _, err := conn.Do("HSET", hashName, tid, cmd); err != nil {
 		conf.Log.WithError(err).Warn("Fail to add item to writer data store")
 	}
-	defer ds.pool.Close()
 }
 
 // Get get request from write task map
 func (ds *dataStore) Get(tid string) (string, bool) {
+	conn := ds.pool.Get()
+	defer conn.Close()
 
-	ret, err := redis.String(ds.pool.Get().Do("HGET", hashName, tid))
+	ret, err := redis.String(conn.Do("HGET", hashName, tid))
 	if err != nil {
 		conf.Log.WithError(err).Warn("Fail to get item from writer data store")
 		return "", false
 	}
-	defer ds.pool.Close()
 	return ret, true
 }
 
 // Delete remove request from write task map
 func (ds *dataStore) Delete(tid string) {
-
-	if _, err := ds.pool.Get().Do("HDEL", hashName, tid); err != nil {
+	conn := ds.pool.Get()
+	defer conn.Close()
+	if _, err := conn.Do("HDEL", hashName, tid); err != nil {
 		conf.Log.WithError(err).Error("Fail to delete item from writer data store")
 	}
-	defer ds.pool.Close()
 }
