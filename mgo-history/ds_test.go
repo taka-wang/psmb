@@ -102,8 +102,8 @@ func TestHistoryMap(t *testing.T) {
 		}
 		a, err := NewDataStore(nil)
 		log(err)
-		b := (*a).(dataStore)
-		b.openSession()
+		b := a.(*dataStore)
+		*b.openSession()
 		return true
 	})
 
