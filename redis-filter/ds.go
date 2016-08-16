@@ -211,10 +211,10 @@ func (ds *dataStore) UpdateToggle(name string, toggle bool) error {
 		return ErrInvalidName
 	}
 
-	ds.mutex.Lock()
+	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
+	defer ds.mutex.Unlock() // unlock
 
 	ret, err := redis.String(conn.Do("HGET", hashName, name))
 	if err != nil {

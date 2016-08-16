@@ -1,5 +1,5 @@
 hash: 0ca755d5a61da9476d4c63a167348cb29f5e86ca5ec2a460b4fb1e3a05f37758
-updated: 2016-08-15T20:50:20.970516726+08:00
+updated: 2016-08-16T19:17:29.59154038+08:00
 imports:
 - name: github.com/apex/log
   version: 8eba30e442954605fd2e1a542912d5b5e16cab13
@@ -19,7 +19,7 @@ imports:
 - name: github.com/fatih/structs
   version: dc3312cb1a4513a366c4c9e622ad55c32df12ed3
 - name: github.com/fsnotify/fsnotify
-  version: a8a77c9133d2d6fd8334f3260d06f60e8d80a5fb
+  version: f12c6236fe7b5cf6bcf30e5935d08cb079d78334
 - name: github.com/garyburd/redigo
   version: 8873b2f1995f59d4bcdd2b0dc9858e2cb9bf0c13
   subpackages:
@@ -51,7 +51,7 @@ imports:
 - name: github.com/kr/fs
   version: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
 - name: github.com/magiconair/properties
-  version: b3f6dd549956e8a61ea4a686a1c02a33d5bdda4b
+  version: 61b492c03cf472e0c6419be5899b8e0dc28b1b88
 - name: github.com/mitchellh/mapstructure
   version: ca63d7c062ee3c9f34db231e352b60012b4fd0c1
 - name: github.com/pkg/errors
@@ -59,7 +59,7 @@ imports:
 - name: github.com/pkg/sftp
   version: a71e8f580e3b622ebff585309160b1cc549ef4d2
 - name: github.com/spf13/afero
-  version: cc9c21814bb945440253108c4d3c65c85aac3c68
+  version: b28a7effac979219c2a2ed6205a4d70e4b1bcd02
   subpackages:
   - mem
   - sftp
@@ -68,20 +68,19 @@ imports:
 - name: github.com/spf13/jwalterweatherman
   version: 33c24e77fb80341fe7130ee7c594256ff08ccc46
 - name: github.com/spf13/pflag
-  version: f676131e2660dc8cd88de99f7486d34aa8172635
+  version: 01665e1eb3d0533dca0e5acffdff9eec1fcb886f
 - name: github.com/spf13/viper
-  version: 346299ea79e446ebdddb834371ceba2e5926b732
+  version: 654fc7bb54d0c138ef80405ff577391f79c0c32d
   subpackages:
   - remote
 - name: github.com/taka-wang/psmb
-  version: f65d4c9ceda5616116a7f227f54280ec41d27d1b
+  version: b96c26f06de9d5c98b6653704e9e73be755a0248
   subpackages:
   - cron
   - mem-filter
   - mem-reader
   - mem-writer
   - mgo-history
-  - mini-conf
   - redis-filter
   - redis-history
   - redis-writer
@@ -102,7 +101,7 @@ imports:
   - config
   - encoding/secconf
 - name: golang.org/x/crypto
-  version: a548aac93ed489257b9d959b40fe1e8c1e20778c
+  version: 6575f7ea326e67d12b77872ff66f5ea15f8aefad
   subpackages:
   - cast5
   - curve25519
@@ -120,7 +119,7 @@ imports:
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: 2910a502d2bf9e43193af9d68ca516529614eed3
+  version: d69c40b4be55797923cec7457fac7a244d91a9b6
   subpackages:
   - transform
   - unicode/norm

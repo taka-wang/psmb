@@ -158,7 +158,6 @@ func (ds *dataStore) GetLatest(name string) (string, error) {
 	ds.mutex.Lock() // lock
 	conn := ds.pool.Get()
 	defer conn.Close()
-	defer ds.mutex.Unlock()
 
 	ret, err := redis.String(conn.Do("HGET", hashName, name))
 	ds.mutex.Unlock() // unlock
