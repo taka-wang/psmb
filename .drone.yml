@@ -2,6 +2,15 @@
 
 pipeline:
 
+    test-psmbtcp-srv:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t tcpsrv --no-cache=true -f tcp-srv/Dockerfile .
+            #- docker run tcpsrv
+            #- docker rmi -f tcpsrv
+
     test-mgo-history:
         image: takawang/dind
         volumes:
@@ -151,14 +160,7 @@ pipeline:
             - docker run conf
             - docker rmi -f conf
 
-    test-psmbtcp-srv:
-        image: takawang/dind
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        commands:
-            - docker build -t tcpsrv --no-cache=true -f tcp-srv/Dockerfile .
-            - docker run tcpsrv
-            - docker rmi -f tcpsrv
+
 
 
 
