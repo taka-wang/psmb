@@ -92,9 +92,9 @@ func TestHistoryMap(t *testing.T) {
 	s.Assert("Test fail cases", func(log sugar.Log) bool {
 		setDefaults()
 		conf.Set(keyMongoEnableAuth, true)
-		historyMap, err := psmbtcp.HistoryDataStoreCreator("History")
-		log(err)
-		historyMap.Add("hello", []uint16{2, 3, 4, 5, 6})
+		if _, err := psmbtcp.HistoryDataStoreCreator("History"); err != nil {
+			log(err)
+		}
 		return true
 	})
 
