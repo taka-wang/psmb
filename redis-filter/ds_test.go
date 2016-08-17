@@ -139,7 +139,7 @@ func TestFilter(t *testing.T) {
 		}
 
 		log("Add B item")
-		filterMap.Add(b.Name, b)
+		filterMap.Add("h", b)
 
 		log("Del null item")
 		filterMap.Delete("")
