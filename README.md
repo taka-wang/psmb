@@ -12,6 +12,8 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ## Environment variables
 
+> Why environment variable? Refer to the [12 factors](http://12factor.net/)
+
 - CONF_PSMBTCP: config file path
 - EP_BACKEND: endpoint of remote service discovery server (optional)
 
@@ -22,19 +24,19 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 - IWriterTaskDataStore: write task data store
 - IHistoryDataStore: history data store
 - IFilterDataStore: filter data store
-- IConfig: config
+- IConfig: config management
 
-## Package management
+## Golang package management
 
 - I adopted [glide](https://glide.sh/) as package management system for this repository.
 
-## Worker Pool
+## Worker Pool Model
 
-### Request
+### Request from upstream
 
 ![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QSBJZxDKQ908XPGsnEtLzzsQEHIBP5AMIxMF7K1mkfJrijC6IMYinEf2gw1uupQH4tIh1IeE9O58lRIdVWdCH_VJuLy0)
 
-### Response
+### Response from downstream
 
 ![uml](http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QVJfnragD4AaG4eRulRg-svEnMSBP9AdgDhw3Y0ut9KqsccTnDUYLDJvog1uupAmND2CCp1s9O50BTU7lmHXC_VJiRu0)
 
@@ -42,7 +44,7 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ## Up and Running
 
-### Docker Compose (prefer)
+### Docker Compose
 
 ```bash
 docker-compose build --pull
@@ -81,7 +83,7 @@ go build -o psmbtcp-srv
 
 ## Continuous Integration
 
-I do continuous integration and build docker images after git push by self-hosted drone.io server and [dockerhub]((https://hub.docker.com/r/takawang/c-modbus-slave/)) service.
+I do continuous integration and deploy docker images after git push by self-hosted drone.io server, [circleci](https://circleci.com/) service, [codecov](https://codecov.io/) service and [dockerhub]((https://hub.docker.com/r/takawang/c-modbus-slave/)) service.
 
 ## Deployment Diagram
 
