@@ -95,12 +95,19 @@ func TestHistoryMap(t *testing.T) {
 		if _, err := psmbtcp.HistoryDataStoreCreator("History"); err != nil {
 			log(err)
 		}
-		return true
-	})
 
-	//marshal
-	s.Assert("Test fail to marshal", func(log sugar.Log) bool {
-		_, err := marshal("hello;world")
+		set(defaultMongoDocker, "hello")
+		setDefaults()
+		if a, err := psmbtcp.HistoryDataStoreCreator("History"); err != nil {
+			log(err)
+		} else {
+			a.Get("1", 1)
+			a.Add("2", "2")
+			a.GetAll("23")
+			a.GetLatest("12")
+		}
+
+		_, err := marshal(func() {})
 		log(err)
 		return true
 	})
