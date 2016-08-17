@@ -35,6 +35,10 @@
 <h2>
 <a id="environment-variables" class="anchor" href="#environment-variables" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Environment variables</h2>
 
+<blockquote>
+<p>Why environment variable? Refer to the <a href="http://12factor.net/">12 factors</a></p>
+</blockquote>
+
 <ul>
 <li>CONF_PSMBTCP: config file path</li>
 <li>EP_BACKEND: endpoint of remote service discovery server (optional)</li>
@@ -49,26 +53,26 @@
 <li>IWriterTaskDataStore: write task data store</li>
 <li>IHistoryDataStore: history data store</li>
 <li>IFilterDataStore: filter data store</li>
-<li>IConfig: config</li>
+<li>IConfig: config management</li>
 </ul>
 
 <h2>
-<a id="package-management" class="anchor" href="#package-management" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Package management</h2>
+<a id="golang-package-management" class="anchor" href="#golang-package-management" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Golang package management</h2>
 
 <ul>
 <li>I adopted <a href="https://glide.sh/">glide</a> as package management system for this repository.</li>
 </ul>
 
 <h2>
-<a id="worker-pool" class="anchor" href="#worker-pool" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Worker Pool</h2>
+<a id="worker-pool-model" class="anchor" href="#worker-pool-model" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Worker Pool Model</h2>
 
 <h3>
-<a id="request" class="anchor" href="#request" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Request</h3>
+<a id="request-from-upstream" class="anchor" href="#request-from-upstream" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Request from upstream</h3>
 
 <p><img src="http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QSBJZxDKQ908XPGsnEtLzzsQEHIBP5AMIxMF7K1mkfJrijC6IMYinEf2gw1uupQH4tIh1IeE9O58lRIdVWdCH_VJuLy0" alt="uml"></p>
 
 <h3>
-<a id="response" class="anchor" href="#response" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Response</h3>
+<a id="response-from-downstream" class="anchor" href="#response-from-downstream" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Response from downstream</h3>
 
 <p><img src="http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QVJfnragD4AaG4eRulRg-svEnMSBP9AdgDhw3Y0ut9KqsccTnDUYLDJvog1uupAmND2CCp1s9O50BTU7lmHXC_VJiRu0" alt="uml"></p>
 
@@ -78,7 +82,7 @@
 <a id="up-and-running" class="anchor" href="#up-and-running" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Up and Running</h2>
 
 <h3>
-<a id="docker-compose-prefer" class="anchor" href="#docker-compose-prefer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Docker Compose (prefer)</h3>
+<a id="docker-compose" class="anchor" href="#docker-compose" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Docker Compose</h3>
 
 <div class="highlight highlight-source-shell"><pre>docker-compose build --pull
 docker-compose up</pre></div>
@@ -115,7 +119,7 @@ go build -o psmbtcp-srv</pre></div>
 <h2>
 <a id="continuous-integration" class="anchor" href="#continuous-integration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Continuous Integration</h2>
 
-<p>I do continuous integration and build docker images after git push by self-hosted drone.io server and dockerhub service.</p>
+<p>I do continuous integration and deploy docker images after git push by self-hosted drone.io server, <a href="https://circleci.com/">circleci</a> service, <a href="https://codecov.io/">codecov</a> service and dockerhub service.</p>
 
 <h2>
 <a id="deployment-diagram" class="anchor" href="#deployment-diagram" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Deployment Diagram</h2>
