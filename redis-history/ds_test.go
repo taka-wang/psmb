@@ -105,7 +105,7 @@ func TestHistoryMap(t *testing.T) {
 		if _, err := historyMap.Get("", 1); err != nil {
 			log(err)
 		}
-		if _, err := historyMap.GetAll("", 1); err != nil {
+		if _, err := historyMap.GetAll(""); err != nil {
 			log(err)
 		}
 		historyMap.GetAll("123")
