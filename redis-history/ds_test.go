@@ -90,7 +90,7 @@ func TestHistoryMap(t *testing.T) {
 		return true
 	})
 
-	s.Assert("Test Redis pool", func(log sugar.Log) bool {
+	s.Assert("Test Fail cases", func(log sugar.Log) bool {
 		conf.Set(defaultRedisDocker, "hello")
 		setDefaults()
 
@@ -102,6 +102,12 @@ func TestHistoryMap(t *testing.T) {
 
 		historyMap.Add("123", "123")
 		historyMap.Get("123", 1)
+		if _, err := historyMap.Get("", 1); err != nil {
+			log(err)
+		}
+		if _, err := historyMap.GetAll("", 1); err != nil {
+			log(err)
+		}
 		historyMap.GetAll("123")
 		historyMap.GetLatest("123")
 		return true

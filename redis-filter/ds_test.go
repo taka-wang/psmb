@@ -121,6 +121,36 @@ func TestFilter(t *testing.T) {
 
 	})
 
+	s.Assert("Test Fail cases", func(log sugar.Log) bool {
+		filterMap, err := psmbtcp.FilterDataStoreCreator("Filter")
+
+		a := psmb.MbtcpFilterStatus{
+			Tid:     1234,
+			From:    "test",
+			Name:    "B",
+			Enabled: true,
+		}
+
+		log("Add A item")
+		filterMap.Add(a.Name, a)
+
+		b := psmb.MbtcpFiltersStatus{
+			Tid: 123456,
+		}
+
+		log("Add B item")
+		filterMap.Add(b.Name, b)
+
+		log("Del null item")
+		filterMap.Delete("")
+
+		log("update toggle")
+		filterMap.UpdateToggle("", true)
+		filterMap.UpdateAllToggles(true)
+
+		return true
+	})
+
 	s.Assert("Test Redis pool", func(log sugar.Log) bool {
 		conf.Set(defaultRedisDocker, "hello")
 		setDefaults()
