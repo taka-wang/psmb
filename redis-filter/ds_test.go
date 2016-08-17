@@ -147,6 +147,7 @@ func TestFilter(t *testing.T) {
 		log("update toggle")
 		filterMap.UpdateToggle("", true)
 		filterMap.UpdateAllToggles(true)
+		filterMap.GetAll()
 
 		return true
 	})
@@ -161,6 +162,7 @@ func TestFilter(t *testing.T) {
 		log(err)
 		filterMap.Add("123", "123")
 		filterMap.Get("123")
+		filterMap.Get("")
 		filterMap.Delete("123")
 		return true
 	})
