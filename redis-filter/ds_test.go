@@ -122,7 +122,7 @@ func TestFilter(t *testing.T) {
 	})
 
 	s.Assert("Test Fail cases", func(log sugar.Log) bool {
-		filterMap, err := psmbtcp.FilterDataStoreCreator("Filter")
+		filterMap, _ := psmbtcp.FilterDataStoreCreator("Filter")
 
 		a := psmb.MbtcpFilterStatus{
 			Tid:     1234,
