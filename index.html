@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Psmb by taka-wang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Psmb</h1>
+      <h2 class="project-tagline">Proactive service for modbus daemon</h2>
+      <a href="https://github.com/taka-wang/psmb" class="btn">View on GitHub</a>
+      <a href="https://github.com/taka-wang/psmb/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/taka-wang/psmb/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="psmb" class="anchor" href="#psmb" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>psmb</h1>
+
+<p><a href="http://godoc.org/github.com/taka-wang/psmb"><img src="https://godoc.org/github.com/taka-wang/psmb?status.svg" alt="GoDoc"></a>
+<a href="https://goreportcard.com/report/github.com/taka-wang/psmb"><img src="https://goreportcard.com/badge/github.com/taka-wang/psmb" alt="Go Report Card"></a>
+<a href="http://drone.cmwang.net/taka-wang/psmb"><img src="http://drone.cmwang.net/api/badges/taka-wang/psmb/status.svg" alt="Build Status"></a>
+<a href="https://circleci.com/gh/taka-wang/psmb"><img src="https://circleci.com/gh/taka-wang/psmb.svg?style=shield&amp;circle-token=791a0bee85922cdfd4a0fe580953408febe3cabd" alt="CircleCI"></a>
+<a href="https://codecov.io/gh/taka-wang/psmb"><img src="https://codecov.io/gh/taka-wang/psmb/branch/dev/graph/badge.svg?token=wsuDctUrJO" alt="codecov"></a></p>
+
+<p>Proactive service library for <a href="https://github.com/taka-wang/modbusd">modbusd</a></p>
+
+<hr>
+
+<h2>
+<a id="environment-variables" class="anchor" href="#environment-variables" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Environment variables</h2>
+
+<ul>
+<li>CONF_PSMBTCP: config file path</li>
+<li>EP_BACKEND: endpoint of remote service discovery server (optional)</li>
+</ul>
+
+<h2>
+<a id="contracts-interfaces" class="anchor" href="#contracts-interfaces" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contracts (Interfaces)</h2>
+
+<ul>
+<li>IProactiveService: proactive service</li>
+<li>IReaderTaskDataStore:  read/poll task data store</li>
+<li>IWriterTaskDataStore: write task data store</li>
+<li>IHistoryDataStore: history data store</li>
+<li>IFilterDataStore: filter data store</li>
+<li>IConfig: config</li>
+</ul>
+
+<h2>
+<a id="package-management" class="anchor" href="#package-management" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Package management</h2>
+
+<ul>
+<li>I adopted <a href="https://glide.sh/">glide</a> as package management system for this repository.</li>
+</ul>
+
+<h2>
+<a id="worker-pool" class="anchor" href="#worker-pool" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Worker Pool</h2>
+
+<h3>
+<a id="request" class="anchor" href="#request" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Request</h3>
+
+<p><img src="http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QSBJZxDKQ908XPGsnEtLzzsQEHIBP5AMIxMF7K1mkfJrijC6IMYinEf2gw1uupQH4tIh1IeE9O58lRIdVWdCH_VJuLy0" alt="uml"></p>
+
+<h3>
+<a id="response" class="anchor" href="#response" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Response</h3>
+
+<p><img src="http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QVJfnragD4AaG4eRulRg-svEnMSBP9AdgDhw3Y0ut9KqsccTnDUYLDJvog1uupAmND2CCp1s9O50BTU7lmHXC_VJiRu0" alt="uml"></p>
+
+<hr>
+
+<h2>
+<a id="up-and-running" class="anchor" href="#up-and-running" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Up and Running</h2>
+
+<h3>
+<a id="docker-compose-prefer" class="anchor" href="#docker-compose-prefer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Docker Compose (prefer)</h3>
+
+<div class="highlight highlight-source-shell"><pre>docker-compose build --pull
+docker-compose up</pre></div>
+
+<h3>
+<a id="manually" class="anchor" href="#manually" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Manually</h3>
+
+<h4>
+<a id="install-libzmq-325" class="anchor" href="#install-libzmq-325" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Install libzmq (3.2.5)</h4>
+
+<div class="highlight highlight-source-shell"><pre>wget https://github.com/zeromq/zeromq3-x/releases/download/v3.2.5/zeromq-3.2.5.tar.gz
+tar xvzf zeromq-3.2.5.tar.gz
+<span class="pl-c1">cd</span> zeromq-3.2.5
+./configure
+make
+sudo make install
+sudo ldconfig</pre></div>
+
+<h4>
+<a id="build" class="anchor" href="#build" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Build</h4>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c"># install glide</span>
+curl https://glide.sh/get <span class="pl-k">|</span> sh
+
+<span class="pl-c"># install dependencies</span>
+glide install
+
+<span class="pl-c"># build</span>
+<span class="pl-c1">cd</span> tcp-srv
+go build -o psmbtcp-srv</pre></div>
+
+<hr>
+
+<h2>
+<a id="continuous-integration" class="anchor" href="#continuous-integration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Continuous Integration</h2>
+
+<p>I do continuous integration and build docker images after git push by self-hosted drone.io server and dockerhub service.</p>
+
+<h2>
+<a id="deployment-diagram" class="anchor" href="#deployment-diagram" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Deployment Diagram</h2>
+
+<p><img src="http://uml.cmwang.net:8000/plantuml/svg/5Sh13O0W3030LNG0QVJfnraAD42aGA0DSNlrVRUcuh9wqfwNADB62T1ncf0agjL1tTKYLCIuoY1uupQn16ZA6HY7K0TFBTU7lmHji3M_NVln0W00" alt="uml"></p>
+
+<hr>
+
+<h2>
+<a id="unit-tests" class="anchor" href="#unit-tests" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Unit tests</h2>
+
+<ul>
+<li>binary</li>
+<li>types</li>
+</ul>
+
+<h2>
+<a id="test-cases" class="anchor" href="#test-cases" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Test cases</h2>
+
+<h3>
+<a id="binary" class="anchor" href="#binary" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Binary</h3>
+
+<ul>
+<li>[x] Bytes to 16-bit integer array tests
+
+<ul>
+<li>[x] <code>BytesToUInt16s</code> in big endian order - (1/4)</li>
+<li>[x] <code>BytesToUInt16s</code> in little endian order - (2/4)</li>
+<li>[x] <code>BytesToInt16s</code> in big endian order - (3/4)</li>
+<li>[x] <code>BytesToInt16s</code> in little endian order - (4/4)</li>
+</ul>
+</li>
+<li>[x] Bytes to 32-bit integer array tests
+
+<ul>
+<li>[x] <code>BytesToUInt32s</code> in (ABCD) Big Endian order - (1/4)</li>
+<li>[x] <code>BytesToUInt32s</code> in (DCBA) Little Endian order - (2/4)</li>
+<li>[x] <code>BytesToUInt32s</code> in (BADC) Mid-Big Endian order - (3/4)</li>
+<li>[x] <code>BytesToUInt32s</code> in (CDAB) Mid-Little Endian order - (4/4)</li>
+<li>[x] <code>BytesToInt32s</code> in (ABCD) Big Endian order - (1/4)</li>
+<li>[x] <code>BytesToInt32s</code> in (DCBA) Little Endian order - (2/4)</li>
+<li>[x] <code>BytesToInt32s</code> in (BADC) Mid-Big Endian order - (3/4)</li>
+<li>[x] <code>BytesToInt32s</code> in (CDAB) Mid-Little Endian order - (4/4)</li>
+</ul>
+</li>
+<li>[x] Bytes to 32-bit float array tests
+
+<ul>
+<li>[x] <code>BytesToFloat32s</code> in (ABCD) Big Endian order - (1/4)</li>
+<li>[x] <code>BytesToFloat32s</code> in (DCBA) Little Endian order - (2/4)</li>
+<li>[x] <code>BytesToFloat32s</code> in (BADC) Mid-Big Endian order - (3/4)</li>
+<li>[x] <code>BytesToFloat32s</code> in (CDAB) Mid-Little Endian order - (4/4)</li>
+</ul>
+</li>
+<li>[x] Bytes/registers utility tests
+
+<ul>
+<li>[x] <code>BitStringToUInt8s</code> test</li>
+<li>[x] <code>BitStringToUInt8s</code> test - left comma</li>
+<li>[x] <code>BitStringToUInt8s</code> test - right comma</li>
+<li>[x] <code>BitStringToUInt8s</code> test - left, right comma</li>
+<li>[x] <code>RegistersToBytes</code> test</li>
+<li>[x] <code>BytesToHexString</code> test</li>
+<li>[x] <code>DecimalStringToRegisters</code> test</li>
+<li>[x] <code>DecimalStringToRegisters</code> test - left comma</li>
+<li>[x] <code>DecimalStringToRegisters</code> test - right comma</li>
+<li>[x] <code>DecimalStringToRegisters</code> test - left, right comma</li>
+<li>[x] <code>HexStringToRegisters</code> test</li>
+<li>[x] <code>HexStringToRegisters</code> test - wrong length</li>
+<li>[x] <code>LinearScalingRegisters</code> test</li>
+<li>[x] <code>LinearScalingRegisters</code> test - (0,0,0,0)</li>
+<li>[x] <code>LinearScalingRegisters</code> test - reverse</li>
+</ul>
+</li>
+</ul>
+
+<h3>
+<a id="types" class="anchor" href="#types" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Types</h3>
+
+<h4>
+<a id="upstream-structure-test" class="anchor" href="#upstream-structure-test" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Upstream structure test</h4>
+
+<ul>
+<li>[x] One-off modbus tcp struct tests
+
+<ul>
+<li>[x] <code>mbtcp.once.read</code> request test</li>
+<li>[x] <code>mbtcp.once.read</code> response test</li>
+</ul>
+</li>
+<li>[x] get/set modbus tcp timeout struct tests
+
+<ul>
+<li>[x] <code>mbtcp.timeout.read</code> request test</li>
+<li>[x] <code>mbtcp.timeout.read</code> response test</li>
+<li>[x] <code>mbtcp.timeout.update</code> request test</li>
+<li>[x] <code>mbtcp.timeout.update</code> response test</li>
+<li>[x] <code>mbtcp.once.write</code> request test</li>
+<li>[x] <code>mbtcp.once.write</code> response test</li>
+</ul>
+</li>
+</ul>
+
+<h4>
+<a id="downstream-structure-test" class="anchor" href="#downstream-structure-test" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Downstream structure test</h4>
+
+<ul>
+<li>[x] modbus tcp downstreamstruct tests
+
+<ul>
+<li>[x] <code>read</code> request test</li>
+<li>[x] <code>single read</code> response test</li>
+<li>[x] <code>multiple read</code> response test</li>
+<li>[x] <code>single write</code> request test</li>
+<li>[x] <code>multiple write</code> request test</li>
+<li>[x] <code>set timeout</code> request test</li>
+<li>[x] <code>get timeout</code> response test</li>
+</ul>
+</li>
+</ul>
+
+<hr>
+
+<h2>
+<a id="uml" class="anchor" href="#uml" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>UML</h2>
+
+<p><img src="http://uml.cmwang.net:8000/plantuml/svg/5SZ13O0W3030LNG0QVpwSPPI2H1R8BGDwnllUNjjnFuadxmLiw4NmCGLShNYqJLDwirIiq1TmF35Os7BC5mO1DNI169KXQ4ImzytdXy0" alt="uml"></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/taka-wang/psmb">Psmb</a> is maintained by <a href="https://github.com/taka-wang">taka-wang</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
