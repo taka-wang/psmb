@@ -1,4 +1,4 @@
-FROM takawang/gozmq:pull # TODO change
+FROM takawang/gozmq:pull # should be changed
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 WORKDIR /go

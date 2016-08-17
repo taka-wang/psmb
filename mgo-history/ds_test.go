@@ -96,7 +96,7 @@ func TestHistoryMap(t *testing.T) {
 			log(err)
 		}
 
-		set(defaultMongoDocker, "hello")
+		conf.Set(defaultMongoDocker, "hello")
 		setDefaults()
 		if a, err := psmbtcp.HistoryDataStoreCreator("History"); err != nil {
 			log(err)
