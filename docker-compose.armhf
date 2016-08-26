@@ -4,7 +4,7 @@ redis:
         - "6379"
 
 mongodb:
-    image: armhfbuild/mongo:3.2.3
+    image: armhfbuild/mongo:2.4.10
     ports:
         - "27017"
 slave:
