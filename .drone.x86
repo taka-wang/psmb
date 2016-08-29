@@ -9,5 +9,5 @@ pipeline:
         commands:
             - docker build -t b --no-cache=true -f release/Dockerfile.alpine-build .
             - docker run -v $(pwd)/release:/tmp -itd b
-            - docker build -t b --no-cache=true -f release/Dockerfile.alpine-pack release/.
+            - docker build -t c --no-cache=true -f release/Dockerfile.alpine-pack release/.
 
