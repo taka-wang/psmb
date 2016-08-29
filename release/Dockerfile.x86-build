@@ -10,4 +10,4 @@ RUN echo " ... build" \
         && go build -o psmb-srv \
         && cp psmb-srv /
 
-CMD cp /psmb-srv /tmp/
+CMD /psmb-srv
