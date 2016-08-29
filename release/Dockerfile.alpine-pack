@@ -6,6 +6,8 @@ ENV CONF_PSMBTCP "/etc/psmbtcp"
 ENV EP_BACKEND "consul.cmwang.net:8500"
 ENV ZMQ_VERSION 3.2.5
 
+RUN pwd
+RUN ls
 ADD psmb /
 RUN apk update \
     && apk add \
@@ -33,6 +35,6 @@ RUN apk update \
 RUN apk update \
     && apk add libgcc libstdc++
 
-EXPOSE 502
+ENTRYPOINT /psmb-srv
 
-CMD /psmb-srv
+EXPOSE 502
