@@ -83,7 +83,7 @@ go build -o psmbtcp-srv
 
 ## Continuous Integration
 
-I do continuous integration and deploy docker images after git push by self-hosted drone.io server, [circleci](https://circleci.com/) service, [codecov](https://codecov.io/) service and [dockerhub]((https://hub.docker.com/r/takawang/c-modbus-slave/)) service.
+I do continuous integration and deploy docker images after git push by self-hosted drone.io server, [circleci](https://circleci.com/) service, [codecov](https://codecov.io/) service and [dockerhub]((https://hub.docker.com/r/edgepro/c-modbus-slave/)) service.
 
 ## Deployment Diagram
 

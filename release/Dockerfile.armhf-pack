@@ -1,5 +1,5 @@
 # armhf
-FROM armhfbuild/alpine:latest
+FROM takawang/alpine:armhf
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 ENV CONF_PSMBTCP "/etc/psmbtcp"
