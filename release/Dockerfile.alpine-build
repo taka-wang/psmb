@@ -6,7 +6,7 @@ RUN apk update \
     && apk add \
            git autoconf cmake build-base tar libtool zlib musl-dev openssl-dev zlib-dev curl \
     
-    && echo " ... adding ZMQ" \
+    && echo " ... install ZMQ" \
          && curl -L http://download.zeromq.org/zeromq-${ZMQ_VERSION}.tar.gz -o /tmp/zeromq.tar.gz \
          && cd /tmp/ \
          && tar -xf /tmp/zeromq.tar.gz \
@@ -23,10 +23,13 @@ RUN echo " ... add glide" \
         && echo "machine github.com login 744866ed371c78eb45ef5f2a04451f0fbd4b68fb" > ~/.netrc \
     && echo " ... build " \
         && cd / \
-        && git clone https://github.com/taka-wang/psmb.git \
-        && cd psmb \
+        && git clone https://github.com/taka-wang/psmb.git $GOPATH/src/github.com/taka-wang/psmb \
+        && cd $GOPATH/src/github.com/taka-wang/psmb \
         && glide install \
         && cd tcp-srv \
-        && go build -o psmb
+        && go build -o psmb-srv \
+        && cp psmb-srv /
 
-CMD cp /psmb/tcp-srv/psmb /tmp/
+CMD cp /psmb-srv /tmp/
+
+

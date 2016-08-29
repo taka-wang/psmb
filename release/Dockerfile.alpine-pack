@@ -9,9 +9,9 @@ ENV ZMQ_VERSION 3.2.5
 ADD psmb /
 RUN apk update \
     && apk add \
-           git autoconf cmake build-base tar libtool zlib musl-dev openssl-dev zlib-dev curl \
+           autoconf cmake build-base tar libtool zlib musl-dev openssl-dev zlib-dev curl \
     
-    && echo " ... adding ZMQ and CZMQ" \
+    && echo " ... install ZMQ" \
          && curl -L http://download.zeromq.org/zeromq-${ZMQ_VERSION}.tar.gz -o /tmp/zeromq.tar.gz \
          && cd /tmp/ \
          && tar -xf /tmp/zeromq.tar.gz \
@@ -27,7 +27,7 @@ RUN apk update \
         #&& rm -rf /tmp/zeromq* && rm -rf /tmp/czmq* && rm -rf /tmp/modbus* \
         && rm /usr/lib/*.a && rm /usr/lib/*.la \
         && apk del \
-            git autoconf cmake build-base tar libtool zlib musl-dev openssl-dev zlib-dev curl \
+            autoconf cmake build-base tar libtool zlib musl-dev openssl-dev zlib-dev curl \
         && rm -rf /var/cache/apk/* 
 
 RUN apk update \
@@ -35,4 +35,4 @@ RUN apk update \
 
 EXPOSE 502
 
-CMD /psmb
+CMD /psmb-srv
