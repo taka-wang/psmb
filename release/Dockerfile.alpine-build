@@ -27,8 +27,6 @@ RUN echo " ... add glide" \
         && cd psmb \
         && glide install \
         && cd tcp-srv \
-        && go build -o psmb \
-        && mkdir -p /tmp \
-        && cp psmb /tmp 
+        && go build -o psmb
 
-CMD cp /psmb /tmp/
+CMD cp /psmb/tcp-srv/psmb /tmp/
