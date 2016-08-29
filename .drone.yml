@@ -1,0 +1,28 @@
+# drone.io v0.4
+# armhf
+
+
+build:
+    image: takawang/dind:$$arch
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    privileged: true
+    commands:
+        # build cache
+        - docker build -t golang:armhf-cache -f release/Dockerfile.armhf-cache .
+        # build builder
+        - docker build -t builder:armhf --no-cache=true -f release/Dockerfile.armhf-build .
+        - docker run -itd --name=builder builder:armhf
+        # copy binary to release folder
+        - docker cp builder:/psmb-srv release/
+        # build release image
+        - docker build -t takawang/psmb-srv:armhf --no-cache=true -f release/Dockerfile.armhf-pack release/.
+        - docker push takawang/psmb-srv:armhf
+        # clean up
+        - docker rm -f builder
+        - docker rmi -f builder:armhf
+
+matrix:
+    arch:
+        - armhf
+
