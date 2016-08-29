@@ -54,9 +54,9 @@ test:
         # codecov
         - bash <(curl -s https://codecov.io/bash) -t 558aa53d-c58d-4df4-a1c1-a22a6e6d8572
         # ci
-        - docker-compose rm -f -a
-        - docker-compose pull
-        - docker-compose build
+        - docker-compose -f docker-compose.circle rm -f -a
+        - docker-compose -f docker-compose.circle pull
+        - docker-compose -f docker-compose.circle build
     override:
         - docker-compose up --abort-on-container-exit
     post:

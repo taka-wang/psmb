@@ -11,14 +11,15 @@ slave:
     image: takawang/c-modbus-slave:x86
 
 modbusd:
-    image: edgepro/modbusd:nolog
+    image: edgepro/modbusd:x86
     volumes:
         - /tmp:/tmp
     links:
         - slave
 
 psmbtcpsrv:
-    image: takawang/psmb-srv:x86
+    build: .
+    dockerfile: tcp-srv/Dockerfile
     volumes_from:
         - modbusd
     links:
