@@ -34,4 +34,3 @@ dummysrv:
         - slave
     volumes:
         - /var/tmp:/var/tmp # mount for test
-
