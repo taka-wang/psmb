@@ -7,8 +7,9 @@ pipeline:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
+            - docker build -t golang:x86-cache -f release/Dockerfile.x86-cache .
             - docker build -t b --no-cache=true -f release/Dockerfile.x86-build .
-            - docker run -v $(pwd)/release:/tmp -itd b
+            - docker run --privileged -v $(pwd)/release:/tmp -itd b
             - ls $(pwd)/release
             - docker build -t takawang/psmb-srv:x86 --no-cache=true -f release/Dockerfile.x86-pack release/.
             - docker push takawang/psmb-srv:x86
