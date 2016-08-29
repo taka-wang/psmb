@@ -21,8 +21,8 @@ RUN echo " ... add glide" \
         && go get github.com/Masterminds/glide \
         && cd $GOPATH/src/github.com/Masterminds/glide && make install \
         && echo "machine github.com login 744866ed371c78eb45ef5f2a04451f0fbd4b68fb" > ~/.netrc \
-    && echo " ... build " \
-        && cd / \
+
+    && echo " ... build" \
         && git clone https://github.com/taka-wang/psmb.git $GOPATH/src/github.com/taka-wang/psmb \
         && cd $GOPATH/src/github.com/taka-wang/psmb \
         && glide install \
@@ -31,5 +31,3 @@ RUN echo " ... add glide" \
         && cp psmb-srv /
 
 CMD cp /psmb-srv /tmp/
-
-
