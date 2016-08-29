@@ -1,0 +1,161 @@
+# drone.io:0.5
+
+pipeline:
+
+    test-psmbtcp-srv:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t tcpsrv --no-cache=true -f tcp-srv/Dockerfile .
+            #- docker run tcpsrv
+            #- docker rmi -f tcpsrv
+
+    test-mgo-history:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
+        commands:
+            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
+            - docker-compose -f mgo-history/docker-compose.yml pull
+            - docker-compose -f mgo-history/docker-compose.yml build --no-cache
+            - docker-compose -f mgo-history/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f mgo-history/docker-compose.yml stop
+            - docker-compose -f mgo-history/docker-compose.yml rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
+
+    test-redis-writer:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
+        commands:
+            - docker-compose -f redis-writer/docker-compose.yml rm -f -a
+            - docker-compose -f redis-writer/docker-compose.yml pull
+            - docker-compose -f redis-writer/docker-compose.yml build --no-cache
+            - docker-compose -f redis-writer/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f redis-writer/docker-compose.yml stop
+            - docker-compose -f redis-writer/docker-compose.yml rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
+
+    test-psmb:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t psmb --no-cache=true .
+            - docker run psmb
+            - docker rmi -f psmb
+
+    ci:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
+        commands:
+            - docker-compose rm -f -a
+            - docker-compose pull
+            - docker-compose build --no-cache
+            - docker-compose up --abort-on-container-exit
+            - docker-compose stop
+            - docker-compose rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
+
+    test-mem-writer:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t writer --no-cache=true -f mem-writer/Dockerfile .
+            - docker run writer
+            - docker rmi -f writer
+
+    test-cron:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t cron --no-cache=true -f cron/Dockerfile .
+            - docker run cron
+            - docker rmi -f cron
+
+    test-psmb-tcp:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t tcp --no-cache=true -f tcp/Dockerfile .
+            - docker run tcp
+            - docker rmi -f tcp
+
+
+
+    test-redis-history:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
+        commands:
+            - docker-compose -f redis-history/docker-compose.yml rm -f -a
+            - docker-compose -f redis-history/docker-compose.yml pull
+            - docker-compose -f redis-history/docker-compose.yml build --no-cache
+            - docker-compose -f redis-history/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f redis-history/docker-compose.yml stop
+            - docker-compose -f redis-history/docker-compose.yml rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
+
+    test-mem-filter:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t filter --no-cache=true -f mem-filter/Dockerfile .
+            - docker run filter
+            - docker rmi -f filter
+
+    test-mem-reader:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t reader --no-cache=true -f mem-reader/Dockerfile .
+            - docker run reader
+            - docker rmi -f reader
+
+    test-redis-filter:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/tmp:/var/tmp # for test
+        commands:
+            - docker-compose -f redis-filter/docker-compose.yml rm -f -a
+            - docker-compose -f redis-filter/docker-compose.yml pull
+            - docker-compose -f redis-filter/docker-compose.yml build --no-cache
+            - docker-compose -f redis-filter/docker-compose.yml up --abort-on-container-exit
+            - docker-compose -f redis-filter/docker-compose.yml stop
+            - docker-compose -f redis-filter/docker-compose.yml rm -f -a
+            - cat /var/tmp/success      # test
+            - rm -f /var/tmp/success    # cleanup
+
+    test-viper-conf:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t conf --no-cache=true -f viper-conf/Dockerfile .
+            - docker run conf
+            - docker rmi -f conf
+
+    test-mini-conf:
+        image: takawang/dind
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        commands:
+            - docker build -t conf --no-cache=true -f mini-conf/Dockerfile .
+            - docker run conf
+            - docker rmi -f conf
