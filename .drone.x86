@@ -7,5 +7,7 @@ pipeline:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
-            - docker build -t b --no-cache=true -f Dockerfile.alpine-build .
+            - docker build -t b --no-cache=true -f release/Dockerfile.alpine-build .
+            - docker run -v /tmp:/tmp -itd b
+            - docker build -t b --no-cache=true -f release/Dockerfile.alpine-pack .
 

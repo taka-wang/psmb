@@ -29,3 +29,5 @@ RUN echo " ... add glide" \
         && go build -o psmb \
         && mkdir -p /tmp \
         && cp psmb /tmp 
+
+CMD /tmp/psmb
