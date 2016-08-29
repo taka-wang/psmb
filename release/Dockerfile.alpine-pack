@@ -6,10 +6,9 @@ ENV CONF_PSMBTCP "/etc/psmbtcp"
 ENV EP_BACKEND "consul.cmwang.net:8500"
 ENV ZMQ_VERSION 3.2.5
 
-RUN pwd
-RUN ls
-RUN ls release
-ADD psmb /
+# add binary
+ADD psmb-srv /
+
 RUN apk update \
     && apk add \
            autoconf cmake build-base tar libtool zlib musl-dev openssl-dev zlib-dev curl \
