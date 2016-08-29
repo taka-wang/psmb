@@ -34,3 +34,5 @@ RUN apk update \
     && apk add libgcc libstdc++
 
 EXPOSE 502
+
+CMD /psmb
