@@ -31,8 +31,8 @@ pipeline:
             #- docker-compose pull
             - docker-compose -f docker-compose.${arch} build --no-cache
             - docker-compose -f docker-compose.${arch} up --abort-on-container-exit
-            - docker-compose -f docker-compose.${arch} stop
-            - docker-compose -f docker-compose.${arch} rm -f -a
+            #- docker-compose -f docker-compose.${arch} stop
+            #- docker-compose -f docker-compose.${arch} rm -f -a
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
