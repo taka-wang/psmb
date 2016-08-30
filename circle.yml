@@ -58,8 +58,8 @@ test:
         - docker-compose -f docker-compose.circle pull
         - docker-compose -f docker-compose.circle build
     override:
-        - docker-compose up --abort-on-container-exit
+        - docker-compose -f docker-compose.circle up --abort-on-container-exit
     post:
         - mv shared/coverage.txt ${CIRCLE_ARTIFACTS}/
-        - docker-compose stop
-        - docker-compose rm -f -a
+        - docker-compose -f docker-compose.circle stop
+        - docker-compose -f docker-compose.circle rm -f -a
