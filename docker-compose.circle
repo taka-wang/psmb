@@ -4,7 +4,7 @@ redis:
         - "6379"
 
 mongodb:
-    image: mongo
+    image: mongo:3.2
     ports:
         - "27017"
 slave:

@@ -1,10 +1,10 @@
 redis:
-    image: redis:3.2.3-alpine
+    image: takawang/redis:x86
     ports:
         - "6379"
 
 mongodb:
-    image: mongo
+    image: mongo:3.2
     ports:
         - "27017"
 slave:

@@ -22,6 +22,20 @@ build:
         - docker rm -f builder
         - docker rmi -f builder:armhf
 
+ci:
+    image: takawang/dind:$$arch
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /var/tmp:/var/tmp # for test
+    commands:
+        - docker-compose -f docker-compose.$$arch rm -f -a
+        #- docker-compose pull
+        - docker-compose -f docker-compose.$$arch build --no-cache
+        - docker-compose -f docker-compose.$$arch up --abort-on-container-exit
+        - docker-compose -f docker-compose.$$arch stop
+        - docker-compose -f docker-compose.$$arch rm -f -a
+        - cat /var/tmp/success      # test
+        - rm -f /var/tmp/success    # cleanup
 matrix:
     arch:
         - armhf
