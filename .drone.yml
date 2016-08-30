@@ -16,8 +16,8 @@ build:
         # copy binary to release folder
         - docker cp builder:/psmb-srv release/
         # build release image
-        - docker build -t takawang/psmb-srv:armhf --no-cache=true -f release/Dockerfile.armhf-pack release/.
-        - docker push takawang/psmb-srv:armhf
+        - docker build -t edgepro/psmb-srv:armhf --no-cache=true -f release/Dockerfile.armhf-pack release/.
+        - docker push edgepro/psmb-srv:armhf
         # clean up
         - docker rm -f builder
         - docker rmi -f builder:armhf

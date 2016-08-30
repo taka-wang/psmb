@@ -1,5 +1,5 @@
 redis:
-    image: redis:alpine
+    image: redis:3.2.3-alpine
     ports:
         - "6379"
 

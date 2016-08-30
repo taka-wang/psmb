@@ -3,26 +3,26 @@
 pipeline:
 
     build:
-        image: takawang/dind:push
+        image: takawang/dind:${arch}
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         commands:
             # build cache
-            - docker build -t golang:x86-cache -f release/Dockerfile.x86-cache .
+            - docker build -t golang:${arch}-cache -f release/Dockerfile.${arch}-cache .
             # build builder
-            - docker build -t builder:x86 --no-cache=true -f release/Dockerfile.x86-build .
-            - docker run -itd --name=builder builder:x86
+            - docker build -t builder:${arch} --no-cache=true -f release/Dockerfile.${arch}-build .
+            - docker run -itd --name=builder builder:${arch}
             # copy binary to release folder
             - docker cp builder:/psmb-srv release/
             # build release image
-            - docker build -t takawang/psmb-srv:x86 --no-cache=true -f release/Dockerfile.x86-pack release/.
-            - docker push takawang/psmb-srv:x86
+            - docker build -t edgepro/psmb-srv:${arch} --no-cache=true -f release/Dockerfile.${arch}-pack release/.
+            #- docker push edgepro/psmb-srv:${arch}
             # clean up
             - docker rm -f builder
-            - docker rmi -f builder:x86
+            - docker rmi -f builder:${arch}
 
     ci:
-        image: takawang/dind
+        image: takawang/dind:${arch}
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - /var/tmp:/var/tmp # for test
@@ -36,3 +36,6 @@ pipeline:
             - cat /var/tmp/success      # test
             - rm -f /var/tmp/success    # cleanup
 
+matrix:
+    arch:
+        - x86
