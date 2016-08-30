@@ -12,7 +12,7 @@ build:
         - docker build -t golang:armhf-cache -f release/Dockerfile.armhf-cache .
         # build builder
         - docker build -t builder:armhf --no-cache=true -f release/Dockerfile.armhf-build .
-        - docker run -itd --name=builder builder:armhf
+        - docker rm -f builder; docker run -itd --name=builder builder:armhf
         # copy binary to release folder
         - docker cp builder:/psmb-srv release/
         # build release image
