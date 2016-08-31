@@ -1,5 +1,5 @@
 # armhf
-FROM golang:armhf-cache
+FROM cache:armhf
 MAINTAINER Taka Wang <taka@cmwang.net>
 
 RUN echo " ... build" \

@@ -10,11 +10,13 @@ build:
     privileged: true
     commands:
         # build cache
-        - docker build -t golang:$$arch-cache -f release/Dockerfile.$$arch-cache .
+        - docker build -t cache:$$arch -f release/Dockerfile.$$arch-cache .
         # build builder
         - docker build -t builder:$$arch --no-cache=true -f release/Dockerfile.$$arch-build .
         - docker run -itd --name=builder builder:$$arch
         # copy binary to release folder
+        - docker cp builder:/usr/lib/libzmq.so.3 release/
+        - docker cp builder:/usr/lib/libzmq.so.3.0.0 release/
         - docker cp builder:/psmb-srv release/
         # build release image
         - docker build -t edgepro/psmb-srv:$$arch --no-cache=true -f release/Dockerfile.$$arch-pack release/.
@@ -35,4 +37,3 @@ build:
 matrix:
     arch:
         - armhf
-
