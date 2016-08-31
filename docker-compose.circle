@@ -18,8 +18,7 @@ modbusd:
         - slave
 
 psmbtcpsrv:
-    build: .
-    dockerfile: tcp-srv/Dockerfile
+    image: edgepro/psmb-srv:x86
     volumes_from:
         - modbusd
     links:
