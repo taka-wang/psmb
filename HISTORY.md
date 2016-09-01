@@ -53,9 +53,6 @@
 
 ## TODO
 
-- routine Worker Thread-Pool
 - scheduler concurrency
-- refine log messages
 - unit tests for filters
 - implement integration tests for filters
-- refactor test cases
