@@ -12,7 +12,7 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 ## Continuous Integration
 
-I do continuous integration and deploy docker images after git push by self-hosted drone.io server, [circleci](https://circleci.com/) service, [codecov](https://codecov.io/) service and [dockerhub]((https://hub.docker.com/r/edgepro/c-modbus-slave/)) service.
+I do continuous integration and deploy docker images after git push by self-hosted drone.io server, [circleci](https://circleci.com/) service, [codecov](https://codecov.io/) service and [dockerhub]((https://hub.docker.com/r/edgepro/psmb/)) service.
 
 | CI Server| Target    | Status                                                                                                                        |
 |----------|-----------|-------------------------------------------------------------------------------------------------------------------------------|
@@ -175,3 +175,9 @@ go build -o psmbtcp-srv
 ## UML
 
 ![uml](http://uml.cmwang.net:8000/plantuml/svg/5SZ13O0W3030LNG0QVpwSPPI2H1R8BGDwnllUNjjnFuadxmLiw4NmCGLShNYqJLDwirIiq1TmF35Os7BC5mO1DNI169KXQ4ImzytdXy0)
+
+---
+
+## License
+
+MIT
