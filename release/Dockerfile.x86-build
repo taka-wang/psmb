@@ -5,7 +5,7 @@ MAINTAINER Taka Wang <taka@cmwang.net>
 RUN echo " ... build" \
         && git clone https://github.com/taka-wang/psmb.git $GOPATH/src/github.com/taka-wang/psmb \
         && cd $GOPATH/src/github.com/taka-wang/psmb \
-        && glide install \
+        && glide up \
         && cd tcp-srv \
         && go build -o psmb-srv \
         && cp psmb-srv /

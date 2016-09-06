@@ -11,7 +11,7 @@ ADD . /go/src/github.com/taka-wang/psmb
 
 # install deps
 WORKDIR /go/src/github.com/taka-wang/psmb/
-RUN glide install
+RUN glide up
 
 # add config file
 RUN mkdir -p ${CONF_PSMBTCP} && \ 

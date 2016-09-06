@@ -1,12 +1,24 @@
 # psmb
 
+[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://hub.docker.com/r/edgepro/psmb)
 [![GoDoc](https://godoc.org/github.com/taka-wang/psmb?status.svg)](http://godoc.org/github.com/taka-wang/psmb)
 [![Go Report Card](https://goreportcard.com/badge/github.com/taka-wang/psmb)](https://goreportcard.com/report/github.com/taka-wang/psmb)
-[![Build Status](http://drone.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://drone.cmwang.net/taka-wang/psmb)
-[![CircleCI](https://circleci.com/gh/taka-wang/psmb.svg?style=shield)](https://circleci.com/gh/taka-wang/psmb)
 [![codecov](https://codecov.io/gh/taka-wang/psmb/branch/master/graph/badge.svg)](https://codecov.io/gh/taka-wang/psmb)
 
 Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
+
+---
+
+
+## Continuous Integration
+
+I do continuous integration and deploy docker images after git push by self-hosted drone.io server, [circleci](https://circleci.com/) service, [codecov](https://codecov.io/) service and [dockerhub]((https://hub.docker.com/r/edgepro/c-modbus-slave/)) service.
+
+| CI Server| Target    | Status                                                                                                                        |
+|----------|-----------|-------------------------------------------------------------------------------------------------------------------------------|
+| Travis   | API       | [![Build Status](https://travis-ci.org/taka-wang/psmb.svg?branch=master)](https://travis-ci.org/taka-wang/psmb)               |
+| CircleCI | x86       | [![CircleCI](https://circleci.com/gh/taka-wang/psmb.svg?style=shield)](https://circleci.com/gh/taka-wang/psmb)                |
+| Drone    | armhf     | [![Build Status](http://armdrone.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://armdrone.cmwang.net/taka-wang/psmb) |
 
 ---
 
@@ -72,7 +84,7 @@ sudo ldconfig
 curl https://glide.sh/get | sh
 
 # install dependencies
-glide install
+glide up
 
 # build
 cd tcp-srv
@@ -80,10 +92,6 @@ go build -o psmbtcp-srv
 ```
 
 ---
-
-## Continuous Integration
-
-I do continuous integration and deploy docker images after git push by self-hosted drone.io server, [circleci](https://circleci.com/) service, [codecov](https://codecov.io/) service and [dockerhub]((https://hub.docker.com/r/edgepro/c-modbus-slave/)) service.
 
 ## Deployment Diagram
 

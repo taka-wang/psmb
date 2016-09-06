@@ -24,9 +24,9 @@ script:
     # build release image
     - docker build -t edgepro/psmb-srv:x86 --no-cache=true -f release/Dockerfile.x86-pack release/.
     # CI --------------
-    - docker-compose -f docker-compose.x86 rm -f -a
+    #- docker-compose -f docker-compose.x86 rm -f -a
     - docker-compose -f docker-compose.x86 build --no-cache
-    - docker-compose -f docker-compose.x86 up --abort-on-container-exit
+    - docker-compose -f docker-compose.x86 up
     - cat /var/tmp/success      # test
     - rm -f /var/tmp/success    # cleanup
 
