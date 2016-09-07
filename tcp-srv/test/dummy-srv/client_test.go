@@ -93,7 +93,7 @@ func init() {
 func TestTimeoutOps(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`mbtcp.timeout.update` test - invalid json type - (1/5)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.update` test - invalid json type - (1/5)", func(logf sugar.Log) bool {
 		ReadReqStr :=
 			`{
                 "from": "web",
@@ -105,9 +105,9 @@ func TestTimeoutOps(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(ReadReqStr))
-		log("set timeout as 200000")
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(ReadReqStr))
+		logf("set timeout as 200000")
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpTimeoutRes
@@ -121,7 +121,7 @@ func TestTimeoutOps(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`mbtcp.timeout.update` test - invalid value (1) - (2/5)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.update` test - invalid value (1) - (2/5)", func(logf sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
@@ -134,9 +134,9 @@ func TestTimeoutOps(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(ReadReqStr))
-		log("set timeout as 200000")
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(ReadReqStr))
+		logf("set timeout as 200000")
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpTimeoutRes
@@ -150,7 +150,7 @@ func TestTimeoutOps(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.timeout.read` test - invalid value (1) - (3/5)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.read` test - invalid value (1) - (3/5)", func(logf sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
@@ -162,8 +162,8 @@ func TestTimeoutOps(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(ReadReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(ReadReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpTimeoutRes
@@ -177,7 +177,7 @@ func TestTimeoutOps(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.timeout.update` test - valid value (212345) - (4/5)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.update` test - valid value (212345) - (4/5)", func(logf sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
@@ -190,8 +190,8 @@ func TestTimeoutOps(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(ReadReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(ReadReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpTimeoutRes
@@ -205,7 +205,7 @@ func TestTimeoutOps(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.timeout.read` test - valid value (212345) - (5/5) ", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.timeout.read` test - valid value (212345) - (5/5) ", func(logf sugar.Log) bool {
 		ReadReq := psmb.MbtcpTimeoutReq{
 			From: "web",
 			Tid:  time.Now().UTC().UnixNano(),
@@ -217,8 +217,8 @@ func TestTimeoutOps(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(ReadReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(ReadReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpTimeoutRes
@@ -237,7 +237,7 @@ func TestTimeoutOps(t *testing.T) {
 func TestOneOffWriteFC5(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - invalid value(2) - (1/4)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - invalid value(2) - (1/4)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -255,8 +255,8 @@ func TestOneOffWriteFC5(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -288,8 +288,8 @@ func TestOneOffWriteFC5(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -314,7 +314,7 @@ func TestOneOffWriteFC5(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - miss from & port - (2/4)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - miss from & port - (2/4)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			//From:  "web",
@@ -332,8 +332,8 @@ func TestOneOffWriteFC5(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -365,8 +365,8 @@ func TestOneOffWriteFC5(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -391,7 +391,7 @@ func TestOneOffWriteFC5(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - valid value(0) - (3/4)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - valid value(0) - (3/4)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -409,8 +409,8 @@ func TestOneOffWriteFC5(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -442,8 +442,8 @@ func TestOneOffWriteFC5(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -468,7 +468,7 @@ func TestOneOffWriteFC5(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - valid value(1) - (4/4)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC5` write bit test: port 502 - valid value(1) - (4/4)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -486,8 +486,8 @@ func TestOneOffWriteFC5(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -519,8 +519,8 @@ func TestOneOffWriteFC5(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -548,7 +548,7 @@ func TestOneOffWriteFC5(t *testing.T) {
 func TestOneOffWriteFC6(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - valid value (22) - (1/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - valid value (22) - (1/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -567,8 +567,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -600,8 +600,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -625,7 +625,7 @@ func TestOneOffWriteFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - miss hex type & port - (2/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - miss hex type & port - (2/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -642,8 +642,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -675,8 +675,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -700,7 +700,7 @@ func TestOneOffWriteFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - invalid value (array) - (3/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - invalid value (array) - (3/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -719,8 +719,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -752,8 +752,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -777,7 +777,7 @@ func TestOneOffWriteFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - invalid hex type - (4/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `DEC` register test: port 502 - invalid hex type - (4/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -796,10 +796,10 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
-		// parse resonse
+		// parse response
 		var r1 psmb.MbtcpSimpleRes
 		if err := json.Unmarshal([]byte(s2), &r1); err != nil {
 			fmt.Println("json err:", err)
@@ -811,7 +811,7 @@ func TestOneOffWriteFC6(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - valid value (ABCD) - (5/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - valid value (ABCD) - (5/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -830,8 +830,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -863,8 +863,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -888,7 +888,7 @@ func TestOneOffWriteFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - miss port (ABCD) - (6/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - miss port (ABCD) - (6/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -906,8 +906,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -939,8 +939,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -964,7 +964,7 @@ func TestOneOffWriteFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid value (ABCD1234) - (7/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid value (ABCD1234) - (7/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -983,8 +983,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1016,8 +1016,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -1041,7 +1041,7 @@ func TestOneOffWriteFC6(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid hex type - (8/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC6` write `HEX` register test: port 502 - invalid hex type - (8/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -1060,8 +1060,8 @@ func TestOneOffWriteFC6(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1081,7 +1081,7 @@ func TestOneOffWriteFC15(t *testing.T) {
 
 	s := sugar.New(t)
 
-	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - invalid json type - (1/5)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - invalid json type - (1/5)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReqStr :=
 			`{
@@ -1101,8 +1101,8 @@ func TestOneOffWriteFC15(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1117,7 +1117,7 @@ func TestOneOffWriteFC15(t *testing.T) {
 
 	})
 
-	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - invalid json type - (2/5)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - invalid json type - (2/5)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReqStr :=
 			`{
@@ -1137,8 +1137,8 @@ func TestOneOffWriteFC15(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1152,7 +1152,7 @@ func TestOneOffWriteFC15(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - invalid value(2) - (3/5)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - invalid value(2) - (3/5)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -1171,8 +1171,8 @@ func TestOneOffWriteFC15(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1204,8 +1204,8 @@ func TestOneOffWriteFC15(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -1226,7 +1226,7 @@ func TestOneOffWriteFC15(t *testing.T) {
 
 		desire := []uint16{1, 0, 1, 0}
 		for idx := 0; idx < len(desire); idx++ {
-			log("desire:%d, result:%d", desire[idx], r3[idx])
+			logf("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
 				return false
 			}
@@ -1234,7 +1234,7 @@ func TestOneOffWriteFC15(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - miss from & port - (4/5)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - miss from & port - (4/5)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			//From:  "web",
@@ -1253,8 +1253,8 @@ func TestOneOffWriteFC15(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1286,8 +1286,8 @@ func TestOneOffWriteFC15(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -1308,7 +1308,7 @@ func TestOneOffWriteFC15(t *testing.T) {
 
 		desire := []uint16{1, 0, 1, 0}
 		for idx := 0; idx < len(desire); idx++ {
-			log("desire:%d, result:%d", desire[idx], r3[idx])
+			logf("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
 				return false
 			}
@@ -1316,7 +1316,7 @@ func TestOneOffWriteFC15(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - valid value(0) - (5/5)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC15` write bit test: port 502 - valid value(0) - (5/5)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -1335,8 +1335,8 @@ func TestOneOffWriteFC15(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1368,8 +1368,8 @@ func TestOneOffWriteFC15(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -1390,7 +1390,7 @@ func TestOneOffWriteFC15(t *testing.T) {
 
 		desire := []uint16{0, 1, 1, 0}
 		for idx := 0; idx < len(desire); idx++ {
-			log("desire:%d, result:%d", desire[idx], r3[idx])
+			logf("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
 				return false
 			}
@@ -1403,7 +1403,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 
 	s := sugar.New(t)
 
-	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - valid value (11,22,33,44) - (1/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - valid value (11,22,33,44) - (1/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -1423,8 +1423,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1456,8 +1456,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -1478,7 +1478,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 
 		desire := []uint16{11, 22, 33, 44}
 		for idx := 0; idx < len(desire); idx++ {
-			log("desire:%d, result:%d", desire[idx], r3[idx])
+			logf("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
 				return false
 			}
@@ -1486,7 +1486,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - miss hex type & port - (2/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - miss hex type & port - (2/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From: "web",
@@ -1506,8 +1506,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1539,8 +1539,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -1561,7 +1561,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 
 		desire := []uint16{11, 22, 33, 44}
 		for idx := 0; idx < len(desire); idx++ {
-			log("desire:%d, result:%d", desire[idx], r3[idx])
+			logf("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
 				return false
 			}
@@ -1569,7 +1569,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - invalid hex type - (3/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - invalid hex type - (3/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -1589,8 +1589,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1604,7 +1604,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - invalid length - (4/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `DEC` register test: port 502 - invalid length - (4/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -1624,8 +1624,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1657,8 +1657,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -1679,7 +1679,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 
 		desire := []uint16{11, 22, 33, 44}
 		for idx := 0; idx < len(desire); idx++ {
-			log("desire:%d, result:%d", desire[idx], r3[idx])
+			logf("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
 				return false
 			}
@@ -1687,7 +1687,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - valid value (ABCD1234) - (5/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - valid value (ABCD1234) - (5/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -1708,8 +1708,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1741,8 +1741,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -1763,7 +1763,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 
 		desire := []uint16{0xABCD, 0x1234}
 		for idx := 0; idx < len(desire); idx++ {
-			log("desire:%d, result:%d", desire[idx], r3[idx])
+			logf("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
 				return false
 			}
@@ -1771,7 +1771,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - miss port (ABCD) - (6/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - miss port (ABCD) - (6/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			//From:  "web",
@@ -1792,8 +1792,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1825,8 +1825,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -1847,7 +1847,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 
 		desire := []uint16{0xABCD, 0x1234}
 		for idx := 0; idx < len(desire); idx++ {
-			log("desire:%d, result:%d", desire[idx], r3[idx])
+			logf("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
 				return false
 			}
@@ -1855,7 +1855,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - invalid hex type (11,22,33,44) - (7/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - invalid hex type (11,22,33,44) - (7/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 
 		writeReq := psmb.MbtcpWriteReq{
@@ -1877,8 +1877,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1893,7 +1893,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 
 	})
 
-	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - invalid length - (8/8)", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.once.write FC16` write `HEX` register test: port 502 - invalid length - (8/8)", func(logf sugar.Log) bool {
 		// ---------------- write part
 		writeReq := psmb.MbtcpWriteReq{
 			From:  "web",
@@ -1914,8 +1914,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(writeReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(writeReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -1948,8 +1948,8 @@ func TestOneOffWriteFC16(t *testing.T) {
 		// receive response
 		s1, s2 = subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var data json.RawMessage // raw []byte
@@ -1970,7 +1970,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 
 		desire := []uint16{0xABCD, 0x1234}
 		for idx := 0; idx < len(desire); idx++ {
-			log("desire:%d, result:%d", desire[idx], r3[idx])
+			logf("desire:%d, result:%d", desire[idx], r3[idx])
 			if r3[idx] != desire[idx] {
 				return false
 			}
@@ -1983,7 +1983,7 @@ func TestOneOffWriteFC16(t *testing.T) {
 func TestOneOffReadFC1(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`FC1` read bits test: port 502 - length 1", func(log sugar.Log) bool {
+	s.Assert("`FC1` read bits test: port 502 - length 1", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2003,8 +2003,8 @@ func TestOneOffReadFC1(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2018,7 +2018,7 @@ func TestOneOffReadFC1(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC1` read bits test: port 502 - length 7", func(log sugar.Log) bool {
+	s.Assert("`FC1` read bits test: port 502 - length 7", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2038,8 +2038,8 @@ func TestOneOffReadFC1(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2053,7 +2053,7 @@ func TestOneOffReadFC1(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC1` read bits test: port 502 - Illegal data address", func(log sugar.Log) bool {
+	s.Assert("`FC1` read bits test: port 502 - Illegal data address", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2062,7 +2062,7 @@ func TestOneOffReadFC1(t *testing.T) {
 			Port:  portNum1,
 			FC:    1,
 			Slave: 1,
-			Addr:  1000,
+			Addr:  20000,
 			Len:   7,
 		}
 
@@ -2073,8 +2073,8 @@ func TestOneOffReadFC1(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2088,7 +2088,7 @@ func TestOneOffReadFC1(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`FC1` read bits test: port 503 - length 7", func(log sugar.Log) bool {
+	s.Assert("`FC1` read bits test: port 503 - length 7", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2108,8 +2108,8 @@ func TestOneOffReadFC1(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2128,7 +2128,7 @@ func TestOneOffReadFC1(t *testing.T) {
 func TestOneOffReadFC2(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`FC2` read bits test: port 502 - length 1", func(log sugar.Log) bool {
+	s.Assert("`FC2` read bits test: port 502 - length 1", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2148,8 +2148,8 @@ func TestOneOffReadFC2(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2163,7 +2163,7 @@ func TestOneOffReadFC2(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC2` read bits test: port 502 - length 7", func(log sugar.Log) bool {
+	s.Assert("`FC2` read bits test: port 502 - length 7", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2183,8 +2183,8 @@ func TestOneOffReadFC2(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2198,7 +2198,7 @@ func TestOneOffReadFC2(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC2` read bits test: port 502 - Illegal data address", func(log sugar.Log) bool {
+	s.Assert("`FC2` read bits test: port 502 - Illegal data address", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2207,7 +2207,7 @@ func TestOneOffReadFC2(t *testing.T) {
 			Port:  portNum1,
 			FC:    2,
 			Slave: 1,
-			Addr:  1000,
+			Addr:  20000,
 			Len:   7,
 		}
 
@@ -2218,13 +2218,13 @@ func TestOneOffReadFC2(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
+			logf(err)
 		}
 		// check response
 		if r2.Status != "ok" {
@@ -2233,7 +2233,7 @@ func TestOneOffReadFC2(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`FC2` read bits test: port 503 - length 7", func(log sugar.Log) bool {
+	s.Assert("`FC2` read bits test: port 503 - length 7", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2253,8 +2253,8 @@ func TestOneOffReadFC2(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2272,7 +2272,7 @@ func TestOneOffReadFC2(t *testing.T) {
 func TestOneOffReadFC3(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`FC3` read bytes Type 1 test: port 502", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 1 test: port 502", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2293,8 +2293,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2308,7 +2308,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 2 test: port 502", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 2 test: port 502", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2329,8 +2329,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2344,7 +2344,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 3 length 4 test: port 502", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 3 length 4 test: port 502", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2366,8 +2366,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2381,7 +2381,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 3 length 7 test: port 502 - invalid length", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 3 length 7 test: port 502 - invalid length", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2403,8 +2403,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2418,7 +2418,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 4 length 4 test: port 502 - Order: AB", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 4 length 4 test: port 502 - Order: AB", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2440,8 +2440,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2455,7 +2455,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 4 length 4 test: port 502 - Order: BA", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 4 length 4 test: port 502 - Order: BA", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2477,8 +2477,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2492,7 +2492,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 4 length 4 test: port 502 - miss order", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 4 length 4 test: port 502 - miss order", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2514,8 +2514,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2529,7 +2529,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 5 length 4 test: port 502 - Order: AB", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 5 length 4 test: port 502 - Order: AB", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2551,8 +2551,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2566,7 +2566,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 5 length 4 test: port 502 - Order: BA", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 5 length 4 test: port 502 - Order: BA", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2588,8 +2588,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2603,7 +2603,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 5 length 4 test: port 502 - miss order", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 5 length 4 test: port 502 - miss order", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2625,8 +2625,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2640,7 +2640,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 6 length 8 test: port 502 - Order: AB", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 6 length 8 test: port 502 - Order: AB", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2662,8 +2662,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2677,7 +2677,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 6 length 8 test: port 502 - Order: BA", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 6 length 8 test: port 502 - Order: BA", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2699,8 +2699,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2714,7 +2714,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 6 length 8 test: port 502 - miss order", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 6 length 8 test: port 502 - miss order", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2736,8 +2736,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2751,7 +2751,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 6 length 7 test: port 502 - invalid length", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 6 length 7 test: port 502 - invalid length", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2773,8 +2773,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2788,7 +2788,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`FC3` read bytes Type 7 length 8 test: port 502 - Order: AB", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 7 length 8 test: port 502 - Order: AB", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2810,8 +2810,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2825,7 +2825,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 7 length 8 test: port 502 - Order: BA", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 7 length 8 test: port 502 - Order: BA", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2847,8 +2847,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2862,7 +2862,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 7 length 8 test: port 502 - miss order", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 7 length 8 test: port 502 - miss order", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2884,8 +2884,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2899,7 +2899,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 7 length 7 test: port 502 - invalid length", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 7 length 7 test: port 502 - invalid length", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2921,8 +2921,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2936,7 +2936,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`FC3` read bytes Type 8 length 8 test: port 502 - order: ABCD", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 8 length 8 test: port 502 - order: ABCD", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2958,8 +2958,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -2973,7 +2973,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 8 length 8 test: port 502 - order: DCBA", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 8 length 8 test: port 502 - order: DCBA", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -2995,8 +2995,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3010,7 +3010,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 8 length 8 test: port 502 - order: BADC", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 8 length 8 test: port 502 - order: BADC", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3032,8 +3032,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3047,7 +3047,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 8 length 8 test: port 502 - order: CDAB", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 8 length 8 test: port 502 - order: CDAB", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3069,8 +3069,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3084,7 +3084,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC3` read bytes Type 8 length 7 test: port 502 - invalid length", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes Type 8 length 7 test: port 502 - invalid length", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3106,8 +3106,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3121,7 +3121,7 @@ func TestOneOffReadFC3(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`FC3` read bytes: port 502 - invalid type", func(log sugar.Log) bool {
+	s.Assert("`FC3` read bytes: port 502 - invalid type", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3143,8 +3143,8 @@ func TestOneOffReadFC3(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3163,7 +3163,7 @@ func TestOneOffReadFC3(t *testing.T) {
 func TestOneOffReadFC4(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`FC4` read bytes Type 1 test: port 502", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 1 test: port 502", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3184,8 +3184,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3199,7 +3199,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 2 test: port 502", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 2 test: port 502", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3220,8 +3220,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3235,7 +3235,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 3 length 4 test: port 502", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 3 length 4 test: port 502", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3257,8 +3257,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3272,7 +3272,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 3 length 7 test: port 502 - invalid length", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 3 length 7 test: port 502 - invalid length", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3294,8 +3294,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3309,7 +3309,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 4 length 4 test: port 502 - Order: AB", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 4 length 4 test: port 502 - Order: AB", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3331,8 +3331,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3346,7 +3346,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 4 length 4 test: port 502 - Order: BA", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 4 length 4 test: port 502 - Order: BA", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3368,8 +3368,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3383,7 +3383,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 4 length 4 test: port 502 - miss order", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 4 length 4 test: port 502 - miss order", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3405,8 +3405,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3420,7 +3420,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 5 length 4 test: port 502 - Order: AB", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 5 length 4 test: port 502 - Order: AB", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3442,8 +3442,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3457,7 +3457,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 5 length 4 test: port 502 - Order: BA", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 5 length 4 test: port 502 - Order: BA", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3479,8 +3479,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3494,7 +3494,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 5 length 4 test: port 502 - miss order", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 5 length 4 test: port 502 - miss order", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3516,8 +3516,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3531,7 +3531,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 6 length 8 test: port 502 - Order: AB", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 6 length 8 test: port 502 - Order: AB", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3553,8 +3553,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3568,7 +3568,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 6 length 8 test: port 502 - Order: BA", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 6 length 8 test: port 502 - Order: BA", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3590,8 +3590,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3605,7 +3605,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 6 length 8 test: port 502 - miss order", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 6 length 8 test: port 502 - miss order", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3627,8 +3627,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3642,7 +3642,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 6 length 7 test: port 502 - invalid length", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 6 length 7 test: port 502 - invalid length", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3664,8 +3664,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3679,7 +3679,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`FC4` read bytes Type 7 length 8 test: port 502 - Order: AB", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 7 length 8 test: port 502 - Order: AB", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3701,8 +3701,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3716,7 +3716,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 7 length 8 test: port 502 - Order: BA", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 7 length 8 test: port 502 - Order: BA", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3738,8 +3738,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3753,7 +3753,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 7 length 8 test: port 502 - miss order", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 7 length 8 test: port 502 - miss order", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3775,8 +3775,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3790,7 +3790,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 7 length 7 test: port 502 - invalid length", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 7 length 7 test: port 502 - invalid length", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3812,8 +3812,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3827,7 +3827,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502 - order: ABCD", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502 - order: ABCD", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3849,8 +3849,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3864,7 +3864,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502 - order: DCBA", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502 - order: DCBA", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3886,8 +3886,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3901,7 +3901,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502 - order: BADC", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502 - order: BADC", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3923,8 +3923,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3938,7 +3938,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502 - order: CDAB", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 8 length 8 test: port 502 - order: CDAB", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3960,8 +3960,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -3975,7 +3975,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`FC4` read bytes Type 8 length 7 test: port 502 - invalid length", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes Type 8 length 7 test: port 502 - invalid length", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -3997,8 +3997,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -4012,7 +4012,7 @@ func TestOneOffReadFC4(t *testing.T) {
 		return false
 	})
 
-	s.Assert("`FC4` read bytes: port 502 - invalid type", func(log sugar.Log) bool {
+	s.Assert("`FC4` read bytes: port 502 - invalid type", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpReadReq{
 			From:  "web",
@@ -4034,8 +4034,8 @@ func TestOneOffReadFC4(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
@@ -4054,7 +4054,7 @@ func TestOneOffReadFC4(t *testing.T) {
 func TestPollRequestSingle(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`mbtcp.poll.create/mbtcp.poll.history/mbtcp.poll.delete FC1` read bits test: port 503 - interval 1", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.poll.create/mbtcp.poll.history/mbtcp.poll.delete FC1` read bits test: port 503 - interval 1", func(logf sugar.Log) bool {
 
 		// send request
 		readReq := psmb.MbtcpPollStatus{
@@ -4080,8 +4080,8 @@ func TestPollRequestSingle(t *testing.T) {
 
 		go longSubscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpSimpleRes
@@ -4130,7 +4130,7 @@ func TestPollRequestSingle(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.poll.create FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.poll.create FC1` read bits test: port 503 - miss name", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From: "web",
@@ -4153,8 +4153,8 @@ func TestPollRequestSingle(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpSimpleRes
@@ -4169,7 +4169,7 @@ func TestPollRequestSingle(t *testing.T) {
 
 	})
 
-	s.Assert("`mbtcp.poll.update/mbtcp.poll.delete FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.poll.update/mbtcp.poll.delete FC1` read bits test: port 503 - miss name", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From:     "web",
@@ -4194,8 +4194,8 @@ func TestPollRequestSingle(t *testing.T) {
 
 		go longSubscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpSimpleRes
@@ -4245,7 +4245,7 @@ func TestPollRequestSingle(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.poll.update/mbtcp.poll.delete FC1` read bits test: port 503 - interval 2", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.poll.update/mbtcp.poll.delete FC1` read bits test: port 503 - interval 2", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From:     "web",
@@ -4270,8 +4270,8 @@ func TestPollRequestSingle(t *testing.T) {
 
 		go longSubscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpSimpleRes
@@ -4321,7 +4321,7 @@ func TestPollRequestSingle(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503 - miss name", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503 - miss name", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From:     "web",
@@ -4346,8 +4346,8 @@ func TestPollRequestSingle(t *testing.T) {
 
 		go longSubscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpSimpleRes
@@ -4396,7 +4396,7 @@ func TestPollRequestSingle(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From:     "web",
@@ -4421,8 +4421,8 @@ func TestPollRequestSingle(t *testing.T) {
 
 		go longSubscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpSimpleRes
@@ -4471,7 +4471,7 @@ func TestPollRequestSingle(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.poll.toggle/mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.poll.toggle/mbtcp.poll.read/mbtcp.poll.delete FC1` read bits test: port 503", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From:     "web",
@@ -4493,8 +4493,8 @@ func TestPollRequestSingle(t *testing.T) {
 
 		// receive response
 		s1, s2 := subscriber()
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpSimpleRes
@@ -4559,7 +4559,7 @@ func TestPollRequestSingle(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.poll.toggle/mbtcp.poll.delete FC1` read bits test: port 503 - enable", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.poll.toggle/mbtcp.poll.delete FC1` read bits test: port 503 - enable", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From:     "web",
@@ -4584,8 +4584,8 @@ func TestPollRequestSingle(t *testing.T) {
 
 		go longSubscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpSimpleRes
@@ -4639,7 +4639,7 @@ func TestPollRequestSingle(t *testing.T) {
 
 func TestPollsRequest(t *testing.T) {
 	s := sugar.New(t)
-	s.Assert("`mbtcp.polls.read FC1` read 2 poll reqeusts", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.polls.read FC1` read 2 poll reqeusts", func(logf sugar.Log) bool {
 
 		// send request
 		readReq1 := psmb.MbtcpPollStatus{
@@ -4660,8 +4660,8 @@ func TestPollsRequest(t *testing.T) {
 		go publisher(cmd, string(readReqStr1))
 		// receive response
 		s1, s2 := subscriber()
-		log("req: %s, %s", cmd, string(readReqStr1))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr1))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r1 psmb.MbtcpSimpleRes
@@ -4692,8 +4692,8 @@ func TestPollsRequest(t *testing.T) {
 		go publisher(cmd, string(readReqStr2))
 		// receive response
 		s3, s4 := subscriber()
-		log("req: %s, %s", cmd, string(readReqStr2))
-		log("res: %s, %s", s3, s4)
+		logf("req: %s, %s", cmd, string(readReqStr2))
+		logf("res: %s, %s", s3, s4)
 
 		// parse resonse
 		var r2 psmb.MbtcpSimpleRes
@@ -4730,7 +4730,7 @@ func TestPollsRequest(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.polls.read/mbtcp.polls.read/mbtcp.polls.delete FC1` read 50 poll requests", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.polls.read/mbtcp.polls.read/mbtcp.polls.delete FC1` read 50 poll requests", func(logf sugar.Log) bool {
 
 		fmt.Println("@@Data:", time.Now().Format("2006-01-02 15:04:05.000"))
 		for idx := 0; idx < 100; idx++ {
@@ -4754,8 +4754,8 @@ func TestPollsRequest(t *testing.T) {
 			// receive response
 			/*
 			   s1, s2 := subscriber()
-			   log("req: %s, %s", cmd, string(readReqStr1))
-			   log("res: %s, %s", s1, s2)
+			   logf("req: %s, %s", cmd, string(readReqStr1))
+			   logf("res: %s, %s", s1, s2)
 			*/
 		}
 		fmt.Println("@@@Data:", time.Now().Format("2006-01-02 15:04:05.000"))
@@ -4798,7 +4798,7 @@ func TestPollsRequest(t *testing.T) {
 		return true
 	})
 
-	s.Assert("`mbtcp.polls.read/mbtcp.polls.read/mbtcp.polls.toggle/mbtcp.polls.delete FC1` read 20 poll requests", func(log sugar.Log) bool {
+	s.Assert("`mbtcp.polls.read/mbtcp.polls.read/mbtcp.polls.toggle/mbtcp.polls.delete FC1` read 20 poll requests", func(logf sugar.Log) bool {
 
 		for idx := 0; idx < 30; idx++ {
 			// send request
@@ -4821,8 +4821,8 @@ func TestPollsRequest(t *testing.T) {
 			// receive response
 			/*
 			   s1, s2 := subscriber()
-			   log("req: %s, %s", cmd, string(readReqStr1))
-			   log("res: %s, %s", s1, s2)
+			   logf("req: %s, %s", cmd, string(readReqStr1))
+			   logf("res: %s, %s", s1, s2)
 			*/
 		}
 		fmt.Println("@@@Data:", time.Now().Format("2006-01-02 15:04:05.000"))
@@ -4867,11 +4867,11 @@ func TestPollsRequest(t *testing.T) {
 	})
 
 	/*
-	   s.Assert("`mbtcp.polls.delete FC1` read bits test: port 503", func(log sugar.Log) bool {
+	   s.Assert("`mbtcp.polls.delete FC1` read bits test: port 503", func(logf sugar.Log) bool {
 
 	   })
 
-	   s.Assert("`mbtcp.polls.toggle FC1` read bits test: port 503", func(log sugar.Log) bool {
+	   s.Assert("`mbtcp.polls.toggle FC1` read bits test: port 503", func(logf sugar.Log) bool {
 
 	   })
 	*/
@@ -4883,7 +4883,7 @@ func TestPSMB(t *testing.T) {
 
 	s.Title("Poll request tests")
 
-	s.Assert("mbtcp.poll.create `FC3` read bytes Type 1 test: port 502", func(log sugar.Log) bool {
+	s.Assert("mbtcp.poll.create `FC3` read bytes Type 1 test: port 502", func(logf sugar.Log) bool {
 		// send request
 		readReq := psmb.MbtcpPollStatus{
 			From:     "web",
@@ -4907,8 +4907,8 @@ func TestPSMB(t *testing.T) {
 		// receive response
 		s1, s2 := subscriber()
 
-		log("req: %s, %s", cmd, string(readReqStr))
-		log("res: %s, %s", s1, s2)
+		logf("req: %s, %s", cmd, string(readReqStr))
+		logf("res: %s, %s", s1, s2)
 
 		// parse resonse
 		var r2 psmb.MbtcpSimpleRes

@@ -485,7 +485,7 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 				uint16ArrData, err = DecimalStringToRegisters(stringData)
 			}
 			if err != nil {
-				return nil, err
+				return req.Tid, err // for tid
 			}
 			req.Data = uint16ArrData[0] // retrieve only one register
 			return req, nil
@@ -502,7 +502,7 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 				uint16ArrData, err = DecimalStringToRegisters(stringData)
 			}
 			if err != nil {
-				return nil, err
+				return req.Tid, err // for tid
 			}
 			req.Data = uint16ArrData
 			return req, nil
@@ -1580,7 +1580,7 @@ func (w worker) process(j job) {
 	switch j.source {
 	case Upstream:
 		// parse request
-		if req, err := w.service.ParseRequest(j.msg); req != nil {
+		if req, err := w.service.ParseRequest(j.msg); err == nil {
 			// handle request
 			err := w.service.HandleRequest(j.msg[0], req)
 			if err != nil {
@@ -1596,7 +1596,13 @@ func (w worker) process(j job) {
 				"err": err,
 			}).Error("Fail to parse request")
 			// send error back
-			w.service.naiveResponder(j.msg[0], MbtcpSimpleRes{Status: err.Error()})
+			if req != nil {
+				// for FC6, FC16 of mbOnceWrite
+				w.service.naiveResponder(j.msg[0], MbtcpSimpleRes{Tid: req.(int64), Status: err.Error()})
+			} else {
+				w.service.naiveResponder(j.msg[0], MbtcpSimpleRes{Status: err.Error()})
+			}
+
 		}
 	default: // Downstream
 		// parse response

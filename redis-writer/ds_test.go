@@ -19,10 +19,10 @@ func init() {
 func TestWriterMap(t *testing.T) {
 	s := sugar.New(t)
 
-	s.Assert("`add` task to map", func(log sugar.Log) bool {
+	s.Assert("`add` task to map", func(logf sugar.Log) bool {
 		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
 
-		log(err)
+		logf(err)
 		if err != nil {
 			return false
 		}
@@ -35,7 +35,7 @@ func TestWriterMap(t *testing.T) {
 		}
 
 		r1, b1 := writerMap.Get("123456")
-		log("get `123456` from table")
+		logf("get `123456` from table")
 		if !b1 {
 			return false
 		}
@@ -44,33 +44,33 @@ func TestWriterMap(t *testing.T) {
 		}
 
 		_, b2 := writerMap.Get("1234567")
-		log("get `1234567` from table")
+		logf("get `1234567` from table")
 
 		if b2 {
 			return false
 		}
 
 		writerMap.Delete("123456")
-		log("delete `123456` from table")
+		logf("delete `123456` from table")
 		writerMap.Delete("1234567")
-		log("delete `1234567` from table")
+		logf("delete `1234567` from table")
 
 		_, b3 := writerMap.Get("123456")
-		log("get `123456` from table")
+		logf("get `123456` from table")
 		if b3 {
 			return false
 		}
 		return true
 	})
 
-	s.Assert("Test Redis pool", func(log sugar.Log) bool {
+	s.Assert("Test Redis pool", func(logf sugar.Log) bool {
 		conf.Set(defaultRedisDocker, "hello")
 		setDefaults()
 
 		conf.Set(keyRedisServer, "hello")
 		setDefaults() // set defaults
 		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
-		log(err)
+		logf(err)
 
 		writerMap.Add("123", "123")
 		writerMap.Get("123")
@@ -78,13 +78,13 @@ func TestWriterMap(t *testing.T) {
 		return true
 	})
 
-	s.Assert("Test fail cases", func(log sugar.Log) bool {
+	s.Assert("Test fail cases", func(logf sugar.Log) bool {
 		conf.Set(keyRedisServer, "1.1.1.1")
 		writerMap, err := psmbtcp.WriterDataStoreCreator("Writer")
-		log(err)
+		logf(err)
 		writerMap.Add("10", "10")
 		if _, b := writerMap.Get("10"); b == false {
-			log(b)
+			logf(b)
 		}
 		writerMap.Delete("10")
 		return true

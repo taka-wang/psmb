@@ -7,6 +7,7 @@ COLOR_RED='\e[1;31m';
 
 
 # test command -------------
+sleep 20
 go test -v
 
 if [ $? -eq 0 ]

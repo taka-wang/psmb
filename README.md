@@ -14,9 +14,10 @@ Proactive service library for [modbusd](https://github.com/taka-wang/modbusd)
 
 I do continuous integration and deploy docker images after git push by self-hosted drone.io server, [circleci](https://circleci.com/) service, [codecov](https://codecov.io/) service and [dockerhub]((https://hub.docker.com/r/edgepro/psmb/)) service.
 
-| CI Server| Target    | Status                                                                                                                        |
-|----------|-----------|-------------------------------------------------------------------------------------------------------------------------------|
-| CircleCI | x86       | [![CircleCI](https://circleci.com/gh/taka-wang/psmb.svg?style=shield)](https://circleci.com/gh/taka-wang/psmb)                |
+| CI Server| Target    | Status                                                                                                                 |
+|----------|-----------|------------------------------------------------------------------------------------------------------------------------|
+| CircleCI | x86       | [![CircleCI](https://circleci.com/gh/taka-wang/psmb.svg?style=shield)](https://circleci.com/gh/taka-wang/psmb)         |
+| Travis   | x86       | [![Build Status](https://travis-ci.org/taka-wang/psmb.svg)](https://travis-ci.org/taka-wang/psmb)        |
 | Drone    | armhf     | [![Drone](http://armdrone.cmwang.net/api/badges/taka-wang/psmb/status.svg)](http://armdrone.cmwang.net/taka-wang/psmb) |
 
 ---
