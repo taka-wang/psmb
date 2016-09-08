@@ -48,6 +48,5 @@ const (
 	mbToggleFilters  = "mbtcp.filters.toggle"
 	mbImportFilters  = "mbtcp.filters.import"
 	mbExportFilters  = "mbtcp.filters.export"
-	// Poll data
-	mbData = "mbtcp.data"
+	mbData           = "mbtcp.data" // Poll data
 )

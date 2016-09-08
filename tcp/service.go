@@ -462,20 +462,20 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 		switch MbCmdType(strconv.Itoa(req.FC)) {
 		case fc5: // write single bit; uint16
 			if err := json.Unmarshal(data, &uint16Data); err != nil {
-				return nil, ErrUnmarshal
+				return req.Tid, ErrUnmarshal
 			}
 			req.Data = uint16Data // unmarshal to uint16
 			return req, nil
 		case fc15: // write multiple bits; []uint16
 			if err := json.Unmarshal(data, &uint16ArrData); err != nil {
-				return nil, ErrUnmarshal
+				return req.Tid, ErrUnmarshal
 			}
 			req.Data = uint16ArrData // unmarshal to uint16 array
 			return req, nil
 		case fc6: // write single register in dec|hex
 			err := json.Unmarshal(data, &stringData)
 			if err != nil {
-				return nil, ErrUnmarshal
+				return req.Tid, ErrUnmarshal
 			}
 
 			// check dec or hex
@@ -485,14 +485,14 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 				uint16ArrData, err = DecimalStringToRegisters(stringData)
 			}
 			if err != nil {
-				return req.Tid, err // for tid
+				return req.Tid, err
 			}
 			req.Data = uint16ArrData[0] // retrieve only one register
 			return req, nil
 		case fc16: // write multiple register in dec/hex
 			err := json.Unmarshal(data, &stringData)
 			if err != nil {
-				return nil, ErrUnmarshal
+				return req.Tid, ErrUnmarshal
 			}
 
 			// check dec or hex
@@ -502,7 +502,7 @@ func (b *Service) ParseRequest(msg []string) (interface{}, error) {
 				uint16ArrData, err = DecimalStringToRegisters(stringData)
 			}
 			if err != nil {
-				return req.Tid, err // for tid
+				return req.Tid, err
 			}
 			req.Data = uint16ArrData
 			return req, nil

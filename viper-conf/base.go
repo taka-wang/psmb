@@ -13,6 +13,7 @@ import (
 	"github.com/apex/log/handlers/json"
 	"github.com/apex/log/handlers/text"
 	"github.com/spf13/viper"
+	// remote package for init
 	_ "github.com/spf13/viper/remote"
 )
 

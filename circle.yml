@@ -64,14 +64,14 @@ test:
         # build release image
         - docker build -t edgepro/psmb-srv:x86 --no-cache=true -f release/Dockerfile.x86-pack release/.
         # ci
-        - docker-compose -f docker-compose.circle rm -f -a
+        #- docker-compose -f docker-compose.circle rm -f -a
         #- docker-compose -f docker-compose.circle pull
         - docker-compose -f docker-compose.circle build
         - docker-compose -f docker-compose.circle up --abort-on-container-exit
     post:
         - mv shared/coverage.txt ${CIRCLE_ARTIFACTS}/
         - docker-compose -f docker-compose.circle stop
-        - docker-compose -f docker-compose.circle rm -f -a
+        #- docker-compose -f docker-compose.circle rm -f -a
 
 # publish to dockerhub
 deployment:
