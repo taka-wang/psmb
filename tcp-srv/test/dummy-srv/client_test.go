@@ -2009,7 +2009,7 @@ func TestOneOffReadFC1(t *testing.T) {
 		// parse resonse
 		var r2 psmb.MbtcpReadRes
 		if err := json.Unmarshal([]byte(s2), &r2); err != nil {
-			fmt.Println("json err:", err)
+			logf("json err: %v", err)
 		}
 		// check response
 		if r2.Status != "ok" {

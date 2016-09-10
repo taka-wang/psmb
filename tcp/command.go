@@ -1,6 +1,6 @@
 package tcp
 
-// Upstream & Downstream command tables
+// command table for Downstream services
 
 // MbCmdType defines modbus tcp command type
 type MbCmdType string
@@ -19,34 +19,4 @@ const (
 	setMbTimeout MbCmdType = "50"
 	// getMbTimeout get TCP connection timeout
 	getMbTimeout MbCmdType = "51"
-)
-
-// command table for upstream services
-const (
-	mbOnceRead       = "mbtcp.once.read"
-	mbOnceWrite      = "mbtcp.once.write"
-	mbGetTimeout     = "mbtcp.timeout.read"
-	mbSetTimeout     = "mbtcp.timeout.update"
-	mbCreatePoll     = "mbtcp.poll.create"
-	mbUpdatePoll     = "mbtcp.poll.update"
-	mbGetPoll        = "mbtcp.poll.read"
-	mbDeletePoll     = "mbtcp.poll.delete"
-	mbTogglePoll     = "mbtcp.poll.toggle"
-	mbGetPolls       = "mbtcp.polls.read"
-	mbDeletePolls    = "mbtcp.polls.delete"
-	mbTogglePolls    = "mbtcp.polls.toggle"
-	mbImportPolls    = "mbtcp.polls.import"
-	mbExportPolls    = "mbtcp.polls.export"
-	mbGetPollHistory = "mbtcp.poll.history"
-	mbCreateFilter   = "mbtcp.filter.create"
-	mbUpdateFilter   = "mbtcp.filter.update"
-	mbGetFilter      = "mbtcp.filter.read"
-	mbDeleteFilter   = "mbtcp.filter.delete"
-	mbToggleFilter   = "mbtcp.filter.toggle"
-	mbGetFilters     = "mbtcp.filters.read"
-	mbDeleteFilters  = "mbtcp.filters.delete"
-	mbToggleFilters  = "mbtcp.filters.toggle"
-	mbImportFilters  = "mbtcp.filters.import"
-	mbExportFilters  = "mbtcp.filters.export"
-	mbData           = "mbtcp.data" // Poll data
 )
