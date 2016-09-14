@@ -1,6 +1,6 @@
 # psmb
 
-[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://hub.docker.com/r/edgepro/psmb)
+[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://hub.docker.com/r/edgepro/psmb-srv)
 [![GoDoc](https://godoc.org/github.com/taka-wang/psmb?status.svg)](http://godoc.org/github.com/taka-wang/psmb)
 [![Go Report Card](https://goreportcard.com/badge/github.com/taka-wang/psmb)](https://goreportcard.com/report/github.com/taka-wang/psmb)
 [![codecov](https://codecov.io/gh/taka-wang/psmb/branch/master/graph/badge.svg)](https://codecov.io/gh/taka-wang/psmb)
