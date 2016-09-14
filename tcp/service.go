@@ -432,11 +432,6 @@ func (b *Service) naiveResponder(cmd string, resp interface{}) error {
 // ParseRequest parse requests from services,
 // 	only unmarshal request string to corresponding struct
 func (b *Service) ParseRequest(msg []string) (interface{}, error) {
-	// Check the length of multi-part message
-	if len(msg) != 2 {
-		return nil, ErrInvalidMessageLength
-	}
-
 	//conf.Log.WithField("msg", msg[0]).Debug("Parse request from upstream services")
 
 	switch msg[0] {
@@ -1096,11 +1091,6 @@ func (b *Service) HandleRequest(cmd string, r interface{}) error {
 // ParseResponse parse responses from modbusd,
 // 	only unmarshal response string to corresponding struct
 func (b *Service) ParseResponse(msg []string) (interface{}, error) {
-	// Check the length of multi-part message
-	if len(msg) != 2 {
-		return nil, ErrInvalidMessageLength
-	}
-
 	//conf.Log.WithField("msg", msg[0]).Debug("Parse response from modbusd")
 
 	switch MbCmdType(msg[0]) {
@@ -1534,20 +1524,28 @@ func (b *Service) Start() {
 			case b.sub.upstream:
 				// receive from upstream
 				msg, _ := b.sub.upstream.RecvMessage(0)
+				// Check the length of multi-part message
+				if msg == nil || len(msg) != 2 {
+					conf.Log.WithError(ErrInvalidMessageLength).Warn("Drop incomplete message")
+					return
+				}
 				conf.Log.WithFields(conf.Fields{
 					"cmd": msg[0],
 					"req": msg[1],
 				}).Debug("Recv request")
-
 				b.dispatch(Upstream, msg)
 			case b.sub.downstream:
 				// receive from modbusd
 				msg, _ := b.sub.downstream.RecvMessage(0)
+				// Check the length of multi-part message
+				if msg == nil || len(msg) != 2 {
+					conf.Log.WithError(ErrInvalidMessageLength).Warn("Drop incomplete message")
+					return
+				}
 				conf.Log.WithFields(conf.Fields{
 					"cmd":  msg[0],
 					"resp": msg[1],
 				}).Debug("Recv response")
-
 				b.dispatch(Downstream, msg)
 			}
 		}

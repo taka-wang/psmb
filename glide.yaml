@@ -5,11 +5,9 @@ import:
   - handlers/json
   - handlers/text
 - package: github.com/garyburd/redigo
-  version: ~1.0.0
   subpackages:
   - redis
 - package: github.com/hashicorp/consul
-  version: ~0.7.0-test3
   subpackages:
   - api
 - package: github.com/koding/multiconfig
