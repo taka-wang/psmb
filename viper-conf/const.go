@@ -1,10 +1,7 @@
 package conf
 
 // environment variable names
-const (
-	envConfPSMBTCP     = "CONF_PSMBTCP" // config path
-	envBackendEndpoint = "EP_BACKEND"   // backend endpoint
-)
+const envBackendEndpoint = "EP_BACKEND" // backend endpoint
 
 // config
 const (

@@ -54,15 +54,15 @@ func TestLogger(t *testing.T) {
 	})
 
 	s.Assert("Test Init logger", func(_ sugar.Log) bool {
-		os.Setenv(envConfPSMBTCP, "")
+		os.Setenv("CONF_PSMBTCP", "")
 		os.Setenv(envBackendEndpoint, "")
 		base.initConfig()
-		os.Setenv(envConfPSMBTCP, "a")
+		os.Setenv("CONF_PSMBTCP", "a")
 		base.initConfig()
-		os.Setenv(envConfPSMBTCP, "a")
+		os.Setenv("CONF_PSMBTCP", "a")
 		os.Setenv(envBackendEndpoint, "b")
 		base.initConfig()
-		os.Setenv(envConfPSMBTCP, "a")
+		os.Setenv("CONF_PSMBTCP", "a")
 		os.Setenv(envBackendEndpoint, "")
 		base.initConfig()
 		return true
