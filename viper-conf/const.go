@@ -5,10 +5,9 @@ const envBackendEndpoint = "EP_BACKEND" // backend endpoint
 
 // config
 const (
-	defaultConfigPath  = "/etc/psmbtcp" // environment variable backup
-	defaultBackendName = "consul"       // remote backend name
-	keyConfigName      = "config"       // config file name
-	keyConfigType      = "toml"         // config file extension
+	defaultBackendName = "consul" // remote backend name
+	keyConfigName      = "config" // config file name
+	keyConfigType      = "toml"   // config file extension
 )
 
 // logs

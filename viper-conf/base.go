@@ -18,9 +18,10 @@ import (
 )
 
 var (
-	envconf = "CONF_PSMBTCP" // environment variable for config file name
-	Log     *log.Logger
-	base    vConf // config instance
+	envconf           = "CONF_PSMBTCP" // environment variable for config file name
+	defaultConfigPath = "/etc/psmbtcp" // environment variable backup
+	Log               *log.Logger
+	base              vConf // config instance
 )
 
 type (
